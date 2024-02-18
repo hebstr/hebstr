@@ -9,6 +9,6 @@
 #'
 str_u <- \(...) {
 
-stringr::str_c(unlist(c(...)), collapse = "|")
+  stringr::str_c(unlist(c(...)), collapse = "|")
 
 }
