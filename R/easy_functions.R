@@ -8,9 +8,10 @@
 #'
 #' @examples
 #'
-easy_replace <- \(..., replace) {
+easy_replace <- \(..., replace = "</>") {
 
-  col_replace <- glue::glue("\n\n\n{col_br_red({replace})}\n\n\n")
+  col_replace <- cli::col_br_red(replace)
+  col_replace <- glue::glue("\n\n\n{col_replace}\n\n\n")
 
   str_list <-
   purrr::map(c(...),

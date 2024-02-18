@@ -4,7 +4,7 @@
 \alias{easy_replace}
 \title{Title}
 \usage{
-easy_replace(..., replace)
+easy_replace(..., replace = "</>")
 }
 \arguments{
 \item{...}{A character vector}
