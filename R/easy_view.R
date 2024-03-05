@@ -16,6 +16,7 @@ easy_view <- \(x,
                name = NULL,
                width = 600,
                color_type = FALSE,
+               palette = "viridis",
                focus_na = FALSE,
                ...) {
 
@@ -89,7 +90,7 @@ easy_view <- \(x,
     .view$output |>
       gt::data_color(columns = type,
                      target_columns = gt::everything(),
-                     palette = "viridis")
+                     palette = palette)
 
   }
 

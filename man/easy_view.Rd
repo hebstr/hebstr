@@ -9,6 +9,7 @@ easy_view(
   name = NULL,
   width = 600,
   color_type = FALSE,
+  palette = "viridis",
   focus_na = FALSE,
   ...
 )
