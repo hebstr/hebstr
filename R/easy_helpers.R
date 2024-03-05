@@ -152,11 +152,21 @@ easy_fct <- \(x,
 easy_descript <- \(data,
                    parametric = NULL) {
 
+  cli::cli_h1("easy_descript")
+  cli::cli_text("\n\n")
+
+### DATA -------------------------------------------------------------------------------
+
   nonparametric <-
   data |>
     dplyr::select(c(eval(total), -dplyr::all_of(parametric))) |>
     names() |>
     dplyr::expr()
+
+  ql_vars <-
+  data |>
+    dplyr::select(where(~ !is.numeric(.))) |>
+    names()
 
   qt_stat <- list(min = c("Min" = "{min}"),
                   q1 = c("Q1" = "{p25}"),
@@ -167,13 +177,38 @@ easy_descript <- \(data,
 
   ql_stat <- list(n_pct = c("n (%)" = "{n} ({p})"))
 
+### LIST ------------------------------------------------------------------------------
+
+  descript <-
   dplyr::lst(qt = dplyr::lst(vars = dplyr::lst(total = dplyr::expr(dplyr::where(is.numeric)),
                                                parametric = parametric,
                                                nonparametric = eval(nonparametric)),
-                             stat = qt_stat,
-                             spanner = names(purrr::list_c(stat))),
-             ql = dplyr::lst(vars = dplyr::expr(!dplyr::where(is.numeric)),
-                             stat = ql_stat,
-                             spanner = names(purrr::list_c(stat))))
+                             stat = purrr::list_c(qt_stat)),
+             ql = dplyr::lst(vars = eval(ql_vars),
+                             stat = purrr::list_c(ql_stat)))
+
+  cli_qt_total_length <-
+  data |>
+    dplyr::select(eval(descript$qt$vars$total)) |>
+    length()
+
+  cli_qt_p <- stringr::str_flatten_comma(descript$qt$vars$parametric)
+  cli_qt_np <- stringr::str_flatten_comma(descript$qt$vars$nonparametric)
+  cli_ql <- stringr::str_flatten_comma(descript$ql$vars)
+
+### CLI -------------------------------------------------------------------------------
+
+  cli::cli_alert_info("{.strong {substitute(data)}}: {length(data)} variables")
+  cli::cli_text("\n\n")
+  cli::cli_alert_success("{.strong Quantitative:} {cli_qt_total_length}")
+    cli::cli_li(c("Parametric: {cli_qt_p}",
+                  "Non-parametric: {cli_qt_np}"))
+  cli::cli_text("\n\n")
+  cli::cli_alert_success("{.strong Qualitative:} {length(descript$ql$vars)}")
+    cli::cli_li("{cli_ql}")
+  cli::cli_text("\n\n")
+  cli::cli_rule()
+
+  return(descript)
 
 }
