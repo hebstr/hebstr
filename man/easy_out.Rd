@@ -6,8 +6,8 @@
 \usage{
 easy_out(
   x,
-  dirname = "output",
   filename = NULL,
+  dirname = "output",
   suffix = NULL,
   width = NA,
   height = NULL,

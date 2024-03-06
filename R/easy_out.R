@@ -1,8 +1,8 @@
 #' Title
 #'
 #' @param x
-#' @param dirname
 #' @param filename
+#' @param dirname
 #' @param suffix
 #' @param width
 #' @param height
@@ -16,14 +16,14 @@
 #' @examples
 #'
 easy_out <- \(x,
-            dirname = "output",
-            filename = NULL,
-            suffix = NULL,
-            width = NA,
-            height = NULL,
-            size = NULL,
-            print = NULL,
-            ...) {
+              filename = NULL,
+              dirname = "output",
+              suffix = NULL,
+              width = NA,
+              height = NULL,
+              size = NULL,
+              print = NULL,
+              ...) {
 
   cli::cli_h1("easy_out")
   cli::cli_text("\n\n")
@@ -43,7 +43,17 @@ easy_out <- \(x,
   to_svg <- glue::glue("{path}.svg")
   to_png <- glue::glue("{path}.png")
 
+### TAB -------------------------------------------------------------------------
+
   if (stringr::str_detect(class(x)[1], "tbl")) {
+
+    width <-
+    x[["_options"]] |>
+      filter(parameter == "table_width") |>
+      pull(value) |>
+      unlist() |>
+      str_extract("\\d+") |>
+      as.numeric()
 
     if (class(x)[1] != "gt_tbl") {
 
@@ -57,12 +67,14 @@ easy_out <- \(x,
 
         print(x$`_data` |>
               dplyr::select(dplyr::matches(vars)) |>
+              dplyr::rename(type = 2) |>
               dplyr::distinct())
 
       } else if (!is.null(print)) print(print)
 
     }
 
+    cli::cli_text("\n\n")
     cli::cli_progress_step("Creating HTML file")
 
     gt::gtsave(x, file = to_html)
@@ -73,11 +85,13 @@ easy_out <- \(x,
 
     webshot::webshot(to_html,
                      file = to_png,
-                     vwidth = width + width * 0.0625,
+                     vwidth = width + width / 10,
                      vheight = 1,
                      zoom = 3)
 
     cli::cli_progress_done()
+
+### PLOT -------------------------------------------------------------------------
 
   } else if (ggplot2::is.ggplot(x)) {
 
@@ -103,6 +117,8 @@ easy_out <- \(x,
   }
 
   if (!is.null(print)) print(print)
+
+### CLI --------------------------------------------------------------------------
 
   cli::cli_text("\n\n")
   cli::cli_alert_info("{.strong Destination}")

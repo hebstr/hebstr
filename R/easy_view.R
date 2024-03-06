@@ -88,6 +88,11 @@ easy_view <- \(x,
 
     .view$output <-
     .view$output |>
+      gt::tab_style(style = gt::cell_borders(style = NULL),
+                    locations = list(gt::cells_column_labels(),
+                                     gt::cells_stubhead(),
+                                     gt::cells_stub(),
+                                     gt::cells_body())) |>
       gt::data_color(columns = type,
                      target_columns = gt::everything(),
                      palette = palette)

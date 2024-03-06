@@ -36,3 +36,21 @@ htmltools::tags$span(glue::glue("**{text}**"),
                      style = glue::glue("{color};{bg}"))
 
 }
+
+
+#' Title
+#'
+#' @param x
+#' @param collapse
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+str_acro <- \(acro, collapse = NULL) {
+
+  acro <- stringr::str_c(acro, collapse = collapse)
+  glue::glue("{acro}.")
+
+}
