@@ -48,9 +48,37 @@ htmltools::tags$span(glue::glue("**{text}**"),
 #'
 #' @examples
 #'
-str_acro <- \(acro, collapse = NULL) {
+str_acro <- \(..., collapse = NULL) {
 
-  acro <- stringr::str_c(acro, collapse = collapse)
+  acro <- stringr::str_c(c(...), collapse = collapse)
   glue::glue("{acro}.")
+
+}
+
+
+#' Title
+#'
+#' @param title
+#' @param note
+#' @param acro
+#' @param sub_size
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+str_fig <- \(title,
+             note = "",
+             acro = "",
+             sub_size = 7.5) {
+
+  title <- glue::glue(title)
+  note <- glue::glue(note)
+
+  glue::glue("{title}<br>
+             <span style='font-size:{sub_size}pt'>
+             {note} {acro}.
+             </span>")
 
 }

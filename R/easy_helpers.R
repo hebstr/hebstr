@@ -183,9 +183,11 @@ easy_descript <- \(data,
   dplyr::lst(qt = dplyr::lst(vars = dplyr::lst(total = dplyr::expr(dplyr::where(is.numeric)),
                                                parametric = parametric,
                                                nonparametric = eval(nonparametric)),
-                             stat = purrr::list_c(qt_stat)),
+                             stat = qt_stat,
+                             spanner = names(purrr::list_c(stat))),
              ql = dplyr::lst(vars = eval(ql_vars),
-                             stat = purrr::list_c(ql_stat)))
+                             stat = ql_stat,
+                             spanner = names(purrr::list_c(stat))))
 
   cli_qt_total_length <-
   data |>
