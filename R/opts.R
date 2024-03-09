@@ -1,10 +1,7 @@
 #' Title
 #'
-#' @param suivi_an
-#' @param fdr
 #' @param labs
 #' @param sep
-#' @param sep_space
 #' @param ci
 #' @param pvalue
 #' @param font
@@ -15,51 +12,59 @@
 #'
 #' @examples
 #'
-opts_set <- \(suivi_an = NULL,
-              fdr = NULL,
-              labs = NULL,
-              sep,
-              sep_space = FALSE,
-              ci, pvalue,
-              font, palette) {
+opts_set <- \(labs = NULL,
+              sep = NULL,
+              ci = NULL,
+              pvalue = NULL,
+              font = NULL,
+              palette = NULL) {
 
-  if (!is.null(suivi_an)) {
+  .labs <-
+  list(sex_m = "Masculin", sex_f = "Féminin",
+       yes = "Oui", no = "Non", na = "NA") |>
+    list_modify(!!!labs)
 
-    if (!suivi_an %in% 1:5) {
+  .sep <-
+  list(int = ": ", ext = "; ", conf = "; ") |>
+    list_modify(!!!sep)
 
-    abort("suivi_an doit être un entier compris entre 1 et 5")
+  .ci <-
+  list(lim = "[", label = "95%CI") |>
+    list_modify(!!!ci)
 
-    }
+  switch(.ci$lim,
+         "[" = .lim <- c("[", "]"),
+         "(" = .lim <- c("(", ")"))
 
-    suivi_jr <- suivi_an * 365
+  .ci <-
+  list(label = glue("{.lim[1]}{.ci$label}{.lim[2]}"),
+       data = glue("{.lim[1]}{{conf.low}}{.sep$conf}{{conf.high}}{.lim[2]}"))
 
-  } else suivi_jr <- NULL
+  .pvalue <-
+  lst(format = ~ style_pvalue(., digits = 3),
+      seuil = 0.05) |>
+    list_modify(!!!pvalue)
 
-  sep <- purrr::map(sep, ~ paste(., ""))
+  .font <-
+  list(alpha = "bahnschrift",
+       digit = "ubuntu") |>
+    list_modify(!!!font)
 
-  if (sep_space) sep <- purrr::map(sep, ~ paste("", .))
+  .palette <-
+  list(base = "#999999",
+       cold = c("#E1F6FF", "#0099CC"),
+       warm = c("#f5E3E0", "#BC3C29")) |>
+    list_modify(!!!palette)
 
-  switch(ci$lim,
-         "[" = { ci_low <- "[" ; ci_high <- "]" },
-         "(" = { ci_low <- "(" ; ci_high <- ")" })
+  .opts <-
+  list(set = list(labs = .labs,
+                  sep = .sep,
+                  ci = .ci,
+                  pvalue = .pvalue,
+                  font = .font,
+                  palette = .palette))
 
-  ci <-
-  list(label = paste0(ci_low, ci$label, ci_high),
-       data = paste0(ci_low, "{conf.low}", sep$.ci, " {conf.high}", ci_high))
-
-  if (rlang::is_false(fdr$include)) fdr$output_suffix <- ""
-
-  assign("opts",
-         list(set = c(suivi_an = suivi_an,
-                      suivi_jr = suivi_jr,
-                      fdr = list(fdr),
-                      pvalue = list(pvalue),
-                      labs = list(labs),
-                      sep = list(sep),
-                      ci = list(ci),
-                      font = list(font),
-                      palette = list(palette))),
-         envir = .GlobalEnv)
+  assign("opts", .opts, envir = .GlobalEnv)
 
 }
 

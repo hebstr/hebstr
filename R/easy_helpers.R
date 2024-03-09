@@ -214,3 +214,87 @@ easy_descript <- \(data,
   return(descript)
 
 }
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+pca_var_extract <- \(x) {
+
+dplyr::lst(coord =
+             x |>
+             broom::tidy("rotation") |>
+             tidyr::pivot_wider(names_from = "PC",
+                                names_prefix = "PC",
+                                values_from = "value") |>
+             dplyr::mutate(column = stringr::str_remove_all(column, "hamd"),
+                           .keep = "all"),
+           contrib =
+             coord |>
+               dplyr::mutate(dplyr::across(dplyr::matches("PC"),
+                                           ~ . ^ 2 / sum(. ^ 2))),
+           weight =
+             coord["column"] |>
+               dplyr::mutate(PC1 = contrib$PC1 / max(contrib$PC1)) |>
+               pull(PC1))
+
+}
+
+
+#' Title
+#'
+#' @param data
+#' @param times
+#' @param method
+#' @param fit
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+easy_boot <- \(data,
+               times = 1000,
+               method,
+               fit,
+               ...) {
+
+  .f <- \(.) {
+
+    do.call(method,
+            list(parsnip::fit,
+                 rsample::analysis(.),
+                 ...))
+
+  }
+
+  boot <-
+  data |>
+    rsample::bootstraps(times = times,
+                        apparent = TRUE) |>
+    dplyr::mutate(model = purrr::map(splits, .f))
+
+  boot <-
+  list(estim_data = tidy,
+       fitted = augment) |>
+    map(~ boot |>
+          dplyr::mutate(coef = purrr::map(model, .)))
+
+  boot <-
+  list(estimate =
+         list(data = boot$estim_data,
+              int = boot$estim_data |> int_pctl(coef)),
+       fitted = boot$fitted)
+
+  assign("boot", boot, env = .GlobalEnv)
+
+  print(boot$estim$int)
+
+}

@@ -8,7 +8,6 @@
 #' @param height
 #' @param size
 #' @param print
-#' @param ...
 #'
 #' @return
 #' @export
@@ -22,8 +21,7 @@ easy_out <- \(x,
               width = NA,
               height = NULL,
               size = NULL,
-              print = NULL,
-              ...) {
+              print = NULL) {
 
   cli::cli_h1("easy_out")
   cli::cli_text("\n\n")
@@ -67,7 +65,8 @@ easy_out <- \(x,
 
         print(x$`_data` |>
               dplyr::select(dplyr::matches(vars)) |>
-              dplyr::rename(type = 2) |>
+              dplyr::rename_with(~ stringr::str_remove(., "_1")) |>
+              dplyr::relocate(var_type, .after = variable) |>
               dplyr::distinct())
 
       } else if (!is.null(print)) print(print)
@@ -101,16 +100,14 @@ easy_out <- \(x,
                            to_svg,
                            grDevices::svg,
                            height = size[1],
-                           width = size[2],
-                           ...) |>
+                           width = size[2]) |>
       utils::browseURL()
 
     cli::cli_progress_step("Capturing SVG file to PNG")
 
     ggplot2::ggsave(to_png,
                     height = size[1],
-                    width = size[2],
-                    ...)
+                    width = size[2])
 
     cli::cli_progress_done()
 
@@ -128,5 +125,28 @@ easy_out <- \(x,
     cli::cli_end()
   cli::cli_text("\n\n")
   cli::cli_rule()
+
+}
+
+
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+easy_out_map <- \(data,
+                  filename = NULL,
+                  suffix = seq(data),
+                  size = NULL) {
+
+  if (is.null(filename)) filename <- rlang::enexpr(data)
+
+  purrr::map2(.x = data,
+              .y = suffix,
+              ~ easy_out(.x,
+                         filename = glue("{filename}.{.y}"),
+                         size = size))
 
 }

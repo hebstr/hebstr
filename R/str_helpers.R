@@ -58,6 +58,58 @@ str_acro <- \(..., collapse = NULL) {
 
 #' Title
 #'
+#' @param x
+#' @param acro_list
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+acro_extract <- \(x, acro_list) {
+
+  .str <- stringr::str_c(names(acro_list), collapse = "\\b|\\b")
+
+  x |>
+    stringr::str_extract(glue::glue("\\b{.str}\\b")) |>
+    na.omit() |>
+    unique()
+
+}
+
+
+#' Title
+#'
+#' @param x
+#' @param vars
+#' @param acro_list
+#' @param sep_ext
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+match_acro <- \(x,
+                vars = names(x),
+                acro_list,
+                sep_ext) {
+
+acro <-
+vars |>
+  map(~ with(x, get(.)) |>
+        labelled::label_attribute()) |>
+  unlist() |>
+  acro_extract(acro_list)
+
+str_acro(with(acro_list, mget(acro)),
+         collapse = sep_ext)
+
+}
+
+
+#' Title
+#'
 #' @param title
 #' @param note
 #' @param acro
@@ -78,7 +130,47 @@ str_fig <- \(title,
 
   glue::glue("{title}<br>
              <span style='font-size:{sub_size}pt'>
-             {note} {acro}.
+             {note} {acro}
              </span>")
+
+}
+
+
+#' Title
+#'
+#' @param data
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+str_label <- \(data, ..., last = "and") {
+
+  c(...) |>
+    map_chr(~ with(data, get(.)) |>
+              labelled::var_label()) |>
+    str_flatten_comma(glue::glue(" {last} "))
+
+}
+
+
+#' Title
+#'
+#' @param .f
+#' @param str
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+str_cap <- \(fun, str) {
+
+  cap <- stringr::str_sub(str, end = 1)
+  call <- do.call(fun, list(cap))
+
+  stringr::str_replace(str, cap, call)
 
 }

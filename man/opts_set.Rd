@@ -5,15 +5,12 @@
 \title{Title}
 \usage{
 opts_set(
-  suivi_an = NULL,
-  fdr = NULL,
   labs = NULL,
-  sep,
-  sep_space = FALSE,
-  ci,
-  pvalue,
-  font,
-  palette
+  sep = NULL,
+  ci = NULL,
+  pvalue = NULL,
+  font = NULL,
+  palette = NULL
 )
 }
 \arguments{

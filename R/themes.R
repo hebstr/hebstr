@@ -1,5 +1,75 @@
 #' Title
 #'
+#' @param x
+#' @param width
+#' @param alpha
+#' @param digit
+#' @param base
+#' @param color
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+theme_gt <- \(x,
+              alpha = "arial",
+              digit = "arial",
+              base = "#333333",
+              color = "lightgrey",
+              bg = "white",
+              ...) {
+
+x |>
+  gt::opt_align_table_header(align = "left") |>
+  gt::opt_table_font(font = alpha) |>
+  gt::tab_options(table.font.size = px(12),
+                  table.font.color = base,
+                  table.background.color = color,
+                  heading.background.color = bg,
+                  heading.title.font.size = pct(95),
+                  heading.border.bottom.style = "none",
+                  table.border.top.style = "none",
+                  table.border.bottom.style = "none",
+                  column_labels.border.top.style = "none",
+                  column_labels.border.bottom.width = px(1),
+                  column_labels.border.bottom.color = base,
+                  column_labels.background.color = bg,
+                  table_body.border.top.width = px(1),
+                  table_body.border.top.color = base,
+                  table_body.border.bottom.width = px(1),
+                  table_body.border.bottom.color = base,
+                  table.border.bottom.width = px(1),
+                  table.border.bottom.color = base,
+                  table_body.hlines.style = "none",
+                  container.padding.x = px(10),
+                  heading.padding = px(10),
+                  data_row.padding = px(3),
+                  data_row.padding.horizontal = px(5),
+                  row.striping.include_table_body = TRUE,
+                  row.striping.background_color = bg,
+                  footnotes.marks = "standard",
+                  footnotes.background.color = bg,
+                  footnotes.padding = px(1),
+                  footnotes.font.size = pct(80),
+                  ...) |>
+  tab_style(style = cell_text(align = "justify"),
+            locations = list(cells_title(),
+                             cells_footnotes())) |>
+  tab_style(style = cell_text(size = px(11)),
+            locations = cells_body(columns = grep("p.v", names(x[[1]])))) |>
+  tab_style(style = cell_text(font = digit),
+            locations = cells_body(columns =
+                                     map(c("stat", "p.v", "estim"),
+                                         ~ grep(., names(x[[1]]))) |>
+                                     unlist()))
+
+}
+
+
+#' Title
+#'
 #' @param font
 #' @param bg
 #' @param ...
@@ -22,19 +92,115 @@ theme_bar <- \(font = "arial",
 
   } else bg <- NULL
 
-  ggplot2::theme(legend.position = "none",
-                 plot.caption = ggtext::element_textbox(size = 9,
+  ggplot2::theme(plot.caption = ggtext::element_textbox(size = 9,
                                                         hjust = 1,
                                                         lineheight = 1.05,
                                                         width = ggplot2::unit(1, "npc"),
                                                         margin = ggplot2::margin(10, 0, 0, 0)),
-                 plot.caption.position = "plot",
                  axis.title = ggplot2::element_text(size = 9,
                                                     face = "bold"),
                  axis.title.x = ggplot2::element_text(vjust = 0.5),
                  text = ggplot2::element_text(family = font),
+                 plot.caption.position = "plot",
+                 legend.position = "none",
                  ...) %+replace%
                    rlang::inject(ggplot2::theme(!!!bg))
 
 }
 
+
+#' Title
+#'
+#' @param font
+#' @param size
+#' @param margin
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+theme_tte <- \(font = "arial",
+               size = 9,
+               margin = ggplot2::margin(0, 0, 0, 0),
+               ...) {
+
+  ggplot2::theme_classic() %+replace%
+    ggplot2::theme(line = ggplot2::element_line(linewidth = 0.3),
+                  text = ggplot2::element_text(family = font),
+                  axis.title = ggplot2::element_text(face = "bold",
+                                                     size = 8),
+                  axis.title.x = ggplot2::element_text(vjust = -1),
+                  axis.title.y.left = ggplot2::element_text(vjust = 1),
+                  axis.text = ggplot2::element_text(size = 8),
+                  panel.background = ggplot2::element_blank(),
+                  plot.background = ggplot2::element_blank(),
+                  plot.margin = ggplot2::margin(0, 0, 0, 0),
+                  plot.caption = ggtext::element_textbox(size = size,
+                                                         width = ggplot2::unit(1, "npc"),
+                                                         margin = margin),
+                  plot.caption.position = "plot",
+                  legend.position = "none",
+                  ...)
+
+}
+
+
+#' Title
+#'
+#' @param font
+#' @param table_margin
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+theme_risktable <- \(font = "arial",
+                     table_margin = ggplot2::margin(0, 0, 0, 0),
+                     ...) {
+
+  list(ggsurvfit::theme_risktable_default(),
+       ggplot2::theme(text = ggplot2::element_text(family = font),
+             plot.title = ggplot2::element_text(size = 7.5,
+                                                face = "bold",
+                                                margin = ggplot2::margin(0, 0, 0, 0)),
+             panel.background = ggplot2::element_blank(),
+             plot.background = ggplot2::element_blank(),
+             axis.text.y = ggplot2::element_text(size = 7),
+             plot.margin = table_margin,
+             plot.title.position = "plot",
+             ...))
+
+}
+
+
+#' Title
+#'
+#' @param font
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+theme_pca <- \(font = "arial",
+               ...) {
+
+ggplot2::theme(text = ggplot2::element_text(family = font),
+               legend.position = "none",
+               plot.caption = ggtext::element_textbox(size = 9,
+                                                      hjust = 1,
+                                                      lineheight = 1.05,
+                                                      width = ggplot2::unit(1, "npc"),
+                                                      margin = ggplot2::margin(10, 0, 0, 0)),
+               panel.background = ggplot2::element_blank(),
+               axis.text = ggplot2::element_blank(),
+               axis.title = ggplot2::element_blank(),
+               axis.ticks = ggplot2::element_blank(),
+               plot.caption.position = "plot",
+               ...)
+
+}

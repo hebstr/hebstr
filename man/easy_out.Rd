@@ -12,12 +12,11 @@ easy_out(
   width = NA,
   height = NULL,
   size = NULL,
-  print = NULL,
-  ...
+  print = NULL
 )
 }
 \arguments{
-\item{...}{}
+\item{print}{}
 }
 \description{
 Title
