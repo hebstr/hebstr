@@ -1,70 +1,68 @@
 #' Title
 #'
-#' @param labs
-#' @param sep
-#' @param ci
-#' @param pvalue
-#' @param font
-#' @param palette
+#' @param ...
 #'
 #' @return
 #' @export
 #'
 #' @examples
 #'
-opts_set <- \(labs = NULL,
-              sep = NULL,
-              ci = NULL,
-              pvalue = NULL,
-              font = NULL,
-              palette = NULL) {
+opts_set <- \(...) {
 
-  .labs <-
-  list(sex_m = "Masculin", sex_f = "Féminin",
-       yes = "Oui", no = "Non", na = "NA") |>
-    list_modify(!!!labs)
+  dots <- list(...)
 
-  .sep <-
-  list(int = ": ", ext = "; ", conf = "; ") |>
-    list_modify(!!!sep)
+  .set <-
+  list(labs = list(sex_m = "Masculin",
+                   sex_f = "Féminin",
+                   yes = "Oui",
+                   no = "Non",
+                   na = "NA"),
+       sep = list(int = ": ",
+                  ext = "; ",
+                  conf = "; "),
+       ci = list(lim = "[",
+                 label = "95%CI",
+                 cols = c("conf.low", "conf.high")),
+       pvalue = list(format = ~ style_pvalue(., digits = 3),
+                     seuil = 0.05),
+       font = list(alpha = "bahnschrift",
+                   digit = "ubuntu"),
+       palette = list(base = "#999999",
+                      cold = c("#E1F6FF", "#0099CC"),
+                      warm = c("#f5E3E0", "#BC3C29")))
 
-  .ci <-
-  list(lim = "[", label = "95%CI") |>
-    list_modify(!!!ci)
+  switch(.set$ci$lim,
+       "[" = .lim <- c("[", "]"),
+       "(" = .lim <- c("(", ")"))
 
-  switch(.ci$lim,
-         "[" = .lim <- c("[", "]"),
-         "(" = .lim <- c("(", ")"))
+  .set$ci <-
+  list(label = glue::glue("{.lim[1]}{.set$ci$label}{.lim[2]}"),
+       data = glue::glue("{.lim[1]}{{{.set$ci$cols[1]}}}{.set$sep$conf}{{{.set$ci$cols[2]}}}{.lim[2]}"))
 
-  .ci <-
-  list(label = glue("{.lim[1]}{.ci$label}{.lim[2]}"),
-       data = glue("{.lim[1]}{{conf.low}}{.sep$conf}{{conf.high}}{.lim[2]}"))
+  assign("opts",
+         list(set = purrr::list_modify(.set, !!!dots)),
+         envir = .GlobalEnv)
 
-  .pvalue <-
-  lst(format = ~ style_pvalue(., digits = 3),
-      seuil = 0.05) |>
-    list_modify(!!!pvalue)
+}
 
-  .font <-
-  list(alpha = "bahnschrift",
-       digit = "ubuntu") |>
-    list_modify(!!!font)
 
-  .palette <-
-  list(base = "#999999",
-       cold = c("#E1F6FF", "#0099CC"),
-       warm = c("#f5E3E0", "#BC3C29")) |>
-    list_modify(!!!palette)
+#' Title
+#'
+#' @param ...
+#' @param sep
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+acro <- \(..., sep) {
 
-  .opts <-
-  list(set = list(labs = .labs,
-                  sep = .sep,
-                  ci = .ci,
-                  pvalue = .pvalue,
-                  font = .font,
-                  palette = .palette))
+  e <- rlang::env("~" = \(x, y) glue::glue("{rlang::enexpr(x)}{sep}{y}"))
 
-  assign("opts", .opts, envir = .GlobalEnv)
+  list(...) |>
+    purrr::map(~ eval(rlang::enexpr(.), e)) %>%
+    rlang::set_names(stringr::str_extract(., "\\w+"))
 
 }
 
@@ -80,13 +78,13 @@ opts_set <- \(labs = NULL,
 #'
 opts_finalize <- \(...) {
 
-  opts <- append(opts, list(...))
+  .opts <- append(opts, list(...))
 
   ls_env <- ls(envir = .GlobalEnv)
 
   rm(list = ls_env[str_starts(ls_env, "opts_")],
      envir = .GlobalEnv)
 
-  return(opts)
+  assign("opts", .opts, envir = .GlobalEnv)
 
 }

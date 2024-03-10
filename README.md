@@ -10,7 +10,7 @@ The goal of hebstr is to …
 
 ## Installation
 
-You can install the development version of edstr from
+You can install the development version of hebstr from
 [Codeberg](https://codeberg.org/hebstr/hebstr) like so:
 
 ``` r

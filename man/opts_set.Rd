@@ -4,17 +4,10 @@
 \alias{opts_set}
 \title{Title}
 \usage{
-opts_set(
-  labs = NULL,
-  sep = NULL,
-  ci = NULL,
-  pvalue = NULL,
-  font = NULL,
-  palette = NULL
-)
+opts_set(...)
 }
 \arguments{
-\item{palette}{}
+\item{...}{}
 }
 \description{
 Title

@@ -24,27 +24,6 @@ all_dicho <- \(data, ...) {
 
 #' Title
 #'
-#' @param ...
-#' @param sep
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-acro <- \(..., sep) {
-
-e <- env("~" = \(x, y) glue::glue("{enexpr(x)}{sep}{y}"))
-
-list(...) |>
-  purrr::map(~ eval(rlang::enexpr(.), e)) %>%
-  rlang::set_names(stringr::str_extract(., "\\w+"))
-
-}
-
-
-#' Title
-#'
 #' @param data
 #' @param estim_col
 #' @param ci_col
@@ -103,7 +82,8 @@ easy_relab <- \(data,
                 ref = " — ref: ") {
 
   var <- rlang::enexpr(var)
-  .lab <- "{glue::glue(new_lab)}{ref}{reference_level}"
+
+  .lab <- "{glue::glue(new_lab)}{ref}{tolower(reference_level)}"
 
   data |>
     gtsummary::modify_table_body(
