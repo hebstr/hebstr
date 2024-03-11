@@ -24,46 +24,46 @@ theme_gt <- \(x,
 x |>
   gt::opt_align_table_header(align = "left") |>
   gt::opt_table_font(font = alpha) |>
-  gt::tab_options(table.font.size = px(12),
+  gt::tab_options(table.font.size = gt::px(12),
                   table.font.color = base,
                   table.background.color = color,
                   heading.background.color = bg,
-                  heading.title.font.size = pct(95),
+                  heading.title.font.size = gt::pct(95),
                   heading.border.bottom.style = "none",
                   table.border.top.style = "none",
                   table.border.bottom.style = "none",
                   column_labels.border.top.style = "none",
-                  column_labels.border.bottom.width = px(1),
+                  column_labels.border.bottom.width = gt::px(1),
                   column_labels.border.bottom.color = base,
                   column_labels.background.color = bg,
-                  table_body.border.top.width = px(1),
+                  table_body.border.top.width = gt::px(1),
                   table_body.border.top.color = base,
-                  table_body.border.bottom.width = px(1),
+                  table_body.border.bottom.width = gt::px(1),
                   table_body.border.bottom.color = base,
-                  table.border.bottom.width = px(1),
+                  table.border.bottom.width = gt::px(1),
                   table.border.bottom.color = base,
                   table_body.hlines.style = "none",
-                  container.padding.x = px(10),
-                  heading.padding = px(10),
-                  data_row.padding = px(3),
-                  data_row.padding.horizontal = px(5),
+                  container.padding.x = gt::px(10),
+                  heading.padding = gt::px(10),
+                  data_row.padding = gt::px(3),
+                  data_row.padding.horizontal = gt::px(5),
                   row.striping.include_table_body = TRUE,
                   row.striping.background_color = bg,
                   footnotes.marks = "standard",
                   footnotes.background.color = bg,
-                  footnotes.padding = px(1),
-                  footnotes.font.size = pct(80),
+                  footnotes.padding = gt::px(1),
+                  footnotes.font.size = gt::pct(80),
                   ...) |>
-  tab_style(style = cell_text(align = "justify"),
-            locations = list(cells_title(),
-                             cells_footnotes())) |>
-  tab_style(style = cell_text(size = px(11)),
-            locations = cells_body(columns = grep("p.v", names(x[[1]])))) |>
-  tab_style(style = cell_text(font = digit),
-            locations = cells_body(columns =
-                                     map(c("stat", "p.v", "estim"),
-                                         ~ grep(., names(x[[1]]))) |>
-                                     unlist()))
+  gt::tab_style(style = gt::cell_text(align = "justify"),
+                locations = list(gt::cells_title(),
+                                 gt::cells_footnotes())) |>
+  gt::tab_style(style = gt::cell_text(size = gt::px(11)),
+                locations = gt::cells_body(columns = grep("p.v", names(x[[1]])))) |>
+  gt::tab_style(style = gt::cell_text(font = digit),
+                locations = gt::cells_body(columns =
+                                             purrr::map(c("stat", "p.v", "estim"),
+                                                        ~ grep(., names(x[[1]]))) |>
+                                             unlist()))
 
 }
 

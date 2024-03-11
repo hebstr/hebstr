@@ -47,10 +47,10 @@ easy_out <- \(x,
 
     width <-
     x[["_options"]] |>
-      filter(parameter == "table_width") |>
-      pull(value) |>
+      dplyr::filter(parameter == "table_width") |>
+      dplyr::pull(value) |>
       unlist() |>
-      str_extract("\\d+") |>
+      stringr::str_extract("\\d+") |>
       as.numeric()
 
     if (class(x)[1] != "gt_tbl") {

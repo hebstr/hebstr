@@ -32,8 +32,8 @@ gt_format <- \(x,
   body <-
   names(x$table_body) |>
     stringr::str_extract(".*label") |>
-    na.omit() |>
-    map(~ x$table_body[[.]]) |>
+    stats::na.omit() |>
+    purrr::map(~ x$table_body[[.]]) |>
     unlist()
 
   data_acro <- acro_extract(c(style, body, names(x)), acro$data)
@@ -42,7 +42,7 @@ gt_format <- \(x,
 
   if (!"gt_tbl" %in% class(x)) x <- gtsummary::as_gt(x)
 
-  if (!is.null(width)) x <- x |> gt::tab_options(table.width = px(width))
+  if (!is.null(width)) x <- x |> gt::tab_options(table.width = gt::px(width))
 
   x <- do.call("theme_gt", list(x, ...))
 
@@ -59,7 +59,7 @@ gt_format <- \(x,
       data_acro <- data_acro[data_acro != "N"]
 
       x |>
-        gt::tab_footnote(c(str_c(note),
+        gt::tab_footnote(c(stringr::str_c(note),
                            str_acro(.estim$base,
                                     .estim$ajust,
                                     with(acro$data, mget(data_acro)),
@@ -70,7 +70,7 @@ gt_format <- \(x,
     } else {
 
       x |>
-        gt::tab_footnote(c(str_c(note),
+        gt::tab_footnote(c(stringr::str_c(note),
                            str_acro(with(acro$data, mget(data_acro)),
                                     collapse = acro$sep_ext))) |>
         gt::tab_footnote(vargrp$note,

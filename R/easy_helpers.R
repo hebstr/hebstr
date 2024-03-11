@@ -123,7 +123,7 @@ easy_boot <- \(data,
               int = boot$estim_data |> int_pctl(coef)),
        fitted = boot$fitted)
 
-  assign("boot", boot, env = .GlobalEnv)
+  assign("boot", boot, envir = .GlobalEnv)
 
   print(boot$estim$int)
 
