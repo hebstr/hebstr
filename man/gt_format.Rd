@@ -7,10 +7,12 @@
 gt_format(
   x,
   title,
-  acro = list(data, sep_ext = NULL),
-  note = "",
-  note_p_ajust = "",
-  vargrp = list(label = "", note = ""),
+  label_vargrp = "",
+  note_vargrp = "",
+  note_pvalue = "",
+  note_global = "",
+  acro_list,
+  acro_sep,
   width = NULL,
   slide = FALSE,
   ...

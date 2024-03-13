@@ -2,10 +2,12 @@
 #'
 #' @param x
 #' @param title
-#' @param acro
-#' @param note
-#' @param note_p_ajust
-#' @param vargrp
+#' @param label_vargrp
+#' @param note_vargrp
+#' @param note_pvalue
+#' @param note_global
+#' @param acro_list
+#' @param acro_sep
 #' @param width
 #' @param slide
 #' @param ...
@@ -17,10 +19,12 @@
 #'
 gt_format <- \(x,
                title,
-               acro = list(data, sep_ext = NULL),
-               note = "",
-               note_p_ajust = "",
-               vargrp = list(label = "", note = ""),
+               label_vargrp = "",
+               note_vargrp = "",
+               note_pvalue = "",
+               note_global = "",
+               acro_list,
+               acro_sep,
                width = NULL,
                slide = FALSE,
                ...) {
@@ -36,7 +40,7 @@ gt_format <- \(x,
     purrr::map(~ x$table_body[[.]]) |>
     unlist()
 
-  data_acro <- acro_extract(c(style, body, names(x)), acro$data)
+  .acro <- acro_extract(c(style, body, names(x)), acro_list)
 
 ### WIDTH & THEME -------------------------------------------------------------------
 
@@ -52,30 +56,28 @@ gt_format <- \(x,
 
     x <- x |> gt::tab_header(gt::md(title))
 
-    vars <- names(x[["_data"]])
+    if (TRUE %in% stringr::str_starts(names(x[["_data"]]), "coef")) {
 
-    if (TRUE %in% stringr::str_starts(vars, "coef")) {
-
-      data_acro <- data_acro[data_acro != "N"]
+      .acro <- .acro[.acro != "N"]
 
       x |>
-        gt::tab_footnote(c(stringr::str_c(note),
-                           str_acro(.estim$base,
+        gt::tab_footnote(c(stringr::str_c(note_global),
+                           acro_str(.estim$base,
                                     .estim$ajust,
-                                    with(acro$data, mget(data_acro)),
-                                    collapse = acro$sep_ext))) |>
-        gt::tab_footnote(note_p_ajust,
+                                    with(acro_list, mget(.acro)),
+                                    collapse = acro_sep))) |>
+        gt::tab_footnote(note_pvalue,
                          gt::cells_column_labels(p.value_2))
 
     } else {
 
       x |>
-        gt::tab_footnote(c(stringr::str_c(note),
-                           str_acro(with(acro$data, mget(data_acro)),
-                                    collapse = acro$sep_ext))) |>
-        gt::tab_footnote(vargrp$note,
+        gt::tab_footnote(c(stringr::str_c(note_global),
+                           acro_str(with(acro_list, mget(.acro)),
+                                    collapse = acro_sep))) |>
+        gt::tab_footnote(note_vargrp,
                          gt::cells_body(columns = label,
-                                        rows = variable %in% vargrp$label))
+                                        rows = variable %in% label_vargrp))
 
     }
 

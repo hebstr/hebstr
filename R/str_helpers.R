@@ -9,7 +9,7 @@
 #'
 str_u <- \(...) {
 
-  stringr::str_c(unlist(c(...)), collapse = "|")
+  stringr::str_c(c(...), collapse = "|")
 
 }
 
@@ -29,81 +29,12 @@ str_color <- \(text,
                color = "red",
                bg = "#ffffff00") {
 
-color <- glue::glue("color:{color}")
-bg <- glue::glue("background-color:{bg}")
+  text <- glue::glue("**{text}**")
+  color <- glue::glue("color:{color}")
+  bg <- glue::glue("background-color:{bg}")
+  style <- glue::glue("{color};{bg}")
 
-htmltools::tags$span(glue::glue("**{text}**"),
-                     style = glue::glue("{color};{bg}"))
-
-}
-
-
-#' Title
-#'
-#' @param x
-#' @param collapse
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-str_acro <- \(..., collapse = NULL) {
-
-  acro <- stringr::str_c(c(...), collapse = collapse)
-  glue::glue("{acro}.")
-
-}
-
-
-#' Title
-#'
-#' @param x
-#' @param acro_list
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-acro_extract <- \(x, acro_list) {
-
-  .str <- stringr::str_c(names(acro_list), collapse = "\\b|\\b")
-
-  x |>
-    stringr::str_extract(glue::glue("\\b{.str}\\b")) |>
-    na.omit() |>
-    unique()
-
-}
-
-
-#' Title
-#'
-#' @param x
-#' @param vars
-#' @param acro_list
-#' @param sep_ext
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-match_acro <- \(x,
-                vars = names(x),
-                acro_list,
-                sep_ext) {
-
-acro <-
-vars |>
-  map(~ with(x, get(.)) |>
-        labelled::label_attribute()) |>
-  unlist() |>
-  acro_extract(acro_list)
-
-str_acro(with(acro_list, mget(acro)),
-         collapse = sep_ext)
+  htmltools::tags$span(text, style = style)
 
 }
 
@@ -151,7 +82,7 @@ str_label <- \(data, ..., last = "and") {
   c(...) |>
     map_chr(~ with(data, get(.)) |>
               labelled::var_label()) |>
-    str_flatten_comma(glue::glue(" {last} "))
+    stringr::str_flatten_comma(glue::glue(" {last} "))
 
 }
 

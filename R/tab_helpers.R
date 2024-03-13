@@ -59,7 +59,7 @@ merge_estim_ci <- \(data,
   data |>
     mutate(across(c(all_of(estim_col), all_of(ci_col)),
                   ~ .rnd(. * multi, estim_ci_digit)),
-           "{merge_col}" := glue("{get(estim_col)} ", ci_data))
+           "{merge_col}" := glue::glue("{get(estim_col)} ", ci_data))
 
 }
 

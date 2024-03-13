@@ -49,27 +49,6 @@ opts_set <- \(...) {
 #' Title
 #'
 #' @param ...
-#' @param sep
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-acro <- \(..., sep) {
-
-  e <- rlang::env("~" = \(x, y) glue::glue("{rlang::enexpr(x)}{sep}{y}"))
-
-  list(...) |>
-    purrr::map(~ eval(rlang::enexpr(.), e)) %>%
-    rlang::set_names(stringr::str_extract(., "\\w+"))
-
-}
-
-
-#' Title
-#'
-#' @param ...
 #'
 #' @return
 #' @export
@@ -82,7 +61,7 @@ opts_finalize <- \(...) {
 
   ls_env <- ls(envir = .GlobalEnv)
 
-  rm(list = ls_env[str_starts(ls_env, "opts_")],
+  rm(list = ls_env[stringr::str_starts(ls_env, "opts_")],
      envir = .GlobalEnv)
 
   assign("opts", .opts, envir = .GlobalEnv)
