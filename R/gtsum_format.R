@@ -7,6 +7,7 @@
   .levels <- labelled::var_label(x$inputs$data[[.check_by]])
   .level_np <- "**{level}<br>(n={n}, {gtsummary::style_percent(p, digits = 1)}%)**"
 
+  x <-
   x |>
     gtsummary::add_overall() |>
     gtsummary::modify_table_body(
@@ -18,10 +19,19 @@
     gtsummary::modify_spanning_header(all_of(.by) ~ glue::glue("**{.levels}**")) |>
     gtsummary::modify_header(label ~ .label_header,
                              stat_0 ~ "**Total<br>(N={N})**",
-                             all_of(.by) ~ .level_np,
-                             p.value ~ "**p**") |>
-    gtsummary::modify_footnote(everything() ~ NA) |>
-    gtsummary::bold_p(t = .bold_p)
+                             all_of(.by) ~ .level_np) |>
+    gtsummary::modify_footnote(everything() ~ NA)
+
+  if ("p.value" %in% names(x$table_body)) {
+
+    x <-
+    x |>
+      gtsummary::modify_header(p.value ~ "**p**") |>
+      gtsummary::bold_p(t = .bold_p)
+
+  }
+
+  return(x)
 
 }
 

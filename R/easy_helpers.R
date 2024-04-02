@@ -161,3 +161,28 @@ p_picking <- \(model,
     pull(variable)
 
 }
+
+
+#' Title
+#'
+#' @param x
+#' @param .var
+#' @param .min
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+pct_min <- \(x, .var, .min) {
+
+  .count <-
+  x |>
+    count("{.var}" := get(.var)) |>
+    mutate(p = n/max(n)) |>
+    filter(p > .min)
+
+  df[.var] |>
+    filter(get(.var) %in% .count[[.var]])
+
+}
