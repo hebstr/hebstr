@@ -166,6 +166,43 @@ p_picking <- \(model,
 #' Title
 #'
 #' @param x
+#' @param column
+#' @param digits
+#' @param seuil
+#' @param table
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+p_shortenr <- \(x,
+                column = p.value,
+                digits = 3,
+                seuil = 0.001,
+                table = TRUE) {
+
+  column <- enexpr(column)
+  if (table) inf <- "<" else inf <- "< "
+  if (table) sup <- "" else sup <- "= "
+
+  x |>
+    rowwise() |>
+    mutate(!!column :=
+             if_else(!!column < seuil,
+                     seuil,
+                     round(!!column, digits)),
+           !!column :=
+             if_else(!!column == seuil,
+                     glue(inf, !!column),
+                     glue(sup, !!column)))
+
+}
+
+
+#' Title
+#'
+#' @param x
 #' @param .var
 #' @param .min
 #'
@@ -182,7 +219,7 @@ pct_min <- \(x, .var, .min) {
     mutate(p = n/max(n)) |>
     filter(p > .min)
 
-  df[.var] |>
+  x[.var] |>
     filter(get(.var) %in% .count[[.var]])
 
 }
