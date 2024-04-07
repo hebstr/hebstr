@@ -218,6 +218,6 @@ theme_pca <- \(font = "arial",
 theme_wrap <- \(font = "arial") {
 
   ggplot2::theme(text = element_text(family = font),
-                 plot.caption = element_markdown(size = 11, hjust = 0))
+                 plot.caption = ggtext::element_markdown(size = 11, hjust = 0))
 
 }

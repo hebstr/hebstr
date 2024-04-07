@@ -54,7 +54,7 @@ acro_extract <- \(x, acro_list) {
 acro_str <- \(..., collapse = NULL) {
 
   acro <- stringr::str_c(c(...), collapse = collapse)
-  glue::glue("{acro}.")
+  glue::glue("{acro}")
 
 }
 
