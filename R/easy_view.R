@@ -6,6 +6,9 @@
 #' @param color_type
 #' @param focus_na
 #' @param ...
+#' @param font_size
+#' @param font_familiy
+#' @param palette
 #'
 #' @return
 #' @export
@@ -15,6 +18,8 @@
 easy_view <- \(x,
                name = NULL,
                width = 600,
+               font_size = 12,
+               font_family = "arial",
                color_type = FALSE,
                palette = "viridis",
                focus_na = FALSE,
@@ -80,9 +85,10 @@ easy_view <- \(x,
                gt::sub_missing(missing_text = "") |>
                gt::tab_options(data_row.padding = 2,
                                table.width = gt::px(width),
-                               table.font.size = gt::px(12)) |>
+                               table.font.size = gt::px(font_size)) |>
                gt::tab_style(style = gt::cell_text(weight = "bold"),
-                             locations = gt::cells_column_labels()))
+                             locations = gt::cells_column_labels()) |>
+               gt::opt_table_font(font = font_family))
 
   if (color_type) {
 

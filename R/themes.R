@@ -189,18 +189,35 @@ theme_risktable <- \(font = "arial",
 theme_pca <- \(font = "arial",
                ...) {
 
-ggplot2::theme(text = ggplot2::element_text(family = font),
-               legend.position = "none",
-               plot.caption = ggtext::element_textbox(size = 9,
-                                                      hjust = 1,
-                                                      lineheight = 1.05,
-                                                      width = ggplot2::unit(1, "npc"),
-                                                      margin = ggplot2::margin(10, 0, 0, 0)),
-               panel.background = ggplot2::element_blank(),
-               axis.text = ggplot2::element_blank(),
-               axis.title = ggplot2::element_blank(),
-               axis.ticks = ggplot2::element_blank(),
-               plot.caption.position = "plot",
-               ...)
+  ggplot2::theme(text = ggplot2::element_text(family = font),
+                 legend.position = "none",
+                 plot.caption = ggtext::element_textbox(size = 9,
+                                                        hjust = 1,
+                                                        lineheight = 1.05,
+                                                        width = ggplot2::unit(1, "npc"),
+                                                        margin = ggplot2::margin(10, 0, 0, 0)),
+                 panel.background = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_blank(),
+                 axis.title = ggplot2::element_blank(),
+                 axis.ticks = ggplot2::element_blank(),
+                 plot.caption.position = "plot",
+                 ...)
+
+}
+
+
+#' Title
+#'
+#' @param font
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+theme_wrap <- \(font = "arial") {
+
+  ggplot2::theme(text = element_text(family = font),
+                 plot.caption = element_markdown(size = 11, hjust = 0))
 
 }

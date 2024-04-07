@@ -8,6 +8,8 @@ easy_view(
   x,
   name = NULL,
   width = 600,
+  font_size = 12,
+  font_family = "arial",
   color_type = FALSE,
   palette = "viridis",
   focus_na = FALSE,
@@ -15,7 +17,7 @@ easy_view(
 )
 }
 \arguments{
-\item{...}{}
+\item{palette}{}
 }
 \description{
 Title
