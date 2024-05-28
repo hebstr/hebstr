@@ -221,3 +221,43 @@ theme_wrap <- \(font = "arial") {
                  plot.caption = ggtext::element_markdown(size = 11, hjust = 0))
 
 }
+
+
+#' Title
+#'
+#' @param font
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+theme_blank <- \(font = "arial",
+                 ...) {
+
+  .blank <-
+  ggplot2::element_rect(color = "white",
+                        fill = "white")
+
+  .width <- ggplot2::unit(1, "npc")
+
+  ggplot2::theme_void() %+replace%
+    ggplot2::theme(plot.background = .blank,
+                   panel.background = .blank,
+                   plot.margin = ggplot2::margin(0, 5, 5, 5),
+                   plot.title =
+                     ggtext::element_textbox(size = 9,
+                                             width = .width,
+                                             margin = ggplot2::margin(0, 0, 0, 0)),
+                   plot.caption =
+                     ggtext::element_textbox(size = 9,
+                                             hjust = 1,
+                                             lineheight = 1.05,
+                                             width = .width,
+                                             margin = ggplot2::margin(10, 0, 0, 0)),
+                   text = ggplot2::element_text(family = font),
+                   legend.position = "none",
+                   ...)
+
+}

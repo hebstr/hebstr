@@ -107,7 +107,8 @@ easy_out <- \(x,
 
     ggplot2::ggsave(to_png,
                     height = size[1],
-                    width = size[2])
+                    width = size[2],
+                    dpi = 500)
 
     cli::cli_progress_done()
 
