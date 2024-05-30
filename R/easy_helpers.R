@@ -37,11 +37,19 @@ easy_replace <- \(..., replace = "</>") {
 #'
 easy_recode <- \(...) {
 
-  name_label <- list(...)
+  dots <- list(...)
 
-  cols <-
-  list(name = purrr::map(name_label, ~ .[1]),
-       label = purrr::map(name_label, ~ .[2]))
+  list(name =
+         purrr::map(dots, ~ unname(.[1])) |>
+           purrr::list_flatten() |>
+           unlist(),
+       label =
+         purrr::map(dots, ~ unname(.[2])) |>
+           purrr::list_flatten() |>
+           unlist(),
+       levels =
+         purrr::map(dots, ~ unname(.[3])) |>
+           purrr::list_flatten())
 
 }
 
