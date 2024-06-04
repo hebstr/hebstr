@@ -1,3 +1,23 @@
+is_font_installed <- \(...) {
+
+  font <- str_cap(toupper, c(...))
+
+  is_installed <- font %in% systemfonts::system_fonts()$family
+
+  if (FALSE %in% is_installed) {
+
+    which_font <-
+    data.frame(font, is_installed) |>
+      filter(!is_installed) |>
+      pull(font)
+
+    cli::cli_abort("{which_font} {?is/are} not installed")
+
+  }
+
+}
+
+
 #' Title
 #'
 #' @param ...
@@ -25,15 +45,15 @@ opts_set <- \(...) {
                  cols = c("conf.low", "conf.high")),
        pvalue = list(format = ~ style_pvalue(., digits = 3),
                      seuil = 0.05),
-       font = list(alpha = "bahnschrift",
-                   digit = "ubuntu"),
+       font = list(alpha = "luciole",
+                   digit = "luciole"),
        palette = list(base = "#999999",
                       cold = c("#E1F6FF", "#0099CC"),
                       warm = c("#f5E3E0", "#BC3C29")))
 
   switch(.set$ci$lim,
-       "[" = .lim <- c("[", "]"),
-       "(" = .lim <- c("(", ")"))
+         "[" = .lim <- c("[", "]"),
+         "(" = .lim <- c("(", ")"))
 
   .set$ci <-
   list(label = glue::glue("{.lim[1]}{.set$ci$label}{.lim[2]}"),
@@ -42,6 +62,8 @@ opts_set <- \(...) {
   assign("opts",
          list(set = purrr::list_modify(.set, !!!dots)),
          envir = .GlobalEnv)
+
+  is_font_installed(opts$set$font)
 
 }
 

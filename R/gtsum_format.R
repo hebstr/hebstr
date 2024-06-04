@@ -4,8 +4,12 @@
              .bold_p) {
 
   .by <- x$df_by$by_col
+
   .levels <- labelled::var_label(x$inputs$data[[.check_by]])
-  .level_np <- "**{level}<br>(n={n}, {gtsummary::style_percent(p, digits = 1)}%)**"
+
+  .level_np <-
+  "**{level}<br>(n={format({n}, big.mark = ' ')},
+  {gtsummary::style_percent(p, digits = 1)}%)**"
 
   x <-
   x |>
@@ -18,7 +22,7 @@
     ) |>
     gtsummary::modify_spanning_header(all_of(.by) ~ glue::glue("**{.levels}**")) |>
     gtsummary::modify_header(label ~ .label_header,
-                             stat_0 ~ "**Total<br>(N={N})**",
+                             stat_0 ~ "**Total<br>(N={format({N}, big.mark = ' ')})**",
                              all_of(.by) ~ .level_np) |>
     gtsummary::modify_footnote(everything() ~ NA)
 

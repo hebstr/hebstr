@@ -24,7 +24,7 @@ theme_gt <- \(x,
 x |>
   gt::opt_align_table_header(align = "left") |>
   gt::opt_table_font(font = alpha) |>
-  gt::tab_options(table.font.size = gt::px(12),
+  gt::tab_options(table.font.size = gt::px(10),
                   table.font.color = base,
                   table.background.color = color,
                   heading.background.color = bg,

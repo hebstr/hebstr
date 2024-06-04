@@ -2,7 +2,7 @@
 #'
 #' @param x
 #' @param filename
-#' @param dirname
+#' @param dir
 #' @param suffix
 #' @param width
 #' @param height
@@ -16,7 +16,7 @@
 #'
 easy_out <- \(x,
               filename = NULL,
-              dirname = "output",
+              dir = "output",
               suffix = NULL,
               width = NA,
               height = NULL,
@@ -32,11 +32,11 @@ easy_out <- \(x,
 
   if (is.null(filename)) filename <- rlang::enexpr(x)
 
-  if (!dir.exists(dirname)) dir.create(path = dirname)
+  if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
 
   if (!is.null(suffix)) filename <- glue::glue("{filename}_{suffix}")
 
-  path <- glue::glue("{dirname}/{filename}")
+  path <- glue::glue("{dir}/{filename}")
   to_html <- glue::glue("{path}.html")
   to_svg <- glue::glue("{path}.svg")
   to_png <- glue::glue("{path}.png")
