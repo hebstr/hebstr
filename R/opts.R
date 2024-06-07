@@ -1,4 +1,4 @@
-is_font_installed <- \(...) {
+check_font <- \(...) {
 
   font <- str_cap(toupper, c(...))
 
@@ -9,7 +9,8 @@ is_font_installed <- \(...) {
     which_font <-
     data.frame(font, is_installed) |>
       filter(!is_installed) |>
-      pull(font)
+      pull(font) |>
+      unique()
 
     cli::cli_abort("{which_font} {?is/are} not installed")
 
@@ -59,11 +60,13 @@ opts_set <- \(...) {
   list(label = glue::glue("{.lim[1]}{.set$ci$label}{.lim[2]}"),
        data = glue::glue("{.lim[1]}{{{.set$ci$cols[1]}}}{.set$sep$conf}{{{.set$ci$cols[2]}}}{.lim[2]}"))
 
-  assign("opts",
-         list(set = purrr::list_modify(.set, !!!dots)),
-         envir = .GlobalEnv)
+  .set <- purrr::list_modify(.set, !!!dots)
 
-  is_font_installed(opts$set$font)
+  check_font(.set$font)
+
+  assign("opts",
+         list(set = .set),
+         envir = .GlobalEnv)
 
 }
 

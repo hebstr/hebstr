@@ -7,7 +7,7 @@
 easy_out(
   x,
   filename = NULL,
-  dirname = "output",
+  dir = "output",
   suffix = NULL,
   width = NA,
   height = NULL,
