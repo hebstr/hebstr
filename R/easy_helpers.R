@@ -231,3 +231,22 @@ pct_min <- \(x, .var, .min) {
     filter(get(.var) %in% .count[[.var]])
 
 }
+
+
+#' Title
+#'
+#' @param file
+#' @param dir
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+read_png <- \(file, dir = "output") {
+
+  glue::glue("{dir}/{file}.png") |>
+    png::readPNG() |>
+    grid::rasterGrob()
+
+}

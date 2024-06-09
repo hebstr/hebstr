@@ -12,6 +12,7 @@ Imports:
     broom,
     broom.helpers,
     cli,
+    colorspace,
     dplyr,
     forcats,
     ggplot2,
