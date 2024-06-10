@@ -64,6 +64,8 @@ easy_descr <- \(data,
                               stat = ql_stat,
                               spanner = names(purrr::list_c(stat))))
 
+### CLI -------------------------------------------------------------------------------
+
   cli_qt_total_length <-
   data |>
     dplyr::select(eval(descr$qt$vars$total)) |>
@@ -73,8 +75,6 @@ easy_descr <- \(data,
   cli_qt_np <- stringr::str_flatten_comma(descr$qt$vars$nonparametric)
   cli_ql <- stringr::str_flatten_comma(descr$ql$vars)
   cli_bin <- stringr::str_flatten_comma(descr$bin$vars)
-
-### CLI -------------------------------------------------------------------------------
 
   cli::cli_alert_info("{.strong {substitute(data)}}: {length(data)} variables")
   cli::cli_text("\n\n")
