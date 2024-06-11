@@ -265,6 +265,56 @@ theme_blank <- \(font = "arial",
 
 #' Title
 #'
+#' @param font
+#' @param bg
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+theme_infreq <- \(font = "arial",
+                  bg = TRUE,
+                  ...) {
+
+  if (!bg) {
+
+    bg <-
+    list(panel.background = ggplot2::element_blank(),
+         axis.line = ggplot2::element_line(),
+         strip.text = ggplot2::element_blank())
+
+  } else bg <- NULL
+
+    ggplot2::theme(plot.title = ggtext::element_textbox(size = 9,
+                                                        hjust = 0.5,
+                                                        halign = 0.5,
+                                                        margin = ggplot2::margin(0, 0, 8, 0)),
+                   plot.title.position = "plot",
+                   plot.caption = ggtext::element_textbox(size = 9,
+                                                          hjust = 1,
+                                                          lineheight = 1.05,
+                                                          width = ggplot2::unit(1, "npc"),
+                                                          margin = ggplot2::margin(10, 0, 0, 0)),
+                   axis.title = ggplot2::element_blank(),
+                   axis.text.y = element_text(size = 7,
+                                              margin = ggplot2::margin(0, -10, 0, 0)),
+                   text = ggplot2::element_text(family = font),
+                   plot.caption.position = "plot",
+                   legend.position = "none",
+                   panel.background = ggplot2::element_blank(),
+                   axis.line = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
+                   axis.text.x = element_blank(),
+                   ...)
+
+}
+
+
+#' Title
+#'
 #' @param y
 #' @param color
 #' @param ...
