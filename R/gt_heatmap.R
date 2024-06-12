@@ -6,8 +6,9 @@
 #' @param ...
 #' @param title
 #' @param width
-#' @param font
 #' @param digit
+#' @param font
+#' @param color
 #' @param palette
 #' @param arrange
 #'
@@ -15,19 +16,44 @@
 #' @export
 #'
 #' @examples
+#'
 gt_heatmap <- \(data,
                 rowname_col = NULL,
                 groupname_col = NULL,
                 ...,
                 title = NULL,
                 width = NULL,
-                font = "arial",
                 digit = 1,
+                font = "arial",
+                color = TRUE,
                 palette = c("indianred2", "skyblue1"),
                 arrange = FALSE) {
 
+  check_table <-
+  seq(data) |>
+    map(~ data[.] |>
+          as_factor() |>
+          pull() |>
+          levels())
+
+  if (identical(check_table[1], check_table[2])) {
+
+    data <-
+    data |>
+      table() |>
+      as_tibble() |>
+      pivot_wider(names_from = 2,
+                  values_from = n)
+
+    rowname_col <- names(data)[1]
+    digit <- 0
+
+  }
+
   if (!is.null(title)) title <- gt::md(title)
   if (!is.null(width)) width <- gt::px(width)
+
+  if (!color) palette <- c("white", "#444")
 
   if (arrange) {
 

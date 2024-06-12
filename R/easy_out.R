@@ -73,7 +73,6 @@ easy_out <- \(x,
 
     }
 
-    cli::cli_text("\n\n")
     cli::cli_progress_step("Creating HTML file")
 
     gt::gtsave(x, file = to_html)
