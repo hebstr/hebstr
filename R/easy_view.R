@@ -59,7 +59,7 @@ easy_view <- \(x,
        bin =
          set_cols(x,
                   vars = dplyr::where(is.numeric),
-                  fn = length(unique(x[[.]])) == 2,
+                  fn = length(unique(na.omit(x[[.]]))) == 2,
                   name = "bin"))
 
   .view <-

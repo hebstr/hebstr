@@ -18,7 +18,7 @@ easy_descr <- \(data,
 
 ### QT DATA -------------------------------------------------------------------------------
 
-  qt_total <- dplyr::expr(dplyr::where(~ is.numeric(.) & length(unique(.)) != 2))
+  qt_total <- dplyr::expr(dplyr::where(~ is.numeric(.) & length(unique(na.omit(.))) != 2))
 
   nonparametric <-
   data |>
