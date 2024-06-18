@@ -146,7 +146,7 @@ easy_out_map <- \(data,
   purrr::map2(.x = data,
               .y = suffix,
               ~ easy_out(.x,
-                         filename = glue("{filename}.{.y}"),
+                         filename = glue::glue("{filename}.{.y}"),
                          size = size))
 
 }
