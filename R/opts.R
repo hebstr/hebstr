@@ -8,11 +8,11 @@ check_font <- \(...) {
 
     which_font <-
     data.frame(font, is_installed) |>
-      filter(!is_installed) |>
-      pull(font) |>
+      dplyr::filter(!is_installed) |>
+      dplyr::pull(font) |>
       unique()
 
-    cli::cli_abort("{which_font} {?is/are} not installed")
+    cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
 
   }
 
@@ -21,6 +21,7 @@ check_font <- \(...) {
 
 #' Title
 #'
+#' @param fr
 #' @param ...
 #'
 #' @return
@@ -28,15 +29,16 @@ check_font <- \(...) {
 #'
 #' @examples
 #'
-opts_set <- \(...) {
+opts_set <- \(fr = FALSE,
+              ...) {
 
   dots <- list(...)
 
   .set <-
-  list(labs = list(sex_m = "Masculin",
-                   sex_f = "Féminin",
-                   yes = "Oui",
-                   no = "Non",
+  list(labs = list(sex_m = "Men",
+                   sex_f = "Women",
+                   yes = "Yes",
+                   no = "No",
                    na = "NA"),
        sep = list(int = ": ",
                   ext = "; ",
@@ -51,6 +53,21 @@ opts_set <- \(...) {
        palette = list(base = "#999999",
                       cold = c("#E1F6FF", "#0099CC"),
                       warm = c("#f5E3E0", "#BC3C29")))
+
+  if (fr) {
+
+    .set <-
+    purrr::list_modify(.set,
+                       labs = list(sex_m = "Masculin",
+                                   sex_f = "Féminin",
+                                   yes = "Oui",
+                                   no = "Non"),
+                       sep = list(int = " : ",
+                                  ext = " ; ",
+                                  conf = " ; "),
+                       ci = list(label = "IC95%"))
+
+  }
 
   switch(.set$ci$lim,
          "[" = .lim <- c("[", "]"),

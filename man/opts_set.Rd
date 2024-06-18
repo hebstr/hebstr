@@ -4,7 +4,7 @@
 \alias{opts_set}
 \title{Title}
 \usage{
-opts_set(...)
+opts_set(fr = FALSE, ...)
 }
 \arguments{
 \item{...}{}

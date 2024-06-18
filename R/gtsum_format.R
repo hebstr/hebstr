@@ -8,8 +8,7 @@
   .levels <- labelled::var_label(x$inputs$data[[.check_by]])
 
   .level_np <-
-  "**{level}<br>(n={format({n}, big.mark = ' ')},
-  {gtsummary::style_percent(p, digits = 1)}%)**"
+  "**{level}<br>(n={n}, {gtsummary::style_percent(p, digits = 1)}%)**"
 
   x <-
   x |>
@@ -22,7 +21,7 @@
     ) |>
     gtsummary::modify_spanning_header(all_of(.by) ~ glue::glue("**{.levels}**")) |>
     gtsummary::modify_header(label ~ .label_header,
-                             stat_0 ~ "**Total<br>(N={format({N}, big.mark = ' ')})**",
+                             stat_0 ~ "**Total<br>(N={N})**",
                              all_of(.by) ~ .level_np) |>
     gtsummary::modify_footnote(everything() ~ NA)
 
@@ -271,7 +270,7 @@
 #' @examples
 #'
 gtsum_format <- \(x,
-                  label_header = "",
+                  label_header = "**Variable**",
                   label_stat = "",
                   bold_p = "",
                   adj_label = "a",
@@ -283,7 +282,7 @@ gtsum_format <- \(x,
                   ref_no,
                   hide_n = TRUE,
                   vargrp_levels = "",
-                  indent_type = "indent2") {
+                  indent_type = "indent") {
 
   if ("tbl_merge" %in% class(x)) {
 

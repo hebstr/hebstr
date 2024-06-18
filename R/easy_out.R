@@ -64,12 +64,14 @@ easy_out <- \(x,
         vars <- "(variable|var_type|test_name)($|_1)"
 
         print(x$`_data` |>
-              dplyr::select(dplyr::matches(vars)) |>
-              dplyr::rename_with(~ stringr::str_remove(., "_1")) |>
-              dplyr::relocate(var_type, .after = variable) |>
-              dplyr::distinct())
+                dplyr::select(dplyr::matches(vars)) |>
+                dplyr::rename_with(~ stringr::str_remove(., "_1")) |>
+                dplyr::relocate(var_type, .after = variable) |>
+                dplyr::distinct())
 
       } else if (!is.null(print)) print(print)
+
+      cli::cli_text("\n\n")
 
     }
 

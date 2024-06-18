@@ -6,7 +6,7 @@
 \usage{
 gtsum_format(
   x,
-  label_header = "",
+  label_header = "**Variable**",
   label_stat = "",
   bold_p = "",
   adj_label = "a",
@@ -18,7 +18,7 @@ gtsum_format(
   ref_no,
   hide_n = TRUE,
   vargrp_levels = "",
-  indent_type = "indent2"
+  indent_type = "indent"
 )
 }
 \arguments{
