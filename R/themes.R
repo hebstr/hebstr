@@ -1,5 +1,35 @@
 #' Title
 #'
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+check_font <- \(...) {
+
+  font <- stringr::str_to_title(c(...))
+
+  is_installed <- font %in% systemfonts::system_fonts()$family
+
+  if (FALSE %in% is_installed) {
+
+    which_font <-
+    data.frame(font, is_installed) |>
+      dplyr::filter(!is_installed) |>
+      dplyr::pull(font) |>
+      unique()
+
+    cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
+
+  }
+
+}
+
+
+#' Title
+#'
 #' @param x
 #' @param width
 #' @param alpha
@@ -70,8 +100,8 @@ x |>
 
 #' Title
 #'
-#' @param font
-#' @param bg
+#' @param family
+#' @param grid
 #' @param ...
 #'
 #' @return
@@ -79,11 +109,11 @@ x |>
 #'
 #' @examples
 #'
-theme_bar <- \(font = "arial",
-               bg = TRUE,
+theme_bar <- \(family = "arial",
+               grid = TRUE,
                ...) {
 
-  if (!bg) {
+  if (!grid) {
 
     bg <-
     list(panel.background = ggplot2::element_blank(),
@@ -100,7 +130,7 @@ theme_bar <- \(font = "arial",
                  axis.title = ggplot2::element_text(size = 9,
                                                     face = "bold"),
                  axis.title.x = ggplot2::element_text(vjust = 0.5),
-                 text = ggplot2::element_text(family = font),
+                 text = ggplot2::element_text(family = family),
                  plot.caption.position = "plot",
                  legend.position = "none",
                  ...) %+replace%

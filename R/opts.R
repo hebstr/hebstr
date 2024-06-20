@@ -1,24 +1,3 @@
-check_font <- \(...) {
-
-  font <- str_cap(toupper, c(...))
-
-  is_installed <- font %in% systemfonts::system_fonts()$family
-
-  if (FALSE %in% is_installed) {
-
-    which_font <-
-    data.frame(font, is_installed) |>
-      dplyr::filter(!is_installed) |>
-      dplyr::pull(font) |>
-      unique()
-
-    cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
-
-  }
-
-}
-
-
 #' Title
 #'
 #' @param fr

@@ -30,6 +30,7 @@ Imports:
     rlang,
     rsample,
     scales,
+    stats,
     stringr,
     tibble,
     tidyr,
