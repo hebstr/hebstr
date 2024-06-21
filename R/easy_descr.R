@@ -55,7 +55,7 @@ easy_descr <- \(data,
 
   ql_vars <-
   data |>
-    select(where(~ !is.numeric(.))) |>
+    select(where(~ !is.numeric(.) & !is.Date(.))) |>
     names()
 
   ql_stat <-
@@ -66,7 +66,14 @@ easy_descr <- \(data,
 
   bin_vars <-
   data |>
-    select(-eval(qt_vars$total), -all_of(ql_vars)) |>
+    select(-eval(qt_vars$total), -all_of(ql_vars), -where(is.Date)) |>
+    names()
+
+### DATE DATA ---------------------------------------------------------------------------
+
+  date_vars <-
+  data |>
+    select(where(is.Date)) |>
     names()
 
 ### ASSIGN ------------------------------------------------------------------------------
@@ -85,31 +92,37 @@ easy_descr <- \(data,
       bin =
         lst(vars = bin_vars,
             stat = ql_stat,
-            spanner = names(list_c(stat))))
+            spanner = names(list_c(stat))),
+      date =
+        lst(vars = date_vars))
 
 ### CLI -------------------------------------------------------------------------------
 
   cli_qt_total_length <-
   data |>
-    dplyr::select(eval(descr$qt$vars$total)) |>
+    select(eval(descr$qt$vars$total)) |>
     length()
 
   cli_qt_p <- str_flatten_comma(descr$qt$vars$parametric)
   cli_qt_np <- str_flatten_comma(descr$qt$vars$nonparametric)
   cli_ql <- str_flatten_comma(descr$ql$vars)
   cli_bin <- str_flatten_comma(descr$bin$vars)
+  cli_date <- str_flatten_comma(descr$date$vars)
 
   cli_alert_info("{.strong {substitute(data)}}: {length(data)} variables")
   cli_text("\n\n")
-  cli_alert_success("{.strong Quantitative:} {cli_qt_total_length}")
+  cli_alert_success("{.strong Quantitative:} {cli_qt_total_length} variables")
     cli_li(c("Parametric: {cli_qt_p}",
              "Non-parametric: {cli_qt_np}"))
   cli_text("\n\n")
-  cli_alert_success("{.strong Qualitative:} {length(descr$ql$vars)}")
+  cli_alert_success("{.strong Qualitative:} {length(descr$ql$vars)} variables")
     cli_li("{cli_ql}")
   cli_text("\n\n")
-  cli_alert_success("{.strong Binary:} {length(descr$bin$vars)}")
+  cli_alert_success("{.strong Dichotomous:} {length(descr$bin$vars)} variables")
     cli_li("{cli_bin}")
+  cli_text("\n\n")
+  cli_alert_success("{.strong Date:} {length(descr$date$vars)} variables")
+    cli_li("{cli_date}")
   cli_text("\n\n")
   cli_rule()
 
