@@ -9,19 +9,21 @@
 #'
 check_font <- \(...) {
 
-  font <- stringr::str_to_title(c(...))
+  font <- unlist(...)
 
-  is_installed <- font %in% systemfonts::system_fonts()$family
+  sys <- glue("(?i){str_u(system_fonts()$family)}")
+
+  is_installed <- str_detect(font, sys)
 
   if (FALSE %in% is_installed) {
 
     which_font <-
     data.frame(font, is_installed) |>
-      dplyr::filter(!is_installed) |>
-      dplyr::pull(font) |>
+      filter(!is_installed) |>
+      pull(font) |>
       unique()
 
-    cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
+    cli_abort("{which_font} font{?s} {?is/are} not installed")
 
   }
 

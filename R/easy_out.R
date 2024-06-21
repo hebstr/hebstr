@@ -30,52 +30,52 @@ easy_out <- \(x,
 
   if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
 
-  if (is.null(filename)) filename <- rlang::enexpr(x)
+  if (is.null(filename)) filename <- enexpr(x)
 
   if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
 
-  if (!is.null(suffix)) filename <- glue::glue("{filename}_{suffix}")
+  if (!is.null(suffix)) filename <- glue("{filename}_{suffix}")
 
-  path <- glue::glue("{dir}/{filename}")
-  to_html <- glue::glue("{path}.html")
-  to_svg <- glue::glue("{path}.svg")
-  to_png <- glue::glue("{path}.png")
+  path <- glue("{dir}/{filename}")
+  to_html <- glue("{path}.html")
+  to_svg <- glue("{path}.svg")
+  to_png <- glue("{path}.png")
 
 ### TAB -------------------------------------------------------------------------
 
-  if (stringr::str_detect(class(x)[1], "tbl")) {
+  if (str_detect(class(x)[1], "tbl")) {
 
     width <-
     x[["_options"]] |>
-      dplyr::filter(parameter == "table_width") |>
-      dplyr::pull(value) |>
+      filter(parameter == "table_width") |>
+      pull(value) |>
       unlist() |>
-      stringr::str_extract("\\d+") |>
+      str_extract("\\d+") |>
       as.numeric()
 
     if (class(x)[1] != "gt_tbl") {
 
-      x <- gtsummary::as_gt(x)
+      x <- as_gt(x)
 
     } else if (names(x$`_data`)[1] == "variable") {
 
-      if (!stringr::str_detect(x$`_data`$var_label, "ref:")[1]) {
+      if (!str_detect(x$`_data`$var_label, "ref:")[1]) {
 
         vars <- "(variable|var_type|test_name)($|_1)"
 
         print(x$`_data` |>
-                dplyr::select(dplyr::matches(vars)) |>
-                dplyr::rename_with(~ stringr::str_remove(., "_1")) |>
+                select(dplyr::matches(vars)) |>
+                dplyr::rename_with(~ str_remove(., "_1")) |>
                 dplyr::relocate(var_type, .after = variable) |>
-                dplyr::distinct())
+                distinct())
 
       } else if (!is.null(print)) print(print)
 
-      cli::cli_text("\n\n")
+      cli_text("\n\n")
 
     }
 
-    cli::cli_progress_step("Creating HTML file")
+    cli_progress_step("Creating HTML file")
 
     gt::gtsave(x, file = to_html)
 
@@ -89,7 +89,7 @@ easy_out <- \(x,
                      vheight = 1,
                      zoom = 3)
 
-    cli::cli_progress_done()
+    cli_progress_done()
 
 ### PLOT -------------------------------------------------------------------------
 
@@ -104,14 +104,14 @@ easy_out <- \(x,
                            width = size[2]) |>
       utils::browseURL()
 
-    cli::cli_progress_step("Capturing SVG file to PNG")
+    cli_progress_step("Capturing SVG file to PNG")
 
     ggplot2::ggsave(to_png,
                     height = size[1],
                     width = size[2],
                     dpi = 500)
 
-    cli::cli_progress_done()
+    cli_progress_done()
 
   }
 
@@ -119,14 +119,14 @@ easy_out <- \(x,
 
 ### CLI --------------------------------------------------------------------------
 
-  cli::cli_text("\n\n")
-  cli::cli_alert_info("{.strong Destination}")
-  cli::cli_ul()
-    cli::cli_li("Working directory: {.path {getwd()}}")
-    cli::cli_li("Files: {cli::col_br_red(path)}")
-    cli::cli_end()
-  cli::cli_text("\n\n")
-  cli::cli_rule()
+  cli_text("\n\n")
+  cli_alert_info("{.strong Destination}")
+  cli_ul()
+    cli_li("Working directory: {.path {getwd()}}")
+    cli_li("Files: {cli::col_br_red(path)}")
+    cli_end()
+  cli_text("\n\n")
+  cli_rule()
 
 }
 
@@ -143,12 +143,12 @@ easy_out_map <- \(data,
                   suffix = seq(data),
                   size = NULL) {
 
-  if (is.null(filename)) filename <- rlang::enexpr(data)
+  if (is.null(filename)) filename <- enexpr(data)
 
-  purrr::map2(.x = data,
-              .y = suffix,
-              ~ easy_out(.x,
-                         filename = glue::glue("{filename}.{.y}"),
-                         size = size))
+  map2(.x = data,
+       .y = suffix,
+       ~ easy_out(.x,
+                  filename = glue("{filename}.{.y}"),
+                  size = size))
 
 }

@@ -1,26 +1,5 @@
 #' Title
 #'
-#' @param ...
-#' @param sep
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-acro <- \(..., sep) {
-
-  e <- rlang::env("~" = \(x, y) glue::glue("{rlang::enexpr(x)}{sep}{y}"))
-
-  list(...) |>
-    purrr::map(~ eval(rlang::enexpr(.), e)) %>%
-    rlang::set_names(stringr::str_extract(., "\\w+"))
-
-}
-
-
-#' Title
-#'
 #' @param x
 #' @param acro_list
 #'

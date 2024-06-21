@@ -4,7 +4,7 @@
 \alias{easy_descr}
 \title{Title}
 \usage{
-easy_descr(data, parametric = NULL)
+easy_descr(data, parametric = NULL, qt_stat = NULL, ql_stat = NULL)
 }
 \arguments{
 \item{ql_stat}{}

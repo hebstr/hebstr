@@ -47,7 +47,7 @@ ggcount <- \(data,
               stat = "count",
               family = family,
               ...) +
-    labs(x = var_label(df[[var]]) %||% var,
+    labs(x = var_label(data[[var]]) %||% var,
          y = ylab) +
     theme_bar(family = family,
               grid = grid)
