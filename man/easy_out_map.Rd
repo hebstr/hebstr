@@ -4,7 +4,10 @@
 \alias{easy_out_map}
 \title{Title}
 \usage{
-easy_out_map(data, filename = NULL, suffix = seq(data), size = NULL)
+easy_out_map(data, filename = NULL, dir = "output", suffix = NULL, size = NULL)
+}
+\arguments{
+\item{size}{}
 }
 \description{
 Title
