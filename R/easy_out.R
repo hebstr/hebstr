@@ -26,11 +26,18 @@ easy_out <- \(x,
   cli_h1("easy_out")
   cli_text("\n\n")
 
+  if (is.null(filename)) filename <- enexpr(x)
+
+  if (!TRUE %in% str_detect(class(x), "tbl|ggplot")) {
+
+    cli_abort(c("{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
+                i = "Kill yourself"))
+
+  }
+
   if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
 
   if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
-
-  if (is.null(filename)) filename <- enexpr(x)
 
   if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
 
