@@ -12,7 +12,8 @@ gt_heatmap(
   title = NULL,
   width = NULL,
   digit = 1,
-  font = "arial",
+  font_family = "arial",
+  font_size = 10,
   color = TRUE,
   palette = c("indianred2", "skyblue1"),
   arrange = FALSE

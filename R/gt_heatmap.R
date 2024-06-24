@@ -7,7 +7,8 @@
 #' @param title
 #' @param width
 #' @param digit
-#' @param font
+#' @param font_family
+#' @param font_size
 #' @param color
 #' @param palette
 #' @param arrange
@@ -24,7 +25,8 @@ gt_heatmap <- \(data,
                 title = NULL,
                 width = NULL,
                 digit = 1,
-                font = "arial",
+                font_family = "arial",
+                font_size = 10,
                 color = TRUE,
                 palette = c("indianred2", "skyblue1"),
                 arrange = FALSE) {
@@ -36,7 +38,7 @@ gt_heatmap <- \(data,
           pull() |>
           levels())
 
-  if (identical(check_table[1], check_table[2])) {
+  if (length(check_table) == 2 & identical(check_table[1], check_table[2])) {
 
     data <-
     data |>
@@ -78,9 +80,9 @@ gt_heatmap <- \(data,
            groupname_col = groupname_col) |>
     gt::tab_header(title = title) |>
     gt::opt_align_table_header(align = "left") |>
-    gt::opt_table_font(font = font) |>
+    gt::opt_table_font(font = font_family) |>
     gt::tab_options(table.width = width,
-                    table.font.size = gt::px(12),
+                    table.font.size = gt::px(font_size),
                     heading.title.font.size = gt::pct(95),
                     ...) |>
     gt::tab_style(style = gt::cell_borders(style = NULL),
