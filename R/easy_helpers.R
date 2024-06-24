@@ -40,16 +40,16 @@ easy_recode <- \(...) {
   dots <- list(...)
 
   list(name =
-         purrr::map(dots, ~ unname(.[1])) |>
-           purrr::list_flatten() |>
+         map(dots, ~ unname(.[1])) |>
+           list_flatten() |>
            unlist(),
        label =
-         purrr::map(dots, ~ unname(.[2])) |>
-           purrr::list_flatten() |>
+         map(dots, ~ unname(.[2])) |>
+           list_flatten() |>
            unlist(),
        levels =
-         purrr::map(dots, ~ unname(.[3])) |>
-           purrr::list_flatten())
+         map(dots, ~ unname(.[3])) |>
+           list_flatten())
 
 }
 
@@ -75,8 +75,8 @@ dplyr::lst(coord =
                            .keep = "all"),
            contrib =
              coord |>
-               dplyr::mutate(dplyr::across(dplyr::matches("PC"),
-                                           ~ . ^ 2 / sum(. ^ 2))),
+               mutate(across(dplyr::matches("PC"),
+                             ~ . ^ 2 / sum(. ^ 2))),
            weight =
              coord["column"] |>
                dplyr::mutate(PC1 = contrib$PC1 / max(contrib$PC1)) |>
@@ -117,13 +117,13 @@ easy_boot <- \(data,
   data |>
     rsample::bootstraps(times = times,
                         apparent = TRUE) |>
-    dplyr::mutate(model = purrr::map(splits, .f))
+    mutate(model = map(splits, .f))
 
   boot <-
   list(estim_data = tidy,
        fitted = augment) |>
     map(~ boot |>
-          dplyr::mutate(coef = purrr::map(model, .)))
+          mutate(coef = map(model, .)))
 
   boot <-
   list(estimate =
@@ -162,7 +162,7 @@ p_picking <- \(model,
   vars[!vars %in% y] |>
     map(~ do.call(model, eval(fit)) |>
           tidy() |>
-          mutate(variable = stringr::str_extract(term, str_u(vars)))) |>
+          mutate(variable = str_extract(term, str_u(vars)))) |>
     list_rbind() |>
     filter(variable %in% vars,
            p.value <= pv) |>
@@ -191,6 +191,7 @@ p_shortenr <- \(x,
                 table = TRUE) {
 
   column <- enexpr(column)
+
   if (table) inf <- "<" else inf <- "< "
   if (table) sup <- "" else sup <- "= "
 
@@ -249,8 +250,8 @@ pct_min <- \(x,
 #'
 read_png <- \(file, dir = "output") {
 
-  glue::glue("{dir}/{file}.png") |>
-    png::readPNG() |>
-    grid::rasterGrob()
+  glue("{dir}/{file}.png") |>
+    readPNG() |>
+    rasterGrob()
 
 }

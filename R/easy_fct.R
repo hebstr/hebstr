@@ -37,12 +37,12 @@ easy_fct <- \(x,
   } else {
 
     lv <-
-    list(cut = c(glue::glue("<{cut}"), glue::glue(">={cut}")),
-         inf = glue::glue("<{inf}"),
-         btw_inf = glue::glue("[{inf}-{.btw})"),
-         btw = glue::glue("[{inf}-{sup})"),
-         btw_sup = glue::glue("[{.btw}-{sup})"),
-         sup = glue::glue(">={sup}"))
+    list(cut = c(glue("<{cut}"), glue(">={cut}")),
+         inf = glue("<{inf}"),
+         btw_inf = glue("[{inf}-{.btw})"),
+         btw = glue("[{inf}-{sup})"),
+         btw_sup = glue("[{.btw}-{sup})"),
+         sup = glue(">={sup}"))
 
     if (is.null(cut)) {
 
