@@ -26,6 +26,8 @@ easy_out <- \(x,
   cli_h1("easy_out")
   cli_text("\n\n")
 
+  dir <- glue("{getwd()}/{dir}")
+  
   if (is.null(filename)) filename <- enexpr(x)
 
   if (!TRUE %in% str_detect(class(x), "tbl|ggplot")) {
