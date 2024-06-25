@@ -43,12 +43,10 @@ easy_out <- \(x,
 
   if (!is.null(suffix)) filename <- glue("{filename}_{suffix}")
 
-  cli_path <- glue("{dir}/{filename}")
-  full_path <- glue("{getwd()}/{cli_path}")
-  
-  to_html <- glue("{full_path}.html")
-  to_svg <- glue("{full_path}.svg")
-  to_png <- glue("{full_path}.png")
+  path <- glue("{dir}/{filename}")
+  to_html <- glue("{path}.html")
+  to_svg <- glue("{path}.svg")
+  to_png <- glue("{path}.png")
 
 ### TAB -------------------------------------------------------------------------
 
@@ -86,15 +84,15 @@ easy_out <- \(x,
 
     gtsave(x, file = to_html)
 
-    browseURL(to_html)
+    browseURL(glue("{getwd()}/{to_html}"))
 
     cli_progress_step("Capturing HTML file to PNG")
 
-    webshot::webshot(to_html,
-                     file = to_png,
-                     vwidth = width + width / 10,
-                     vheight = 1,
-                     zoom = 3)
+    to_html |> 
+      webshot(file = to_png,
+              vwidth = width + width / 10,
+              vheight = 1,
+              zoom = 3)
 
     cli_progress_done()
 
@@ -105,7 +103,7 @@ easy_out <- \(x,
     cli_progress_step("Creating SVG file")
 
     x |>
-      capturePlot(to_svg,
+      capturePlot(glue("{getwd()}/{to_svg}"),
                   grDevices::svg,
                   height = size[1],
                   width = size[2]) |>
@@ -130,7 +128,7 @@ easy_out <- \(x,
   cli_alert_info("{.strong Destination}")
   cli_ul()
     cli_li("Working directory: {.path {getwd()}}")
-    cli_li("Filename: {cli::col_br_red(cli_path)}")
+    cli_li("Filename: {cli::col_br_red(path)}")
     cli_end()
   cli_text("\n\n")
   cli_rule()
