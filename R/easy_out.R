@@ -26,8 +26,6 @@ easy_out <- \(x,
   cli_h1("easy_out")
   cli_text("\n\n")
 
-  dir <- glue("{getwd()}/{dir}")
-  
   if (is.null(filename)) filename <- enexpr(x)
 
   if (!TRUE %in% str_detect(class(x), "tbl|ggplot")) {
@@ -45,10 +43,12 @@ easy_out <- \(x,
 
   if (!is.null(suffix)) filename <- glue("{filename}_{suffix}")
 
-  path <- glue("{dir}/{filename}")
-  to_html <- glue("{path}.html")
-  to_svg <- glue("{path}.svg")
-  to_png <- glue("{path}.png")
+  cli_path <- glue("{dir}/{filename}")
+  full_path <- glue("{getwd()}/{cli_path}")
+  
+  to_html <- glue("{full_path}.html")
+  to_svg <- glue("{full_path}.svg")
+  to_png <- glue("{full_path}.png")
 
 ### TAB -------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ easy_out <- \(x,
   cli_alert_info("{.strong Destination}")
   cli_ul()
     cli_li("Working directory: {.path {getwd()}}")
-    cli_li("Filename: {cli::col_br_red(path)}")
+    cli_li("Filename: {cli::col_br_red(cli_path)}")
     cli_end()
   cli_text("\n\n")
   cli_rule()
