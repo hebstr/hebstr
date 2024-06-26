@@ -103,6 +103,7 @@ x |>
 #' Title
 #'
 #' @param family
+#' @param size 
 #' @param grid
 #' @param ...
 #'
@@ -112,31 +113,32 @@ x |>
 #' @examples
 #'
 theme_bar <- \(family = "arial",
+               size = 9,
                grid = TRUE,
                ...) {
 
   if (!grid) {
 
     bg <-
-    list(panel.background = ggplot2::element_blank(),
-         axis.line = ggplot2::element_line(),
-         strip.text = ggplot2::element_blank())
+    list(panel.background = element_blank(),
+         axis.line = element_line(),
+         strip.text = element_blank())
 
   } else bg <- NULL
 
-  ggplot2::theme(plot.caption = ggtext::element_textbox(size = 9,
-                                                        hjust = 1,
-                                                        lineheight = 1.05,
-                                                        width = ggplot2::unit(1, "npc"),
-                                                        margin = ggplot2::margin(10, 0, 0, 0)),
-                 axis.title = ggplot2::element_text(size = 9,
-                                                    face = "bold"),
-                 axis.title.x = ggplot2::element_text(vjust = 0.5),
-                 text = ggplot2::element_text(family = family),
-                 plot.caption.position = "plot",
-                 legend.position = "none",
-                 ...) %+replace%
-                   rlang::inject(ggplot2::theme(!!!bg))
+  theme(plot.caption = element_textbox(size = size,
+                                       hjust = 1,
+                                       lineheight = 1.05,
+                                       width = unit(1, "npc"),
+                                       margin = margin(10, 0, 0, 0)),
+        axis.title = element_text(size = 9,
+                                  face = "bold"),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(family = family),
+        plot.caption.position = "plot",
+        legend.position = "none",
+        ...) %+replace%
+          inject(theme(!!!bg))
 
 }
 
@@ -240,17 +242,23 @@ theme_pca <- \(font = "arial",
 
 #' Title
 #'
-#' @param font
+#' @param family 
+#' @param size 
 #'
 #' @return
 #' @export
 #'
 #' @examples
 #'
-theme_wrap <- \(font = "arial") {
+theme_wrap <- \(family = "arial",
+                size = 11) {
 
-  ggplot2::theme(text = element_text(family = font),
-                 plot.caption = ggtext::element_markdown(size = 11, hjust = 0))
+  theme(text = element_text(family = family),
+        plot.caption = element_textbox(size = size,
+                                       hjust = 1,
+                                       lineheight = 1.05,
+                                       width = unit(1, "npc"),
+                                       margin = margin(10, 0, 0, 0)))
 
 }
 

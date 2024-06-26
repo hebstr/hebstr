@@ -8,7 +8,7 @@
 #'
 #' @examples
 #'
-all_dicho <- \(data, ...) {
+all_dichotomous_uv <- \(data, ...) {
 
   dots <- c(...)
 

@@ -4,7 +4,7 @@
 \alias{p_picking}
 \title{Title}
 \usage{
-p_picking(model, y, vars, data, pv)
+p_picking(data, model, y, vars, pv)
 }
 \arguments{
 \item{pv}{}

@@ -4,9 +4,11 @@
 \alias{theme_bar}
 \title{Title}
 \usage{
-theme_bar(family = "arial", grid = TRUE, ...)
+theme_bar(family = "arial", size = 9, grid = TRUE, ...)
 }
 \arguments{
+\item{size}{}
+
 \item{...}{}
 }
 \description{

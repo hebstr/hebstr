@@ -140,10 +140,10 @@ easy_boot <- \(data,
 
 #' Title
 #'
+#' @param data
 #' @param model
 #' @param y
 #' @param vars
-#' @param data
 #' @param pv
 #'
 #' @return
@@ -151,10 +151,10 @@ easy_boot <- \(data,
 #'
 #' @examples
 #'
-p_picking <- \(model,
+p_picking <- \(data,
+               model,
                y,
                vars,
-               data,
                pv) {
 
   fit <- expr(list(reformulate(., y), data = data))

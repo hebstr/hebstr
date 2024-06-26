@@ -21,11 +21,14 @@ easy_descr <- \(data,
 ### QT DATA -------------------------------------------------------------------------------
 
   qt_vars <-
-  lst(total = where(~ is.numeric(.) & length(unique(na.omit(.))) != 2),
+  lst(total = 
+        data |> 
+          select(where(~ is.numeric(.) & length(unique(na.omit(.))) != 2)) |>
+          names(),
       parametric = parametric,
-      nonparametric =
-        data |>
-          select(c(eval(total), -all_of(parametric))) |>
+      nonparametric = 
+        data |> 
+          select(all_of(total), -all_of(parametric)) |> 
           names())
 
   qt_stat <-

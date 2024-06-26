@@ -4,10 +4,12 @@
 \alias{theme_wrap}
 \title{Title}
 \usage{
-theme_wrap(font = "arial")
+theme_wrap(family = "arial", size = 11)
 }
 \arguments{
-\item{font}{}
+\item{family}{}
+
+\item{size}{}
 }
 \description{
 Title
