@@ -35,9 +35,9 @@ gt_format <- \(x,
 
   body <-
   names(x$table_body) |>
-    stringr::str_extract(".*label") |>
+    str_extract(".*label") |>
     stats::na.omit() |>
-    purrr::map(~ x$table_body[[.]]) |>
+    map(~ x$table_body[[.]]) |>
     unlist()
 
   .acro <- acro_extract(c(style, body, names(x)), acro_list)
@@ -61,7 +61,7 @@ gt_format <- \(x,
       .acro <- .acro[.acro != "N"]
 
       x |>
-        gt::tab_footnote(c(stringr::str_c(note_global),
+        gt::tab_footnote(c(str_c(note_global),
                            acro_str(.estim$base,
                                     .estim$ajust,
                                     with(acro_list, mget(.acro)),
@@ -72,7 +72,7 @@ gt_format <- \(x,
     } else {
 
       x |>
-        gt::tab_footnote(c(stringr::str_c(note_global),
+        gt::tab_footnote(c(str_c(note_global),
                            acro_str(with(acro_list, mget(.acro)),
                                     collapse = acro_sep))) |>
         gt::tab_footnote(note_vargrp,

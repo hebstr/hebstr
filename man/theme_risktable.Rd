@@ -4,11 +4,7 @@
 \alias{theme_risktable}
 \title{Title}
 \usage{
-theme_risktable(
-  font = "arial",
-  table_margin = ggplot2::margin(0, 0, 0, 0),
-  ...
-)
+theme_risktable(font = "arial", table_margin = margin(0, 0, 0, 0), ...)
 }
 \arguments{
 \item{...}{}

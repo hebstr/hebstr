@@ -4,9 +4,17 @@
 \alias{theme_tte}
 \title{Title}
 \usage{
-theme_tte(font = "arial", size = 9, margin = ggplot2::margin(0, 0, 0, 0), ...)
+theme_tte(
+  font = "arial",
+  size = 9,
+  vjust_y = 3.25,
+  margin = margin(0, 0, 0, 0),
+  ...
+)
 }
 \arguments{
+\item{vjust_y}{}
+
 \item{...}{}
 }
 \description{

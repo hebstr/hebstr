@@ -6,7 +6,7 @@
 \usage{
 gtsum_format(
   x,
-  label_header = "**Variable**",
+  label_header = NULL,
   label_stat = "",
   bold_p = "",
   adj_label = "a",

@@ -147,6 +147,7 @@ theme_bar <- \(family = "arial",
 #'
 #' @param font
 #' @param size
+#' @param vjust_y 
 #' @param margin
 #' @param ...
 #'
@@ -156,26 +157,27 @@ theme_bar <- \(family = "arial",
 #' @examples
 theme_tte <- \(font = "arial",
                size = 9,
-               margin = ggplot2::margin(0, 0, 0, 0),
+               vjust_y = 3.25,
+               margin = margin(0, 0, 0, 0),
                ...) {
 
-  ggplot2::theme_classic() %+replace%
-    ggplot2::theme(line = ggplot2::element_line(linewidth = 0.3),
-                  text = ggplot2::element_text(family = font),
-                  axis.title = ggplot2::element_text(face = "bold",
-                                                     size = 8),
-                  axis.title.x = ggplot2::element_text(vjust = -1),
-                  axis.title.y.left = ggplot2::element_text(vjust = 1),
-                  axis.text = ggplot2::element_text(size = 8),
-                  panel.background = ggplot2::element_blank(),
-                  plot.background = ggplot2::element_blank(),
-                  plot.margin = ggplot2::margin(0, 0, 0, 0),
-                  plot.caption = ggtext::element_textbox(size = size,
-                                                         width = ggplot2::unit(1, "npc"),
-                                                         margin = margin),
-                  plot.caption.position = "plot",
-                  legend.position = "none",
-                  ...)
+  theme_classic() %+replace%
+    theme(line = element_line(linewidth = 0.3),
+          text = element_text(family = font),
+          axis.title = element_text(face = "bold",
+                                    size = 8),
+          axis.title.x = element_text(vjust = -1),
+          axis.title.y.left = element_text(vjust = 3.25),
+          axis.text = element_text(size = 8),
+          panel.background = element_blank(),
+          plot.background = element_blank(),
+          plot.margin = margin(0, 0, 0, 0),
+          plot.caption = ggtext::element_textbox(size = size,
+                                                 width = ggplot2::unit(1, "npc"),
+                                                 margin = margin),
+          plot.caption.position = "plot",
+          legend.position = "none",
+          ...)
 
 }
 
@@ -192,17 +194,17 @@ theme_tte <- \(font = "arial",
 #' @examples
 #'
 theme_risktable <- \(font = "arial",
-                     table_margin = ggplot2::margin(0, 0, 0, 0),
+                     table_margin = margin(0, 0, 0, 0),
                      ...) {
 
-  list(ggsurvfit::theme_risktable_default(),
-       ggplot2::theme(text = ggplot2::element_text(family = font),
-             plot.title = ggplot2::element_text(size = 7.5,
-                                                face = "bold",
-                                                margin = ggplot2::margin(0, 0, 0, 0)),
-             panel.background = ggplot2::element_blank(),
-             plot.background = ggplot2::element_blank(),
-             axis.text.y = ggplot2::element_text(size = 7),
+  list(theme_risktable_default(),
+       theme(text = element_text(family = font),
+             plot.title = element_text(size = 7.5,
+                                       face = "bold",
+                                       margin = margin(0, 0, 0, 0)),
+             panel.background = element_blank(),
+             plot.background = element_blank(),
+             axis.text.y = element_text(size = 7),
              plot.margin = table_margin,
              plot.title.position = "plot",
              ...))

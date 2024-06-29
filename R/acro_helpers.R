@@ -10,10 +10,13 @@
 #'
 acro_extract <- \(x, acro_list) {
 
-  .str <- stringr::str_c(names(acro_list), collapse = "\\b|\\b")
+  .str <-
+  acro_list |> 
+    names() |>
+    str_c(collapse = "\\b|\\b")
 
   x |>
-    stringr::str_extract(glue::glue("\\b{.str}\\b")) |>
+    str_extract(glue("\\b{.str}\\b")) |>
     na.omit() |>
     unique()
 
@@ -30,10 +33,12 @@ acro_extract <- \(x, acro_list) {
 #'
 #' @examples
 #'
-acro_str <- \(..., collapse = NULL) {
+acro_str <- \(..., 
+              collapse = NULL) {
 
-  acro <- stringr::str_c(c(...), collapse = collapse)
-  glue::glue("{acro}")
+  acro <- str_c(c(...), collapse = collapse)
+  
+  glue("{acro}")
 
 }
 
@@ -58,7 +63,7 @@ acro_match <- \(x,
 .acro <-
 vars |>
   map(~ with(x, get(.)) |>
-        labelled::label_attribute()) |>
+        label_attribute()) |>
   unlist() |>
   acro_extract(acro_list)
 

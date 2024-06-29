@@ -18,7 +18,8 @@ opts_set <- \(fr = FALSE,
                    sex_f = "Women",
                    yes = "Yes",
                    no = "No",
-                   na = "NA"),
+                   na = "NA",
+                   header = "Characteristic"),
        sep = list(int = ": ",
                   ext = "; ",
                   conf = "; "),
@@ -40,7 +41,8 @@ opts_set <- \(fr = FALSE,
                 labs = list(sex_m = "Masculin",
                             sex_f = "Féminin",
                             yes = "Oui",
-                            no = "Non"),
+                            no = "Non",
+                            header = "**Variable**"),
                 sep = list(int = " : ",
                            ext = " ; ",
                            conf = " ; "),
@@ -86,30 +88,6 @@ opts_acro <- \(...,
     set_names(str_extract(., "\\w+"))
 
   return(.opts_acro)
-
-}
-
-
-#' Title
-#'
-#' @param ...
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-opts_fig <- \(...) {
-
-  dots <- list(...)
-
-  .opts_fig <-
-  list(theme = list(stat = "count",
-                    size = 2.5))
-
-  .opts_fig <- list_modify(.opts_fig, !!!dots)
-
-  return(.opts_fig)
 
 }
 

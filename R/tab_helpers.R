@@ -59,7 +59,7 @@ merge_estim_ci <- \(data,
   data |>
     mutate(across(c(all_of(estim_col), all_of(ci_col)),
                   ~ .rnd(. * multi, estim_ci_digit)),
-           "{merge_col}" := glue::glue("{get(estim_col)} ", ci_data))
+           "{merge_col}" := glue("{get(estim_col)} ", ci_data))
 
 }
 
@@ -81,16 +81,14 @@ easy_relab <- \(data,
                 new_lab,
                 ref = " — ref: ") {
 
-  var <- rlang::enexpr(var)
+  var <- enexpr(var)
 
-  .lab <- "{glue::glue(new_lab)}{ref}{tolower(reference_level)}"
+  .lab <- "{glue(new_lab)}{ref}{tolower(reference_level)}"
 
   data |>
-    gtsummary::modify_table_body(
+    modify_table_body(
       ~ . |>
-        dplyr::mutate(label = ifelse(variable == var,
-                                     glue::glue(.lab),
-                                     label))
+        mutate(label = ifelse(variable == var, glue(.lab), label))
     )
 
 }

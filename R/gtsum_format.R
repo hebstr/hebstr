@@ -270,7 +270,7 @@
 #' @examples
 #'
 gtsum_format <- \(x,
-                  label_header = "**Variable**",
+                  label_header = NULL,
                   label_stat = "",
                   bold_p = "",
                   adj_label = "a",
@@ -284,6 +284,8 @@ gtsum_format <- \(x,
                   vargrp_levels = "",
                   indent_type = "indent") {
 
+  label_header <- glue("**{label_header}**")
+  
   if ("tbl_merge" %in% class(x)) {
 
     check_by <- x$tbls[[1]]$by

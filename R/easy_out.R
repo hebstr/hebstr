@@ -25,23 +25,26 @@ easy_out <- \(x,
 
   cli_h1("easy_out")
   cli_text("\n\n")
-
-  if (is.null(filename)) filename <- enexpr(x)
-
+  
+  if (is.null(filename)) {
+    
+    filename <- enexpr(x)
+    
+  } else cli_progress_step("Creating {.strong {filename}}")
+  
   if (!TRUE %in% str_detect(class(x), "tbl|ggplot")) {
 
-    cli_abort(c("{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
-                i = "Kill yourself"))
+    cli_abort("{.strong {filename}} must be a gt/gtsummary object or a ggplot object")
 
   }
 
+  if (!is.null(suffix)) filename <- glue("{filename}_", suffix)
+
+  if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
+  
   if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
 
   if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
-
-  if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
-
-  if (!is.null(suffix)) filename <- glue("{filename}_{suffix}")
 
   path <- glue("{dir}/{filename}")
   to_html <- glue("{path}.html")
@@ -74,19 +77,23 @@ easy_out <- \(x,
                 relocate(var_type, .after = variable) |>
                 distinct())
 
-      } else if (!is.null(print)) print(print)
-
-      cli_text("\n\n")
+      } else if (!is.null(print)) {
+        
+        cli_text("\n\n")
+        print(print)
+        
+      }
 
     }
 
+    cli_text("\n\n")
     cli_progress_step("Creating HTML file")
 
     gtsave(x, file = to_html)
 
     browseURL(glue("{getwd()}/{to_html}"))
 
-    cli_progress_step("Capturing HTML file to PNG")
+    cli_progress_step("Capturing HTML to PNG")
 
     to_html |> 
       webshot(file = to_png,
@@ -109,7 +116,7 @@ easy_out <- \(x,
                   width = size[2]) |>
       browseURL()
 
-    cli_progress_step("Capturing SVG file to PNG")
+    cli_progress_step("Capturing SVG to PNG")
 
     ggsave(to_png,
            height = size[1],
@@ -120,7 +127,12 @@ easy_out <- \(x,
 
   }
 
-  if (!is.null(print)) print(print)
+  if (!is.null(print)) {
+        
+    cli_text("\n\n")
+    print(print)
+        
+  }
 
 ### CLI --------------------------------------------------------------------------
 
