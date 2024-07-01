@@ -69,7 +69,8 @@ merge_estim_ci <- \(data,
 #' @param data
 #' @param var
 #' @param new_lab
-#' @param ref
+#' @param ref_lab 
+#' @param ref_sep 
 #'
 #' @return
 #' @export
@@ -79,11 +80,12 @@ merge_estim_ci <- \(data,
 easy_relab <- \(data,
                 var,
                 new_lab,
-                ref = " — ref: ") {
+                ref_lab = " — ref",
+                ref_sep) {
 
   var <- enexpr(var)
 
-  .lab <- "{glue(new_lab)}{ref}{tolower(reference_level)}"
+  .lab <- "{glue(new_lab)}{ref_lab}{ref_sep}{tolower(reference_level)}"
 
   data |>
     modify_table_body(

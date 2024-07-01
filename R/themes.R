@@ -157,7 +157,7 @@ theme_bar <- \(family = "arial",
 #' @examples
 theme_tte <- \(font = "arial",
                size = 9,
-               vjust_y = 3.25,
+               vjust_y = 1,
                margin = margin(0, 0, 0, 0),
                ...) {
 
@@ -167,7 +167,7 @@ theme_tte <- \(font = "arial",
           axis.title = element_text(face = "bold",
                                     size = 8),
           axis.title.x = element_text(vjust = -1),
-          axis.title.y.left = element_text(vjust = 3.25),
+          axis.title.y.left = element_text(vjust = vjust_y),
           axis.text = element_text(size = 8),
           panel.background = element_blank(),
           plot.background = element_blank(),

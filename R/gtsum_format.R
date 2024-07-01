@@ -68,24 +68,24 @@
 
   x <-
   x |>
-    gtsummary::modify_table_body(
+    modify_table_body(
       ~ . |>
-        dplyr::mutate(coefficients_label =
-                        dplyr::case_when(coefficients_label == "exp(Beta)" ~ "OR",
-                                         .default = coefficients_label),
-                      adj_coefficients_label =
-                        dplyr::case_when(is_mvreg ~ glue::glue("{.adj_label}{coefficients_label}"),
-                                         .default = coefficients_label),
-                      estim_label =
-                        dplyr::case_match(coefficients_label,
-                                          !!!.lab))
+        mutate(coefficients_label =
+                 case_when(coefficients_label == "exp(Beta)" ~ "OR",
+                           .default = coefficients_label),
+               adj_coefficients_label =
+                 case_when(is_mvreg ~ glue("{.adj_label}{coefficients_label}"),
+                           .default = coefficients_label),
+               estim_label =
+                 case_match(coefficients_label,
+                            !!!.lab))
     )
 
   .coef_label <- unique(x$table_body$adj_coefficients_label)
 
   x <-
   x |>
-    gtsummary::modify_header(estimate ~ glue::glue("**{.coef_label} {.ci_label}**")) |>
+    gtsummary::modify_header(estimate ~ glue("**{.coef_label} {.ci_label}**")) |>
     gtsummary::modify_table_styling(columns = estimate,
                                     rows = !is.na(ci),
                                     cols_merge_pattern = paste("{estimate}", .ci_data)) |>
@@ -97,8 +97,8 @@
        label = unique(x$table_body$estim_label))
 
   assign(".estim",
-         list(base = glue::glue("{estim$acro}{.estim_sep_int}{estim$label}"),
-              ajust = glue::glue("{.adj_label}{estim$acro}{.estim_sep_int}{.adj_acro} {estim$label}")),
+         list(base = glue("{estim$acro}{.estim_sep_int}{estim$label}"),
+              ajust = glue("{.adj_label}{estim$acro}{.estim_sep_int}{.adj_acro} {estim$label}")),
          envir = .GlobalEnv)
 
   return(x)
@@ -108,28 +108,29 @@
 
 .fmt_reg_level <- \(x,
                     .model_mv,
+                    .ref_sep,
                     .ref_no) {
 
   levels <-
   broom.helpers::model_list_terms_levels(.model_mv) |>
-    dplyr::select(variable, reference_level) |>
-    dplyr::distinct()
+    select(variable, reference_level) |>
+    distinct()
 
-  ref_level <- rlang::expr(reference_level %in% c(.ref_no, NA))
+  ref_level <- expr(reference_level %in% c(.ref_no, NA))
 
   x <-
   x |>
-    gtsummary::modify_table_body(
+    modify_table_body(
       ~ . |>
         dplyr::left_join(levels, by = "variable") |>
-        dplyr::mutate(level =
-                        stringr::str_extract(term, glue::glue("(?<={str_u(x$table_body$variable)}).+")),
-                      label =
-                        dplyr::case_when(var_type == "dichotomous" & !eval(ref_level)
-                                         ~ glue::glue("{level} — ref: {reference_level}"),
-                                         var_type == "dichotomous" & eval(ref_level)
-                                         ~ glue::glue("{label} — ref: {.ref_no}"),
-                                         .default = label))
+        mutate(level =
+                 str_extract(term, glue("(?<={str_u(x$table_body$variable)}).+")),
+               label =
+                 case_when(var_type == "dichotomous" & !eval(ref_level)
+                           ~ glue("{level} — ref{.ref_sep}{reference_level}"),
+                           var_type == "dichotomous" & eval(ref_level)
+                           ~ glue("{label} — ref{.ref_sep}{.ref_no}"),
+                           .default = label))
     )
 
   return(x)
@@ -193,6 +194,7 @@
               .ci,
               .estim_sep_int,
               .model_mv,
+              .ref_sep,
               .ref_no,
               .hide_n,
               .label_header,
@@ -212,6 +214,7 @@
     x <-
     .fmt_reg_level(x,
                    .model_mv = .model_mv,
+                   .ref_sep = .ref_sep,
                    .ref_no = .ref_no)
 
   }
@@ -234,7 +237,7 @@
                  .indent_type) {
 
   x |>
-    gtsummary::modify_table_body(
+    modify_table_body(
       ~ . |>
         dplyr::mutate(row_type =
                         ifelse(variable %in% .vargrp_levels,
@@ -259,6 +262,7 @@
 #' @param ci
 #' @param estim_sep_int
 #' @param model_mv
+#' @param ref_sep 
 #' @param ref_no
 #' @param hide_n
 #' @param vargrp_levels
@@ -271,7 +275,7 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
-                  label_stat = "",
+                  label_stat = NULL,
                   bold_p = "",
                   adj_label = "a",
                   adj_acro = "adjusted",
@@ -279,12 +283,14 @@ gtsum_format <- \(x,
                   ci,
                   estim_sep_int,
                   model_mv,
-                  ref_no,
+                  ref_sep = "",
+                  ref_no = "",
                   hide_n = TRUE,
                   vargrp_levels = "",
                   indent_type = "indent") {
 
-  label_header <- glue("**{label_header}**")
+  label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""
+  label_stat <- if (!is.null(label_stat)) glue("**{label_stat}**") else ""
   
   if ("tbl_merge" %in% class(x)) {
 
@@ -302,7 +308,7 @@ gtsum_format <- \(x,
 
   } else {
 
-    if (stringr::str_detect(class(x)[1], "reg")) {
+    if (str_detect(class(x)[1], "reg")) {
 
       x <-
       .fmt_reg(x,
@@ -312,6 +318,7 @@ gtsum_format <- \(x,
                .ci = ci,
                .estim_sep_int = estim_sep_int,
                .model_mv = model_mv,
+               .ref_sep = ref_sep,
                .ref_no = ref_no,
                .hide_n = hide_n,
                .label_header = label_header,

@@ -36,7 +36,7 @@ gt_format <- \(x,
   body <-
   names(x$table_body) |>
     str_extract(".*label") |>
-    stats::na.omit() |>
+    na.omit() |>
     map(~ x$table_body[[.]]) |>
     unlist()
 
@@ -44,7 +44,7 @@ gt_format <- \(x,
 
 ### WIDTH & THEME -------------------------------------------------------------------
 
-  if (!"gt_tbl" %in% class(x)) x <- gtsummary::as_gt(x)
+  if (!"gt_tbl" %in% class(x)) x <- as_gt(x)
 
   if (!is.null(width)) x <- x |> gt::tab_options(table.width = gt::px(width))
 
@@ -56,7 +56,7 @@ gt_format <- \(x,
 
     x <- x |> gt::tab_header(gt::md(title))
 
-    if (TRUE %in% stringr::str_starts(names(x[["_data"]]), "coef")) {
+    if (TRUE %in% str_starts(names(x[["_data"]]), "coef")) {
 
       .acro <- .acro[.acro != "N"]
 

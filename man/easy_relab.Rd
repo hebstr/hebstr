@@ -4,10 +4,12 @@
 \alias{easy_relab}
 \title{Title}
 \usage{
-easy_relab(data, var, new_lab, ref = " — ref: ")
+easy_relab(data, var, new_lab, ref_lab = " — ref", ref_sep)
 }
 \arguments{
-\item{ref}{}
+\item{ref_lab}{}
+
+\item{ref_sep}{}
 }
 \description{
 Title

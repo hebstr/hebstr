@@ -7,7 +7,7 @@
 theme_tte(
   font = "arial",
   size = 9,
-  vjust_y = 3.25,
+  vjust_y = 1,
   margin = margin(0, 0, 0, 0),
   ...
 )

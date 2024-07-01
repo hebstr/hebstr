@@ -7,7 +7,7 @@
 gtsum_format(
   x,
   label_header = NULL,
-  label_stat = "",
+  label_stat = NULL,
   bold_p = "",
   adj_label = "a",
   adj_acro = "adjusted",
@@ -15,13 +15,16 @@ gtsum_format(
   ci,
   estim_sep_int,
   model_mv,
-  ref_no,
+  ref_sep = "",
+  ref_no = "",
   hide_n = TRUE,
   vargrp_levels = "",
   indent_type = "indent"
 )
 }
 \arguments{
+\item{ref_sep}{}
+
 \item{indent_type}{}
 }
 \description{
