@@ -46,7 +46,7 @@ gt_format <- \(x,
 
   if (!"gt_tbl" %in% class(x)) x <- as_gt(x)
 
-  if (!is.null(width)) x <- x |> gt::tab_options(table.width = gt::px(width))
+  if (!is.null(width)) x <- x |> tab_options(table.width = px(width))
 
   x <- do.call("theme_gt", list(x, ...))
 

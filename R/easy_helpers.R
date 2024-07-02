@@ -11,11 +11,11 @@
 easy_replace <- \(..., replace = "</>") {
 
   col_replace <- cli::col_br_red(replace)
-  col_replace <- glue::glue("\n\n\n{col_replace}\n\n\n")
+  col_replace <- glue("\n\n\n{col_replace}\n\n\n")
 
   str_list <-
   purrr::map(c(...),
-             ~ rlang::list2('{glue::glue("<p>.*({.}).*</p>")}' := replace) |>
+             ~ rlang::list2('{glue("<p>.*({.}).*</p>")}' := replace) |>
                unlist())
 
   replace_list <-

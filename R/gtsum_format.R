@@ -13,13 +13,12 @@
   x <-
   x |>
     gtsummary::add_overall() |>
-    gtsummary::modify_table_body(
+    modify_table_body(
       ~ . |>
-        dplyr::mutate(dplyr::across(dplyr::contains("stat_"),
-                      ~ ifelse(stringr::str_starts(., "0.0\\d+"),
-                               "—", .)))
+        mutate(across(dplyr::contains("stat_"),
+                      ~ ifelse(str_starts(., "0.0\\d+"), "—", .)))
     ) |>
-    gtsummary::modify_spanning_header(all_of(.by) ~ glue::glue("**{.levels}**")) |>
+    gtsummary::modify_spanning_header(all_of(.by) ~ glue("**{.levels}**")) |>
     gtsummary::modify_header(label ~ .label_header,
                              stat_0 ~ "**Total<br>(N={N})**",
                              all_of(.by) ~ .level_np) |>

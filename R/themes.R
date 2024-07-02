@@ -56,46 +56,46 @@ theme_gt <- \(x,
 x |>
   gt::opt_align_table_header(align = "left") |>
   gt::opt_table_font(font = alpha) |>
-  gt::tab_options(table.font.size = gt::px(10),
+  gt::tab_options(table.font.size = px(10),
                   table.font.color = base,
                   table.background.color = color,
                   heading.background.color = bg,
-                  heading.title.font.size = gt::px(11),
+                  heading.title.font.size = px(11),
                   heading.border.bottom.style = "none",
                   table.border.top.style = "none",
                   table.border.bottom.style = "none",
                   column_labels.border.top.style = "none",
-                  column_labels.border.bottom.width = gt::px(1),
+                  column_labels.border.bottom.width = px(1),
                   column_labels.border.bottom.color = base,
                   column_labels.background.color = bg,
-                  table_body.border.top.width = gt::px(1),
+                  table_body.border.top.width = px(1),
                   table_body.border.top.color = base,
-                  table_body.border.bottom.width = gt::px(1),
+                  table_body.border.bottom.width = px(1),
                   table_body.border.bottom.color = base,
-                  table.border.bottom.width = gt::px(1),
+                  table.border.bottom.width = px(1),
                   table.border.bottom.color = base,
                   table_body.hlines.style = "none",
-                  container.padding.x = gt::px(10),
-                  heading.padding = gt::px(10),
-                  data_row.padding = gt::px(4),
-                  data_row.padding.horizontal = gt::px(5),
+                  container.padding.x = px(10),
+                  heading.padding = px(10),
+                  data_row.padding = px(4),
+                  data_row.padding.horizontal = px(5),
                   row.striping.include_table_body = TRUE,
                   row.striping.background_color = bg,
                   footnotes.marks = "standard",
                   footnotes.background.color = bg,
-                  footnotes.padding = gt::px(3),
+                  footnotes.padding = px(3),
                   footnotes.font.size = gt::pct(80),
                   ...) |>
-  gt::tab_style(style = gt::cell_text(align = "justify"),
-                locations = list(gt::cells_title(),
-                                 gt::cells_footnotes())) |>
-  gt::tab_style(style = gt::cell_text(size = gt::px(11)),
-                locations = gt::cells_body(columns = grep("p.v", names(x[[1]])))) |>
-  gt::tab_style(style = gt::cell_text(font = digit),
-                locations = gt::cells_body(columns =
-                                             purrr::map(c("stat", "p.v", "estim"),
-                                                        ~ grep(., names(x[[1]]))) |>
-                                             unlist()))
+  tab_style(style = cell_text(align = "justify"),
+            locations = list(gt::cells_title(),
+                             gt::cells_footnotes())) |>
+  tab_style(style = cell_text(size = px(8)),
+            locations = cells_body(columns = grep("p.v", names(x[[1]])))) |>
+  tab_style(style = cell_text(font = digit),
+            locations = cells_body(columns =
+                                     map(c("stat", "p.v", "estim"),
+                                         ~ grep(., names(x[[1]]))) |>
+                                     unlist()))
 
 }
 
@@ -342,7 +342,7 @@ theme_infreq <- \(font = "arial",
                    axis.title = ggplot2::element_blank(),
                    axis.text.y = element_text(size = 7,
                                               margin = ggplot2::margin(0, -10, 0, 0)),
-                   text = ggplot2::element_text(family = font),
+                   text = element_text(family = font),
                    plot.caption.position = "plot",
                    legend.position = "none",
                    panel.background = ggplot2::element_blank(),
@@ -396,4 +396,41 @@ add_label <- \(y,
 
   }
 
+}
+
+
+#' Title
+#'
+#' @param data 
+#' @param head 
+#' @param size 
+#' @param align 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+gt_qmd <- \(data,
+            head = FALSE,
+            size = 15,
+            align = "center",
+            ...) {
+  
+  data <-
+  if ("gtsummary" %in% class(data)) as_gt(data)
+  else if (!head) gt(data) else gt_preview(data)
+  
+  data |>
+    tab_options(table.font.size = px(size),
+                column_labels.border.top.color = "white",
+                ...) |>
+    tab_style(style = cell_text(weight = "bold"),
+              locations = cells_column_labels()) |> 
+    tab_style(style = cell_text(align = align),
+              locations = 
+                list(cells_column_labels(),
+                     cells_body()))
+  
 }

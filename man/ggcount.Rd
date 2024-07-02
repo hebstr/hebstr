@@ -11,6 +11,8 @@ ggcount(
   alpha = 0.7,
   nudge_y = 0.04,
   pct_min = 0.05,
+  title = NULL,
+  caption = NULL,
   ylab = "Effectif",
   family = "arial",
   grid = TRUE,
@@ -18,6 +20,10 @@ ggcount(
 )
 }
 \arguments{
+\item{title}{}
+
+\item{caption}{}
+
 \item{...}{}
 }
 \description{

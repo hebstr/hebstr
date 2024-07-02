@@ -6,6 +6,8 @@
 #' @param alpha
 #' @param nudge_y
 #' @param pct_min
+#' @param title 
+#' @param caption 
 #' @param ylab
 #' @param family
 #' @param grid
@@ -22,6 +24,8 @@ ggcount <- \(data,
              alpha = 0.7,
              nudge_y = 0.04,
              pct_min = 0.05,
+             title = NULL,
+             caption = NULL,
              ylab = "Effectif",
              family = "arial",
              grid = TRUE,
