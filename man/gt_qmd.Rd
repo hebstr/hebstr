@@ -4,7 +4,7 @@
 \alias{gt_qmd}
 \title{Title}
 \usage{
-gt_qmd(data, head = FALSE, size = 15, align = "center", ...)
+gt_qmd(data, head = FALSE, size = 15, align = "center", na_color = TRUE, ...)
 }
 \arguments{
 \item{data}{}
@@ -14,6 +14,8 @@ gt_qmd(data, head = FALSE, size = 15, align = "center", ...)
 \item{size}{}
 
 \item{align}{}
+
+\item{na_color}{}
 
 \item{...}{}
 }

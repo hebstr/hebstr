@@ -405,6 +405,7 @@ add_label <- \(y,
 #' @param head 
 #' @param size 
 #' @param align 
+#' @param na_color 
 #' @param ... 
 #'
 #' @return
@@ -416,6 +417,7 @@ gt_qmd <- \(data,
             head = FALSE,
             size = 15,
             align = "center",
+            na_color = TRUE,
             ...) {
   
   data <-
@@ -431,6 +433,10 @@ gt_qmd <- \(data,
     tab_style(style = cell_text(align = align),
               locations = 
                 list(cells_column_labels(),
-                     cells_body()))
+                     cells_body())) |> 
+    data_color(palette = "#333333",
+               na_color = if (na_color) "#BC3C66" else NULL,
+               method = "factor",
+               apply_to = "text")
   
 }
