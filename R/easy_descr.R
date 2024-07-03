@@ -1,6 +1,7 @@
 #' Title
 #'
 #' @param data
+#' @param fr 
 #' @param parametric
 #' @param qt_stat
 #' @param ql_stat
@@ -11,6 +12,7 @@
 #' @examples
 #'
 easy_descr <- \(data,
+                fr = FALSE,
                 parametric = NULL,
                 qt_stat = NULL,
                 ql_stat = NULL) {
@@ -31,14 +33,24 @@ easy_descr <- \(data,
           select(all_of(total), -all_of(parametric)) |> 
           names())
 
-  qt_stat <-
+  .qt_stat <-
   list(min = c("Min" = "{min}"),
        q1 = c("Q1" = "{p25}"),
-       median_iqr = c("Médiane (IQR)" = "{median} ({IQR})"),
+       median_iqr = c("Median (IQR)" = "{median} ({IQR})"),
        q3 = c("Q3" = "{p75}"),
        max = c("Max" = "{max}"),
-       mean_sd = c("Moyenne±SD" = "{mean}±{sd}")) |>
-    list_modify(!!!qt_stat)
+       mean_sd = c("Mean±SD" = "{mean}±{sd}"))
+  
+  if (fr) {
+   
+    .qt_stat <-
+    list_modify(.qt_stat,
+                median_iqr = c("Médiane (IQR)" = "{median} ({IQR})"),
+                mean_sd = c("Moyenne±SD" = "{mean}±{sd}"))
+     
+  }
+  
+  qt_stat <- list_modify(.qt_stat, !!!qt_stat)
 
   qt_type <- \(x) {
 

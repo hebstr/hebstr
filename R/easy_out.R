@@ -32,7 +32,7 @@ easy_out <- \(x,
     
   } else cli_progress_step("Creating {.strong {filename}}")
   
-  if (!TRUE %in% str_detect(class(x), "tbl|ggplot")) {
+  if (!TRUE %in% str_detect(class(x), "tbl|gg")) {
 
     cli_abort("{.strong {filename}} must be a gt/gtsummary object or a ggplot object")
 
@@ -105,7 +105,7 @@ easy_out <- \(x,
 
 ### PLOT -------------------------------------------------------------------------
 
-  } else if (is.ggplot(x)) {
+  } else if ("gg" %in% class(x)) {
 
     cli_progress_step("Creating SVG file")
 
