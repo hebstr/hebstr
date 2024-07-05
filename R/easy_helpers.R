@@ -56,6 +56,38 @@ easy_recode <- \(...) {
 
 #' Title
 #'
+#' @param x 
+#' @param var 
+#' @param name 
+#' @param values 
+#' @param labels 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+easy_cut <- \(x, 
+              var, 
+              name = "{var}_ql", 
+              values, 
+              labels) {
+  
+  var <- enexpr(var)
+  name <- glue(name)
+  
+  x |> 
+    mutate(!!name := 
+               cut(x = {{ var }},
+                   breaks = c(min(!!var) - 1, values, max(!!var) + 1),
+                   labels = labels),
+           .after = all_of(var))
+  
+}
+
+
+#' Title
+#'
 #' @param x
 #'
 #' @return
