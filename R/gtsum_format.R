@@ -1,6 +1,7 @@
 .fmt_by <- \(x,
              .check_by,
              .label_header,
+             .label_overall,
              .bold_p) {
 
   .by <- x$df_by$by_col
@@ -8,7 +9,7 @@
   .levels <- labelled::var_label(x$inputs$data[[.check_by]])
 
   .level_np <-
-  "**{level}<br>(n={n}, {gtsummary::style_percent(p, digits = 1)}%)**"
+  "**{level}<br>(n={n}, {style_percent(p, digits = 1)}%)**"
 
   x <-
   x |>
@@ -20,7 +21,7 @@
     ) |>
     gtsummary::modify_spanning_header(all_of(.by) ~ glue("**{.levels}**")) |>
     gtsummary::modify_header(label ~ .label_header,
-                             stat_0 ~ "**Total<br>(N={N})**",
+                             stat_0 ~ glue("**{.label_overall}<br>(N={x$N})**"),
                              all_of(.by) ~ .level_np) |>
     gtsummary::modify_footnote(everything() ~ NA)
 
@@ -253,6 +254,7 @@
 #'
 #' @param x
 #' @param label_header
+#' @param label_overall 
 #' @param label_stat
 #' @param bold_p
 #' @param adj_label
@@ -274,6 +276,7 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
+                  label_overall = "Total",
                   label_stat = NULL,
                   bold_p = "",
                   adj_label = "a",
@@ -303,6 +306,7 @@ gtsum_format <- \(x,
     .fmt_by(x,
             .check_by = check_by,
             .label_header = label_header,
+            .label_overall = label_overall,
             .bold_p = bold_p)
 
   } else {

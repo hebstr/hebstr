@@ -94,3 +94,81 @@ easy_relab <- \(data,
     )
 
 }
+
+
+#' Title
+#'
+#' @param data 
+#' @param vars 
+#' @param levels 
+#' @param rows 
+#' @param note 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+gt_note <- \(data,
+             vars = NULL,
+             levels = NULL,
+             rows = NULL,
+             note) {
+  
+  rows <- enexpr(rows)
+  
+  if (!is.null(vars)) {
+    
+    vars <- expr(variable %in% !!vars & row_type == "label")
+    
+  } else if (!is.null(levels)) {
+    
+    vars <- expr(label %in% !!levels)
+  
+  } else if (!is.null(rows)) {
+    
+    vars <- enexpr(rows)
+  
+  }
+    
+  tab_footnote(data = data,
+               footnote = note,
+               locations = cells_body(columns = label, rows = !!vars))
+
+}
+
+
+#' Title
+#'
+#' @param data 
+#' @param var 
+#' @param sup_to 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+fct_keep <- \(data,
+              var,
+              sup_to) {
+
+  x <-
+  data |> 
+    count(!!var := get(var), sort = TRUE) |>
+    drop_na() |> 
+    split(~ n > sup_to) |> 
+    set_names(c("drop", "keep"))
+  
+  y <-
+  list(keep = pull(x$keep, !!var),
+       drop = 
+         x$drop |> 
+           mutate(str = glue("{get(var)} ({n})")) |> 
+           pull(str) |> 
+           str_flatten_comma() %>%
+           glue("."))
+
+  return(y)
+  
+}

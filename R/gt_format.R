@@ -54,30 +54,30 @@ gt_format <- \(x,
 
   if (!slide) {
 
-    x <- x |> gt::tab_header(gt::md(title))
+    x <- x |> tab_header(md(title))
 
     if (TRUE %in% str_starts(names(x[["_data"]]), "coef")) {
 
       .acro <- .acro[.acro != "N"]
 
       x |>
-        gt::tab_footnote(c(str_c(note_global),
-                           acro_str(.estim$base,
-                                    .estim$ajust,
-                                    with(acro_list, mget(.acro)),
-                                    collapse = acro_sep))) |>
-        gt::tab_footnote(note_pvalue,
-                         gt::cells_column_labels(p.value_2))
+        tab_footnote(c(str_c(note_global),
+                       acro_str(.estim$base,
+                                .estim$ajust,
+                                with(acro_list, mget(.acro)),
+                                collapse = acro_sep))) |>
+        tab_footnote(note_pvalue,
+                     cells_column_labels(p.value_2))
 
     } else {
 
       x |>
-        gt::tab_footnote(c(str_c(note_global),
-                           acro_str(with(acro_list, mget(.acro)),
-                                    collapse = acro_sep))) |>
-        gt::tab_footnote(note_vargrp,
-                         gt::cells_body(columns = label,
-                                        rows = variable %in% label_vargrp))
+        tab_footnote(c(str_c(note_global),
+                       acro_str(with(acro_list, mget(.acro)),
+                                collapse = acro_sep))) |>
+        tab_footnote(note_vargrp,
+                     cells_body(columns = label,
+                                rows = variable %in% label_vargrp))
 
     }
 

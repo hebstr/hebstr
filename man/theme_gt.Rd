@@ -11,6 +11,12 @@ theme_gt(
   base = "#333333",
   color = "lightgrey",
   bg = "white",
+  title_align = "left",
+  title_font_size = 11,
+  table_font_size = 10,
+  pvalue_font_size = 8,
+  footnote_marks = "extended",
+  footnote_font_size = 9,
   ...
 )
 }

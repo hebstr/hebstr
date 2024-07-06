@@ -7,6 +7,7 @@
 gtsum_format(
   x,
   label_header = NULL,
+  label_overall = "Total",
   label_stat = NULL,
   bold_p = "",
   adj_label = "a",
@@ -23,6 +24,8 @@ gtsum_format(
 )
 }
 \arguments{
+\item{label_overall}{}
+
 \item{ref_sep}{}
 
 \item{indent_type}{}

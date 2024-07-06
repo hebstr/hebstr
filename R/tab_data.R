@@ -9,51 +9,43 @@
 #'
 tab_data <- \(x) {
 
-  class <- class(x)[1]
-  y <- substitute(x)
+  y <- enexpr(x)
 
-  if (class != "gt_tbl") {
+  if (!"gt_tbl" %in% class(x)) {
+    
+    name <- glue("{y}.gtsum")
 
-  .data <-
-  assign(glue::glue("{y}_meta"),
-         x$meta_data |>
-           tidyr::unnest(cols = "df_stats",
-                         names_repair = "unique"),
-         envir = .GlobalEnv) |>
-    dplyr::expr()
-
-  .meta_data <-
-  list(assign(glue::glue("{y}_meta"),
-              x$meta_data,
-              envir = .GlobalEnv),
-       assign(glue::glue("{y}_data"),
-              x$inputs$data %>%
-                dplyr::filter(.[[2]] != 0),
-              envir = .GlobalEnv)) |>
-    dplyr::expr()
-
-  .body_style <-
-  list(assign(glue::glue("{y}_body"),
-              x$table_body,
-              envir = .GlobalEnv),
-       assign(glue::glue("{y}_style"),
-              x$table_styling$header,
-              envir = .GlobalEnv)) |>
-    dplyr::expr()
-
-  class |>
-    switch("tbl_summary" = eval(.data),
-           "tbl_uvregression" = eval(.meta_data),
-           "tbl_regression" = eval(.body_style),
-           "tbl_merge" = eval(.body_style),
-           "tbl_strata" = eval(.body_style))
-
+    .summary <-
+    list(meta =
+           x$meta_data |>
+             unnest(cols = "df_stats",
+                    names_repair = "unique"),
+         body = x$table_body,
+         style = x$table_styling$header)
+  
+    .uv_reg <-
+    list(meta = x$meta_data,
+         data = x$inputs$data %>% filter(.[[2]] != 0))
+  
+    .body_style <-
+    list(body = x$table_body,
+         style = x$table_styling$header)
+  
+    switch(class(x)[1],
+           "tbl_summary" = assign(name, .summary, envir = .GlobalEnv),
+           "tbl_uvregression" = assign(name, .uv_reg, envir = .GlobalEnv),
+           "tbl_regression" = assign(name, .body_style, envir = .GlobalEnv),
+           "tbl_merge" = assign(name, .body_style, envir = .GlobalEnv),
+           "tbl_strata" = assign(name, .body_style, envir = .GlobalEnv))
+  
   } else {
-
-  assign(glue::glue("{y}.gt_style"),
-         x$`_options`,
-         envir = .GlobalEnv)
-
+  
+    assign(glue("{y}.gt"),
+           list(data = x$`_data`,
+                header = x$`_boxhead`,
+                options = x$`_options`),
+           envir = .GlobalEnv)
+  
   }
 
 }
