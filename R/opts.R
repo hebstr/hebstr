@@ -86,7 +86,7 @@ opts_acro <- \(...,
   .opts_acro <-
   list(...) |>
     map(~ eval(enexpr(.), e)) %>%
-    set_names(str_extract(., "\\w+"))
+    set_names(str_extract(., glue(".+(?={sep})")))
 
   return(.opts_acro)
 

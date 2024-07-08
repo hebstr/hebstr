@@ -2,6 +2,7 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom broom.helpers model_list_terms_levels
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info
 #' @importFrom cli cli_alert_success
@@ -76,8 +77,14 @@
 #' @importFrom gt tab_header
 #' @importFrom gt tab_options
 #' @importFrom gt tab_style
+#' @importFrom gtsummary add_overall
 #' @importFrom gtsummary as_gt
+#' @importFrom gtsummary bold_p
+#' @importFrom gtsummary modify_footnote
+#' @importFrom gtsummary modify_header
+#' @importFrom gtsummary modify_spanning_header
 #' @importFrom gtsummary modify_table_body
+#' @importFrom gtsummary modify_table_styling
 #' @importFrom gtsummary style_percent
 #' @importFrom htmltools capturePlot
 #' @importFrom labelled generate_dictionary

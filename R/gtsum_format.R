@@ -4,33 +4,33 @@
              .label_overall,
              .bold_p) {
 
-  .by <- x$df_by$by_col
+  .by <-
+  lst(cols = x$df_by$by_col,
+      name = x$inputs$data[[.check_by]],
+      spanner = var_label(name) %||% .check_by)
 
-  .levels <- labelled::var_label(x$inputs$data[[.check_by]])
-
-  .level_np <-
-  "**{level}<br>(n={n}, {style_percent(p, digits = 1)}%)**"
+  .levels <- "**{level}<br>(n={n}, {style_percent(p, digits = 1)}%)**"
 
   x <-
   x |>
-    gtsummary::add_overall() |>
+    add_overall() |>
     modify_table_body(
       ~ . |>
-        mutate(across(dplyr::contains("stat_"),
+        mutate(across(contains("stat_"),
                       ~ ifelse(str_starts(., "0.0\\d+"), "—", .)))
     ) |>
-    gtsummary::modify_spanning_header(all_of(.by) ~ glue("**{.levels}**")) |>
-    gtsummary::modify_header(label ~ .label_header,
-                             stat_0 ~ glue("**{.label_overall}<br>(N={x$N})**"),
-                             all_of(.by) ~ .level_np) |>
-    gtsummary::modify_footnote(everything() ~ NA)
+    modify_spanning_header(all_of(.by$cols) ~ glue("**{.by$spanner}**")) |>
+    modify_header(label ~ .label_header,
+                  stat_0 ~ glue("**{.label_overall}<br>(N={x$N})**"),
+                  all_of(.by$cols) ~ .levels) |>
+    modify_footnote(everything() ~ NA)
 
   if ("p.value" %in% names(x$table_body)) {
 
     x <-
     x |>
-      gtsummary::modify_header(p.value ~ "**p**") |>
-      gtsummary::bold_p(t = .bold_p)
+      modify_header(p.value ~ "**p**") |>
+      bold_p(t = .bold_p)
 
   }
 
@@ -43,9 +43,9 @@
               .label_stat) {
 
   x |>
-    gtsummary::modify_header(label ~ .label_header,
-                             stat_0 ~ .label_stat) |>
-    gtsummary::modify_footnote(everything() ~ NA)
+    modify_header(label ~ .label_header,
+                  stat_0 ~ .label_stat) |>
+    modify_footnote(everything() ~ NA)
 
 }
 
@@ -64,7 +64,7 @@
   list("OR" ~ "odds ratio",
        "HR" ~ "hazard ratio",
        "Beta" ~ "regression coefficient") |>
-    purrr::list_modify(!!!.estim_label)
+    list_modify(!!!.estim_label)
 
   x <-
   x |>
@@ -85,12 +85,12 @@
 
   x <-
   x |>
-    gtsummary::modify_header(estimate ~ glue("**{.coef_label} {.ci_label}**")) |>
-    gtsummary::modify_table_styling(columns = estimate,
-                                    rows = !is.na(ci),
-                                    cols_merge_pattern = paste("{estimate}", .ci_data)) |>
-    gtsummary::modify_table_styling(columns = ci,
-                                    hide = TRUE)
+    modify_header(estimate ~ glue("**{.coef_label} {.ci_label}**")) |>
+    modify_table_styling(columns = estimate,
+                         rows = !is.na(ci),
+                         cols_merge_pattern = paste("{estimate}", .ci_data)) |>
+    modify_table_styling(columns = ci,
+                         hide = TRUE)
 
   estim <-
   list(acro = unique(x$table_body$coefficients_label),
@@ -112,7 +112,7 @@
                     .ref_no) {
 
   levels <-
-  broom.helpers::model_list_terms_levels(.model_mv) |>
+  model_list_terms_levels(.model_mv) |>
     select(variable, reference_level) |>
     distinct()
 
@@ -146,22 +146,20 @@
 
     x <-
     x |>
-      gtsummary::modify_table_body(
+      modify_table_body(
         ~ . |>
-          dplyr::mutate(n_event =
-                          dplyr::case_when(n_event == N_event
-                                           & var_type == "continuous"
-                                           ~ NA,
-                                           .default = n_event))
+          mutate(n_event =
+                   case_when(n_event == N_event & var_type == "continuous" ~ NA,
+                             .default = n_event))
       )
 
-    x <- gtsummary::modify_header(x, n_event ~ glue::glue("**n (N={.N_event})**"))
+    x <- modify_header(x, n_event ~ glue("**n (N={.N_event})**"))
 
   } else {
 
     x <-
     x |>
-      gtsummary::modify_table_body(
+      modify_table_body(
         ~ . |>
           dplyr::mutate(n_event =
                           dplyr::case_when(n_event == N_event ~ NA,
@@ -209,7 +207,7 @@
                     .ci_data = .ci$data,
                     .estim_sep_int = .estim_sep_int)
 
-  if (!is.null(broom.helpers::model_list_terms_levels(.model_mv))) {
+  if (!is.null(model_list_terms_levels(.model_mv))) {
 
     x <-
     .fmt_reg_level(x,
@@ -223,11 +221,11 @@
 
   x <-
   x |>
-    gtsummary::modify_header(label ~ .label_header,
-                             p.value ~ "**p**") |>
-    gtsummary::bold_p(t = .bold_p) |>
-    gtsummary::modify_footnote(everything() ~ NA,
-                               abbreviation = TRUE)
+    modify_header(label ~ .label_header,
+                  p.value ~ "**p**") |>
+    bold_p(t = .bold_p) |>
+    modify_footnote(everything() ~ NA,
+                    abbreviation = TRUE)
 
 }
 
@@ -239,13 +237,12 @@
   x |>
     modify_table_body(
       ~ . |>
-        dplyr::mutate(row_type =
-                        ifelse(variable %in% .vargrp_levels,
-                               "level", row_type))
+        mutate(row_type =
+                 ifelse(variable %in% .vargrp_levels, "level", row_type))
     ) |>
-    gtsummary::modify_table_styling(columns = label,
-                                    rows = row_type == "level",
-                                    text_format = .indent_type)
+    modify_table_styling(columns = label,
+                         rows = row_type == "level",
+                         text_format = .indent_type)
 
 }
 
