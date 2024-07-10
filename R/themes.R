@@ -33,12 +33,19 @@ check_font <- \(...) {
 #' Title
 #'
 #' @param x
-#' @param width
+#' @param width 
 #' @param alpha
 #' @param digit
 #' @param base
 #' @param color
-#' @param ...
+#' @param bg 
+#' @param title_align 
+#' @param title_font_size 
+#' @param table_font_size 
+#' @param stat_font_size 
+#' @param pvalue_font_size 
+#' @param footnote_marks 
+#' @param footnote_font_size 
 #'
 #' @return
 #' @export
@@ -46,6 +53,7 @@ check_font <- \(...) {
 #' @examples
 #'
 theme_gt <- \(x,
+              width = NULL,
               alpha = "arial",
               digit = "arial",
               base = "#333333",
@@ -54,52 +62,56 @@ theme_gt <- \(x,
               title_align = "left",
               title_font_size = 11, 
               table_font_size = 10,
+              stat_font_size = 9,
               pvalue_font_size = 8,
               footnote_marks = "extended",
-              footnote_font_size = 9,
-              ...) {
+              footnote_font_size = 9) {
+  
+  .f <- \(str) str_subset(names(x$`_data`), str)
+  
+  x <-
+  tab_options(data = x,
+              table.width = width,
+              table.font.names = alpha,
+              table.font.size = px(table_font_size),
+              table.font.color = base,
+              table.background.color = color,
+              heading.align = title_align,
+              heading.background.color = bg,
+              heading.title.font.size = px(title_font_size),
+              heading.border.bottom.style = "none",
+              heading.padding = px(10),
+              column_labels.border.top.style = "none",
+              column_labels.border.bottom.width = px(1),
+              column_labels.border.bottom.color = base,
+              column_labels.background.color = bg,
+              table.border.top.style = "none",
+              table.border.bottom.style = "none",
+              table_body.border.top.width = px(1),
+              table_body.border.top.color = base,
+              table_body.border.bottom.width = px(1),
+              table_body.border.bottom.color = base,
+              table_body.hlines.style = "none",
+              container.padding.x = px(10),
+              data_row.padding = px(4),
+              data_row.padding.horizontal = px(5),
+              row.striping.include_table_body = TRUE,
+              row.striping.background_color = bg,
+              footnotes.marks = footnote_marks,
+              footnotes.font.size = px(footnote_font_size),
+              footnotes.padding = px(5),
+              footnotes.background.color = bg)
   
   x |>
-    tab_options(table.font.names = alpha,
-                table.font.size = px(table_font_size),
-                table.font.color = base,
-                table.background.color = color,
-                heading.align = title_align,
-                heading.background.color = bg,
-                heading.title.font.size = px(title_font_size),
-                heading.border.bottom.style = "none",
-                heading.padding = px(10),
-                column_labels.border.top.style = "none",
-                column_labels.border.bottom.width = px(1),
-                column_labels.border.bottom.color = base,
-                column_labels.background.color = bg,
-                table.border.top.style = "none",
-                table.border.bottom.style = "none",
-                table_body.border.top.width = px(1),
-                table_body.border.top.color = base,
-                table_body.border.bottom.width = px(1),
-                table_body.border.bottom.color = base,
-                table_body.hlines.style = "none",
-                container.padding.x = px(10),
-                data_row.padding = px(4),
-                data_row.padding.horizontal = px(5),
-                row.striping.include_table_body = TRUE,
-                row.striping.background_color = bg,
-                footnotes.marks = footnote_marks,
-                footnotes.font.size = px(footnote_font_size),
-                footnotes.padding = px(5),
-                footnotes.background.color = bg,
-                ...) |>
-  tab_style(style = cell_text(align = "justify"),
-            locations = list(cells_title(),
-                             cells_footnotes())) |>
-  tab_style(style = cell_text(size = px(pvalue_font_size)),
-            locations = cells_body(columns = grep("p.v", names(x[[1]])))) |>
-  tab_style(style = cell_text(font = digit),
-            locations = cells_body(columns =
-                                     map(c("stat", "p.v", "estim"),
-                                         ~ grep(., names(x[[1]]))) |>
-                                     unlist()))
+    tab_style(style = cell_text(align = "justify"),
+              locations = list(cells_title(),
+                               cells_footnotes())) |>
+    tab_style(style = cell_text(font = digit),
+              locations = cells_body(columns = .f("stat|estimate|p.value"))) |>
+    tab_style(style = cell_text(size = px(stat_font_size)),
+              locations = cells_body(columns = .f("stat|estimate"))) |>     
+    tab_style(style = cell_text(size = px(pvalue_font_size)),
+              locations = cells_body(columns = .f("p.value")))
 
 }
 

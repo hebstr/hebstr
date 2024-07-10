@@ -4,18 +4,22 @@
 \alias{easy_cut}
 \title{Title}
 \usage{
-easy_cut(x, var, name = "{var}_ql", values, labels)
+easy_cut(x, var, incr = FALSE, drop = FALSE, values = NULL, labels = NULL, ...)
 }
 \arguments{
 \item{x}{}
 
 \item{var}{}
 
-\item{name}{}
+\item{incr}{}
+
+\item{drop}{}
 
 \item{values}{}
 
 \item{labels}{}
+
+\item{...}{}
 }
 \description{
 Title

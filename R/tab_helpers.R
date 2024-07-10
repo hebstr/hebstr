@@ -10,12 +10,9 @@
 #'
 all_dichotomous_uv <- \(data, ...) {
 
-  dots <- c(...)
-
-  level <-
-  purrr::map_int(dots,
-                 ~ with(data, get(.)) |>
-                   nlevels())
+  dots <- c(...) %||% names(data)
+  
+  level <- map_int(dots, ~ nlevels(data[[.]]))
 
   dots[level == 2]
 
@@ -70,7 +67,8 @@ merge_estim_ci <- \(data,
 #' @param var
 #' @param new_lab
 #' @param ref_lab 
-#' @param ref_sep 
+#' @param ref_level 
+#' @param tolower_level 
 #'
 #' @return
 #' @export
@@ -79,18 +77,25 @@ merge_estim_ci <- \(data,
 #'
 easy_relab <- \(data,
                 var,
-                new_lab,
+                new_lab = "{var_label}",
                 ref_lab = " — ref",
-                ref_sep) {
+                ref_level = data$table_body$reference_level,
+                tolower_level = TRUE) {
+  
+  ref_sep <-
+  data$table_body$label |>
+    str_extract(glue("(?<={ref_lab}).\\s*")) |>
+    na.omit() |>
+    unique()
 
-  var <- enexpr(var)
-
-  .lab <- "{glue(new_lab)}{ref_lab}{ref_sep}{tolower(reference_level)}"
+  if (tolower_level) ref_level <- tolower(ref_level) else ref_level
+  
+  str <- "{glue(new_lab)}{ref_lab}{ref_sep}{ref_level}"
 
   data |>
     modify_table_body(
       ~ . |>
-        mutate(label = ifelse(variable == var, glue(.lab), label))
+        mutate(label = ifelse(variable %in% var, glue(str), label))
     )
 
 }

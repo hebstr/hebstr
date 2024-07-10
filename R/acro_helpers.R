@@ -38,7 +38,7 @@ acro_str <- \(...,
 
   acro <- str_c(c(...), collapse = collapse)
   
-  glue("{acro}")
+  if (acro != "") glue("{acro}.") else NULL
 
 }
 

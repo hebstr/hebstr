@@ -6,15 +6,13 @@
 \usage{
 gt_format(
   x,
-  title,
-  label_vargrp = "",
-  note_vargrp = "",
-  note_pvalue = "",
-  note_global = "",
+  title = NULL,
+  note_global = NULL,
+  note_pvalue = NULL,
+  label_vargrp = NULL,
+  note_vargrp = NULL,
   acro_list,
   acro_sep,
-  width = NULL,
-  slide = FALSE,
   ...
 )
 }

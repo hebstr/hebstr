@@ -46,6 +46,12 @@ easy_out <- \(x,
 
   if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
 
+  if (!as.character(filename) %in% ls()) {
+    
+    assign(as.character(filename), x, envir = .GlobalEnv)
+    
+  }
+  
   path <- glue("{dir}/{filename}")
   to_html <- glue("{path}.html")
   to_svg <- glue("{path}.svg")

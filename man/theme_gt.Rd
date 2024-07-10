@@ -6,6 +6,7 @@
 \usage{
 theme_gt(
   x,
+  width = NULL,
   alpha = "arial",
   digit = "arial",
   base = "#333333",
@@ -14,14 +15,30 @@ theme_gt(
   title_align = "left",
   title_font_size = 11,
   table_font_size = 10,
+  stat_font_size = 9,
   pvalue_font_size = 8,
   footnote_marks = "extended",
-  footnote_font_size = 9,
-  ...
+  footnote_font_size = 9
 )
 }
 \arguments{
-\item{...}{}
+\item{width}{}
+
+\item{bg}{}
+
+\item{title_align}{}
+
+\item{title_font_size}{}
+
+\item{table_font_size}{}
+
+\item{stat_font_size}{}
+
+\item{pvalue_font_size}{}
+
+\item{footnote_marks}{}
+
+\item{footnote_font_size}{}
 }
 \description{
 Title

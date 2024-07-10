@@ -51,19 +51,26 @@
 
 
 .fmt_reg_estim_ci <- \(x,
-                       .adj_label,
                        .adj_acro,
+                       .adj_label,
+                       .estim_acro,
                        .estim_label,
                        .ci_label,
                        .ci_data,
-                       .estim_sep_int) {
+                       .estim_sep) {
 
   is_mvreg <- "tbl_regression" %in% class(x)
 
+  .lab_test <-
+  list(beta = "Beta",
+       or = "OR",
+       hr = "HR") |> 
+    list_modify(!!!.estim_acro)
+  
   .lab <-
-  list("OR" ~ "odds ratio",
-       "HR" ~ "hazard ratio",
-       "Beta" ~ "regression coefficient") |>
+  list(beta = "regression coefficient",
+       or = "odds ratio",
+       hr = "hazard ratio") |>
     list_modify(!!!.estim_label)
 
   x <-
@@ -71,14 +78,19 @@
     modify_table_body(
       ~ . |>
         mutate(coefficients_label =
-                 case_when(coefficients_label == "exp(Beta)" ~ "OR",
+                 case_match(coefficients_label,
+                            "Beta" ~ .lab_test$beta,
+                            "exp(Beta)" ~ .lab_test$or,
+                            "HR" ~ .lab_test$hr,
                            .default = coefficients_label),
                adj_coefficients_label =
-                 case_when(is_mvreg ~ glue("{.adj_label}{coefficients_label}"),
+                 case_when(is_mvreg ~ glue("{.adj_acro}{coefficients_label}"),
                            .default = coefficients_label),
                estim_label =
                  case_match(coefficients_label,
-                            !!!.lab))
+                            .lab_test$beta ~ .lab$beta,
+                            .lab_test$or ~ .lab$or,
+                            .lab_test$hr ~ .lab$hr))
     )
 
   .coef_label <- unique(x$table_body$adj_coefficients_label)
@@ -93,12 +105,21 @@
                          hide = TRUE)
 
   estim <-
-  list(acro = unique(x$table_body$coefficients_label),
-       label = unique(x$table_body$estim_label))
+  lst(acro = unique(x$table_body$coefficients_label),
+      adj_acro = glue("{.adj_acro}{acro}"),
+      label = unique(x$table_body$estim_label),
+      adj_label = glue(.adj_label),
+      str =
+        lst(uv =
+              if (!str_detect(acro, "^[:upper:]+$")) NULL
+              else glue("{acro}{.estim_sep}{label}"),
+            mv =
+              if (str_detect(adj_acro, "\\s+") | .adj_acro == "") NULL
+              else glue("{adj_acro}{.estim_sep}{adj_label}")))
 
   assign(".estim",
-         list(base = glue("{estim$acro}{.estim_sep_int}{estim$label}"),
-              ajust = glue("{.adj_label}{estim$acro}{.estim_sep_int}{.adj_acro} {estim$label}")),
+         list(uv = estim$str$uv,
+              mv = estim$str$mv),
          envir = .GlobalEnv)
 
   return(x)
@@ -122,7 +143,7 @@
   x |>
     modify_table_body(
       ~ . |>
-        dplyr::left_join(levels, by = "variable") |>
+        left_join(levels, by = "variable") |>
         mutate(level =
                  str_extract(term, glue("(?<={str_u(x$table_body$variable)}).+")),
                label =
@@ -161,21 +182,18 @@
     x |>
       modify_table_body(
         ~ . |>
-          dplyr::mutate(n_event =
-                          dplyr::case_when(n_event == N_event ~ NA,
-                                           .default = n_event),
-                        N_event_uv =
-                          dplyr::case_when(var_type == "categorical"
-                                           & header_row == FALSE
-                                           ~ NA,
-                                           .default = N_event))
+          mutate(n_event =
+                   case_when(n_event == N_event ~ NA,
+                             .default = n_event),
+                 N_event_uv =
+                   case_when(var_type == "categorical" & header_row == FALSE ~ NA,
+                             .default = N_event))
       ) |>
-      gtsummary::modify_header(n_event ~ "**n**",
-                               N_event_uv ~ "**N**") |>
-      gtsummary::modify_table_body(
+      modify_header(n_event ~ "**n**",
+                    N_event_uv ~ "**N**") |>
+      modify_table_body(
         ~ . |>
-          dplyr::relocate(N_event_uv,
-                          .after = n_event)
+          relocate(N_event_uv, .after = n_event)
       )
 
   }
@@ -186,11 +204,12 @@
 
 
 .fmt_reg <- \(x,
-              .adj_label,
               .adj_acro,
+              .adj_label,
+              .estim_acro,
               .estim_label,
               .ci,
-              .estim_sep_int,
+              .estim_sep,
               .model_mv,
               .ref_sep,
               .ref_no,
@@ -200,12 +219,13 @@
 
   x <-
   .fmt_reg_estim_ci(x,
-                    .adj_label = .adj_label,
                     .adj_acro = .adj_acro,
+                    .adj_label = .adj_label,
+                    .estim_acro = .estim_acro,
                     .estim_label = .estim_label,
                     .ci_label = .ci$label,
                     .ci_data = .ci$data,
-                    .estim_sep_int = .estim_sep_int)
+                    .estim_sep = .estim_sep)
 
   if (!is.null(model_list_terms_levels(.model_mv))) {
 
@@ -237,8 +257,7 @@
   x |>
     modify_table_body(
       ~ . |>
-        mutate(row_type =
-                 ifelse(variable %in% .vargrp_levels, "level", row_type))
+        mutate(row_type = ifelse(variable %in% .vargrp_levels, "level", row_type))
     ) |>
     modify_table_styling(columns = label,
                          rows = row_type == "level",
@@ -254,14 +273,15 @@
 #' @param label_overall 
 #' @param label_stat
 #' @param bold_p
-#' @param adj_label
 #' @param adj_acro
+#' @param adj_label
+#' @param estim_acro 
 #' @param estim_label
 #' @param ci
-#' @param estim_sep_int
 #' @param model_mv
 #' @param ref_sep 
 #' @param ref_no
+#' @param estim_sep
 #' @param hide_n
 #' @param vargrp_levels
 #' @param indent_type
@@ -276,14 +296,15 @@ gtsum_format <- \(x,
                   label_overall = "Total",
                   label_stat = NULL,
                   bold_p = "",
-                  adj_label = "a",
-                  adj_acro = "adjusted",
+                  adj_acro = "a",
+                  adj_label = "adjusted {label}",
+                  estim_acro = NULL,
                   estim_label = NULL,
                   ci,
-                  estim_sep_int,
                   model_mv,
                   ref_sep = "",
                   ref_no = "",
+                  estim_sep = ref_sep,
                   hide_n = TRUE,
                   vargrp_levels = "",
                   indent_type = "indent") {
@@ -312,11 +333,12 @@ gtsum_format <- \(x,
 
       x <-
       .fmt_reg(x,
-               .adj_label = adj_label,
                .adj_acro = adj_acro,
+               .adj_label = adj_label,
+               .estim_acro = estim_acro,
                .estim_label = estim_label,
                .ci = ci,
-               .estim_sep_int = estim_sep_int,
+               .estim_sep = estim_sep,
                .model_mv = model_mv,
                .ref_sep = ref_sep,
                .ref_no = ref_no,

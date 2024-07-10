@@ -4,12 +4,21 @@
 \alias{easy_relab}
 \title{Title}
 \usage{
-easy_relab(data, var, new_lab, ref_lab = " — ref", ref_sep)
+easy_relab(
+  data,
+  var,
+  new_lab = "{var_label}",
+  ref_lab = " — ref",
+  ref_level = data$table_body$reference_level,
+  tolower_level = TRUE
+)
 }
 \arguments{
 \item{ref_lab}{}
 
-\item{ref_sep}{}
+\item{ref_level}{}
+
+\item{tolower_level}{}
 }
 \description{
 Title

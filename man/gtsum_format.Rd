@@ -10,14 +10,15 @@ gtsum_format(
   label_overall = "Total",
   label_stat = NULL,
   bold_p = "",
-  adj_label = "a",
-  adj_acro = "adjusted",
+  adj_acro = "a",
+  adj_label = "adjusted {label}",
+  estim_acro = NULL,
   estim_label = NULL,
   ci,
-  estim_sep_int,
   model_mv,
   ref_sep = "",
   ref_no = "",
+  estim_sep = ref_sep,
   hide_n = TRUE,
   vargrp_levels = "",
   indent_type = "indent"
@@ -25,6 +26,8 @@ gtsum_format(
 }
 \arguments{
 \item{label_overall}{}
+
+\item{estim_acro}{}
 
 \item{ref_sep}{}
 

@@ -14,12 +14,11 @@ easy_replace <- \(..., replace = "</>") {
   col_replace <- glue("\n\n\n{col_replace}\n\n\n")
 
   str_list <-
-  purrr::map(c(...),
-             ~ rlang::list2('{glue("<p>.*({.}).*</p>")}' := replace) |>
-               unlist())
+  map(c(...),
+      ~ list2('{glue("<p>.*({.}).*</p>")}' := replace) |>
+        unlist())
 
-  replace_list <-
-    rlang::list2("(\n*{replace})+\n*" := col_replace)
+  replace_list <- list2("(\n*{replace})+\n*" := col_replace)
 
   unlist(append(str_list, replace_list))
 
@@ -58,9 +57,11 @@ easy_recode <- \(...) {
 #'
 #' @param x 
 #' @param var 
-#' @param name 
+#' @param incr 
+#' @param drop 
 #' @param values 
 #' @param labels 
+#' @param ... 
 #'
 #' @return
 #' @export
@@ -69,19 +70,49 @@ easy_recode <- \(...) {
 #' 
 easy_cut <- \(x, 
               var, 
-              name = "{var}_ql", 
-              values, 
-              labels) {
+              incr = FALSE,
+              drop = FALSE,
+              values = NULL, 
+              labels = NULL,
+              ...) {
   
   var <- enexpr(var)
-  name <- glue(name)
   
-  x |> 
-    mutate(!!name := 
+  if (!incr) {
+    
+    name <- glue("{var}_cat")
+    
+    x <-
+    x |> 
+      mutate(!!name :=
                cut(x = {{ var }},
                    breaks = c(min(!!var) - 1, values, max(!!var) + 1),
                    labels = labels),
-           .after = all_of(var))
+             .after = all_of(var))
+      
+  } else {
+    
+    name <- glue("{var}_incr")
+    
+    x <-
+    x |>
+      mutate(!!name :=
+               cut(x = {{ var }}, breaks = seq(...), right = FALSE) |> 
+               as.numeric(),
+             .after = all_of(var))
+    
+  }
+  
+  if (drop) {
+    
+    x <-
+    x |> 
+      select(-!!var) |> 
+      rename(!!var := all_of(name))
+    
+  }
+  
+  return(x)
   
 }
 
@@ -97,22 +128,21 @@ easy_cut <- \(x,
 #'
 pca_var_extract <- \(x) {
 
-dplyr::lst(coord =
-             x |>
-             broom::tidy("rotation") |>
-             tidyr::pivot_wider(names_from = "PC",
-                                names_prefix = "PC",
-                                values_from = "value") |>
-             dplyr::mutate(column = stringr::str_remove_all(column, "hamd"),
-                           .keep = "all"),
-           contrib =
-             coord |>
-               mutate(across(dplyr::matches("PC"),
-                             ~ . ^ 2 / sum(. ^ 2))),
-           weight =
-             coord["column"] |>
-               dplyr::mutate(PC1 = contrib$PC1 / max(contrib$PC1)) |>
-               pull(PC1))
+lst(coord =
+      x |>
+        broom::tidy("rotation") |>
+        tidyr::pivot_wider(names_from = "PC",
+                           names_prefix = "PC",
+                           values_from = "value") |>
+        mutate(column = str_remove_all(column, "hamd"),
+               .keep = "all"),
+    contrib =
+      coord |>
+        mutate(across(matches("PC"), ~ . ^ 2 / sum(. ^ 2))),
+    weight =
+      coord["column"] |>
+        mutate(PC1 = contrib$PC1 / max(contrib$PC1)) |>
+        pull(PC1))
 
 }
 
