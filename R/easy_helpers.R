@@ -273,29 +273,30 @@ p_shortenr <- \(x,
 
 #' Title
 #'
-#' @param x
+#' @param data 
 #' @param .var
 #' @param .min
-#' @param denom
+#' @param .fun 
 #'
 #' @return
 #' @export
 #'
 #' @examples
 #'
-pct_min <- \(x,
+pct_min <- \(data,
              .var,
              .min,
-             denom = "sum") {
+             .fun = "max") {
 
   .count <-
-  x |>
+  data |>
     count("{.var}" := get(.var)) |>
-    mutate(p = n / do.call(denom, list(n))) |>
-    filter(p > .min)
+    mutate(p = n / do.call(.fun, list(n))) |>
+    filter(p >= .min) |> 
+    pull(.var)
 
-  x[.var] |>
-    filter(get(.var) %in% .count[[.var]])
+  data |>
+    filter(get(.var) %in% .count)
 
 }
 

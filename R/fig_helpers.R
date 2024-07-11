@@ -43,7 +43,7 @@ ggcount <- \(data,
               stat = "count",
               family = family,
               ...) +
-    geom_text(data = data |> pct_min(var, pct_min),
+    geom_text(data = ~ pct_min(., var, pct_min),
               aes(y = after_stat(count - nudge_y * max(count)),
                   label = percent(after_stat(count) / nrow(data),
                                   accuracy = 0.1),

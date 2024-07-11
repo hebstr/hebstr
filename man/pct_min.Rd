@@ -4,10 +4,12 @@
 \alias{pct_min}
 \title{Title}
 \usage{
-pct_min(x, .var, .min, denom = "sum")
+pct_min(data, .var, .min, .fun = "max")
 }
 \arguments{
-\item{denom}{}
+\item{data}{}
+
+\item{.fun}{}
 }
 \description{
 Title
