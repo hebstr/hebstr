@@ -36,7 +36,7 @@ easy_descr <- \(data,
   .qt_stat <-
   list(min = c("Min" = "{min}"),
        q1 = c("Q1" = "{p25}"),
-       median_iqr = c("Median (IQR)" = "{median} ({p25} to {p75})"),
+       median_iqr = c("Median (IQR)" = "{median} ({p25}—{p75})"),
        q3 = c("Q3" = "{p75}"),
        max = c("Max" = "{max}"),
        mean_sd = c("Mean±SD" = "{mean}±{sd}"))
@@ -45,7 +45,7 @@ easy_descr <- \(data,
    
     .qt_stat <-
     list_modify(.qt_stat,
-                median_iqr = c("Médiane (IQR)" = "{median} ({p25} à {p75})"),
+                median_iqr = c("Médiane (IQR)" = "{median} ({p25}—{p75})"),
                 mean_sd = c("Moyenne±SD" = "{mean}±{sd}"))
      
   }

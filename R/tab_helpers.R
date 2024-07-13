@@ -1,5 +1,108 @@
 #' Title
 #'
+#' @param data 
+#' @param variable 
+#' @param by 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+quanti.test <- \(data, variable, by, ...) {
+  
+  .var <- data[[variable]]
+  .by <- data[[by]]
+  
+  vars <- easy_descr(data)$qt$vars |> suppressMessages()
+  
+  if (nlevels(factor(.by)) == 2) {
+    
+    if (variable %in% vars$parametric) {
+      
+      tidy(t.test(.var ~ .by, var.equal = TRUE))
+      
+    } else {
+      
+      tidy(wilcox.test(.var ~ .by, exact = FALSE, correct = FALSE))
+      
+    }
+      
+  } else {
+    
+    if (variable %in% vars$parametric) {
+      
+      tidy(anova(.var ~ .by, var.equal = TRUE))
+      
+    } else {
+      
+      tidy(kruskal.test(.var ~ .by))
+      
+    }
+      
+  }
+  
+}
+
+#' Title
+#'
+#' @param data 
+#' @param variable 
+#' @param by 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+quali.test <- \(data, variable, by, ...) {
+  
+  .var <- data[[variable]]
+  .by <- factor(data[[by]])
+  
+  chisq_is_correct <- \(correct) {
+  
+    chisq.test(.var, .by, correct = correct) |>
+    suppressWarnings()
+    
+  }
+  
+  chisq.test.no.correct <- chisq_is_correct(FALSE)
+  
+  is_under <- \(n) {
+    
+    chisq.test.no.correct$expected |>
+      data.frame() |>
+      filter(if_any(everything(), ~ . < n)) |>
+      nrow() > 0
+    
+  }
+
+  if (is_under(5)) {
+    
+    if (!is_under(1)) {
+  
+      tidy(chisq_is_correct(TRUE))
+  
+    } else {
+      
+      tidy(fisher.test(.var, .by))
+      
+    }
+    
+  } else {
+    
+    tidy(chisq.test.no.correct)
+    
+  }
+  
+}
+
+
+#' Title
+#'
 #' @param data
 #' @param ...
 #'

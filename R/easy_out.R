@@ -71,26 +71,19 @@ easy_out <- \(x,
       str_extract("\\d+") |>
       as.numeric()
 
-    if (names(x$`_data`)[1] == "variable") {
-
-      if (!str_detect(x$`_data`$var_label, "ref:")[1]) {
-
-        vars <- "(variable|var_type|test_name)($|_1)"
-
-        print(x$`_data` |>
-                select(matches(vars)) |>
-                rename_with(~ str_remove(., "_1")) |>
-                relocate(var_type, .after = variable) |>
-                distinct())
-
-      } else if (!is.null(print)) {
+      if (exists(".gtsum_output")) {
+        
+        cli_text("\n\n")
+        print(.gtsum_output, n = 100, na.print = NULL)
+        
+      }
+      
+      if (!is.null(print)) {
         
         cli_text("\n\n")
         print(print)
         
       }
-
-    }
 
     cli_text("\n\n")
     cli_progress_step("Creating HTML file")

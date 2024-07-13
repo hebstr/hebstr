@@ -46,6 +46,7 @@ check_font <- \(...) {
 #' @param pvalue_font_size 
 #' @param footnote_marks 
 #' @param footnote_font_size 
+#' @param ... 
 #'
 #' @return
 #' @export
@@ -65,7 +66,8 @@ theme_gt <- \(x,
               stat_font_size = 9,
               pvalue_font_size = 8,
               footnote_marks = "extended",
-              footnote_font_size = 9) {
+              footnote_font_size = 9,
+              ...) {
   
   .f <- \(str) str_subset(names(x$`_data`), str)
   
@@ -100,7 +102,8 @@ theme_gt <- \(x,
               footnotes.marks = footnote_marks,
               footnotes.font.size = px(footnote_font_size),
               footnotes.padding = px(5),
-              footnotes.background.color = bg)
+              footnotes.background.color = bg,
+              ...)
   
   x |>
     tab_style(style = cell_text(align = "justify"),

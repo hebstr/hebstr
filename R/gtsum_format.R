@@ -315,7 +315,7 @@ gtsum_format <- \(x,
   if ("tbl_merge" %in% class(x)) {
 
     check_by <- x$tbls[[1]]$by
-
+    
   } else check_by <- x$by
 
   if (!is.null(check_by)) {
@@ -326,10 +326,16 @@ gtsum_format <- \(x,
             .label_header = label_header,
             .label_overall = label_overall,
             .bold_p = bold_p)
+    
+    assign(".gtsum_output", 
+           x$meta_data |> 
+             select(variable, summary_type, stat_test_lbl, p.value) |> 
+             mutate(p.value = style_pvalue(p.value, digits = 1, prepend_p = TRUE)), 
+           envir = .GlobalEnv)
 
   } else {
 
-    if (str_detect(class(x)[1], "reg")) {
+    if (str_detect(class(x)[1], "tbl_(uv)?reg")) {
 
       x <-
       .fmt_reg(x,
@@ -345,7 +351,20 @@ gtsum_format <- \(x,
                .hide_n = hide_n,
                .label_header = label_header,
                .bold_p = bold_p)
+      
+      if ("tbl_regression" %in% class(x)) {
+      
+        assign(".gtsum_output",
+               list(vars = x$table_body[c("variable", "var_type")],
+                    model = x$model_obj |> tidy(exponentiate = TRUE)),
+               envir = .GlobalEnv)
+        
+      } else {
 
+        assign(".gtsum_output", x$meta_data, envir = .GlobalEnv)
+        
+      }
+        
     } else {
 
       x <-
@@ -353,6 +372,10 @@ gtsum_format <- \(x,
                .label_header = label_header,
                .label_stat = label_stat)
 
+      assign(".gtsum_output",
+             x$table_body[c("variable", "var_type")], 
+             envir = .GlobalEnv)
+      
     }
 
   }
