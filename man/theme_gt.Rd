@@ -18,7 +18,8 @@ theme_gt(
   stat_font_size = 9,
   pvalue_font_size = 8,
   footnote_marks = "extended",
-  footnote_font_size = 9
+  footnote_font_size = 9,
+  ...
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ theme_gt(
 \item{footnote_marks}{}
 
 \item{footnote_font_size}{}
+
+\item{...}{}
 }
 \description{
 Title

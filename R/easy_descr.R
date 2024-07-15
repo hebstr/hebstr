@@ -25,7 +25,7 @@ easy_descr <- \(data,
   qt_vars <-
   lst(total = 
         data |> 
-          select(where(~ is.numeric(.) & length(unique(na.omit(.))) != 2)) |>
+          keep(~ is.numeric(.) & length(unique(na.omit(.))) != 2) |>
           names(),
       parametric = parametric,
       nonparametric = 
@@ -68,10 +68,7 @@ easy_descr <- \(data,
 
 ### QL DATA -----------------------------------------------------------------------------
 
-  ql_vars <-
-  data |>
-    select(where(~ !is.numeric(.) & !is.Date(.))) |>
-    names()
+  ql_vars <- data |> keep(~ !is.numeric(.) & !is.Date(.)) |> names()
 
   ql_stat <-
   list(n_pct = c("n (%)" = "{n} ({p})")) |>
@@ -86,10 +83,7 @@ easy_descr <- \(data,
 
 ### DATE DATA ---------------------------------------------------------------------------
 
-  date_vars <-
-  data |>
-    select(where(is.Date)) |>
-    names()
+  date_vars <- data |> keep(is.Date) |> names()
 
 ### ASSIGN ------------------------------------------------------------------------------
 

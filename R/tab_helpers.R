@@ -269,7 +269,10 @@ fct_keep <- \(data,
     set_names(c("drop", "keep"))
   
   y <-
-  list(keep = pull(x$keep, !!var),
+  list(keep =
+         x$keep |> 
+           pull(!!var) |> 
+           as.character(),
        drop = 
          x$drop |> 
            mutate(str = glue("{get(var)} ({n})")) |> 
