@@ -2,6 +2,7 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom broom tidy
 #' @importFrom broom.helpers model_list_terms_levels
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info

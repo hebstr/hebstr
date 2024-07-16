@@ -82,11 +82,14 @@ easy_cut <- \(x,
     
     name <- glue("{var}_cat")
     
+    .min <- min(x[[var]], na.rm = TRUE)
+    .max <- max(x[[var]], na.rm = TRUE)
+    
     x <-
     x |> 
       mutate(!!name :=
                cut(x = {{ var }},
-                   breaks = c(min(!!var) - 1, values, max(!!var) + 1),
+                   breaks = c(.min - 1, values, .max + 1),
                    labels = labels),
              .after = all_of(var))
       
@@ -97,7 +100,7 @@ easy_cut <- \(x,
     x <-
     x |>
       mutate(!!name :=
-               cut(x = {{ var }}, breaks = seq(...), right = FALSE) |> 
+               cut(x = {{ var }}, breaks = seq(...), include.lowest = FALSE) |> 
                as.numeric(),
              .after = all_of(var))
     
