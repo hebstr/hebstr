@@ -248,6 +248,69 @@ gt_note <- \(data,
 
 #' Title
 #'
+#' @param x 
+#' @param cap 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+fct_str <- \(x, cap = TRUE) {
+  
+  str <-
+  x |>
+    str_squish() |> 
+    fct_count(sort = TRUE) |> 
+    drop_na() |> 
+    mutate(str = glue("{f} [{n}]")) |> 
+    pull(str) |> 
+    str_flatten_comma() |> 
+    glue(".")
+    
+  if (cap) {
+   
+    str <- 
+    str |> 
+      tolower() %>%
+      str_cap(toupper, .)
+    
+  }
+
+  return(str)
+    
+}
+
+
+#' Title
+#'
+#' @param fct 
+#' @param chr 
+#' @param min 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+fct_other_str <- \(fct, chr, min) {
+  
+  fct <-
+  fct |> 
+    fct_count(sort = TRUE) |> 
+    filter(f != "Other", n < min) |> 
+    mutate(str = glue("{f} ({n})")) |> 
+    pull(str)
+  
+  chr <- fct_str(chr, cap = FALSE)
+  
+  paste(fct, chr, sep = ", ")
+   
+}
+
+
+#' Title
+#'
 #' @param data 
 #' @param var 
 #' @param sup_to 
@@ -275,7 +338,7 @@ fct_keep <- \(data,
            as.character(),
        drop = 
          x$drop |> 
-           mutate(str = glue("{get(var)} ({n})")) |> 
+           mutate(str = glue("{get(var)} [{n}]")) |> 
            pull(str) |> 
            str_flatten_comma() %>%
            glue("."))

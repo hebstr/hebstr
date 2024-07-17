@@ -4,16 +4,14 @@
 \alias{theme_tte}
 \title{Title}
 \usage{
-theme_tte(
-  font = "arial",
-  size = 9,
-  vjust_y = 1,
-  margin = margin(0, 0, 0, 0),
-  ...
-)
+theme_tte(family = "arial", size = 8, vjust_y = 1, title_margin = NULL, ...)
 }
 \arguments{
+\item{family}{}
+
 \item{vjust_y}{}
+
+\item{title_margin}{}
 
 \item{...}{}
 }

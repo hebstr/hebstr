@@ -52,20 +52,6 @@ easy_descr <- \(data,
   
   qt_stat <- list_modify(.qt_stat, !!!qt_stat)
 
-  qt_type <- \(x) {
-
-    list(x$vars$parametric ~ x$stat$mean_sd,
-         x$vars$nonparametric ~ x$stat$median_iqr)
-
-  }
-
-  qt_label <- \(x) {
-
-    list(x$vars$parametric ~ str_cap(tolower, names(x$stat$mean_sd)),
-         x$vars$nonparametric ~ str_cap(tolower, names(x$stat$median_iqr)))
-
-  }
-
 ### QL DATA -----------------------------------------------------------------------------
 
   ql_vars <- data |> keep(~ !is.numeric(.) & !is.Date(.)) |> names()
@@ -91,9 +77,7 @@ easy_descr <- \(data,
   lst(qt =
         lst(vars = qt_vars,
             stat = qt_stat,
-            spanner = names(list_c(stat)),
-            type = qt_type,
-            label = qt_label),
+            spanner = names(list_c(stat))),
       ql =
         lst(vars = ql_vars,
             stat = ql_stat,

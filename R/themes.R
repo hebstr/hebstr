@@ -164,36 +164,36 @@ theme_bar <- \(family = "arial",
 
 #' Title
 #'
-#' @param font
+#' @param family 
 #' @param size
 #' @param vjust_y 
-#' @param margin
+#' @param title_margin 
 #' @param ...
 #'
 #' @return
 #' @export
 #'
 #' @examples
-theme_tte <- \(font = "arial",
-               size = 9,
+theme_tte <- \(family = "arial",
+               size = 8,
                vjust_y = 1,
-               margin = margin(0, 0, 0, 0),
+               title_margin = NULL,
                ...) {
 
   theme_classic() %+replace%
     theme(line = element_line(linewidth = 0.3),
-          text = element_text(family = font),
+          text = element_text(family = family),
           axis.title = element_text(face = "bold",
                                     size = 8),
           axis.title.x = element_text(vjust = -1),
           axis.title.y.left = element_text(vjust = vjust_y),
-          axis.text = element_text(size = 8),
+          axis.text = element_text(size = 7),
           panel.background = element_blank(),
           plot.background = element_blank(),
           plot.margin = margin(0, 0, 0, 0),
-          plot.caption = ggtext::element_textbox(size = size,
-                                                 width = ggplot2::unit(1, "npc"),
-                                                 margin = margin),
+          plot.caption = element_textbox(size = size,
+                                         width = unit(1, "npc"),
+                                         margin = title_margin),
           plot.caption.position = "plot",
           legend.position = "none",
           ...)
@@ -203,8 +203,8 @@ theme_tte <- \(font = "arial",
 
 #' Title
 #'
-#' @param font
-#' @param table_margin
+#' @param family 
+#' @param plot_margin 
 #' @param ...
 #'
 #' @return
@@ -212,19 +212,19 @@ theme_tte <- \(font = "arial",
 #'
 #' @examples
 #'
-theme_risktable <- \(font = "arial",
-                     table_margin = margin(0, 0, 0, 0),
+theme_risktable <- \(family = "arial",
+                     plot_margin = margin(10, 0, -10, 0),
                      ...) {
 
   list(theme_risktable_default(),
-       theme(text = element_text(family = font),
+       theme(text = element_text(family = family),
              plot.title = element_text(size = 7.5,
                                        face = "bold",
                                        margin = margin(0, 0, 0, 0)),
              panel.background = element_blank(),
              plot.background = element_blank(),
-             axis.text.y = element_text(size = 7),
-             plot.margin = table_margin,
+             axis.text.y = element_markdown(size = 7),
+             plot.margin = plot_margin,
              plot.title.position = "plot",
              ...))
 

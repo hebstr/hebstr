@@ -84,13 +84,15 @@ easy_cut <- \(x,
     
     .min <- min(x[[var]], na.rm = TRUE)
     .max <- max(x[[var]], na.rm = TRUE)
+    .values <- map_dbl(values, ~ . - 1/10000)
     
     x <-
     x |> 
       mutate(!!name :=
                cut(x = {{ var }},
-                   breaks = c(.min - 1, values, .max + 1),
-                   labels = labels),
+                   breaks = c(.min - 1, .values, .max + 1),
+                   labels = labels,
+                   right = FALSE),
              .after = all_of(var))
       
   } else {
@@ -100,7 +102,9 @@ easy_cut <- \(x,
     x <-
     x |>
       mutate(!!name :=
-               cut(x = {{ var }}, breaks = seq(...), include.lowest = FALSE) |> 
+               cut(x = {{ var }},
+                   breaks = seq(...),
+                   right = FALSE) |> 
                as.numeric(),
              .after = all_of(var))
     
