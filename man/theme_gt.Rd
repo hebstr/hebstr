@@ -17,6 +17,7 @@ theme_gt(
   table_font_size = 10,
   stat_font_size = 9,
   pvalue_font_size = 8,
+  single_line = FALSE,
   footnote_marks = "extended",
   footnote_font_size = 9,
   ...
@@ -36,6 +37,8 @@ theme_gt(
 \item{stat_font_size}{}
 
 \item{pvalue_font_size}{}
+
+\item{single_line}{}
 
 \item{footnote_marks}{}
 

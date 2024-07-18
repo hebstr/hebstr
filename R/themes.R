@@ -44,6 +44,7 @@ check_font <- \(...) {
 #' @param table_font_size 
 #' @param stat_font_size 
 #' @param pvalue_font_size 
+#' @param single_line 
 #' @param footnote_marks 
 #' @param footnote_font_size 
 #' @param ... 
@@ -65,11 +66,14 @@ theme_gt <- \(x,
               table_font_size = 10,
               stat_font_size = 9,
               pvalue_font_size = 8,
+              single_line = FALSE,
               footnote_marks = "extended",
               footnote_font_size = 9,
               ...) {
   
   .f <- \(str) str_subset(names(x$`_data`), str)
+  
+  if (single_line) color <- "#ffffff00"
   
   x <-
   tab_options(data = x,

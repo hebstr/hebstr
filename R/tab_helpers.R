@@ -300,14 +300,17 @@ fct_other_str <- \(fct, chr, min) {
     fct_count(sort = TRUE) |> 
     filter(f != "Other", n < min) |> 
     mutate(str = glue("{f} ({n})")) |> 
-    pull(str)
+    pull(str) |> 
+    str_flatten_comma() |> 
+    str_to_lower()
+  
+  fct <- str_cap(toupper, fct)
   
   chr <- fct_str(chr, cap = FALSE)
   
   paste(fct, chr, sep = ", ")
    
 }
-
 
 #' Title
 #'
