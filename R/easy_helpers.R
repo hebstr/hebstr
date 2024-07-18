@@ -325,3 +325,22 @@ read_png <- \(file, dir = "output") {
     rasterGrob()
 
 }
+
+
+#' Title
+#'
+#' @param dir 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+easy_source <- \(dir = "scripts") {
+  
+  files <- list.files(dir)
+  files <- files[!str_detect(files, "^_")]
+  
+  map(files, ~ source(glue("{dir}/{.}"))) 
+  
+}
