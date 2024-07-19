@@ -56,13 +56,13 @@ str_fig <- \(title,
              acro = "",
              sub_size = 7.5) {
 
-  title <- glue::glue(title)
-  note <- glue::glue(note)
+  title <- glue(title)
+  note <- glue(note)
 
-  glue::glue("{title}<br>
-             <span style='font-size:{sub_size}pt'>
-             {note} {acro}
-             </span>")
+  glue("{title}<br>
+       <span style='font-size:{sub_size}pt'>
+       {note} {acro}
+       </span>")
 
 }
 

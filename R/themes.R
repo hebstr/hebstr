@@ -217,14 +217,15 @@ theme_tte <- \(family = "arial",
 #' @examples
 #'
 theme_risktable <- \(family = "arial",
-                     plot_margin = margin(10, 0, -10, 0),
+                     title_margin = margin(-3, 0, 3, 0),
+                     plot_margin = margin(6, 0, -6, 0),
                      ...) {
 
   list(theme_risktable_default(),
        theme(text = element_text(family = family),
-             plot.title = element_text(size = 7.5,
+             plot.title = element_text(size = 6,
                                        face = "bold",
-                                       margin = margin(0, 0, 0, 0)),
+                                       margin = title_margin),
              panel.background = element_blank(),
              plot.background = element_blank(),
              axis.text.y = element_markdown(size = 7),

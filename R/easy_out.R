@@ -21,6 +21,7 @@ easy_out <- \(x,
               width = NA,
               height = NULL,
               size = NULL,
+              assign = TRUE,
               print = NULL) {
 
   cli_h1("easy_out")
@@ -46,7 +47,7 @@ easy_out <- \(x,
 
   if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
 
-  if (!as.character(filename) %in% ls()) {
+  if (assign && !as.character(filename) %in% ls()) {
     
     assign(as.character(filename), x, envir = .GlobalEnv)
     

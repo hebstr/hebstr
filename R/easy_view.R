@@ -116,6 +116,7 @@ easy_view <- \(x,
     easy_out(.view$output,
              filename = glue("{name}_view"),
              width = width,
+             assign = FALSE,
              ...)
 
   } else {

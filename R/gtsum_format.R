@@ -327,11 +327,24 @@ gtsum_format <- \(x,
             .label_overall = label_overall,
             .bold_p = bold_p)
     
-    assign(".gtsum_output", 
-           x$meta_data |> 
-             select(variable, summary_type, stat_test_lbl, p.value) |> 
-             mutate(p.value = style_pvalue(p.value, digits = 1, prepend_p = TRUE)), 
-           envir = .GlobalEnv)
+    .gtsum_output <-
+    x$meta_data |>
+      select(variable, 
+             summary_type,
+             matches("stat_test_lbl|p.value"))
+    
+    if (TRUE %in% str_detect(names(.gtsum_output), "p.value")) {
+    
+      .gtsum_output <-
+      .gtsum_output |>
+        mutate(p.value = 
+                 style_pvalue(p.value, 
+                              digits = 1, 
+                              prepend_p = TRUE))
+      
+    }
+    
+    assign(".gtsum_output", .gtsum_output, envir = .GlobalEnv)
 
   } else {
 

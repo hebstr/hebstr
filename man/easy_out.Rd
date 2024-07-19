@@ -12,6 +12,7 @@ easy_out(
   width = NA,
   height = NULL,
   size = NULL,
+  assign = TRUE,
   print = NULL
 )
 }

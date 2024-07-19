@@ -4,7 +4,12 @@
 \alias{theme_risktable}
 \title{Title}
 \usage{
-theme_risktable(family = "arial", plot_margin = margin(10, 0, -10, 0), ...)
+theme_risktable(
+  family = "arial",
+  title_margin = margin(-3, 0, 3, 0),
+  plot_margin = margin(6, 0, -6, 0),
+  ...
+)
 }
 \arguments{
 \item{family}{}
