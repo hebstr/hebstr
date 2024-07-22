@@ -118,6 +118,7 @@
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_remove_all
 #' @importFrom stringr str_starts
+#' @importFrom stringr str_subset
 #' @importFrom systemfonts system_fonts
 #' @importFrom tibble tibble
 #' @importFrom tidyr unnest

@@ -111,7 +111,7 @@ easy_view <- \(x,
 
     assign(glue("{name}_view"), .view, envir = .GlobalEnv)
 
-    if (exists(".gtsum_output")) rm(.gtsum_output, envir = .GlobalEnv)
+    if (exists(".gtsum_out")) rm(.gtsum_out, envir = .GlobalEnv)
     
     easy_out(.view$output,
              filename = glue("{name}_view"),

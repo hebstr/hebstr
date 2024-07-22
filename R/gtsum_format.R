@@ -327,16 +327,16 @@ gtsum_format <- \(x,
             .label_overall = label_overall,
             .bold_p = bold_p)
     
-    .gtsum_output <-
+    .gtsum_out <-
     x$meta_data |>
       select(variable, 
              summary_type,
              matches("stat_test_lbl|p.value"))
     
-    if (TRUE %in% str_detect(names(.gtsum_output), "p.value")) {
+    if (TRUE %in% str_detect(names(.gtsum_out), "p.value")) {
     
-      .gtsum_output <-
-      .gtsum_output |>
+      .gtsum_out <-
+      .gtsum_out |>
         mutate(p.value = 
                  style_pvalue(p.value, 
                               digits = 1, 
@@ -344,7 +344,7 @@ gtsum_format <- \(x,
       
     }
     
-    assign(".gtsum_output", .gtsum_output, envir = .GlobalEnv)
+    assign(".gtsum_out", .gtsum_out, envir = .GlobalEnv)
 
   } else {
 
@@ -365,16 +365,22 @@ gtsum_format <- \(x,
                .label_header = label_header,
                .bold_p = bold_p)
       
+      .gtsum_out_vars <-
+      x$table_body |> select(variable, var_type, n_obs, n_event)
+      
       if ("tbl_regression" %in% class(x)) {
       
-        assign(".gtsum_output",
-               list(vars = x$table_body[c("variable", "var_type")],
+        assign(".gtsum_out",
+               list(vars = .gtsum_out_vars,
                     model = x$model_obj |> tidy(exponentiate = TRUE)),
                envir = .GlobalEnv)
         
       } else {
 
-        assign(".gtsum_output", x$meta_data, envir = .GlobalEnv)
+        assign(".gtsum_out", 
+               list(vars = .gtsum_out_vars,
+                    meta_data = x$meta_data),
+               envir = .GlobalEnv)
         
       }
         
@@ -385,7 +391,7 @@ gtsum_format <- \(x,
                .label_header = label_header,
                .label_stat = label_stat)
 
-      assign(".gtsum_output",
+      assign(".gtsum_out",
              x$table_body[c("variable", "var_type")], 
              envir = .GlobalEnv)
       

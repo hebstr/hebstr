@@ -72,10 +72,10 @@ easy_out <- \(x,
       str_extract("\\d+") |>
       as.numeric()
 
-      if (exists(".gtsum_output")) {
+      if (exists(".gtsum_out")) {
         
         cli_text("\n\n")
-        print(.gtsum_output, n = 100, na.print = NULL)
+        print(.gtsum_out, n = 100, na.print = NULL)
         
       }
       
