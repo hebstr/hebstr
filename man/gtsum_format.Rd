@@ -21,7 +21,7 @@ gtsum_format(
   estim_sep = ref_sep,
   hide_n = TRUE,
   vargrp_levels = "",
-  indent_type = "indent"
+  indent = 4
 )
 }
 \arguments{
@@ -31,7 +31,7 @@ gtsum_format(
 
 \item{ref_sep}{}
 
-\item{indent_type}{}
+\item{indent}{}
 }
 \description{
 Title

@@ -5,8 +5,9 @@
              .bold_p) {
 
   .by <-
-  lst(cols = x$df_by$by_col,
+  lst(cols = names(x$table_body) |> str_subset("stat_[^(label|0)]"),
       name = x$inputs$data[[.check_by]],
+      N = length(na.omit(name)),
       spanner = var_label(name) %||% .check_by)
 
   .levels <- "**{level}<br>(n={n}, {style_percent(p, digits = 1)}%)**"
@@ -16,12 +17,11 @@
     add_overall() |>
     modify_table_body(
       ~ . |>
-        mutate(across(contains("stat_"),
-                      ~ ifelse(str_starts(., "0.0\\d+"), "—", .)))
+        mutate(across(all_stat_cols(), ~ str_remove("(\\.|,)0+")))
     ) |>
     modify_spanning_header(all_of(.by$cols) ~ glue("**{.by$spanner}**")) |>
     modify_header(label ~ .label_header,
-                  stat_0 ~ glue("**{.label_overall}<br>(N={x$N})**"),
+                  stat_0 ~ glue("**{.label_overall}<br>(N={.by$N})**"),
                   all_of(.by$cols) ~ .levels) |>
     modify_footnote(everything() ~ NA)
 
@@ -98,11 +98,8 @@
   x <-
   x |>
     modify_header(estimate ~ glue("**{.coef_label} {.ci_label}**")) |>
-    modify_table_styling(columns = estimate,
-                         rows = !is.na(ci),
-                         cols_merge_pattern = paste("{estimate}", .ci_data)) |>
-    modify_table_styling(columns = ci,
-                         hide = TRUE)
+    modify_column_merge(pattern = paste("{estimate}", .ci_data),
+                        rows = !is.na(estimate))
 
   estim <-
   lst(acro = unique(x$table_body$coefficients_label),
@@ -252,7 +249,7 @@
 
 .fmt_indent <- \(x,
                  .vargrp_levels,
-                 .indent_type) {
+                 .indent) {
 
   x |>
     modify_table_body(
@@ -261,7 +258,7 @@
     ) |>
     modify_table_styling(columns = label,
                          rows = row_type == "level",
-                         text_format = .indent_type)
+                         indent = .indent)
 
 }
 
@@ -284,7 +281,7 @@
 #' @param estim_sep
 #' @param hide_n
 #' @param vargrp_levels
-#' @param indent_type
+#' @param indent
 #'
 #' @return
 #' @export
@@ -307,16 +304,16 @@ gtsum_format <- \(x,
                   estim_sep = ref_sep,
                   hide_n = TRUE,
                   vargrp_levels = "",
-                  indent_type = "indent") {
+                  indent = 4) {
 
   label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""
   label_stat <- if (!is.null(label_stat)) glue("**{label_stat}**") else ""
   
   if ("tbl_merge" %in% class(x)) {
 
-    check_by <- x$tbls[[1]]$by
+    check_by <- x$tbls[[1]]$inputs$by
     
-  } else check_by <- x$by
+  } else check_by <- x$inputs$by
 
   if (!is.null(check_by)) {
 
@@ -328,10 +325,8 @@ gtsum_format <- \(x,
             .bold_p = bold_p)
     
     .gtsum_out <-
-    x$meta_data |>
-      select(variable, 
-             summary_type,
-             matches("stat_test_lbl|p.value"))
+    x$table_body |>
+      select(variable)
     
     if (TRUE %in% str_detect(names(.gtsum_out), "p.value")) {
     
@@ -372,15 +367,12 @@ gtsum_format <- \(x,
       
         assign(".gtsum_out",
                list(vars = .gtsum_out_vars,
-                    model = x$model_obj |> tidy(exponentiate = TRUE)),
+                    model = x$inputs$x |> tidy(exponentiate = TRUE)),
                envir = .GlobalEnv)
         
       } else {
 
-        assign(".gtsum_out", 
-               list(vars = .gtsum_out_vars,
-                    meta_data = x$meta_data),
-               envir = .GlobalEnv)
+        assign(".gtsum_out", .gtsum_out_vars, envir = .GlobalEnv)
         
       }
         
@@ -402,6 +394,6 @@ gtsum_format <- \(x,
   x <-
   .fmt_indent(x,
               .vargrp_levels = vargrp_levels,
-              .indent_type = indent_type)
+              .indent = indent)
 
 }
