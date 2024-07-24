@@ -17,7 +17,7 @@
     add_overall() |>
     modify_table_body(
       ~ . |>
-        mutate(across(all_stat_cols(), ~ str_remove("(\\.|,)0+")))
+        mutate(across(all_stat_cols(), ~ str_remove(., "(\\.|,)0+")))
     ) |>
     modify_spanning_header(all_of(.by$cols) ~ glue("**{.by$spanner}**")) |>
     modify_header(label ~ .label_header,
@@ -156,44 +156,18 @@
 }
 
 
-.fmt_reg_hide_n <- \(x) {
-
-  .N_event <- unique(x$table_body$N_event)
-
-  if (length(.N_event) == 1) {
-
-    x <-
-    x |>
-      modify_table_body(
-        ~ . |>
-          mutate(n_event =
-                   case_when(n_event == N_event & var_type == "continuous" ~ NA,
-                             .default = n_event))
-      )
-
-    x <- modify_header(x, n_event ~ glue("**n (N={.N_event})**"))
-
-  } else {
-
-    x <-
-    x |>
-      modify_table_body(
-        ~ . |>
-          mutate(n_event =
-                   case_when(n_event == N_event ~ NA,
-                             .default = n_event),
-                 N_event_uv =
-                   case_when(var_type == "categorical" & header_row == FALSE ~ NA,
-                             .default = N_event))
-      ) |>
-      modify_header(n_event ~ "**n**",
-                    N_event_uv ~ "**N**") |>
-      modify_table_body(
-        ~ . |>
-          relocate(N_event_uv, .after = n_event)
-      )
-
-  }
+.fmt_reg_n <- \(x, .label_n) {
+  
+  x <-
+  x |>
+    modify_table_body(
+      ~ . |>
+        mutate(stat_n = 
+                 if_else(var_type != "categorical" | row_type != "label",
+                         glue(.label_n), NA),
+               .after = n_event)
+    ) |>
+    modify_header(stat_n = "**N/n**")
 
   return(x)
 
@@ -210,7 +184,7 @@
               .model_mv,
               .ref_sep,
               .ref_no,
-              .hide_n,
+              .label_n,
               .label_header,
               .bold_p) {
 
@@ -234,7 +208,11 @@
 
   }
 
-  if (!.hide_n) x <- .fmt_reg_hide_n(x)
+  if (!is.null(.label_n) && "tbl_uvregression" %in% class(x)) {
+    
+    x <- .fmt_reg_n(x, .label_n)
+    
+  }
 
   x <-
   x |>
@@ -267,6 +245,7 @@
 #'
 #' @param x
 #' @param label_header
+#' @param label_n 
 #' @param label_overall 
 #' @param label_stat
 #' @param bold_p
@@ -279,7 +258,6 @@
 #' @param ref_sep 
 #' @param ref_no
 #' @param estim_sep
-#' @param hide_n
 #' @param vargrp_levels
 #' @param indent
 #'
@@ -290,7 +268,8 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
-                  label_overall = "Total",
+                  label_n = NULL,
+                  label_overall = NULL,
                   label_stat = NULL,
                   bold_p = "",
                   adj_acro = "a",
@@ -302,7 +281,6 @@ gtsum_format <- \(x,
                   ref_sep = "",
                   ref_no = "",
                   estim_sep = ref_sep,
-                  hide_n = TRUE,
                   vargrp_levels = "",
                   indent = 4) {
 
@@ -356,7 +334,7 @@ gtsum_format <- \(x,
                .model_mv = model_mv,
                .ref_sep = ref_sep,
                .ref_no = ref_no,
-               .hide_n = hide_n,
+               .label_n = label_n,
                .label_header = label_header,
                .bold_p = bold_p)
       

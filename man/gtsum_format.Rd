@@ -7,7 +7,8 @@
 gtsum_format(
   x,
   label_header = NULL,
-  label_overall = "Total",
+  label_n = NULL,
+  label_overall = NULL,
   label_stat = NULL,
   bold_p = "",
   adj_acro = "a",
@@ -19,12 +20,13 @@ gtsum_format(
   ref_sep = "",
   ref_no = "",
   estim_sep = ref_sep,
-  hide_n = TRUE,
   vargrp_levels = "",
   indent = 4
 )
 }
 \arguments{
+\item{label_n}{}
+
 \item{label_overall}{}
 
 \item{estim_acro}{}
