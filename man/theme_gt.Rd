@@ -12,6 +12,7 @@ theme_gt(
   base = "#333333",
   color = "lightgrey",
   bg = "white",
+  row_padding = 2,
   title_align = "left",
   title_font_size = 11,
   table_font_size = 10,
@@ -27,6 +28,8 @@ theme_gt(
 \item{width}{}
 
 \item{bg}{}
+
+\item{row_padding}{}
 
 \item{title_align}{}
 

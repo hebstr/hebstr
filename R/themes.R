@@ -39,6 +39,7 @@ check_font <- \(...) {
 #' @param base
 #' @param color
 #' @param bg 
+#' @param row_padding 
 #' @param title_align 
 #' @param title_font_size 
 #' @param table_font_size 
@@ -61,6 +62,7 @@ theme_gt <- \(x,
               base = "#333333",
               color = "lightgrey",
               bg = "white",
+              row_padding = 2,
               title_align = "left",
               title_font_size = 11, 
               table_font_size = 10,
@@ -100,13 +102,13 @@ theme_gt <- \(x,
               table_body.hlines.style = "none",
               container.height = pct(100),
               container.width = pct(100),
-              data_row.padding = px(4),
+              data_row.padding = px(row_padding),
               data_row.padding.horizontal = px(5),
               row.striping.include_table_body = TRUE,
               row.striping.background_color = bg,
               footnotes.marks = footnote_marks,
               footnotes.font.size = px(footnote_font_size),
-              footnotes.padding = px(5),
+              footnotes.padding = px(3),
               footnotes.background.color = bg,
               ...)
   
