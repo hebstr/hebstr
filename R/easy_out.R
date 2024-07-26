@@ -118,10 +118,8 @@ easy_out <- \(x,
 
     cli_progress_step("Capturing SVG to PNG")
 
-    ggsave(to_png,
-           height = size[1],
-           width = size[2],
-           dpi = 500)
+    image_read_svg(to_svg, height = 1000) |>
+      image_write(to_png, format = "png")
 
     cli_progress_done()
 

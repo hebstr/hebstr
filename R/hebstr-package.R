@@ -2,6 +2,8 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom beepr beep
+#' @importFrom beepr beep_on_error
 #' @importFrom broom tidy
 #' @importFrom broom.helpers model_list_terms_levels
 #' @importFrom cli cli_abort
@@ -91,6 +93,8 @@
 #' @importFrom labelled generate_dictionary
 #' @importFrom labelled label_attribute
 #' @importFrom labelled var_label
+#' @importFrom magick image_read_svg
+#' @importFrom magick image_write
 #' @importFrom magrittr %>%
 #' @importFrom png readPNG
 #' @importFrom purrr list_c

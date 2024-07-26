@@ -293,7 +293,7 @@ gtsum_format <- \(x,
     
   } else check_by <- x$inputs$by
 
-  if (!is.null(check_by)) {
+  if (length(check_by) > 0) {
 
     x <-
     .fmt_by(x,

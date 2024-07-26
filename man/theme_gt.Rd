@@ -12,7 +12,7 @@ theme_gt(
   base = "#333333",
   color = "lightgrey",
   bg = "white",
-  row_padding = 2,
+  row_padding = 4,
   title_align = "left",
   title_font_size = 11,
   table_font_size = 10,
