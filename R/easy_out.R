@@ -42,10 +42,6 @@ easy_out <- \(x,
   if (!is.null(suffix)) filename <- glue("{filename}_", suffix)
 
   if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
-  
-  if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
-
-  if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
 
   if (assign && !as.character(filename) %in% ls()) {
     
@@ -61,7 +57,11 @@ easy_out <- \(x,
 ### TAB -------------------------------------------------------------------------
 
   if (TRUE %in% str_detect(class(x), "tbl")) {
-
+    
+    if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
+    
+    if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
+    
     if (!"gt_tbl" %in% class(x)) x <- as_gt(x)
 
     width <-
@@ -107,6 +107,8 @@ easy_out <- \(x,
 
   } else if ("gg" %in% class(x)) {
 
+    if (!rlang::is_installed("rsvg")) install.packages("rsvg", quiet = TRUE)
+    
     cli_progress_step("Creating SVG file")
 
     x |>
