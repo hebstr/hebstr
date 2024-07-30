@@ -1,0 +1,11 @@
+url: https://codeberg.org/hebstr/hebstr/
+
+template:
+  bootstrap: 5
+  bootswatch: cerulean
+  light-switch: true
+
+repo:
+  url:
+    home: https://codeberg.org/hebstr/hebstr/
+    source: https://codeberg.org/hebstr/hebstr/src/branch/main/

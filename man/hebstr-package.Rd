@@ -6,10 +6,12 @@
 \alias{hebstr-package}
 \title{hebstr: What the Package Does (One Line, Title Case)}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 What the package does (one paragraph).
 }
 \author{
-\strong{Maintainer}: pas chatGPT \email{ju.diez@protonmail.com}
+\strong{Maintainer}: Julien ELICES-DIEZ \email{ju.diez@protonmail.com}
 
 }
 \keyword{internal}
