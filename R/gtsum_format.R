@@ -167,7 +167,7 @@
                          glue(.label_n), NA),
                .after = n_event)
     ) |>
-    modify_header(stat_n = "**N/n**")
+    modify_header(stat_n = "**Events/N**")
 
   return(x)
 
