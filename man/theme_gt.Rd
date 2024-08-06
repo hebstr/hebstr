@@ -21,6 +21,7 @@ theme_gt(
   single_line = FALSE,
   footnote_marks = "extended",
   footnote_font_size = 9,
+  footnote_padding = 4,
   ...
 )
 }

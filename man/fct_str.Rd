@@ -4,7 +4,7 @@
 \alias{fct_str}
 \title{Title}
 \usage{
-fct_str(x, cap = TRUE)
+fct_str(x, sep, cap = TRUE)
 }
 \arguments{
 \item{x}{}

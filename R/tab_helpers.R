@@ -256,7 +256,9 @@ gt_note <- \(data,
 #'
 #' @examples
 #' 
-fct_str <- \(x, cap = TRUE) {
+fct_str <- \(x, 
+              sep, 
+              cap = TRUE) {
   
   str <-
   x |>
@@ -265,17 +267,10 @@ fct_str <- \(x, cap = TRUE) {
     drop_na() |> 
     mutate(str = glue("{f} [{n}]")) |> 
     pull(str) |> 
-    str_flatten_comma() |> 
+    str_flatten(sep) |> 
     glue(".")
     
-  if (cap) {
-   
-    str <- 
-    str |> 
-      tolower() %>%
-      str_cap(toupper, .)
-    
-  }
+  if (cap) str <- str |> tolower() %>% str_cap(toupper, .)
 
   return(str)
     
@@ -325,7 +320,8 @@ fct_other_str <- \(fct, chr, min) {
 #' 
 fct_keep <- \(data,
               var,
-              sup_to) {
+              sup_to,
+              sep) {
 
   x <-
   data |> 
@@ -343,7 +339,7 @@ fct_keep <- \(data,
          x$drop |> 
            mutate(str = glue("{get(var)} [{n}]")) |> 
            pull(str) |> 
-           str_flatten_comma() %>%
+           str_flatten(sep) %>%
            glue("."))
 
   return(y)

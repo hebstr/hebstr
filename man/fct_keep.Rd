@@ -4,7 +4,7 @@
 \alias{fct_keep}
 \title{Title}
 \usage{
-fct_keep(data, var, sup_to)
+fct_keep(data, var, sup_to, sep)
 }
 \arguments{
 \item{data}{}

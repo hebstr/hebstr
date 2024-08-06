@@ -71,6 +71,7 @@ theme_gt <- \(x,
               single_line = FALSE,
               footnote_marks = "extended",
               footnote_font_size = 9,
+              footnote_padding = 4,
               ...) {
   
   .f <- \(str) str_subset(names(x$`_data`), str)
@@ -108,7 +109,7 @@ theme_gt <- \(x,
               row.striping.background_color = bg,
               footnotes.marks = footnote_marks,
               footnotes.font.size = px(footnote_font_size),
-              footnotes.padding = px(3),
+              footnotes.padding = px(footnote_padding),
               footnotes.background.color = bg,
               ...)
   
