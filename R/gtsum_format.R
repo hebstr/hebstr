@@ -156,18 +156,20 @@
 }
 
 
-.fmt_reg_n <- \(x, .label_n) {
+.fmt_reg_n <- \(x, 
+                .stat_n,
+                .label_n) {
   
   x <-
   x |>
     modify_table_body(
       ~ . |>
         mutate(stat_n = 
-                 if_else(var_type != "categorical" | row_type != "label",
-                         glue(.label_n), NA),
+                 if_else(var_type == "continuous" | row_type == "level", 
+                         glue(.stat_n), NA),
                .after = n_event)
     ) |>
-    modify_header(stat_n = "**Events/N**")
+    modify_header(stat_n = glue("**{.label_n}**"))
 
   return(x)
 
@@ -182,8 +184,10 @@
               .ci,
               .estim_sep,
               .model_mv,
+              .show_single_row,
               .ref_sep,
               .ref_no,
+              .stat_n,
               .label_n,
               .label_header,
               .bold_p) {
@@ -198,7 +202,7 @@
                     .ci_data = .ci$data,
                     .estim_sep = .estim_sep)
 
-  if (!is.null(model_list_terms_levels(.model_mv))) {
+  if (!is.null(model_list_terms_levels(.model_mv)) && .show_single_row) {
 
     x <-
     .fmt_reg_level(x,
@@ -210,7 +214,7 @@
 
   if (!is.null(.label_n) && "tbl_uvregression" %in% class(x)) {
     
-    x <- .fmt_reg_n(x, .label_n)
+    x <- .fmt_reg_n(x, .stat_n, .label_n)
     
   }
 
@@ -246,6 +250,7 @@
 #' @param x
 #' @param label_header
 #' @param label_n 
+#' @param stat_n 
 #' @param label_overall 
 #' @param label_stat
 #' @param bold_p
@@ -255,6 +260,7 @@
 #' @param estim_label
 #' @param ci
 #' @param model_mv
+#' @param show_single_row 
 #' @param ref_sep 
 #' @param ref_no
 #' @param estim_sep
@@ -268,7 +274,8 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
-                  label_n = NULL,
+                  label_n = "Events/N",
+                  stat_n = "{n_event}/{n_obs}",
                   label_overall = NULL,
                   label_stat = NULL,
                   bold_p = "",
@@ -278,6 +285,7 @@ gtsum_format <- \(x,
                   estim_label = NULL,
                   ci,
                   model_mv,
+                  show_single_row = FALSE,
                   ref_sep = "",
                   ref_no = "",
                   estim_sep = ref_sep,
@@ -332,8 +340,10 @@ gtsum_format <- \(x,
                .ci = ci,
                .estim_sep = estim_sep,
                .model_mv = model_mv,
+               .show_single_row = show_single_row,
                .ref_sep = ref_sep,
                .ref_no = ref_no,
+               .stat_n = stat_n,
                .label_n = label_n,
                .label_header = label_header,
                .bold_p = bold_p)

@@ -7,7 +7,8 @@
 gtsum_format(
   x,
   label_header = NULL,
-  label_n = NULL,
+  label_n = "Events/N",
+  stat_n = "{n_event}/{n_obs}",
   label_overall = NULL,
   label_stat = NULL,
   bold_p = "",
@@ -17,6 +18,7 @@ gtsum_format(
   estim_label = NULL,
   ci,
   model_mv,
+  show_single_row = FALSE,
   ref_sep = "",
   ref_no = "",
   estim_sep = ref_sep,
@@ -27,9 +29,13 @@ gtsum_format(
 \arguments{
 \item{label_n}{}
 
+\item{stat_n}{}
+
 \item{label_overall}{}
 
 \item{estim_acro}{}
+
+\item{show_single_row}{}
 
 \item{ref_sep}{}
 
