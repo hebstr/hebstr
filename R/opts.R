@@ -33,8 +33,8 @@ opts_set <- \(fr = FALSE,
        font = list(alpha = "luciole",
                    digit = "luciole"),
        palette = list(base = "#999999",
-                      cold = c("#E1F6FF", "#0099CC"),
-                      warm = c("#f5E3E0", "#BC3C29")))
+                      cold = c("#E1F6FF", "#0099EE"),
+                      warm = c("#f5E3E0", "#BC3C33")))
 
   if (fr) {
 

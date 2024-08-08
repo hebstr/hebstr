@@ -15,10 +15,6 @@
   x <-
   x |>
     add_overall() |>
-    modify_table_body(
-      ~ . |>
-        mutate(across(all_stat_cols(), ~ str_remove(., "(\\.|,)0+")))
-    ) |>
     modify_spanning_header(all_of(.by$cols) ~ glue("**{.by$spanner}**")) |>
     modify_header(label ~ .label_header,
                   stat_0 ~ glue("**{.label_overall}<br>(N={.by$N})**"),

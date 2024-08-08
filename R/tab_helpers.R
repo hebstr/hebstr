@@ -217,11 +217,11 @@ easy_relab <- \(data,
 #'
 #' @examples
 #' 
-gt_note <- \(data,
-             vars = NULL,
-             levels = NULL,
-             rows = NULL,
-             note) {
+add_note <- \(data,
+              vars = NULL,
+              levels = NULL,
+              rows = NULL,
+              note) {
   
   rows <- enexpr(rows)
   
@@ -257,8 +257,8 @@ gt_note <- \(data,
 #' @examples
 #' 
 fct_str <- \(x, 
-              sep, 
-              cap = TRUE) {
+             sep, 
+             cap = TRUE) {
   
   str <-
   x |>
@@ -325,6 +325,7 @@ fct_keep <- \(data,
 
   x <-
   data |> 
+    separate_longer_delim(!!var, delim = regex("\\s*(,|et)\\s*")) |> 
     count(!!var := get(var), sort = TRUE) |>
     drop_na() |> 
     split(~ n > sup_to) |> 
@@ -345,3 +346,43 @@ fct_keep <- \(data,
   return(y)
   
 }
+
+
+#' Title
+#'
+#' @param x 
+#' @param name 
+#' @param levels 
+#' @param label_indent 
+#' @param levels_indent 
+#' @param .before 
+#' @param .after 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+add_label <- \(x,
+               name,
+               levels,
+               indent = 0) {
+  
+  .before_index <- grep(levels[1], x$table_body$variable)[1]
+  
+  x <-
+  x |> 
+    modify_table_body(
+      ~ . |>
+        add_row(label = name, 
+                .before = .before_index)
+    ) |>
+    modify_column_indent(columns = label,
+                         rows = label == name,
+                         indent = indent) |> 
+    modify_column_indent(columns = label,
+                         rows = variable %in% levels,
+                         indent = indent + 4)
+
+}
+

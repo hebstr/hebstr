@@ -27,7 +27,7 @@ gt_format <- \(x,
 
 ### ACRO --------------------------------------------------------------------
 
-  style <- x$table_styling$header$label
+  style <- with(x$table_styling$header, c(label, spanning_header))
 
   body <-
   x$table_body |> 

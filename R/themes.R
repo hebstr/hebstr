@@ -385,50 +385,6 @@ theme_infreq <- \(font = "arial",
 
 #' Title
 #'
-#' @param y
-#' @param color
-#' @param ...
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-add_label <- \(y,
-               color = NULL,
-               ...) {
-
-  if (is.null(color)) {
-
-    list(geom_text(aes(y = ggplot2::after_stat(count) + y * max(count),
-                       label = ggplot2::after_stat(count),
-                       color = ggplot2::after_scale(fill)),
-                   ...),
-         geom_text(aes(y = ggplot2::after_stat(count) - y * max(count),
-                       label = scales::percent(ggplot2::after_stat(count) / sum(ggplot2::after_stat(count)),
-                                               accuracy = 0.1),
-                       color = ggplot2::after_scale(fill |> colorspace::lighten(0.95))),
-                   ...))
-
-  } else {
-
-    list(geom_text(aes(y = ggplot2::after_stat(count) + y * max(count),
-                       label = ggplot2::after_stat(count)),
-                   color = color,
-                   ...),
-         geom_text(aes(y = ggplot2::after_stat(count) - y * max(count),
-                       label = scales::percent(ggplot2::after_stat(count) / sum(ggplot2::after_stat(count)),
-                                               accuracy = 0.1)),
-                   color = colorspace::lighten(color, 0.95),
-                   ...))
-
-  }
-
-}
-
-
-#' Title
-#'
 #' @param data 
 #' @param head 
 #' @param size 
