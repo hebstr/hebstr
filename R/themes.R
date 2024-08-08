@@ -48,6 +48,8 @@ check_font <- \(...) {
 #' @param single_line 
 #' @param footnote_marks 
 #' @param footnote_font_size 
+#' @param footnote_padding 
+#' @param to_docx 
 #' @param ... 
 #'
 #' @return
@@ -72,6 +74,7 @@ theme_gt <- \(x,
               footnote_marks = "extended",
               footnote_font_size = 9,
               footnote_padding = 4,
+              to_docx = FALSE,
               ...) {
   
   .f <- \(str) str_subset(names(x$`_data`), str)
@@ -113,16 +116,20 @@ theme_gt <- \(x,
               footnotes.background.color = bg,
               ...)
   
-  x |>
-    tab_style(style = cell_text(align = "justify"),
-              locations = list(cells_title(),
-                               cells_footnotes())) |>
-    tab_style(style = cell_text(font = digit),
-              locations = cells_body(columns = .f("stat|estimate|p.value"))) |>
-    tab_style(style = cell_text(size = px(stat_font_size)),
-              locations = cells_body(columns = .f("stat|estimate"))) |>     
-    tab_style(style = cell_text(size = px(pvalue_font_size)),
-              locations = cells_body(columns = .f("p.value")))
+  if (!to_docx) {
+    
+    x |>
+      tab_style(style = cell_text(align = "justify"),
+                locations = list(cells_title(),
+                                 cells_footnotes())) |>
+      tab_style(style = cell_text(font = digit),
+                locations = cells_body(columns = .f("stat|estimate|p.value"))) |>
+      tab_style(style = cell_text(size = px(stat_font_size)),
+                locations = cells_body(columns = .f("stat|estimate"))) |>     
+      tab_style(style = cell_text(size = px(pvalue_font_size)),
+                locations = cells_body(columns = .f("p.value")))
+      
+  }
 
 }
 
