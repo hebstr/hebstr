@@ -156,6 +156,20 @@
                 .stat_n,
                 .label_n) {
   
+  if ("n_event" %in% names(x$table_body)) {
+    
+    .stat_n <- "{n_event}/{n_obs}"
+    .label_n <- "Events/Obs"
+    .n_type <- "n_event"
+    
+  } else {
+    
+    .stat_n <- "{n_obs}"
+    .label_n <- "Obs"
+    .n_type <- "n_obs"
+    
+  }
+  
   x <-
   x |>
     modify_table_body(
@@ -163,7 +177,7 @@
         mutate(stat_n = 
                  if_else(var_type == "continuous" | row_type == "level", 
                          glue(.stat_n), NA),
-               .after = n_event)
+               .after = .n_type)
     ) |>
     modify_header(stat_n = glue("**{.label_n}**"))
 
@@ -208,7 +222,7 @@
 
   }
 
-  if (!is.null(.label_n) && "tbl_uvregression" %in% class(x)) {
+  if ("tbl_uvregression" %in% class(x)) {
     
     x <- .fmt_reg_n(x, .stat_n, .label_n)
     
@@ -270,8 +284,8 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
-                  label_n = "Events/N",
-                  stat_n = "{n_event}/{n_obs}",
+                  label_n = NULL,
+                  stat_n = NULL,
                   label_overall = NULL,
                   label_stat = NULL,
                   bold_p = "",
@@ -345,7 +359,7 @@ gtsum_format <- \(x,
                .bold_p = bold_p)
       
       .gtsum_out_vars <-
-      x$table_body |> select(variable, var_type, n_obs, n_event)
+      x$table_body |> select(matches("variable|var_type|n_obs|n_event"))
       
       if ("tbl_regression" %in% class(x)) {
       

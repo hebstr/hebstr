@@ -7,8 +7,8 @@
 gtsum_format(
   x,
   label_header = NULL,
-  label_n = "Events/N",
-  stat_n = "{n_event}/{n_obs}",
+  label_n = NULL,
+  stat_n = NULL,
   label_overall = NULL,
   label_stat = NULL,
   bold_p = "",
