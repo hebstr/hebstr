@@ -151,25 +151,14 @@
 
 }
 
+.event <- \(x) "n_event" %in% names(x$table_body)
 
 .fmt_reg_n <- \(x, 
                 .stat_n,
                 .label_n) {
   
-  if ("n_event" %in% names(x$table_body)) {
+  .n_type <- if (.event(x)) "n_event" else "n_obs"
     
-    .stat_n <- "{n_event}/{n_obs}"
-    .label_n <- "Events/Obs"
-    .n_type <- "n_event"
-    
-  } else {
-    
-    .stat_n <- "{n_obs}"
-    .label_n <- "Obs"
-    .n_type <- "n_obs"
-    
-  }
-  
   x <-
   x |>
     modify_table_body(
@@ -254,7 +243,6 @@
 
 }
 
-
 #' Title
 #'
 #' @param x
@@ -284,8 +272,8 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
-                  label_n = NULL,
-                  stat_n = NULL,
+                  label_n = if (.event(x)) "Events/Obs" else "Obs",
+                  stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
                   label_overall = NULL,
                   label_stat = NULL,
                   bold_p = "",

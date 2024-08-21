@@ -7,8 +7,8 @@
 gtsum_format(
   x,
   label_header = NULL,
-  label_n = NULL,
-  stat_n = NULL,
+  label_n = if (.event(x)) "Events/Obs" else "Obs",
+  stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
   label_overall = NULL,
   label_stat = NULL,
   bold_p = "",
