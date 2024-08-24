@@ -341,10 +341,6 @@ easy_source <- \(dir = "scripts") {
   files <- list.files(dir)
   files <- files[!str_detect(files, "^_")]
   
-  files |>
-    map(~ source(glue("{dir}/{.}"))) |> 
-    beep_on_error("wilhelm")
-  
-  beep("fanfare")
+  map(files, ~ source(glue("{dir}/{.}")))
   
 }

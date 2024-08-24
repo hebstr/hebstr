@@ -2,8 +2,6 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom beepr beep
-#' @importFrom beepr beep_on_error
 #' @importFrom broom tidy
 #' @importFrom broom.helpers model_list_terms_levels
 #' @importFrom cli cli_abort
