@@ -81,6 +81,7 @@
 #' @importFrom gtsummary add_overall
 #' @importFrom gtsummary as_gt
 #' @importFrom gtsummary bold_p
+#' @importFrom gtsummary label_style_pvalue
 #' @importFrom gtsummary modify_column_indent
 #' @importFrom gtsummary modify_footnote
 #' @importFrom gtsummary modify_header
