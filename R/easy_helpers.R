@@ -344,3 +344,52 @@ easy_source <- \(dir = "scripts") {
   map(files, ~ source(glue("{dir}/{.}")))
   
 }
+
+
+#' Title
+#'
+#' @param df 
+#' @param y 
+#' @param x 
+#' @param breaks 
+#' @param color 
+#' @param label_y 
+#' @param label_x 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+logit_lty <- \(df,
+               y,
+               x,
+               breaks = 30,
+               color = "#0099cc",
+               label_y = "Logit(P '{var_label(df[[y]])}')" %||% "Logit(P '{y}')",
+               label_x = var_label(df[[x]]) %||% x) {
+  
+  y <- enexpr(y)
+  x <- enexpr(x)
+  
+  .data <-
+  df |> 
+    mutate("{x}_cat" := cut(!!x, breaks = 40)) |> 
+    summarise("mean_{x}" := mean(!!x),
+              "prop_{y}" := mean(!!y == 1),
+              logit_prop = log(get(glue("prop_{y}")) / (1 - get(glue("prop_{y}")))),
+              .by = glue("{x}_cat")) |> 
+    filter(!logit_prop %in% c(-Inf, Inf))
+  
+  .data |> 
+    ggplot(aes(y = logit_prop,
+               x = get(glue("mean_{x}")))) +
+    geom_point(alpha = 0.4) +
+    geom_smooth(method = "lm",
+                formula = "y ~ x",
+                se = FALSE,
+                color = color) +
+    labs(y = glue(label_y),
+         x = glue(label_x))
+  
+}
