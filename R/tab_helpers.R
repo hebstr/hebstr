@@ -210,6 +210,7 @@ easy_relab <- \(data,
 #' @param vars 
 #' @param levels 
 #' @param rows 
+#' @param pvalue_mv 
 #' @param note 
 #'
 #' @return
@@ -221,27 +222,38 @@ add_note <- \(data,
               vars = NULL,
               levels = NULL,
               rows = NULL,
+              pvalue_mv = NULL,
               note) {
   
-  rows <- enexpr(rows)
+  if (is.null(pvalue_mv)) {
   
-  if (!is.null(vars)) {
+    rows <- enexpr(rows)
     
-    vars <- expr(variable %in% !!vars & row_type == "label")
+    if (!is.null(vars)) {
+      
+      vars <- expr(variable %in% !!vars & row_type == "label")
+      
+    } else if (!is.null(levels)) {
+      
+      vars <- expr(label %in% !!levels)
     
-  } else if (!is.null(levels)) {
+    } else if (!is.null(rows)) {
+      
+      vars <- enexpr(rows)
     
-    vars <- expr(label %in% !!levels)
-  
-  } else if (!is.null(rows)) {
+    }
+
+    tab_footnote(data = data,
+                 footnote = note,
+                 locations = cells_body(columns = label, rows = !!vars))
     
-    vars <- enexpr(rows)
-  
+  } else {
+    
+    tab_footnote(data = data,
+                 footnote = note,
+                 locations = cells_column_labels(glue("p.value_{pvalue_mv + 1}")))
+    
   }
-    
-  tab_footnote(data = data,
-               footnote = note,
-               locations = cells_body(columns = label, rows = !!vars))
 
 }
 
@@ -386,3 +398,28 @@ add_label <- \(x,
 
 }
 
+
+#' Title
+#'
+#' @param data 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+str_na_mv <- \(data) {
+  
+  n_total <- nrow(data)
+  
+  na <-
+  lst(n = data |> filter(if_any(everything(), is.na)) |> nrow(),
+      p = percent(n / n_total, accuracy = .1),
+      obs =
+        case_when(n == 0 ~ "aucune observation",
+                  n == 1 ~ glue("{n} observation"),
+                  .default = glue("{n} observations ({p})")))
+  
+  glue("{n_total} observations, {na$obs} contenant a minima une données manquante")
+
+}

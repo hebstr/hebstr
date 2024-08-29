@@ -4,7 +4,7 @@
 \alias{add_note}
 \title{Title}
 \usage{
-add_note(data, vars = NULL, levels = NULL, rows = NULL, note)
+add_note(data, vars = NULL, levels = NULL, rows = NULL, pvalue_mv = NULL, note)
 }
 \arguments{
 \item{data}{}
@@ -14,6 +14,8 @@ add_note(data, vars = NULL, levels = NULL, rows = NULL, note)
 \item{levels}{}
 
 \item{rows}{}
+
+\item{pvalue_mv}{}
 
 \item{note}{}
 }

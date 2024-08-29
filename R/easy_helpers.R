@@ -372,24 +372,97 @@ logit_lty <- \(df,
   y <- enexpr(y)
   x <- enexpr(x)
   
-  .data <-
-  df |> 
-    mutate("{x}_cat" := cut(!!x, breaks = 40)) |> 
-    summarise("mean_{x}" := mean(!!x),
-              "prop_{y}" := mean(!!y == 1),
-              logit_prop = log(get(glue("prop_{y}")) / (1 - get(glue("prop_{y}")))),
-              .by = glue("{x}_cat")) |> 
-    filter(!logit_prop %in% c(-Inf, Inf))
+  lst(data =
+        df |> 
+          mutate("{x}_cat" := cut(!!x, breaks = 40)) |> 
+          summarise("mean_{x}" := mean(!!x),
+                    "prop_{y}" := mean(as.numeric(!!y) == 2),
+                    logit_prop = 
+                      log(get(glue("prop_{y}")) / (1 - get(glue("prop_{y}")))),
+                    .by = glue("{x}_cat")) |> 
+          filter(!logit_prop %in% c(-Inf, Inf)),
+      model =
+        glm(data = df |> mutate("{x}_quantile" := cut_number(!!x, n = 4)),
+            reformulate(glue("{x}_quantile"), y),
+            family = binomial) |>
+          tidy(exponentiate = TRUE,
+               conf.int = TRUE) |> 
+          mutate(p.value = style_pvalue(p.value, digits = 1)) |>
+          select(term, estimate, starts_with("conf"), p.value),
+      plot = 
+        data |> 
+          ggplot(aes(y = logit_prop,
+                     x = get(glue("mean_{x}")))) +
+          geom_point(alpha = 0.4) +
+          geom_smooth(method = "lm",
+                      formula = "y ~ x",
+                      se = FALSE,
+                      color = color) +
+          labs(y = glue(label_y),
+               x = glue(label_x)))
   
-  .data |> 
-    ggplot(aes(y = logit_prop,
-               x = get(glue("mean_{x}")))) +
-    geom_point(alpha = 0.4) +
-    geom_smooth(method = "lm",
-                formula = "y ~ x",
-                se = FALSE,
-                color = color) +
-    labs(y = glue(label_y),
-         x = glue(label_x))
+}
+
+#' Title
+#'
+#' @param model 
+#' @param limit_inf_num 
+#' @param limit_sup_num 
+#' @param obs_color 
+#' @param limit_inf_color 
+#' @param limit_sup_color 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+cooksd <- \(model,
+            limit_inf_num = 4,
+            limit_sup_num = 25,
+            obs_color = "black",
+            limit_inf_color = "#0099cc",
+            limit_sup_color = "red") {
+    
+  .out <-
+  list(n = "{nrow(obs$inf)} total out. for {nrow(data)} total obs.",
+       p = "({percent(nrow(obs$inf) / nrow(data), accuracy = .1)})")
   
+  lst(data =
+        model |>
+          augment() |> 
+          rownames_to_column("id"),
+      limit =
+        c(inf = 4, sup = 25) |> 
+          map_dbl(~ . / nrow(data)),
+      outliers =
+        limit |> 
+          map(~ data |> 
+                filter(.cooksd > .) |>
+                pull(id)),
+      obs =
+        map(outliers, ~ data[., ]),
+      plot =
+        data |> 
+          ggplot() +
+          aes(x = as.numeric(id),
+              y = .cooksd) +
+          geom_jitter(color = obs_color,
+                      alpha = 0.4) +
+          geom_hline(yintercept = limit,
+                     color = 
+                       c(limit_inf_color,
+                         limit_sup_color),
+                     linewidth = 0.8) +
+          annotate(geom = "label",
+                   label = glue(.out$n, .out$p),
+                   y = max(data$.cooksd),
+                   x = 1,
+                   size = 3,
+                   hjust = 0,
+                   vjust = 1) +
+          xlab(NULL) +
+          theme(axis.ticks.x = element_blank(),
+                axis.text.x = element_blank()))
+    
 }
