@@ -8,9 +8,9 @@ cooksd(
   model,
   limit_inf_num = 4,
   limit_sup_num = 25,
-  obs_color = "black",
   limit_inf_color = "#0099cc",
-  limit_sup_color = "red"
+  limit_sup_color = "red",
+  obs_color = "black"
 )
 }
 \arguments{
@@ -20,11 +20,11 @@ cooksd(
 
 \item{limit_sup_num}{}
 
-\item{obs_color}{}
-
 \item{limit_inf_color}{}
 
 \item{limit_sup_color}{}
+
+\item{obs_color}{}
 }
 \description{
 Title

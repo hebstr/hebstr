@@ -41,8 +41,8 @@ check_font <- \(...) {
 #' @param bg 
 #' @param row_padding 
 #' @param title_align 
+#' @param font_size 
 #' @param title_font_size 
-#' @param table_font_size 
 #' @param stat_font_size 
 #' @param pvalue_font_size 
 #' @param single_line 
@@ -64,16 +64,16 @@ theme_gt <- \(x,
               base = "#333333",
               color = "lightgrey",
               bg = "white",
-              row_padding = 4,
+              row_padding = 6,
               title_align = "left",
-              title_font_size = 11, 
-              table_font_size = 10,
-              stat_font_size = 9,
-              pvalue_font_size = 8,
+              font_size = 13,
+              title_font_size = font_size + 1, 
+              stat_font_size = font_size - 1,
+              pvalue_font_size = font_size - 2,
               single_line = FALSE,
               footnote_marks = "extended",
-              footnote_font_size = 9,
-              footnote_padding = 4,
+              footnote_font_size = font_size - 2,
+              footnote_padding = row_padding,
               to_docx = FALSE,
               ...) {
   
@@ -85,7 +85,7 @@ theme_gt <- \(x,
   tab_options(data = x,
               table.width = width,
               table.font.names = alpha,
-              table.font.size = px(table_font_size),
+              table.font.size = px(font_size),
               table.font.color = base,
               table.background.color = color,
               heading.align = title_align,

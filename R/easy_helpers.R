@@ -366,8 +366,8 @@ logit_lty <- \(df,
                x,
                breaks = 30,
                color = "#0099cc",
-               label_y = "Logit(P '{var_label(df[[y]])}')" %||% "Logit(P '{y}')",
-               label_x = var_label(df[[x]]) %||% x) {
+               label_y = "Logit(P {y})",
+               label_x = x) {
   
   y <- enexpr(y)
   x <- enexpr(x)
@@ -408,9 +408,9 @@ logit_lty <- \(df,
 #' @param model 
 #' @param limit_inf_num 
 #' @param limit_sup_num 
-#' @param obs_color 
 #' @param limit_inf_color 
 #' @param limit_sup_color 
+#' @param obs_color 
 #'
 #' @return
 #' @export
@@ -420,20 +420,22 @@ logit_lty <- \(df,
 cooksd <- \(model,
             limit_inf_num = 4,
             limit_sup_num = 25,
-            obs_color = "black",
             limit_inf_color = "#0099cc",
-            limit_sup_color = "red") {
+            limit_sup_color = "red",
+            obs_color = "black") {
     
   .out <-
   list(n = "{nrow(obs$inf)} total out. for {nrow(data)} total obs.",
        p = "({percent(nrow(obs$inf) / nrow(data), accuracy = .1)})")
   
+  .list <-
   lst(data =
         model |>
           augment() |> 
           rownames_to_column("id"),
       limit =
-        c(inf = 4, sup = 25) |> 
+        c(inf = limit_inf_num, 
+          sup = limit_sup_num) |> 
           map_dbl(~ . / nrow(data)),
       outliers =
         limit |> 
@@ -465,4 +467,33 @@ cooksd <- \(model,
           theme(axis.ticks.x = element_blank(),
                 axis.text.x = element_blank()))
     
+  .list[names(.list) != "outliers"]
+  
+}
+
+
+#' Title
+#'
+#' @param data 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+flow_filter <- \(data, ...) {
+  
+  .exprs <- exprs(...)
+  .exprs <- if (!is_named(.exprs)) set_names(.exprs) else .exprs
+  
+  .flow <-
+  .exprs |>
+    accumulate(~ filter(.x, !!.y), .init = data) |>
+    map(~ glue("{nrow(.)} ({percent(nrow(.) / nrow(data), accuracy = .1)})"))
+  
+  assign("flow", .flow, envir = .GlobalEnv)
+    
+  data |> filter(!!!unname(.exprs))
+  
 }

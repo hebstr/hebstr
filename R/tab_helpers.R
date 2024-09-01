@@ -423,3 +423,25 @@ str_na_mv <- \(data) {
   glue("{n_total} observations, {na$obs} contenant a minima une données manquante")
 
 }
+
+
+#' Title
+#'
+#' @param data 
+#' @param exclude 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+show_single_row <- \(data,
+                     exclude = names(data[, 1])) {
+  
+  all_dichotomous <- expr(c(where(~ nlevels(.) == 2), -all_of(exclude)))
+
+  data |> 
+    mutate(across(!!all_dichotomous, ~ if_else(as.numeric(.) == 1, 0, 1)))
+    
+}
+

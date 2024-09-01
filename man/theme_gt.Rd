@@ -12,16 +12,16 @@ theme_gt(
   base = "#333333",
   color = "lightgrey",
   bg = "white",
-  row_padding = 4,
+  row_padding = 6,
   title_align = "left",
-  title_font_size = 11,
-  table_font_size = 10,
-  stat_font_size = 9,
-  pvalue_font_size = 8,
+  font_size = 13,
+  title_font_size = font_size + 1,
+  stat_font_size = font_size - 1,
+  pvalue_font_size = font_size - 2,
   single_line = FALSE,
   footnote_marks = "extended",
-  footnote_font_size = 9,
-  footnote_padding = 4,
+  footnote_font_size = font_size - 2,
+  footnote_padding = row_padding,
   to_docx = FALSE,
   ...
 )
@@ -35,9 +35,9 @@ theme_gt(
 
 \item{title_align}{}
 
-\item{title_font_size}{}
+\item{font_size}{}
 
-\item{table_font_size}{}
+\item{title_font_size}{}
 
 \item{stat_font_size}{}
 

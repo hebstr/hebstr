@@ -10,8 +10,8 @@ logit_lty(
   x,
   breaks = 30,
   color = "#0099cc",
-  label_y = "Logit(P '{var_label(df[[y]])}')" \%||\% "Logit(P '{y}')",
-  label_x = var_label(df[[x]]) \%||\% x
+  label_y = "Logit(P {y})",
+  label_x = x
 )
 }
 \arguments{
