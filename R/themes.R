@@ -49,7 +49,7 @@ check_font <- \(...) {
 #' @param footnote_marks 
 #' @param footnote_font_size 
 #' @param footnote_padding 
-#' @param to_docx 
+#' @param docx 
 #' @param ... 
 #'
 #' @return
@@ -74,7 +74,7 @@ theme_gt <- \(x,
               footnote_marks = "extended",
               footnote_font_size = font_size - 2,
               footnote_padding = row_padding,
-              to_docx = FALSE,
+              docx = FALSE,
               ...) {
   
   .f <- \(str) str_subset(names(x$`_data`), str)
@@ -116,12 +116,12 @@ theme_gt <- \(x,
               footnotes.background.color = bg,
               ...)
   
-  if (!to_docx) {
+  if (!docx) {
     
+    x <-
     x |>
       tab_style(style = cell_text(align = "justify"),
-                locations = list(cells_title(),
-                                 cells_footnotes())) |>
+                locations = list(cells_title(), cells_footnotes())) |>
       tab_style(style = cell_text(font = digit),
                 locations = cells_body(columns = .f("stat|estimate|p.value"))) |>
       tab_style(style = cell_text(size = px(stat_font_size)),
@@ -131,6 +131,8 @@ theme_gt <- \(x,
       
   }
 
+  return(x)
+  
 }
 
 

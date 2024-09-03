@@ -22,7 +22,7 @@ theme_gt(
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
-  to_docx = FALSE,
+  docx = FALSE,
   ...
 )
 }
@@ -51,7 +51,7 @@ theme_gt(
 
 \item{footnote_padding}{}
 
-\item{to_docx}{}
+\item{docx}{}
 
 \item{...}{}
 }
