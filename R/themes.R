@@ -45,7 +45,7 @@ check_font <- \(...) {
 #' @param title_font_size 
 #' @param stat_font_size 
 #' @param pvalue_font_size 
-#' @param single_line 
+#' @param row_strip 
 #' @param footnote_marks 
 #' @param footnote_font_size 
 #' @param footnote_padding 
@@ -70,7 +70,7 @@ theme_gt <- \(x,
               title_font_size = font_size + 1, 
               stat_font_size = font_size - 1,
               pvalue_font_size = font_size - 2,
-              single_line = FALSE,
+              row_strip = TRUE,
               footnote_marks = "extended",
               footnote_font_size = font_size - 2,
               footnote_padding = row_padding,
@@ -79,7 +79,7 @@ theme_gt <- \(x,
   
   .f <- \(str) str_subset(names(x$`_data`), str)
   
-  if (single_line) color <- "#ffffff00"
+  if (!row_strip) color <- "#ffffff00"
   
   x <-
   tab_options(data = x,

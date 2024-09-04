@@ -8,6 +8,7 @@
 #' @param note_vargrp
 #' @param acro_list
 #' @param acro_sep
+#' @param zero_replace 
 #' @param ...
 #'
 #' @return
@@ -23,6 +24,7 @@ gt_format <- \(x,
                note_vargrp = NULL,
                acro_list,
                acro_sep,
+               zero_replace = "^0\\s",
                ...) {
 
 ### ACRO --------------------------------------------------------------------
@@ -92,6 +94,12 @@ gt_format <- \(x,
                                 rows = variable %in% label_vargrp))
       
     }
+    
+  }
+  
+  if (!is.null(zero_replace)) {
+    
+    x <- sub_values(x, pattern = zero_replace, replace = 0)
     
   }
   

@@ -18,7 +18,7 @@ theme_gt(
   title_font_size = font_size + 1,
   stat_font_size = font_size - 1,
   pvalue_font_size = font_size - 2,
-  single_line = FALSE,
+  row_strip = TRUE,
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
@@ -43,7 +43,7 @@ theme_gt(
 
 \item{pvalue_font_size}{}
 
-\item{single_line}{}
+\item{row_strip}{}
 
 \item{footnote_marks}{}
 

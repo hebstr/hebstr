@@ -13,10 +13,13 @@ gt_format(
   note_vargrp = NULL,
   acro_list,
   acro_sep,
+  zero_replace = "^0\\\\s",
   ...
 )
 }
 \arguments{
+\item{zero_replace}{}
+
 \item{...}{}
 }
 \description{
