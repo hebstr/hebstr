@@ -9,6 +9,7 @@
 #' @examples
 #'
 opts_set <- \(fr = FALSE,
+              check_font = TRUE,
               ...) {
 
   dots <- list(...)
@@ -65,7 +66,7 @@ opts_set <- \(fr = FALSE,
 
   .opts_set <- list_modify(.opts_set, !!!dots)
 
-  check_font(.opts_set$font)
+  if (check_font) check_font(.opts_set$font)
 
   return(.opts_set)
 

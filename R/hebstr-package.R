@@ -112,6 +112,7 @@
 #' @importFrom rlang env
 #' @importFrom rlang expr
 #' @importFrom rlang exprs
+#' @importFrom rlang inject
 #' @importFrom rlang is_named
 #' @importFrom rlang list2
 #' @importFrom rlang set_names
