@@ -153,7 +153,7 @@ easy_out <- \(x,
 #' @param data
 #' @param filename
 #' @param dir
-#' @param suffix
+#' @param sep 
 #' @param size
 #'
 #' @return
@@ -164,20 +164,21 @@ easy_out <- \(x,
 easy_out_map <- \(data,
                   filename = NULL,
                   dir = "output",
-                  suffix = NULL,
+                  sep = ".",
                   size = NULL) {
 
   if (is.null(filename)) filename <- enexpr(data)
 
-  if (!is.list(data)) cli_abort("{.strong {filename}} must be a list")
+  if (!is.list(data)) {
+    
+    cli_abort("{.strong {filename}} must be a list of tables or figures")
+    
+  }
 
-  if (is.null(suffix)) suffix <- names(data) %||% seq(data)
-
-  map2(.x = data,
-       .y = suffix,
-       ~ .x |>
-         easy_out(filename = glue("{filename}.{.y}"),
-                  dir = dir,
-                  size = size))
+  data |> 
+    imap(~ easy_out(x = .x, 
+                    filename = glue("{filename}{sep}{.y}"),
+                    dir = dir,
+                    size = size))
 
 }

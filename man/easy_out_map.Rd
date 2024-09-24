@@ -4,9 +4,11 @@
 \alias{easy_out_map}
 \title{Title}
 \usage{
-easy_out_map(data, filename = NULL, dir = "output", suffix = NULL, size = NULL)
+easy_out_map(data, filename = NULL, dir = "output", sep = ".", size = NULL)
 }
 \arguments{
+\item{sep}{}
+
 \item{size}{}
 }
 \description{
