@@ -162,13 +162,15 @@ theme_bar <- \(family = "arial",
 
   } else bg <- NULL
 
-  theme(plot.caption = element_textbox(size = size,
-                                       hjust = 1,
-                                       lineheight = 1.05,
-                                       width = unit(1, "npc"),
-                                       margin = margin(10, 0, 0, 0)),
-        axis.title = element_text(size = 9,
-                                  face = "bold"),
+  theme(plot.caption = 
+          element_textbox(size = size,
+                          hjust = 1,
+                          lineheight = 1.05,
+                          width = unit(1, "npc"),
+                          margin = margin(10, 0, 0, 0)),
+        axis.title =
+          element_text(size = 9,
+                       face = "bold"),
         axis.title.x = element_text(vjust = 0.5),
         text = element_text(family = family),
         plot.caption.position = "plot",
@@ -262,19 +264,19 @@ theme_risktable <- \(family = "arial",
 theme_pca <- \(font = "arial",
                ...) {
 
-  ggplot2::theme(text = ggplot2::element_text(family = font),
-                 legend.position = "none",
-                 plot.caption = ggtext::element_textbox(size = 9,
-                                                        hjust = 1,
-                                                        lineheight = 1.05,
-                                                        width = ggplot2::unit(1, "npc"),
-                                                        margin = ggplot2::margin(10, 0, 0, 0)),
-                 panel.background = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_blank(),
-                 axis.title = ggplot2::element_blank(),
-                 axis.ticks = ggplot2::element_blank(),
-                 plot.caption.position = "plot",
-                 ...)
+  theme(text = element_text(family = font),
+        legend.position = "none",
+        plot.caption = element_textbox(size = 9,
+                                       hjust = 1,
+                                       lineheight = 1.05,
+                                       width = unit(1, "npc"),
+                                       margin = margin(10, 0, 0, 0)),
+        panel.background = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        plot.caption.position = "plot",
+        ...)
 
 }
 
@@ -282,29 +284,6 @@ theme_pca <- \(font = "arial",
 #' Title
 #'
 #' @param family 
-#' @param size 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-theme_wrap <- \(family = "arial",
-                size = 11) {
-
-  theme(text = element_text(family = family),
-        plot.caption = element_textbox(size = size,
-                                       hjust = 1,
-                                       lineheight = 1.05,
-                                       width = unit(1, "npc"),
-                                       margin = margin(10, 0, 0, 0)))
-
-}
-
-
-#' Title
-#'
-#' @param font
 #' @param ...
 #'
 #' @return
@@ -312,39 +291,39 @@ theme_wrap <- \(family = "arial",
 #'
 #' @examples
 #'
-theme_blank <- \(font = "arial",
+theme_blank <- \(family = "arial",
                  ...) {
 
   .blank <-
-  ggplot2::element_rect(color = "white",
-                        fill = "white")
+  element_rect(color = "white",
+               fill = "white")
 
-  .width <- ggplot2::unit(1, "npc")
+  .width <- unit(1, "npc")
 
-  ggplot2::theme_void() %+replace%
-    ggplot2::theme(plot.background = .blank,
-                   panel.background = .blank,
-                   plot.margin = ggplot2::margin(0, 5, 5, 5),
-                   plot.title =
-                     ggtext::element_textbox(size = 9,
-                                             width = .width,
-                                             margin = ggplot2::margin(0, 0, 0, 0)),
-                   plot.caption =
-                     ggtext::element_textbox(size = 9,
-                                             hjust = 1,
-                                             lineheight = 1.05,
-                                             width = .width,
-                                             margin = ggplot2::margin(10, 0, 0, 0)),
-                   text = ggplot2::element_text(family = font),
-                   legend.position = "none",
-                   ...)
+  theme_void() %+replace%
+    theme(plot.background = .blank,
+          panel.background = .blank,
+          plot.margin = margin(0, 5, 5, 5),
+          plot.title =
+            element_textbox(size = 9,
+                            width = .width,
+                            margin = margin(0, 0, 0, 0)),
+          plot.caption =
+            element_textbox(size = 9,
+                            hjust = 1,
+                            lineheight = 1.05,
+                            width = .width,
+                            margin = margin(10, 0, 0, 0)),
+          text = element_text(family = family),
+          legend.position = "none",
+          ...)
 
 }
 
 
 #' Title
 #'
-#' @param font
+#' @param famiiy 
 #' @param bg
 #' @param ...
 #'
@@ -353,42 +332,73 @@ theme_blank <- \(font = "arial",
 #'
 #' @examples
 #'
-theme_infreq <- \(font = "arial",
+theme_infreq <- \(famiiy = "arial",
                   bg = TRUE,
                   ...) {
 
   if (!bg) {
 
     bg <-
-    list(panel.background = ggplot2::element_blank(),
-         axis.line = ggplot2::element_line(),
-         strip.text = ggplot2::element_blank())
+    list(panel.background = element_blank(),
+         axis.line = element_line(),
+         strip.text = element_blank())
 
   } else bg <- NULL
 
-    ggplot2::theme(plot.title = ggtext::element_textbox(size = 9,
-                                                        hjust = 0.5,
-                                                        halign = 0.5,
-                                                        margin = ggplot2::margin(0, 0, 8, 0)),
-                   plot.title.position = "plot",
-                   plot.caption = ggtext::element_textbox(size = 9,
-                                                          hjust = 1,
-                                                          lineheight = 1.05,
-                                                          width = ggplot2::unit(1, "npc"),
-                                                          margin = ggplot2::margin(10, 0, 0, 0)),
-                   axis.title = ggplot2::element_blank(),
-                   axis.text.y = element_text(size = 7,
-                                              margin = ggplot2::margin(0, -10, 0, 0)),
-                   text = element_text(family = font),
-                   plot.caption.position = "plot",
-                   legend.position = "none",
-                   panel.background = ggplot2::element_blank(),
-                   axis.line = ggplot2::element_blank(),
-                   strip.text = ggplot2::element_blank(),
-                   axis.ticks = ggplot2::element_blank(),
-                   axis.text.x = element_blank(),
-                   ...)
+    theme(plot.title = 
+            element_textbox(size = 9,
+                            hjust = 0.5,
+                            halign = 0.5,
+                            margin = margin(0, 0, 8, 0)),
+          plot.title.position = "plot",
+          plot.caption = 
+            element_textbox(size = 9,
+                            hjust = 1,
+                            lineheight = 1.05,
+                            width = unit(1, "npc"),
+                            margin = margin(10, 0, 0, 0)),
+          axis.title = element_blank(),
+          axis.text.y = 
+            element_text(size = 7,
+                         margin = margin(0, -10, 0, 0)),
+          text = element_text(family = family),
+          plot.caption.position = "plot",
+          legend.position = "none",
+          panel.background = element_blank(),
+          axis.line = element_blank(),
+          strip.text = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text.x = element_blank(),
+          ...)
 
+}
+
+
+#' Title
+#'
+#' @param font 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+theme_bubble <- \(family = "arial",
+                  grid_color = "grey95",
+                  size = 13,
+                  ...) {
+
+  theme(panel.background = element_blank(),
+        panel.grid = element_line(color = grid_color),
+        text = 
+          element_text(size = size,
+                       family = family),
+        axis.title = element_text(face = "bold"),
+        axis.ticks = element_blank(),
+        legend.position = "none",
+        ...)
+  
 }
 
 

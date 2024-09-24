@@ -14,10 +14,9 @@
 
   x <-
   x |>
-    add_overall() |>
+    add_overall(col_label = glue("**{.label_overall}<br>(N={.by$N})**")) |>
     modify_spanning_header(all_of(.by$cols) ~ glue("**{.by$spanner}**")) |>
     modify_header(label ~ .label_header,
-                  stat_0 ~ glue("**{.label_overall}<br>(N={.by$N})**"),
                   all_of(.by$cols) ~ .levels) |>
     modify_footnote(everything() ~ NA)
 

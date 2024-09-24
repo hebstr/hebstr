@@ -4,9 +4,11 @@
 \alias{theme_blank}
 \title{Title}
 \usage{
-theme_blank(font = "arial", ...)
+theme_blank(family = "arial", ...)
 }
 \arguments{
+\item{family}{}
+
 \item{...}{}
 }
 \description{

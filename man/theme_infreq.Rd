@@ -4,9 +4,11 @@
 \alias{theme_infreq}
 \title{Title}
 \usage{
-theme_infreq(font = "arial", bg = TRUE, ...)
+theme_infreq(famiiy = "arial", bg = TRUE, ...)
 }
 \arguments{
+\item{famiiy}{}
+
 \item{...}{}
 }
 \description{
