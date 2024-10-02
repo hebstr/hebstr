@@ -323,8 +323,14 @@ theme_blank <- \(family = "arial",
 
 #' Title
 #'
-#' @param famiiy 
-#' @param bg
+#' @param family 
+#' @param title_size 
+#' @param title_margin 
+#' @param caption_size 
+#' @param caption_margin 
+#' @param label_size 
+#' @param label_margin 
+#' @param grid
 #' @param ...
 #'
 #' @return
@@ -332,35 +338,45 @@ theme_blank <- \(family = "arial",
 #'
 #' @examples
 #'
-theme_infreq <- \(famiiy = "arial",
-                  bg = TRUE,
+theme_infreq <- \(family = "arial",
+                  title_size = 13,
+                  title_margin = 10,
+                  caption_size = 9,
+                  caption_margin = 10,
+                  label_size = 11,
+                  label_margin = -15,
+                  grid = TRUE,
                   ...) {
 
-  if (!bg) {
+  if (grid) {
 
-    bg <-
-    list(panel.background = element_blank(),
-         axis.line = element_line(),
-         strip.text = element_blank())
+    grid <-
+    list(panel.grid.major.x =
+           element_line(color = "grey95",
+                        size = 0.3),
+         axis.text.x = 
+           element_text(color = "grey90",
+                        size = 7,
+                        margin = margin(0)))
 
-  } else bg <- NULL
+  } else grid <- NULL
 
-    theme(plot.title = 
-            element_textbox(size = 9,
+    theme(plot.title.position = "plot",
+          plot.title = 
+            element_textbox(size = title_size,
                             hjust = 0.5,
                             halign = 0.5,
-                            margin = margin(0, 0, 8, 0)),
-          plot.title.position = "plot",
+                            margin = margin(0, 0, title_margin, 0)),
           plot.caption = 
-            element_textbox(size = 9,
+            element_textbox(size = caption_size,
                             hjust = 1,
                             lineheight = 1.05,
                             width = unit(1, "npc"),
-                            margin = margin(10, 0, 0, 0)),
+                            margin = margin(caption_margin, 0, 0, 0)),
           axis.title = element_blank(),
           axis.text.y = 
-            element_text(size = 7,
-                         margin = margin(0, -10, 0, 0)),
+            element_text(size = label_size,
+                         margin = margin(0, label_margin, 0, 0)),
           text = element_text(family = family),
           plot.caption.position = "plot",
           legend.position = "none",
@@ -369,7 +385,8 @@ theme_infreq <- \(famiiy = "arial",
           strip.text = element_blank(),
           axis.ticks = element_blank(),
           axis.text.x = element_blank(),
-          ...)
+          ...) %+replace%
+      theme(!!!grid)
 
 }
 

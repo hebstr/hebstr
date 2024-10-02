@@ -4,10 +4,32 @@
 \alias{theme_infreq}
 \title{Title}
 \usage{
-theme_infreq(famiiy = "arial", bg = TRUE, ...)
+theme_infreq(
+  family = "arial",
+  title_size = 13,
+  title_margin = 10,
+  caption_size = 9,
+  caption_margin = 10,
+  label_size = 11,
+  label_margin = -15,
+  grid = TRUE,
+  ...
+)
 }
 \arguments{
-\item{famiiy}{}
+\item{family}{}
+
+\item{title_size}{}
+
+\item{title_margin}{}
+
+\item{caption_size}{}
+
+\item{caption_margin}{}
+
+\item{label_size}{}
+
+\item{label_margin}{}
 
 \item{...}{}
 }
