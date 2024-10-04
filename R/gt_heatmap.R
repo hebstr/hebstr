@@ -38,7 +38,7 @@ gt_heatmap <- \(data,
           pull() |>
           levels())
 
-  if (length(check_table) == 2 & identical(check_table[1], check_table[2])) {
+  if (length(check_table) == 2 && identical(check_table[1], check_table[2])) {
 
     data <-
     data |>
@@ -52,8 +52,8 @@ gt_heatmap <- \(data,
 
   }
 
-  if (!is.null(title)) title <- gt::md(title)
-  if (!is.null(width)) width <- gt::px(width)
+  if (!is.null(title)) title <- md(title)
+  if (!is.null(width)) width <- px(width)
 
   if (!color) palette <- c("white", "#444")
 
@@ -61,49 +61,52 @@ gt_heatmap <- \(data,
 
     data <-
     data |>
-      dplyr::rowwise() |>
-        dplyr::mutate(.sum = sum(dplyr::across(dplyr::where(is.numeric)))) |>
-        dplyr::ungroup() |>
-      dplyr::arrange(dplyr::desc(.sum)) |>
-      dplyr::select(-.sum)
+      rowwise() |>
+        mutate(.sum = sum(across(where(is.numeric)))) |>
+        ungroup() |>
+      arrange(desc(.sum)) |>
+      select(-.sum)
 
   }
 
   limit <-
   data |>
-    tidyr::pivot_longer(cols = dplyr::where(is.numeric)) |>
-    dplyr::pull(value) |>
+    pivot_longer(cols = where(is.numeric)) |>
+    pull(value) |>
     max()
 
   data |>
-    gt::gt(rowname_col = rowname_col,
-           groupname_col = groupname_col) |>
-    gt::tab_header(title = title) |>
-    gt::opt_align_table_header(align = "left") |>
-    gt::opt_table_font(font = font_family) |>
-    gt::tab_options(table.width = width,
-                    table.font.size = gt::px(font_size),
-                    heading.title.font.size = gt::pct(95),
-                    ...) |>
-    gt::tab_style(style = gt::cell_borders(style = NULL),
-                  locations = list(gt::cells_title(),
-                                   gt::cells_column_labels(),
-                                   gt::cells_stubhead(),
-                                   gt::cells_stub(),
-                                   gt::cells_body(),
-                                   gt::cells_footnotes())) |>
-    gt::tab_style(style = gt::cell_text(align = "center",
-                                        weight = "bold"),
-                  locations = list(gt::cells_column_labels())) |>
-    gt::tab_style(style = gt::cell_text(align = "right",
-                                        weight = "bold"),
-                  locations = list(gt::cells_stub())) |>
-    gt::tab_style(style = gt::cell_text(align = "center"),
-                  locations = list(gt::cells_body())) |>
-    gt::fmt_number(columns = dplyr::where(is.numeric),
-                   decimals = digit) %>%
-    gt::data_color(method = "numeric",
-                   palette = c(palette[1], "white", palette[2]),
-                   domain = c(-limit, limit))
+    gt(rowname_col = rowname_col,
+       groupname_col = groupname_col) |>
+    tab_header(title = title) |>
+    opt_align_table_header(align = "left") |>
+    opt_table_font(font = font_family) |>
+    tab_options(table.width = width,
+                table.font.size = px(font_size),
+                heading.title.font.size = pct(95),
+                ...) |>
+    tab_style(style = cell_borders(style = NULL),
+              locations =
+                list(cells_title(),
+                     cells_column_labels(),
+                     cells_stubhead(),
+                     cells_stub(),
+                     cells_body(),
+                     cells_footnotes())) |>
+    tab_style(style = 
+                cell_text(align = "center",
+                          weight = "bold"),
+              locations = cells_column_labels()) |>
+    tab_style(style = 
+                cell_text(align = "right",
+                          weight = "bold"),
+              locations = cells_stub()) |>
+    tab_style(style = cell_text(align = "center"),
+              locations = cells_body()) |>
+    fmt_number(columns = where(is.numeric),
+               decimals = digit) %>%
+    data_color(method = "numeric",
+               palette = c(palette[1], "white", palette[2]),
+               domain = c(-limit, limit))
 
 }

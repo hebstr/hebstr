@@ -318,7 +318,8 @@ pct_min <- \(data,
 #'
 #' @examples
 #'
-read_png <- \(file, dir = "output") {
+read_png <- \(file,
+              dir = "output") {
 
   glue("{dir}/{file}.png") |>
     readPNG() |>
@@ -330,18 +331,19 @@ read_png <- \(file, dir = "output") {
 #' Title
 #'
 #' @param dir 
+#' @param prefix 
 #'
 #' @return
 #' @export
 #'
 #' @examples
 #' 
-easy_source <- \(dir = "scripts") {
+auto_exec <- \(dir = "scripts",
+               prefix = "_") {
   
-  files <- list.files(dir)
-  files <- files[!str_detect(files, "^_")]
-  
-  map(files, ~ source(glue("{dir}/{.}")))
+  list.files(dir) |> 
+    str_subset(glue("^[^{prefix}]")) |> 
+    map(~ source(glue("{dir}/{.}")))
   
 }
 
