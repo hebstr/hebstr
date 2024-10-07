@@ -12,12 +12,15 @@ easy_out(
   width = NA,
   height = NULL,
   size = NULL,
+  px = 2000,
   assign = TRUE,
   print = NULL
 )
 }
 \arguments{
-\item{print}{}
+\item{px}{}
+
+\item{assign}{}
 }
 \description{
 Title

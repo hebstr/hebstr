@@ -7,7 +7,9 @@
 #' @param width
 #' @param height
 #' @param size
+#' @param px 
 #' @param print
+#' @param assign 
 #'
 #' @return
 #' @export
@@ -21,6 +23,7 @@ easy_out <- \(x,
               width = NA,
               height = NULL,
               size = NULL,
+              px = 2000,
               assign = TRUE,
               print = NULL) {
 
@@ -120,7 +123,7 @@ easy_out <- \(x,
 
     cli_progress_step("Capturing SVG to PNG")
 
-    image_read_svg(to_svg, height = 1000) |>
+    image_read_svg(to_svg, height = px) |>
       image_write(to_png, format = "png")
 
     cli_progress_done()
