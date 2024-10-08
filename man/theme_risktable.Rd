@@ -6,14 +6,17 @@
 \usage{
 theme_risktable(
   family = "arial",
+  label_size = 7,
   title_size = 7,
-  title_margin = margin(-3, 0, 3, 0),
-  plot_margin = margin(6, 0, -6, 0),
+  title_margin = 3,
+  plot_margin = 10,
   ...
 )
 }
 \arguments{
 \item{family}{}
+
+\item{label_size}{}
 
 \item{title_size}{}
 

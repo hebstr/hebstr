@@ -202,17 +202,17 @@ theme_tte <- \(family = "arial",
   theme_classic() %+replace%
     theme(line = element_line(linewidth = 0.3),
           text = element_text(family = family),
-          axis.title = element_text(face = "bold",
-                                    size = 8),
+          axis.title = element_text(face = "bold", size = 8),
           axis.title.x = element_text(vjust = -1),
           axis.title.y.left = element_text(vjust = vjust_y),
           axis.text = element_text(size = 7),
           panel.background = element_blank(),
           plot.background = element_blank(),
           plot.margin = margin(0, 0, 0, 0),
-          plot.caption = element_textbox(size = size,
-                                         width = unit(1, "npc"),
-                                         margin = title_margin),
+          plot.caption = 
+            element_textbox(size = size,
+                            width = unit(1, "npc"),
+                            margin = title_margin),
           plot.caption.position = "plot",
           legend.position = "none",
           ...)
@@ -223,6 +223,7 @@ theme_tte <- \(family = "arial",
 #' Title
 #'
 #' @param family 
+#' @param label_size 
 #' @param title_size 
 #' @param title_margin 
 #' @param plot_margin 
@@ -234,20 +235,25 @@ theme_tte <- \(family = "arial",
 #' @examples
 #'
 theme_risktable <- \(family = "arial",
+                     label_size = 7,
                      title_size = 7,
-                     title_margin = margin(-3, 0, 3, 0),
-                     plot_margin = margin(6, 0, -6, 0),
+                     title_margin = 3,
+                     plot_margin = 10,
                      ...) {
 
+  .title_margin <- margin(-title_margin, 0, title_margin, 0)
+  .plot_margin <- margin(plot_margin, 0, -plot_margin, 0)
+  
   list(theme_risktable_default(),
        theme(text = element_text(family = family),
-             plot.title = element_text(size = title_size,
-                                       face = "bold",
-                                       margin = title_margin),
+             plot.title = 
+               element_text(size = title_size,
+                            face = "bold",
+                            margin = .title_margin),
              panel.background = element_blank(),
              plot.background = element_blank(),
-             axis.text.y = element_markdown(size = 7),
-             plot.margin = plot_margin,
+             axis.text.y = element_markdown(size = label_size),
+             plot.margin = .plot_margin,
              plot.title.position = "plot",
              ...))
 
