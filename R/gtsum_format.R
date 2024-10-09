@@ -306,23 +306,6 @@ gtsum_format <- \(x,
             .label_header = label_header,
             .label_overall = label_overall,
             .bold_p = bold_p)
-    
-    .gtsum_out <-
-    x$table_body |>
-      select(variable)
-    
-    if (TRUE %in% str_detect(names(.gtsum_out), "p.value")) {
-    
-      .gtsum_out <-
-      .gtsum_out |>
-        mutate(p.value = 
-                 style_pvalue(p.value, 
-                              digits = 1, 
-                              prepend_p = TRUE))
-      
-    }
-    
-    assign(".gtsum_out", .gtsum_out, envir = .GlobalEnv)
 
   } else {
 
@@ -344,22 +327,6 @@ gtsum_format <- \(x,
                .label_n = label_n,
                .label_header = label_header,
                .bold_p = bold_p)
-      
-      .gtsum_out_vars <-
-      x$table_body |> select(matches("variable|var_type|n_obs|n_event"))
-      
-      if ("tbl_regression" %in% class(x)) {
-      
-        assign(".gtsum_out",
-               list(vars = .gtsum_out_vars,
-                    model = x$inputs$x |> tidy(exponentiate = TRUE)),
-               envir = .GlobalEnv)
-        
-      } else {
-
-        assign(".gtsum_out", .gtsum_out_vars, envir = .GlobalEnv)
-        
-      }
         
     } else {
 
@@ -368,10 +335,6 @@ gtsum_format <- \(x,
                .label_header = label_header,
                .label_stat = label_stat)
 
-      assign(".gtsum_out",
-             x$table_body[c("variable", "var_type")], 
-             envir = .GlobalEnv)
-      
     }
 
   }

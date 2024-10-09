@@ -74,22 +74,14 @@ easy_out <- \(x,
       unlist() |>
       str_extract("\\d+") |>
       as.numeric()
-
-      if (exists(".gtsum_out")) {
-        
-        cli_text("\n\n")
-        print(.gtsum_out, n = 100, na.print = NULL)
-        
-      }
+    
+    if (!is.null(print)) {
       
-      if (!is.null(print)) {
-        
-        cli_text("\n\n")
-        print(print)
-        
-      }
+      cli_text("\n\n")
+      print(print)
+      
+    }
 
-    cli_text("\n\n")
     cli_progress_step("Creating HTML file")
 
     gtsave(x, file = to_html)

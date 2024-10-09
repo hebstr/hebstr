@@ -10,40 +10,59 @@
 #'
 #' @examples
 #' 
-quanti.test <- \(data, variable, by, ...) {
+quanti.test.para <- \(data,
+                      variable,
+                      by,
+                      ...) {
   
   .var <- data[[variable]]
   .by <- data[[by]]
   
-  vars <- easy_descr(data)$qt$vars |> suppressMessages()
-  
   if (nlevels(factor(.by)) == 2) {
-    
-    if (variable %in% vars$parametric) {
       
-      tidy(t.test(.var ~ .by, var.equal = TRUE))
-      
-    } else {
-      
-      tidy(wilcox.test(.var ~ .by, exact = FALSE, correct = FALSE))
-      
-    }
+    tidy(t.test(.var ~ .by, var.equal = TRUE))
       
   } else {
     
-    if (variable %in% vars$parametric) {
-      
-      tidy(anova(.var ~ .by, var.equal = TRUE))
-      
-    } else {
-      
-      tidy(kruskal.test(.var ~ .by))
-      
-    }
+    tidy(anova(.var ~ .by, var.equal = TRUE))
       
   }
   
 }
+
+
+#' Title
+#'
+#' @param data 
+#' @param variable 
+#' @param by 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+quanti.test.nonpara <- \(data, 
+                         variable, 
+                         by,
+                         ...) {
+  
+  .var <- data[[variable]]
+  .by <- data[[by]]
+  
+  if (nlevels(factor(.by)) == 2) {
+      
+    tidy(wilcox.test(.var ~ .by, exact = FALSE, correct = FALSE))
+      
+  } else {
+    
+    tidy(kruskal.test(.var ~ .by))
+      
+  }
+  
+}
+
 
 #' Title
 #'
@@ -98,6 +117,37 @@ quali.test <- \(data, variable, by, ...) {
     
   }
   
+}
+
+
+#' Title
+#'
+#' @param data 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+tbl_get <- \(...) {
+
+  data <- easy_descr(...)
+
+  cap <- \(x) str_cap(tolower, names(x))
+  
+  list(test =
+         list(data$qt$vars$parametric ~ "quanti.test.para",
+              data$qt$vars$nonparametric ~ "quanti.test.nonpara",
+              all_categorical() ~ "quali.test"),
+       stat =
+         list(data$qt$vars$parametric ~ data$qt$stat$mean,
+              data$qt$vars$nonparametric ~ data$qt$stat$median,
+              all_categorical() ~ data$ql$stat$n),
+       label =
+         list(data$qt$vars$parametric ~ cap(data$qt$stat$mean),
+              data$qt$vars$nonparametric ~ cap(data$qt$stat$median)))
+
 }
 
 

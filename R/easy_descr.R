@@ -13,7 +13,7 @@
 #'
 easy_descr <- \(data,
                 fr = FALSE,
-                parametric = NULL,
+                parametric = nullfile(),
                 qt_stat = NULL,
                 ql_stat = NULL) {
 
@@ -22,17 +22,26 @@ easy_descr <- \(data,
 
 ### QT DATA -------------------------------------------------------------------------------
 
+  str_parametric <- glue("\\b{parametric}\\b")
+  
   qt_vars <-
   lst(total = 
         data |> 
           keep(~ is.numeric(.) & length(unique(na.omit(.))) != 2) |>
           names(),
-      parametric = parametric,
+      parametric = str_subset(total, str_u(str_parametric)),
       nonparametric = 
         data |> 
-          select(all_of(total), -all_of(parametric)) |> 
+          select(all_of(total), -matches(str_parametric)) |> 
           names())
-
+  
+  if (all(parametric == "all_continuous")) {
+    
+    qt_vars$parametric <- qt_vars$total
+    qt_vars$nonparametric <- NULL
+    
+  }
+  
   .qt_stat <-
   list(min = c("Min" = "{min}"),
        q1 = c("Q1" = "{p25}"),
@@ -44,17 +53,20 @@ easy_descr <- \(data,
   if (fr) {
    
     .qt_stat <-
-    list_modify(.qt_stat,
-                median_iqr = c("Médiane (IQR)" = "{median} ({p25}—{p75})"),
-                mean_sd = c("Moyenne±SD" = "{mean}±{sd}"))
+    .qt_stat |> 
+      list_modify(median_iqr = c("Médiane (IQR)" = "{median} ({p25}—{p75})"),
+                  mean_sd = c("Moyenne±SD" = "{mean}±{sd}"))
      
   }
   
-  qt_stat <- list_modify(.qt_stat, !!!qt_stat)
+  qt_stat <- .qt_stat |> list_modify(!!!qt_stat)
 
 ### QL DATA -----------------------------------------------------------------------------
 
-  ql_vars <- data |> keep(~ !is.numeric(.) & !is.Date(.)) |> names()
+  ql_vars <-
+  data |> 
+    keep(~ !is.numeric(.) & !is.Date(.)) |> 
+    names()
 
   ql_stat <-
   list(n_pct = c("n (%)" = "{n} ({p})")) |>
@@ -64,12 +76,17 @@ easy_descr <- \(data,
 
   bin_vars <-
   data |>
-    select(-eval(qt_vars$total), -all_of(ql_vars), -where(is.Date)) |>
+    select(-eval(qt_vars$total), 
+           -all_of(ql_vars), 
+           -where(is.Date)) |>
     names()
 
 ### DATE DATA ---------------------------------------------------------------------------
 
-  date_vars <- data |> keep(is.Date) |> names()
+  date_vars <- 
+  data |>
+    keep(is.Date) |>
+    names()
 
 ### ASSIGN ------------------------------------------------------------------------------
 
