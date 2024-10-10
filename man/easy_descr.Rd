@@ -4,17 +4,9 @@
 \alias{easy_descr}
 \title{Title}
 \usage{
-easy_descr(
-  data,
-  fr = FALSE,
-  parametric = nullfile(),
-  qt_stat = NULL,
-  ql_stat = NULL
-)
+easy_descr(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL)
 }
 \arguments{
-\item{fr}{}
-
 \item{ql_stat}{}
 }
 \description{

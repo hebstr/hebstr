@@ -1,5 +1,65 @@
 #' Title
 #'
+#' @param ...
+#' @param .auto 
+#' @param .tolower 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+easy_acro <- \(...,
+               .auto = TRUE,
+               .tolower = FALSE) {
+  
+  e <- if (!.tolower) {
+    
+    env("~" = \(x, y) glue("{enexpr(x)}{sep}{y}"))
+    
+  } else {
+    
+    env("~" = \(x, y) glue("{tolower(enexpr(x))}{sep}{y}"))
+    
+  }
+
+  .fun <- \(...) {
+  
+    list(...) |>
+      map(~ eval(enexpr(.), e)) %>%
+      set_names(str_extract(., glue(".+(?={sep})")))
+  
+  }
+
+  if (getOption("OutDec") == ".") {
+  
+  sep <- ": "
+    
+  base <-
+  .fun(SD ~ "standard deviation",
+       IQR ~ "interquartile range",
+       `95%CI` ~ "95% confidence interval")
+  
+  } else {
+    
+    sep <- " : "
+    
+    base <-
+    .fun(SD ~ "écart-type",
+         IQR ~ "intervalle interquartile",
+         `IC95%` ~ "intervalle de confiance à 95%")
+    
+  }
+  
+  .acro <- if (.auto) list_modify(base, !!!.fun(...)) else .fun(...)
+  
+  return(.acro)
+
+}
+
+
+#' Title
+#'
 #' @param x
 #' @param acro_list
 #'
@@ -8,7 +68,8 @@
 #'
 #' @examples
 #'
-acro_extract <- \(x, acro_list) {
+acro_extract <- \(x,
+                  acro_list) {
 
   .str <-
   acro_list |> 
@@ -25,7 +86,7 @@ acro_extract <- \(x, acro_list) {
 
 #' Title
 #'
-#' @param x
+#' @param ... 
 #' @param collapse
 #'
 #' @return

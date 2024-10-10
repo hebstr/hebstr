@@ -83,15 +83,19 @@ easy_cut <- \(x,
     name <- glue("{var}_cat")
     
     .min <- min(x[[var]], na.rm = TRUE)
+    
     .max <- max(x[[var]], na.rm = TRUE)
+    
     .values <- map_dbl(values, ~ . - 1/10000)
+    
+    .labels <- labels |> str_replace_all("\\.|,", getOption("OutDec"))
     
     x <-
     x |> 
       mutate(!!name :=
                cut(x = {{ var }},
                    breaks = c(.min - 1, .values, .max + 1),
-                   labels = labels,
+                   labels = .labels,
                    right = FALSE),
              .after = all_of(var))
       

@@ -1,7 +1,6 @@
 #' Title
 #'
 #' @param data
-#' @param fr 
 #' @param parametric
 #' @param qt_stat
 #' @param ql_stat
@@ -12,7 +11,6 @@
 #' @examples
 #'
 easy_descr <- \(data,
-                fr = FALSE,
                 parametric = nullfile(),
                 qt_stat = NULL,
                 ql_stat = NULL) {
@@ -45,17 +43,17 @@ easy_descr <- \(data,
   .qt_stat <-
   list(min = c("Min" = "{min}"),
        q1 = c("Q1" = "{p25}"),
-       median_iqr = c("Median (IQR)" = "{median} ({p25}—{p75})"),
+       median = c("Median (IQR)" = "{median} ({p25}—{p75})"),
        q3 = c("Q3" = "{p75}"),
        max = c("Max" = "{max}"),
-       mean_sd = c("Mean±SD" = "{mean}±{sd}"))
+       mean = c("Mean±SD" = "{mean}±{sd}"))
   
-  if (fr) {
+  if (getOption("OutDec") == ",") {
    
     .qt_stat <-
     .qt_stat |> 
-      list_modify(median_iqr = c("Médiane (IQR)" = "{median} ({p25}—{p75})"),
-                  mean_sd = c("Moyenne±SD" = "{mean}±{sd}"))
+      list_modify(median = c("Médiane (IQR)" = "{median} ({p25}—{p75})"),
+                  mean = c("Moyenne±SD" = "{mean}±{sd}"))
      
   }
   
@@ -69,7 +67,7 @@ easy_descr <- \(data,
     names()
 
   ql_stat <-
-  list(n_pct = c("n (%)" = "{n} ({p})")) |>
+  list(n = c("n (%)" = "{n} ({p})")) |>
     list_modify(!!!ql_stat)
 
 ### BIN DATA ----------------------------------------------------------------------------

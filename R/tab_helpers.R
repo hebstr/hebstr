@@ -122,7 +122,6 @@ quali.test <- \(data, variable, by, ...) {
 
 #' Title
 #'
-#' @param data 
 #' @param ... 
 #'
 #' @return
@@ -130,7 +129,7 @@ quali.test <- \(data, variable, by, ...) {
 #'
 #' @examples
 #' 
-tbl_get <- \(...) {
+easy_tbl <- \(...) {
 
   data <- easy_descr(...)
 
@@ -146,7 +145,8 @@ tbl_get <- \(...) {
               all_categorical() ~ data$ql$stat$n),
        label =
          list(data$qt$vars$parametric ~ cap(data$qt$stat$mean),
-              data$qt$vars$nonparametric ~ cap(data$qt$stat$median)))
+              data$qt$vars$nonparametric ~ cap(data$qt$stat$median),
+              all_categorical() ~ cap(data$ql$stat$n)))
 
 }
 

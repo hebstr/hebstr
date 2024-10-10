@@ -1,6 +1,39 @@
 #' Title
 #'
-#' @param fr
+#' @param reset 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+lang_fr <- \(reset = FALSE) {
+  
+  if (reset) {
+    
+    options(OutDec = ".")
+  
+    reset_gtsummary_theme()
+    
+    cli_alert_info("Setting language: EN")
+    
+  } else {
+  
+    options(OutDec = ",")
+    
+    theme_gtsummary_language(language = "fr",
+                             big.mark = " ") |> 
+      suppressMessages()
+    
+    cli_alert_info("Setting language: FR")
+    
+  }
+  
+}
+
+#' Title
+#'
+#' @param check_font 
 #' @param ...
 #'
 #' @return
@@ -8,51 +41,53 @@
 #'
 #' @examples
 #'
-opts_set <- \(fr = FALSE,
-              check_font = TRUE,
+opts_set <- \(check_font = TRUE,
               ...) {
 
   dots <- list(...)
 
   .opts_set <-
-  list(labs = list(sex_m = "Men",
-                   sex_f = "Women",
-                   yes = "Yes",
-                   no = "No",
-                   na = "Missing data",
-                   header = "Characteristic",
-                   overall = "Overall",
-                   spanner = glue("{c('Univariable', 'Multivariable')} analysis")),
-       sep = list(int = ": ",
-                  ext = "; ",
-                  conf = "; "),
-       ci = list(lim = "[",
-                 label = "95%CI",
-                 cols = c("conf.low", "conf.high")),
-       pvalue = list(format = label_style_pvalue(digits = 2),
-                     seuil = 0.05),
-       font = list(alpha = "luciole",
-                   digit = "luciole"),
-       palette = list(base = "#999999",
-                      cold = c("#E1F6FF", "#0099EE"),
-                      warm = c("#f5E3E0", "#BC3C33")))
+  list(auto = \(x) easy_tbl(x),
+       labs =
+         list(header = "Characteristic",
+              overall = "Overall",
+              spanner = glue("{c('Univariable', 'Multivariable')} analysis")),
+       sep = 
+         list(int = ": ",
+              ext = "; ",
+              conf = "; "),
+       ci =
+         list(lim = "[",
+              label = "95%CI",
+              cols = c("conf.low", "conf.high")),
+       digits =
+         list(all_continuous() ~ 1,
+              all_categorical() ~ c(0, label_percent(accuracy = .1, suffix = ""))),
+       pvalue = 
+         list(format = label_style_pvalue(digits = 2),
+              seuil = 0.05),
+       font =
+         list(alpha = "luciole",
+              digit = "luciole"),
+       palette = 
+         list(base = "#999999",
+              cold = c("#E1F6FF", "#0099EE"),
+              warm = c("#f5E3E0", "#BC3C33")))
 
-  if (fr) {
+  if (getOption("OutDec") == ",") {
 
     .opts_set <-
-    list_modify(.opts_set,
-                labs = list(sex_m = "Masculin",
-                            sex_f = "Féminin",
-                            yes = "Oui",
-                            no = "Non",
-                            na = "Donnée manquante",
-                            header = "Variable",
-                            overall = "Total",
-                            spanner = glue("Analyse {c('univariable', 'multivariable')}")),
-                sep = list(int = " : ",
-                           ext = " ; ",
-                           conf = " ; "),
-                ci = list(label = "IC95%"))
+    .opts_set |> 
+      list_modify(labs = 
+                    list(header = "Variable",
+                         overall = "Total",
+                         spanner = glue("Analyse {c('univariable', 'multivariable')}")),
+                  sep =
+                    list(int = " : ",
+                         ext = " ; ",
+                         conf = " ; "),
+                  ci =
+                    list(label = "IC95%"))
 
   }
 
@@ -69,31 +104,6 @@ opts_set <- \(fr = FALSE,
   if (check_font) check_font(.opts_set$font)
 
   return(.opts_set)
-
-}
-
-
-#' Title
-#'
-#' @param ...
-#' @param sep
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-opts_acro <- \(...,
-               sep) {
-
-  e <- env("~" = \(x, y) glue("{enexpr(x)}{sep}{y}"))
-
-  .opts_acro <-
-  list(...) |>
-    map(~ eval(enexpr(.), e)) %>%
-    set_names(str_extract(., glue(".+(?={sep})")))
-
-  return(.opts_acro)
 
 }
 

@@ -4,9 +4,11 @@
 \alias{opts_set}
 \title{Title}
 \usage{
-opts_set(fr = FALSE, check_font = TRUE, ...)
+opts_set(check_font = TRUE, ...)
 }
 \arguments{
+\item{check_font}{}
+
 \item{...}{}
 }
 \description{
