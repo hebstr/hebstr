@@ -7,26 +7,32 @@
 #'
 #' @examples
 #'
-check_font <- \(...) {
+check_fonts <- \(...,
+                 .abort = FALSE) {
 
-  font <- unlist(...)
+  fonts <- unlist(...)
 
-  sys <- glue("(?i){str_u(system_fonts()$family)}")
-
-  is_installed <- str_detect(font, sys)
+  system <- unique(systemfonts::system_fonts()$family)
+  system <- glue("\\b{system}\\b")
+  system <- glue("(?i){str_u(system)}")
+  
+  is_installed <- str_detect(fonts, system)
 
   if (FALSE %in% is_installed) {
 
     which_font <-
-    data.frame(font, is_installed) |>
+    data.frame(fonts, is_installed) |>
       filter(!is_installed) |>
-      pull(font) |>
-      unique()
-
-    cli_abort("{which_font} font{?s} {?is/are} not installed")
+      pull(fonts)
+    
+    if (.abort) cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
+    
+    return(FALSE)
 
   }
 
+  return(TRUE)
+  
 }
 
 

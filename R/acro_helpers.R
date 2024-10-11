@@ -1,6 +1,7 @@
 #' Title
 #'
 #' @param ...
+#' @param .sep 
 #' @param .auto 
 #' @param .tolower 
 #'
@@ -10,6 +11,7 @@
 #' @examples
 #'
 easy_acro <- \(...,
+               .sep = ":",
                .auto = TRUE,
                .tolower = FALSE) {
   
@@ -33,7 +35,7 @@ easy_acro <- \(...,
 
   if (getOption("OutDec") == ".") {
   
-  sep <- ": "
+  sep <- glue("{.sep} ")
     
   base <-
   .fun(SD ~ "standard deviation",
@@ -42,7 +44,7 @@ easy_acro <- \(...,
   
   } else {
     
-    sep <- " : "
+    sep <- glue(" {.sep} ")
     
     base <-
     .fun(SD ~ "écart-type",

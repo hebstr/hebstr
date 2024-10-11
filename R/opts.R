@@ -33,7 +33,7 @@ lang_fr <- \(reset = FALSE) {
 
 #' Title
 #'
-#' @param check_font 
+#' @param check_fonts 
 #' @param ...
 #'
 #' @return
@@ -41,38 +41,38 @@ lang_fr <- \(reset = FALSE) {
 #'
 #' @examples
 #'
-opts_set <- \(check_font = TRUE,
+opts_set <- \(check_fonts = TRUE,
               ...) {
 
-  dots <- list(...)
+  dots <- lst(...)
 
   .opts_set <-
-  list(auto = \(x) easy_tbl(x),
-       labs =
-         list(header = "Characteristic",
-              overall = "Overall",
-              spanner = glue("{c('Univariable', 'Multivariable')} analysis")),
-       sep = 
-         list(int = ": ",
-              ext = "; ",
-              conf = "; "),
-       ci =
-         list(lim = "[",
-              label = "95%CI",
-              cols = c("conf.low", "conf.high")),
-       digits =
-         list(all_continuous() ~ 1,
-              all_categorical() ~ c(0, label_percent(accuracy = .1, suffix = ""))),
-       pvalue = 
-         list(format = label_style_pvalue(digits = 2),
-              seuil = 0.05),
-       font =
-         list(alpha = "luciole",
-              digit = "luciole"),
-       palette = 
-         list(base = "#999999",
-              cold = c("#E1F6FF", "#0099EE"),
-              warm = c("#f5E3E0", "#BC3C33")))
+  lst(auto = \(x) easy_tbl(x),
+      labs =
+        list(header = "Characteristic",
+             overall = "Overall",
+             spanner = glue("{c('Univariable', 'Multivariable')} analysis")),
+      sep = 
+        list(int = ": ",
+             ext = "; ",
+             conf = "; "),
+      ci =
+        list(lim = "[",
+             label = "95%CI",
+             cols = c("conf.low", "conf.high")),
+      digits =
+        list(all_continuous() ~ 1,
+             all_categorical() ~ c(0, label_percent(accuracy = .1, suffix = ""))),
+      pvalue = 
+        list(format = label_style_pvalue(digits = 2),
+             seuil = 0.05),
+      font =
+        list(alpha = "luciole",
+             digit = "luciole"),
+      palette = 
+        list(base = "#999999",
+             cold = c("#E1F6FF", "#0099EE"),
+             warm = c("#f5E3E0", "#BC3C33")))
 
   if (getOption("OutDec") == ",") {
 
@@ -101,7 +101,7 @@ opts_set <- \(check_font = TRUE,
 
   .opts_set <- list_modify(.opts_set, !!!dots)
 
-  if (check_font) check_font(.opts_set$font)
+  if (check_fonts) check_fonts(.opts_set$font)
 
   return(.opts_set)
 

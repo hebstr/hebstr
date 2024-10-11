@@ -4,10 +4,10 @@
 \alias{opts_set}
 \title{Title}
 \usage{
-opts_set(check_font = TRUE, ...)
+opts_set(check_fonts = TRUE, ...)
 }
 \arguments{
-\item{check_font}{}
+\item{check_fonts}{}
 
 \item{...}{}
 }

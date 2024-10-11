@@ -4,9 +4,11 @@
 \alias{easy_acro}
 \title{Title}
 \usage{
-easy_acro(..., .auto = TRUE, .tolower = FALSE)
+easy_acro(..., .sep = ":", .auto = TRUE, .tolower = FALSE)
 }
 \arguments{
+\item{.sep}{}
+
 \item{.auto}{}
 
 \item{.tolower}{}

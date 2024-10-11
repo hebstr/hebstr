@@ -31,8 +31,6 @@ ggcount <- \(data,
              grid = TRUE,
              ...) {
 
-  check_font(family)
-
   data |>
     ggplot(aes(x = get(var),
                fill = I(color))) +
