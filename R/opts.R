@@ -159,8 +159,8 @@ set_opts <- \(.check_fonts = FALSE,
                 gt = 
                   lst(acro_list = opts$acro,
                       acro_sep = opts$sep$ext,
-                      alpha = opts$font$alpha,
-                      digit = opts$font$digit,
+                      alpha = .font(opts$font$alpha),
+                      digit = .font(opts$font$alpha),
                       color = opts$palette$cold[1],
                       docx = if (exists("docx")) docx else FALSE)) |> 
     inject()
