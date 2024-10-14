@@ -12,12 +12,29 @@ easy_view(
   font_family = "arial",
   color_type = FALSE,
   palette = "viridis",
-  focus_na = FALSE,
+  raw = FALSE,
+  out = FALSE,
   ...
 )
 }
 \arguments{
+\item{x}{}
+
+\item{name}{}
+
+\item{width}{}
+
+\item{font_size}{}
+
+\item{font_family}{}
+
+\item{color_type}{}
+
 \item{palette}{}
+
+\item{out}{}
+
+\item{...}{}
 }
 \description{
 Title

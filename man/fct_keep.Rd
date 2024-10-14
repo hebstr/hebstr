@@ -4,14 +4,16 @@
 \alias{fct_keep}
 \title{Title}
 \usage{
-fct_keep(data, var, sup_to, sep)
+fct_keep(data, var, min, sep)
 }
 \arguments{
 \item{data}{}
 
 \item{var}{}
 
-\item{sup_to}{}
+\item{min}{}
+
+\item{sep}{}
 }
 \description{
 Title

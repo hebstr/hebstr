@@ -10,10 +10,10 @@
 #'
 #' @examples
 #'
-easy_acro <- \(...,
-               .sep = ":",
-               .auto = TRUE,
-               .tolower = FALSE) {
+acro <- \(...,
+          .sep = ":",
+          .auto = TRUE,
+          .tolower = FALSE) {
   
   e <- if (!.tolower) {
     

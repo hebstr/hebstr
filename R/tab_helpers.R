@@ -101,7 +101,7 @@ quali.test <- \(data, variable, by, ...) {
 
   if (is_under(5)) {
     
-    if (!is_under(1)) {
+    if (!is_under(2)) {
   
       tidy(chisq_is_correct(TRUE))
   
@@ -117,37 +117,6 @@ quali.test <- \(data, variable, by, ...) {
     
   }
   
-}
-
-
-#' Title
-#'
-#' @param ... 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' 
-easy_tbl <- \(...) {
-
-  data <- easy_descr(...)
-
-  cap <- \(x) str_cap(tolower, names(x))
-  
-  list(test =
-         list(data$qt$vars$parametric ~ "quanti.test.para",
-              data$qt$vars$nonparametric ~ "quanti.test.nonpara",
-              all_categorical() ~ "quali.test"),
-       stat =
-         list(data$qt$vars$parametric ~ data$qt$stat$mean,
-              data$qt$vars$nonparametric ~ data$qt$stat$median,
-              all_categorical() ~ data$ql$stat$n),
-       label =
-         list(data$qt$vars$parametric ~ cap(data$qt$stat$mean),
-              data$qt$vars$nonparametric ~ cap(data$qt$stat$median),
-              all_categorical() ~ cap(data$ql$stat$n)))
-
 }
 
 
@@ -373,7 +342,8 @@ fct_other_str <- \(fct, chr, min) {
 #'
 #' @param data 
 #' @param var 
-#' @param sup_to 
+#' @param min 
+#' @param sep 
 #'
 #' @return
 #' @export
@@ -382,7 +352,7 @@ fct_other_str <- \(fct, chr, min) {
 #' 
 fct_keep <- \(data,
               var,
-              sup_to,
+              min,
               sep) {
 
   x <-
@@ -390,7 +360,7 @@ fct_keep <- \(data,
     separate_longer_delim(!!var, delim = regex("\\s*(,|et)\\s*")) |> 
     count(!!var := get(var), sort = TRUE) |>
     drop_na() |> 
-    split(~ n > sup_to) |> 
+    split(~ n >= min) |> 
     set_names(c("drop", "keep"))
   
   y <-

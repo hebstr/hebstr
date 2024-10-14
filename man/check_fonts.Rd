@@ -4,7 +4,7 @@
 \alias{check_fonts}
 \title{Title}
 \usage{
-check_fonts(...)
+check_fonts(..., .abort = FALSE)
 }
 \arguments{
 \item{...}{}

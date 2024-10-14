@@ -1,20 +1,20 @@
 #' Title
 #'
-#' @param x
-#' @param name
-#' @param width
-#' @param color_type
-#' @param focus_na
-#' @param ...
-#' @param font_size
-#' @param font_familiy
-#' @param palette
+#' @param x 
+#' @param name 
+#' @param width 
+#' @param font_size 
+#' @param font_family 
+#' @param color_type 
+#' @param palette 
+#' @param out 
+#' @param ... 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-#'
+#' 
 easy_view <- \(x,
                name = NULL,
                width = 600,
@@ -22,7 +22,8 @@ easy_view <- \(x,
                font_family = "arial",
                color_type = FALSE,
                palette = "viridis",
-               focus_na = FALSE,
+               raw = FALSE,
+               out = FALSE,
                ...) {
 
   if (is.null(name)) name <- enexpr(x)
@@ -71,14 +72,14 @@ easy_view <- \(x,
                  by = join_by(variable),
                  .init = generate_dictionary(x) |> tibble()) |>
           rename(type = col_type,
-                 na = missing) |>
+                 n_miss = missing) |>
           mutate(type = case_when(bin == "TRUE" ~ "bin",
                                   bin == "FALSE" ~ "num",
                                   .default = type),
-                        na = na_if(na, 0),
-                        q1_q2_q3 = if_else(type == "bin", NA, q1_q2_q3)) |>
-          mutate(na_prop = percent(na / nrow(x), accuracy = .1),
-                        .after = na) |>
+                 n_miss = na_if(n_miss, 0),
+                 q1_q2_q3 = if_else(type == "bin", NA, q1_q2_q3)) |>
+          mutate(p_miss = percent(n_miss / nrow(x), accuracy = .1),
+                 .after = n_miss) |>
           relocate(range, q1_q2_q3, .before = levels) |>
           select(where(~ !is.null(unlist(.))), -bin),
       output =
@@ -107,24 +108,20 @@ easy_view <- \(x,
 
   }
 
-  if (!focus_na) {
-
+  if (!raw) {
+  
     assign(glue("{name}_view"), .view, envir = .GlobalEnv)
-
-    if (exists(".gtsum_out")) rm(.gtsum_out, envir = .GlobalEnv)
+  
+    if (out) {
+      
+      easy_out(.view$output,
+               filename = glue("{name}_view"),
+               width = width,
+               assign = FALSE,
+               ...)
+      
+    } else .view$output
     
-    easy_out(.view$output,
-             filename = glue("{name}_view"),
-             width = width,
-             assign = FALSE,
-             ...)
-
-  } else {
-
-    .view$data |>
-      select(variable, label, na, na_prop) |>
-      filter(!is.na(na))
-
-  }
+  } else .view$data
 
 }

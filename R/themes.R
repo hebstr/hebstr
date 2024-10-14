@@ -80,7 +80,7 @@ theme_gt <- \(x,
               footnote_marks = "extended",
               footnote_font_size = font_size - 2,
               footnote_padding = row_padding,
-              docx = FALSE,
+              docx = if (exists("docx")) docx else FALSE,
               ...) {
   
   .f <- \(str) str_subset(names(x$`_data`), str)
