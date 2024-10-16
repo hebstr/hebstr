@@ -4,12 +4,51 @@
 \alias{theme_bubble}
 \title{Title}
 \usage{
-theme_bubble(family = "arial", grid_color = "grey95", size = 13, ...)
+theme_bubble(
+  family = "arial",
+  size = 13,
+  base_color = "#555",
+  axis_margin_x = 12,
+  axis_margin_y = 10,
+  axis_color_x = base_color,
+  axis_color_y = base_color,
+  title_color_x = if (length(axis_color_x) == 1) axis_color_x else base_color,
+  title_color_y = if (length(axis_color_y) == 1) axis_color_y else base_color,
+  grid_color_x = if (all(axis_color_x != base_color)) axis_color_x else "grey95",
+  grid_color_y = if (all(axis_color_y != base_color)) axis_color_y else "grey95",
+  grid_lighten_x = if (all(grid_color_x != "grey95")) 0.85 else 0,
+  grid_lighten_y = if (all(grid_color_y != "grey95")) 0.85 else 0,
+  ...
+)
 }
 \arguments{
-\item{...}{}
+\item{family}{}
 
-\item{font}{}
+\item{size}{}
+
+\item{base_color}{}
+
+\item{axis_margin_x}{}
+
+\item{axis_margin_y}{}
+
+\item{axis_color_x}{}
+
+\item{axis_color_y}{}
+
+\item{title_color_x}{}
+
+\item{title_color_y}{}
+
+\item{grid_color_x}{}
+
+\item{grid_color_y}{}
+
+\item{grid_lighten_x}{}
+
+\item{grid_lighten_y}{}
+
+\item{...}{}
 }
 \description{
 Title

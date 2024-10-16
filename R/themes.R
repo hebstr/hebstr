@@ -299,6 +299,9 @@ theme_pca <- \(font = "arial",
 #' Title
 #'
 #' @param family 
+#' @param grid 
+#' @param grid_color 
+#' @param axis_text_size_y 
 #' @param ...
 #'
 #' @return
@@ -307,13 +310,26 @@ theme_pca <- \(font = "arial",
 #' @examples
 #'
 theme_blank <- \(family = "arial",
+                 grid = FALSE,
+                 grid_color = "grey80",
+                 axis_text_size_y = 7,
+                 legend_position = "none",
                  ...) {
 
-  .blank <-
-  element_rect(color = "white",
-               fill = "white")
+  .blank <- element_rect(color = "white", fill = "white")
 
   .width <- unit(1, "npc")
+  
+  grid <- if (grid) {
+    
+    list(panel.grid.major.y =
+           element_line(color = grid_color,
+                        size = 0.3),
+         axis.text.y = 
+           element_text(color = grid_color,
+                        size = axis_text_size_y))
+    
+  } else NULL
 
   theme_void() %+replace%
     theme(plot.background = .blank,
@@ -330,8 +346,9 @@ theme_blank <- \(family = "arial",
                             width = .width,
                             margin = margin(10, 0, 0, 0)),
           text = element_text(family = family),
-          legend.position = "none",
-          ...)
+          legend.position = legend_position,
+          ...) %+replace%
+      theme(!!!grid)
 
 }
 
@@ -354,7 +371,7 @@ theme_blank <- \(family = "arial",
 #' @examples
 #'
 theme_infreq <- \(family = "arial",
-                  title_size = 13,
+                  title_size = 11,
                   title_margin = 10,
                   caption_size = 9,
                   caption_margin = 10,
@@ -379,6 +396,7 @@ theme_infreq <- \(family = "arial",
     theme(plot.title.position = "plot",
           plot.title = 
             element_textbox(size = title_size,
+                            color = "#333",
                             hjust = 0.5,
                             halign = 0.5,
                             margin = margin(0, 0, title_margin, 0)),
@@ -408,8 +426,20 @@ theme_infreq <- \(family = "arial",
 
 #' Title
 #'
-#' @param font 
 #' @param ... 
+#' @param family 
+#' @param size 
+#' @param base_color 
+#' @param axis_margin_x 
+#' @param axis_margin_y 
+#' @param axis_color_x 
+#' @param axis_color_y 
+#' @param title_color_x 
+#' @param title_color_y 
+#' @param grid_color_x 
+#' @param grid_color_y 
+#' @param grid_lighten_x 
+#' @param grid_lighten_y 
 #'
 #' @return
 #' @export
@@ -417,20 +447,44 @@ theme_infreq <- \(family = "arial",
 #' @examples
 #' 
 theme_bubble <- \(family = "arial",
-                  grid_color = "grey95",
                   size = 13,
+                  base_color = "#555",
+                  axis_margin_x = 12,
+                  axis_margin_y = 10,
+                  axis_color_x = base_color,
+                  axis_color_y = base_color,
+                  title_color_x = if (length(axis_color_x) == 1) axis_color_x else base_color,
+                  title_color_y = if (length(axis_color_y) == 1) axis_color_y else base_color,
+                  grid_color_x = if (all(axis_color_x != base_color)) axis_color_x else "grey95",
+                  grid_color_y = if (all(axis_color_y != base_color)) axis_color_y else "grey95",
+                  grid_lighten_x = if (all(grid_color_x != "grey95")) 0.85 else 0,
+                  grid_lighten_y = if (all(grid_color_y != "grey95")) 0.85 else 0,
                   ...) {
 
   theme(panel.background = element_blank(),
-        panel.grid = element_line(color = grid_color),
+        panel.grid.major.x = 
+          element_line(color = lighten(grid_color_x, grid_lighten_x)),
+        panel.grid.major.y = 
+          element_line(color = lighten(grid_color_y, grid_lighten_y)),
         text = 
-          element_text(size = size,
+          element_text(size = size, 
                        family = family),
-        axis.title = element_text(face = "bold"),
+        axis.title =
+          element_markdown(face = "bold"),
+        axis.title.x = 
+          element_markdown(margin = margin(t = axis_margin_x),
+                           color = title_color_x),
+        axis.title.y =
+          element_markdown(margin = margin(l = 20, r = axis_margin_y),
+                           color = title_color_y),
+        axis.text.x = 
+          element_markdown(color = axis_color_x),
+        axis.text.y = 
+          element_markdown(color = axis_color_y),
         axis.ticks = element_blank(),
         legend.position = "none",
         ...)
-  
+
 }
 
 

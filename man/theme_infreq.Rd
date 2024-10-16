@@ -6,7 +6,7 @@
 \usage{
 theme_infreq(
   family = "arial",
-  title_size = 13,
+  title_size = 11,
   title_margin = 10,
   caption_size = 9,
   caption_margin = 10,

@@ -4,10 +4,23 @@
 \alias{theme_blank}
 \title{Title}
 \usage{
-theme_blank(family = "arial", ...)
+theme_blank(
+  family = "arial",
+  grid = FALSE,
+  grid_color = "grey80",
+  axis_text_size_y = 7,
+  legend_position = "none",
+  ...
+)
 }
 \arguments{
 \item{family}{}
+
+\item{grid}{}
+
+\item{grid_color}{}
+
+\item{axis_text_size_y}{}
 
 \item{...}{}
 }
