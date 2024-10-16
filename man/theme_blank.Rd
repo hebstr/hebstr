@@ -7,7 +7,8 @@
 theme_blank(
   family = "arial",
   grid = FALSE,
-  grid_color = "grey80",
+  grid_color = "grey85",
+  grid_size = 0.3,
   axis_text_size_y = 7,
   legend_position = "none",
   ...
@@ -20,7 +21,11 @@ theme_blank(
 
 \item{grid_color}{}
 
+\item{grid_size}{}
+
 \item{axis_text_size_y}{}
+
+\item{legend_position}{}
 
 \item{...}{}
 }

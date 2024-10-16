@@ -301,7 +301,9 @@ theme_pca <- \(font = "arial",
 #' @param family 
 #' @param grid 
 #' @param grid_color 
+#' @param grid_size 
 #' @param axis_text_size_y 
+#' @param legend_position 
 #' @param ...
 #'
 #' @return
@@ -311,7 +313,8 @@ theme_pca <- \(font = "arial",
 #'
 theme_blank <- \(family = "arial",
                  grid = FALSE,
-                 grid_color = "grey80",
+                 grid_color = "grey85",
+                 grid_size = 0.3,
                  axis_text_size_y = 7,
                  legend_position = "none",
                  ...) {
@@ -324,9 +327,10 @@ theme_blank <- \(family = "arial",
     
     list(panel.grid.major.y =
            element_line(color = grid_color,
-                        size = 0.3),
+                        size = grid_size),
          axis.text.y = 
-           element_text(color = grid_color,
+           element_text(family = family,
+                        color = grid_color,
                         size = axis_text_size_y))
     
   } else NULL
