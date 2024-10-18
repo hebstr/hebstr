@@ -144,8 +144,6 @@ set_opts <- \(.check_fonts = FALSE,
         data = glue("{lim[1]}{{{data[1]}}}{sep}{{{data[2]}}}{lim[2]}"))
     
   }
-  
-  .font <- \(x) if (!check_fonts(x)) "trebuchet ms" else x
 
   assign("opts", list_modify(.opts_set, !!!dots), envir = .GlobalEnv)
   
@@ -154,13 +152,13 @@ set_opts <- \(.check_fonts = FALSE,
     list_modify(vars = \(x) .vars(x, !!!with(opts, list(parametric, qt_stat, ql_stat))),
                 ci = .ci(!!!opts$ci),
                 font = 
-                  list(alpha = .font(opts$font$alpha),
-                       digit = .font(opts$font$digit)),
+                  list(alpha = check_fonts(.auto = opts$font$alpha),
+                       digit = check_fonts(.auto = opts$font$digit)),
                 gt = 
                   lst(acro_list = opts$acro,
                       acro_sep = opts$sep$ext,
-                      alpha = .font(opts$font$alpha),
-                      digit = .font(opts$font$alpha),
+                      alpha = check_fonts(.auto = opts$font$alpha),
+                      digit = check_fonts(.auto = opts$font$digit),
                       color = opts$palette$cold[1],
                       docx = if (exists("docx")) docx else FALSE)) |> 
     inject()

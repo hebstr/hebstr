@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 theme_infreq(
-  family = "arial",
+  family = check_fonts(.auto = "luciole"),
   title_size = 11,
   title_margin = 10,
   caption_size = 9,

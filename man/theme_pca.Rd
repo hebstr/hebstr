@@ -4,9 +4,11 @@
 \alias{theme_pca}
 \title{Title}
 \usage{
-theme_pca(font = "arial", ...)
+theme_pca(family = check_fonts(.auto = "luciole"), ...)
 }
 \arguments{
+\item{family}{}
+
 \item{...}{}
 }
 \description{

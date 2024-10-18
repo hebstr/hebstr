@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 theme_bubble(
-  family = "arial",
+  family = check_fonts(.auto = "luciole"),
   size = 13,
   base_color = "#555",
   axis_margin_x = 12,

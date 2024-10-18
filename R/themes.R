@@ -1,6 +1,8 @@
 #' Title
 #'
 #' @param ...
+#' @param .auto 
+#' @param .abort 
 #'
 #' @return
 #' @export
@@ -8,32 +10,44 @@
 #' @examples
 #'
 check_fonts <- \(...,
+                 .auto = NULL,
                  .abort = FALSE) {
 
-  fonts <- unlist(...)
-
-  system <- unique(systemfonts::system_fonts()$family)
-  system <- glue("\\b{system}\\b")
-  system <- glue("(?i){str_u(system)}")
+  if (!is.null(.auto)) {
+    
+    check_dots_empty()
+    
+    if (!check_fonts(.auto)) "trebuchet ms" else .auto
+    
+  } else {
+    
+    fonts <- unlist(...)
   
-  is_installed <- str_detect(fonts, system)
-
-  if (FALSE %in% is_installed) {
-
-    which_font <-
-    data.frame(fonts, is_installed) |>
-      filter(!is_installed) |>
-      pull(fonts)
+    system <- unique(systemfonts::system_fonts()$family)
+    system <- glue("\\b{system}\\b")
+    system <- glue("(?i){str_u(system)}")
     
-    if (.abort) cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
+    is_installed <- str_detect(fonts, system)
+  
+    if (FALSE %in% is_installed) {
+  
+      which_font <-
+      data.frame(fonts, is_installed) |>
+        filter(!is_installed) |>
+        pull(fonts)
+      
+      if (.abort) cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
+      
+      return(FALSE)
+  
+    }
+  
+    return(TRUE)
     
-    return(FALSE)
-
   }
-
-  return(TRUE)
   
 }
+
 
 
 #' Title
@@ -65,8 +79,8 @@ check_fonts <- \(...,
 #'
 theme_gt <- \(x,
               width = NULL,
-              alpha = "arial",
-              digit = "arial",
+              alpha = check_fonts(.auto = "luciole"),
+              digit = check_fonts(.auto = "luciole"),
               base = "#333333",
               color = "lightgrey",
               bg = "white",
@@ -145,7 +159,12 @@ theme_gt <- \(x,
 #' Title
 #'
 #' @param family
-#' @param size 
+#' @param title_size 
+#' @param title_halign 
+#' @param title_margin 
+#' @param caption_size 
+#' @param caption_halign 
+#' @param caption_margin 
 #' @param grid
 #' @param ...
 #'
@@ -154,8 +173,13 @@ theme_gt <- \(x,
 #'
 #' @examples
 #'
-theme_bar <- \(family = "arial",
-               size = 9,
+theme_bar <- \(family = check_fonts(.auto = "luciole"),
+               title_size = 9,
+               title_halign = 1,
+               title_margin = margin(0, 0, 0, 0),
+               caption_size = 9,
+               caption_halign = 1,
+               caption_margin = margin(10, 0, 0, 0),
                grid = TRUE,
                ...) {
 
@@ -168,18 +192,24 @@ theme_bar <- \(family = "arial",
 
   } else bg <- NULL
 
-  theme(plot.caption = 
-          element_textbox(size = size,
-                          hjust = 1,
+  theme(text = element_text(family = family),
+        plot.title = 
+          element_textbox(size = title_size,
+                          halign = title_halign,
+                          margin = title_margin,
                           lineheight = 1.05,
-                          width = unit(1, "npc"),
-                          margin = margin(10, 0, 0, 0)),
+                          width = unit(1, "npc")),
+        plot.caption.position = "plot",
+        plot.caption = 
+          element_textbox(size = caption_size,
+                          halign = caption_halign,
+                          margin = caption_margin,
+                          lineheight = 1.05,
+                          width = unit(1, "npc")),
         axis.title =
           element_text(size = 9,
                        face = "bold"),
         axis.title.x = element_text(vjust = 0.5),
-        text = element_text(family = family),
-        plot.caption.position = "plot",
         legend.position = "none",
         ...) %+replace%
           inject(theme(!!!bg))
@@ -199,7 +229,7 @@ theme_bar <- \(family = "arial",
 #' @export
 #'
 #' @examples
-theme_tte <- \(family = "arial",
+theme_tte <- \(family = check_fonts(.auto = "luciole"),
                size = 8,
                vjust_y = 1,
                title_margin = NULL,
@@ -240,7 +270,7 @@ theme_tte <- \(family = "arial",
 #'
 #' @examples
 #'
-theme_risktable <- \(family = "arial",
+theme_risktable <- \(family = check_fonts(.auto = "luciole"),
                      label_size = 7,
                      title_size = 7,
                      title_margin = 3,
@@ -268,7 +298,7 @@ theme_risktable <- \(family = "arial",
 
 #' Title
 #'
-#' @param font
+#' @param family 
 #' @param ...
 #'
 #' @return
@@ -276,16 +306,17 @@ theme_risktable <- \(family = "arial",
 #'
 #' @examples
 #'
-theme_pca <- \(font = "arial",
+theme_pca <- \(family = check_fonts(.auto = "luciole"),
                ...) {
 
-  theme(text = element_text(family = font),
+  theme(text = element_text(family = family),
         legend.position = "none",
-        plot.caption = element_textbox(size = 9,
-                                       hjust = 1,
-                                       lineheight = 1.05,
-                                       width = unit(1, "npc"),
-                                       margin = margin(10, 0, 0, 0)),
+        plot.caption = 
+          element_textbox(size = 9,
+                          hjust = 1,
+                          lineheight = 1.05,
+                          width = unit(1, "npc"),
+                          margin = margin(10, 0, 0, 0)),
         panel.background = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),
@@ -309,9 +340,10 @@ theme_pca <- \(font = "arial",
 #'
 #' @examples
 #'
-theme_blank <- \(family = "arial",
+theme_blank <- \(family = check_fonts(.auto = "luciole"),
                  grid = FALSE,
-                 grid_color = "grey80",
+                 grid_color = "grey90",
+                 grid_size = 0.2,
                  axis_text_size_y = 7,
                  legend_position = "none",
                  ...) {
@@ -324,7 +356,7 @@ theme_blank <- \(family = "arial",
     
     list(panel.grid.major.y =
            element_line(color = grid_color,
-                        size = 0.3),
+                        size = grid_size),
          axis.text.y = 
            element_text(color = grid_color,
                         size = axis_text_size_y))
@@ -370,7 +402,7 @@ theme_blank <- \(family = "arial",
 #'
 #' @examples
 #'
-theme_infreq <- \(family = "arial",
+theme_infreq <- \(family = check_fonts(.auto = "luciole"),
                   title_size = 11,
                   title_margin = 10,
                   caption_size = 9,
@@ -426,7 +458,6 @@ theme_infreq <- \(family = "arial",
 
 #' Title
 #'
-#' @param ... 
 #' @param family 
 #' @param size 
 #' @param base_color 
@@ -440,13 +471,14 @@ theme_infreq <- \(family = "arial",
 #' @param grid_color_y 
 #' @param grid_lighten_x 
 #' @param grid_lighten_y 
+#' @param ... 
 #'
 #' @return
 #' @export
 #'
 #' @examples
 #' 
-theme_bubble <- \(family = "arial",
+theme_bubble <- \(family = check_fonts(.auto = "luciole"),
                   size = 13,
                   base_color = "#555",
                   axis_margin_x = 12,

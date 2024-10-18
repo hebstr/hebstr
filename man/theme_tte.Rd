@@ -4,7 +4,13 @@
 \alias{theme_tte}
 \title{Title}
 \usage{
-theme_tte(family = "arial", size = 8, vjust_y = 1, title_margin = NULL, ...)
+theme_tte(
+  family = check_fonts(.auto = "luciole"),
+  size = 8,
+  vjust_y = 1,
+  title_margin = NULL,
+  ...
+)
 }
 \arguments{
 \item{family}{}

@@ -118,6 +118,7 @@
 #' @importFrom purrr map2
 #' @importFrom purrr reduce
 #' @importFrom rlang :=
+#' @importFrom rlang check_dots_empty
 #' @importFrom rlang enexpr
 #' @importFrom rlang enexprs
 #' @importFrom rlang env

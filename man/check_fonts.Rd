@@ -4,10 +4,12 @@
 \alias{check_fonts}
 \title{Title}
 \usage{
-check_fonts(..., .abort = FALSE)
+check_fonts(..., .auto = NULL, .abort = FALSE)
 }
 \arguments{
-\item{...}{}
+\item{.auto}{}
+
+\item{.abort}{}
 }
 \description{
 Title

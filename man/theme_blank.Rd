@@ -5,9 +5,10 @@
 \title{Title}
 \usage{
 theme_blank(
-  family = "arial",
+  family = check_fonts(.auto = "luciole"),
   grid = FALSE,
-  grid_color = "grey80",
+  grid_color = "grey90",
+  grid_size = 0.2,
   axis_text_size_y = 7,
   legend_position = "none",
   ...

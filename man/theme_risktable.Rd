@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 theme_risktable(
-  family = "arial",
+  family = check_fonts(.auto = "luciole"),
   label_size = 7,
   title_size = 7,
   title_margin = 3,

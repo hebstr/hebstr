@@ -7,8 +7,8 @@
 theme_gt(
   x,
   width = NULL,
-  alpha = "arial",
-  digit = "arial",
+  alpha = check_fonts(.auto = "luciole"),
+  digit = check_fonts(.auto = "luciole"),
   base = "#333333",
   color = "lightgrey",
   bg = "white",

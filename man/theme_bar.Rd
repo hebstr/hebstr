@@ -4,10 +4,30 @@
 \alias{theme_bar}
 \title{Title}
 \usage{
-theme_bar(family = "arial", size = 9, grid = TRUE, ...)
+theme_bar(
+  family = check_fonts(.auto = "luciole"),
+  title_size = 9,
+  title_halign = 1,
+  title_margin = margin(0, 0, 0, 0),
+  caption_size = 9,
+  caption_halign = 1,
+  caption_margin = margin(10, 0, 0, 0),
+  grid = TRUE,
+  ...
+)
 }
 \arguments{
-\item{size}{}
+\item{title_size}{}
+
+\item{title_halign}{}
+
+\item{title_margin}{}
+
+\item{caption_size}{}
+
+\item{caption_halign}{}
+
+\item{caption_margin}{}
 
 \item{...}{}
 }
