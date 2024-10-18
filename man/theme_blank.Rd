@@ -7,8 +7,13 @@
 theme_blank(
   family = check_fonts(.auto = "luciole"),
   grid = FALSE,
+<<<<<<< HEAD
   grid_color = "grey90",
   grid_size = 0.2,
+=======
+  grid_color = "grey85",
+  grid_size = 0.3,
+>>>>>>> e1d6b0621f5d87f61aeb09e08b26c6bf79277020
   axis_text_size_y = 7,
   legend_position = "none",
   ...
@@ -21,7 +26,11 @@ theme_blank(
 
 \item{grid_color}{}
 
+\item{grid_size}{}
+
 \item{axis_text_size_y}{}
+
+\item{legend_position}{}
 
 \item{...}{}
 }
