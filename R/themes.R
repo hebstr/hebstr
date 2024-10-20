@@ -178,7 +178,7 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
                title_halign = 1,
                title_margin = margin(0, 0, 0, 0),
                caption_size = 9,
-               caption_halign = 1,
+               caption_halign = 0,
                caption_margin = margin(10, 0, 0, 0),
                grid = TRUE,
                ...) {

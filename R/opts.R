@@ -87,7 +87,7 @@ set_opts <- \(.check_fonts = FALSE,
       font =
         list(alpha = "luciole",
              digit = "luciole"),
-      palette = 
+      color = 
         lst(base = "#999999",
             cold = c("#E1F6FF", "#0099EE"),
             warm = c("#f5E3E0", "#BC3C33")))
@@ -159,7 +159,7 @@ set_opts <- \(.check_fonts = FALSE,
                       acro_sep = opts$sep$ext,
                       alpha = check_fonts(.auto = opts$font$alpha),
                       digit = check_fonts(.auto = opts$font$digit),
-                      color = opts$palette$cold[1],
+                      color = opts$color$cold[1],
                       docx = if (exists("docx")) docx else FALSE)) |> 
     inject()
 
