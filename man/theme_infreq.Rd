@@ -11,8 +11,9 @@ theme_infreq(
   caption_size = 9,
   caption_margin = 10,
   label_size = 11,
-  label_margin = -15,
+  label_margin = margin(r = -15),
   grid = TRUE,
+  grid_size = 7,
   ...
 )
 }

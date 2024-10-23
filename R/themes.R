@@ -408,8 +408,9 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
                   caption_size = 9,
                   caption_margin = 10,
                   label_size = 11,
-                  label_margin = -15,
+                  label_margin = margin(r = -15),
                   grid = TRUE,
+                  grid_size = 7,
                   ...) {
 
   if (grid) {
@@ -420,7 +421,7 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
                         size = 0.3),
          axis.text.x = 
            element_text(color = "grey90",
-                        size = 7,
+                        size = grid_size,
                         margin = margin(0)))
 
   } else grid <- NULL
@@ -441,7 +442,7 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
           axis.title = element_blank(),
           axis.text.y = 
             element_text(size = label_size,
-                         margin = margin(0, label_margin, 0, 0)),
+                         margin = label_margin),
           text = element_text(family = family),
           plot.caption.position = "plot",
           legend.position = "none",
