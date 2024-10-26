@@ -29,12 +29,10 @@ str_color <- \(text,
                color = "red",
                bg = "#ffffff00") {
 
-  text <- glue::glue("**{text}**")
-  color <- glue::glue("color:{color}")
-  bg <- glue::glue("background-color:{bg}")
-  style <- glue::glue("{color};{bg}")
+  color <- glue("color:{color};")
+  bg <- glue("background-color:{bg};")
 
-  htmltools::tags$span(text, style = style)
+  glue("<span style='{color}{bg}'>**{text}**</span>")
 
 }
 

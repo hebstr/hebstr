@@ -7,7 +7,7 @@
 theme_bubble(
   family = check_fonts(.auto = "luciole"),
   size = 13,
-  base_color = "#555",
+  base_color = "#333333",
   axis_margin_x = 12,
   axis_margin_y = 10,
   axis_color_x = base_color,

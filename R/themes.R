@@ -159,6 +159,7 @@ theme_gt <- \(x,
 #' Title
 #'
 #' @param family
+#' @param text_color 
 #' @param title_size 
 #' @param title_halign 
 #' @param title_margin 
@@ -166,6 +167,7 @@ theme_gt <- \(x,
 #' @param caption_halign 
 #' @param caption_margin 
 #' @param grid
+#' @param legend_position 
 #' @param ...
 #'
 #' @return
@@ -174,6 +176,7 @@ theme_gt <- \(x,
 #' @examples
 #'
 theme_bar <- \(family = check_fonts(.auto = "luciole"),
+               text_color = "#333333",
                title_size = 9,
                title_halign = 1,
                title_margin = margin(0, 0, 0, 0),
@@ -181,6 +184,7 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
                caption_halign = 0,
                caption_margin = margin(10, 0, 0, 0),
                grid = TRUE,
+               legend_position = "none",
                ...) {
 
   if (!grid) {
@@ -192,7 +196,9 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
 
   } else bg <- NULL
 
-  theme(text = element_text(family = family),
+  theme(text = 
+          element_text(family = family,
+                       color = text_color),
         plot.title = 
           element_textbox(size = title_size,
                           halign = title_halign,
@@ -210,7 +216,7 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
           element_text(size = 9,
                        face = "bold"),
         axis.title.x = element_text(vjust = 0.5),
-        legend.position = "none",
+        legend.position = legend_position,
         ...) %+replace%
           inject(theme(!!!bg))
 
@@ -428,17 +434,17 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
 
     theme(plot.title.position = "plot",
           plot.title = 
-            element_textbox(size = title_size,
-                            color = "#333",
-                            hjust = 0.5,
-                            halign = 0.5,
-                            margin = margin(0, 0, title_margin, 0)),
+            element_markdown(size = title_size,
+                             color = "#333333",
+                             hjust = 0.5,
+                             halign = 0.5,
+                             margin = margin(0, 0, title_margin, 0)),
           plot.caption = 
-            element_textbox(size = caption_size,
-                            hjust = 1,
-                            lineheight = 1.05,
-                            width = unit(1, "npc"),
-                            margin = margin(caption_margin, 0, 0, 0)),
+            element_markdown(size = caption_size,
+                             lineheight = 1.05,
+                             hjust = 1,
+                             halign = 1,
+                             margin = margin(caption_margin, 0, 0, 0)),
           axis.title = element_blank(),
           axis.text.y = 
             element_text(size = label_size,
@@ -481,7 +487,7 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
 #' 
 theme_bubble <- \(family = check_fonts(.auto = "luciole"),
                   size = 13,
-                  base_color = "#555",
+                  base_color = "#333333",
                   axis_margin_x = 12,
                   axis_margin_y = 10,
                   axis_color_x = base_color,

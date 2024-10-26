@@ -6,6 +6,7 @@
 \usage{
 theme_bar(
   family = check_fonts(.auto = "luciole"),
+  text_color = "#333333",
   title_size = 9,
   title_halign = 1,
   title_margin = margin(0, 0, 0, 0),
@@ -13,10 +14,13 @@ theme_bar(
   caption_halign = 0,
   caption_margin = margin(10, 0, 0, 0),
   grid = TRUE,
+  legend_position = "none",
   ...
 )
 }
 \arguments{
+\item{text_color}{}
+
 \item{title_size}{}
 
 \item{title_halign}{}
@@ -28,6 +32,8 @@ theme_bar(
 \item{caption_halign}{}
 
 \item{caption_margin}{}
+
+\item{legend_position}{}
 
 \item{...}{}
 }
