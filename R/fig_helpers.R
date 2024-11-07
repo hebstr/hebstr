@@ -27,7 +27,7 @@ ggcount <- \(data,
              title = NULL,
              caption = NULL,
              ylab = "Effectif",
-             family = "arial",
+             family = check_fonts(.auto = "luciole"),
              grid = TRUE,
              ...) {
 
@@ -35,17 +35,20 @@ ggcount <- \(data,
     ggplot(aes(x = get(var),
                fill = I(color))) +
     geom_bar(alpha = alpha) +
-    geom_text(aes(y = after_stat(count + nudge_y * max(count)),
-                  label = after_stat(count),
-                  color = after_scale(fill)),
+    geom_text(mapping =
+                aes(y = after_stat(count + nudge_y * max(count)),
+                    label = after_stat(count),
+                    color = after_scale(fill)),
               stat = "count",
               family = family,
               ...) +
     geom_text(data = ~ pct_min(., var, pct_min),
-              aes(y = after_stat(count - nudge_y * max(count)),
-                  label = percent(after_stat(count) / nrow(data),
-                                  accuracy = 0.1),
-                  color = after_scale(fill |> lighten(0.95))),
+              mapping = 
+                aes(y = after_stat(count - nudge_y * max(count)),
+                    label = 
+                      percent(after_stat(count) / nrow(data),
+                              accuracy = 0.1),
+                    color = after_scale(fill |> lighten(0.95))),
               stat = "count",
               family = family,
               ...) +

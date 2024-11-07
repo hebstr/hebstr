@@ -38,17 +38,8 @@ easy_recode <- \(...) {
 
   dots <- list(...)
 
-  list(name =
-         map(dots, ~ unname(.[1])) |>
-           list_flatten() |>
-           unlist(),
-       label =
-         map(dots, ~ unname(.[2])) |>
-           list_flatten() |>
-           unlist(),
-       levels =
-         map(dots, ~ unname(.[3])) |>
-           list_flatten())
+  list(name = dots |> map(names) |> unlist(),
+       label = dots |> map(unname) |> unlist())
 
 }
 
@@ -139,21 +130,21 @@ easy_cut <- \(x,
 #'
 pca_var_extract <- \(x) {
 
-lst(coord =
-      x |>
-        broom::tidy("rotation") |>
-        tidyr::pivot_wider(names_from = "PC",
-                           names_prefix = "PC",
-                           values_from = "value") |>
-        mutate(column = str_remove_all(column, "hamd"),
-               .keep = "all"),
-    contrib =
-      coord |>
-        mutate(across(matches("PC"), ~ . ^ 2 / sum(. ^ 2))),
-    weight =
-      coord["column"] |>
-        mutate(PC1 = contrib$PC1 / max(contrib$PC1)) |>
-        pull(PC1))
+  lst(coord =
+        x |>
+          broom::tidy("rotation") |>
+          tidyr::pivot_wider(names_from = "PC",
+                             names_prefix = "PC",
+                             values_from = "value") |>
+          mutate(column = str_remove_all(column, "hamd"),
+                 .keep = "all"),
+      contrib =
+        coord |>
+          mutate(across(matches("PC"), ~ . ^ 2 / sum(. ^ 2))),
+      weight =
+        coord["column"] |>
+          mutate(PC1 = contrib$PC1 / max(contrib$PC1)) |>
+          pull(PC1))
 
 }
 

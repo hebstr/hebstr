@@ -9,7 +9,7 @@ easy_view(
   name = NULL,
   width = 600,
   font_size = 12,
-  font_family = "arial",
+  font_family = check_fonts(.auto = "luciole"),
   color_type = FALSE,
   palette = "viridis",
   raw = FALSE,

@@ -14,7 +14,7 @@ ggcount(
   title = NULL,
   caption = NULL,
   ylab = "Effectif",
-  family = "arial",
+  family = check_fonts(.auto = "luciole"),
   grid = TRUE,
   ...
 )

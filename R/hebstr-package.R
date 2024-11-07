@@ -83,6 +83,7 @@
 #' @importFrom gt pct
 #' @importFrom gt px
 #' @importFrom gt sub_missing
+#' @importFrom gt sub_values
 #' @importFrom gt tab_footnote
 #' @importFrom gt tab_header
 #' @importFrom gt tab_options

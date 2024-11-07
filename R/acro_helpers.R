@@ -40,6 +40,8 @@ acro <- \(...,
   base <-
   .fun(SD ~ "standard deviation",
        IQR ~ "interquartile range",
+       Q1 ~ "1st quartile",
+       Q3 ~ "3rd quartile",
        `95%CI` ~ "95% confidence interval")
   
   } else {
@@ -49,6 +51,8 @@ acro <- \(...,
     base <-
     .fun(SD ~ "écart-type",
          IQR ~ "intervalle interquartile",
+         Q1 ~ "1er quartile",
+         Q3 ~ "3e quartile",
          `IC95%` ~ "intervalle de confiance à 95%")
     
   }
