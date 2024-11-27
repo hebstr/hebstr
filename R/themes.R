@@ -531,8 +531,8 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #'
 #' @param data 
 #' @param head 
-#' @param size 
 #' @param align 
+#' @param font_size 
 #' @param ... 
 #'
 #' @return
@@ -542,16 +542,14 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #' 
 gt_qmd <- \(data,
             head = FALSE,
-            size = 15,
-            align = "center",
+            align = "left",
+            font_size = 15,
             ...) {
   
-  data <-
-  if ("gtsummary" %in% class(data)) as_gt(data)
-  else if (!head) gt(data) else gt_preview(data)
+  data <- if (!head) gt(data) else gt_preview(data)
   
   data |>
-    tab_options(table.font.size = px(size),
+    tab_options(table.font.size = px(font_size),
                 column_labels.border.top.color = "white",
                 ...) |>
     tab_style(style = cell_text(weight = "bold"),

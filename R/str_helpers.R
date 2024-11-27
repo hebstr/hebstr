@@ -52,16 +52,29 @@ str_color <- \(text,
 str_fig <- \(title,
              note = "",
              acro = "",
-             sub_size = 7.5) {
-
+             sub_size = "7.5",
+             qmd = FALSE,
+             class = "quarto-float-subcaption") {
+  
   title <- glue(title)
   note <- glue(note)
 
-  glue("{title}<br>
-       <span style='font-size:{sub_size}pt'>
-       {note} {acro}
-       </span>")
+  if (!qmd) {
+    
+    .str <-
+    glue("{title}<br>
+         <span style='font-size:{sub_size}pt'>{note} {acro}</span>")
+    
+  } else {
+    
+    .str <-
+    glue("{title}<br>
+         <span class='{class}'>{note} {acro}</span>")
+    
+  }
 
+  return(.str)
+  
 }
 
 

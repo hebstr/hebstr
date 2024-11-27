@@ -4,7 +4,14 @@
 \alias{str_fig}
 \title{Title}
 \usage{
-str_fig(title, note = "", acro = "", sub_size = 7.5)
+str_fig(
+  title,
+  note = "",
+  acro = "",
+  sub_size = "7.5",
+  qmd = FALSE,
+  class = "quarto-float-subcaption"
+)
 }
 \arguments{
 \item{sub_size}{}

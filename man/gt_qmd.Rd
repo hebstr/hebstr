@@ -4,16 +4,16 @@
 \alias{gt_qmd}
 \title{Title}
 \usage{
-gt_qmd(data, head = FALSE, size = 15, align = "center", ...)
+gt_qmd(data, head = FALSE, align = "left", font_size = 15, ...)
 }
 \arguments{
 \item{data}{}
 
 \item{head}{}
 
-\item{size}{}
-
 \item{align}{}
+
+\item{font_size}{}
 
 \item{...}{}
 }
