@@ -8,8 +8,8 @@
 #' @param height
 #' @param size
 #' @param px 
-#' @param print
 #' @param assign 
+#' @param .quiet 
 #'
 #' @return
 #' @export
@@ -25,7 +25,7 @@ easy_out <- \(x,
               size = NULL,
               px = 2000,
               assign = TRUE,
-              print = NULL) {
+              .quiet = if (exists("quiet")) quiet else FALSE) {
 
   cli_h1("easy_out")
   cli_text("\n\n")
@@ -74,19 +74,12 @@ easy_out <- \(x,
       unlist() |>
       str_extract("\\d+") |>
       as.numeric()
-    
-    if (!is.null(print)) {
-      
-      cli_text("\n\n")
-      print(print)
-      
-    }
 
     cli_progress_step("Creating HTML file")
 
     gtsave(x, file = to_html)
 
-    browseURL(glue("{getwd()}/{to_html}"))
+    if (!.quiet) browseURL(glue("{getwd()}/{to_html}"))
 
     cli_progress_step("Capturing HTML to PNG")
 
@@ -105,13 +98,15 @@ easy_out <- \(x,
     if (!rlang::is_installed("rsvg")) install.packages("rsvg", quiet = TRUE)
     
     cli_progress_step("Creating SVG file")
+    
+    .plot <-
+    capturePlot(expr = x,
+                filename = glue("{getwd()}/{to_svg}"),
+                grDevices::svg,
+                height = size[1],
+                width = size[2])
 
-    x |>
-      capturePlot(glue("{getwd()}/{to_svg}"),
-                  grDevices::svg,
-                  height = size[1],
-                  width = size[2]) |>
-      browseURL()
+    if (!.quiet) browseURL(.plot)
 
     cli_progress_step("Capturing SVG to PNG")
 
@@ -120,13 +115,6 @@ easy_out <- \(x,
 
     cli_progress_done()
 
-  }
-
-  if (!is.null(print)) {
-        
-    cli_text("\n\n")
-    print(print)
-        
   }
 
 ### CLI --------------------------------------------------------------------------

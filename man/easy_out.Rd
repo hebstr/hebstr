@@ -14,13 +14,15 @@ easy_out(
   size = NULL,
   px = 2000,
   assign = TRUE,
-  print = NULL
+  .quiet = if (exists("quiet")) quiet else FALSE
 )
 }
 \arguments{
 \item{px}{}
 
 \item{assign}{}
+
+\item{.quiet}{}
 }
 \description{
 Title
