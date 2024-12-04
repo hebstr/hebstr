@@ -34,7 +34,7 @@ lang_fr <- \(reset = FALSE) {
 
 #' Title
 #'
-#' @param .check_fonts 
+#' @param .default_font 
 #' @param ... 
 #'
 #' @return
@@ -42,11 +42,13 @@ lang_fr <- \(reset = FALSE) {
 #'
 #' @examples
 #' 
-set_opts <- \(.check_fonts = FALSE,
+set_opts <- \(.default_font = "trebuchet ms",
               ...) {
   
   dots <- lst(...)
 
+  .fonts <- \(x) check_fonts(.default = .default_font, .auto = x)
+  
   .opts_set <-
   lst(parametric = nullfile(),
       qt_stat =
@@ -88,9 +90,9 @@ set_opts <- \(.check_fonts = FALSE,
         list(alpha = "luciole",
              digit = "luciole"),
       color = 
-        lst(base = "#999999",
+        lst(base = "#999",
             cold = c("#E1F6FF", "#0099EE"),
-            warm = c("#f5E3E0", "#BC3C33")))
+            warm = c("#f5E3E0", "#BB2B22")))
 
   if (getOption("OutDec") == ",") {
 
@@ -152,42 +154,21 @@ set_opts <- \(.check_fonts = FALSE,
     list_modify(vars = \(x) .vars(x, !!!with(opts, list(parametric, qt_stat, ql_stat))),
                 ci = .ci(!!!opts$ci),
                 font = 
-                  list(alpha = check_fonts(.auto = opts$font$alpha),
-                       digit = check_fonts(.auto = opts$font$digit)),
+                  list(alpha = .fonts(opts$font[[1]]),
+                       digit = .fonts(opts$font[[2]])),
                 gt = 
                   lst(acro_list = opts$acro,
                       acro_sep = opts$sep$ext,
-                      alpha = check_fonts(.auto = opts$font$alpha),
-                      digit = check_fonts(.auto = opts$font$digit),
+                      alpha = .fonts(opts$font[[1]]),
+                      digit = .fonts(opts$font[[2]]),
                       color = opts$color$cold[1],
                       docx = if (exists("docx")) docx else FALSE)) |> 
     inject()
 
+  if (identical(opts$font[[1]], opts$font[[2]])) opts$font <- opts$font[[1]]
+  
   assign("opts", opts, envir = .GlobalEnv)
   
   return(opts)
-
-}
-
-
-#' Title
-#'
-#' @param ...
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-opts_finalize <- \(...) {
-
-  .opts_set <- append(opts, list(...))
-
-  ls_env <- ls(envir = .GlobalEnv)
-
-  rm(list = ls_env[str_starts(ls_env, "opts_")],
-     envir = .GlobalEnv)
-
-  assign("opts", .opts_set, envir = .GlobalEnv)
 
 }

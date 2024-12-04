@@ -4,10 +4,10 @@
 \alias{set_opts}
 \title{Title}
 \usage{
-set_opts(.check_fonts = FALSE, ...)
+set_opts(.default_font = "trebuchet ms", ...)
 }
 \arguments{
-\item{.check_fonts}{}
+\item{.default_font}{}
 
 \item{...}{}
 }

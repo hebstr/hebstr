@@ -1,6 +1,7 @@
 #' Title
 #'
 #' @param ...
+#' @param .default 
 #' @param .auto 
 #' @param .abort 
 #'
@@ -10,6 +11,7 @@
 #' @examples
 #'
 check_fonts <- \(...,
+                 .default = "trebuchet ms",
                  .auto = NULL,
                  .abort = FALSE) {
 
@@ -17,7 +19,7 @@ check_fonts <- \(...,
     
     check_dots_empty()
     
-    if (!check_fonts(.auto)) "trebuchet ms" else .auto
+    if (!check_fonts(.auto)) .default else .auto
     
   } else {
     

@@ -4,9 +4,11 @@
 \alias{check_fonts}
 \title{Title}
 \usage{
-check_fonts(..., .auto = NULL, .abort = FALSE)
+check_fonts(..., .default = "trebuchet ms", .auto = NULL, .abort = FALSE)
 }
 \arguments{
+\item{.default}{}
+
 \item{.auto}{}
 
 \item{.abort}{}
