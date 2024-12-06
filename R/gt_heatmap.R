@@ -11,6 +11,7 @@
 #' @param font_size
 #' @param color
 #' @param palette
+#' @param autocolor_text 
 #' @param arrange
 #'
 #' @return
@@ -29,6 +30,7 @@ gt_heatmap <- \(data,
                 font_size = 10,
                 color = TRUE,
                 palette = c("indianred2", "skyblue1"),
+                autocolor_text = TRUE,
                 arrange = FALSE) {
 
   check_table <-
@@ -104,9 +106,12 @@ gt_heatmap <- \(data,
     tab_style(style = cell_text(align = "center"),
               locations = cells_body()) |>
     fmt_number(columns = where(is.numeric),
-               decimals = digit) %>%
+               dec_mark = getOption("OutDec"),
+               sep_mark = ifelse(getOption("OutDec") == ".", ",", " "),
+               decimals = digit) |> 
     data_color(method = "numeric",
                palette = c(palette[1], "white", palette[2]),
-               domain = c(-limit, limit))
+               domain = c(-limit, limit),
+               autocolor_text = autocolor_text)
 
 }

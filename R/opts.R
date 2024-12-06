@@ -49,6 +49,15 @@ set_opts <- \(.default_font = "trebuchet ms",
 
   .fonts <- \(x) check_fonts(.default = .default_font, .auto = x)
   
+  .label <-
+  list(n = 
+         label_number(accuracy = .1, 
+                      decimal.mark = getOption("OutDec")),
+       p = 
+         label_percent(accuracy = .1,
+                       suffix = "",
+                       decimal.mark = getOption("OutDec")))
+  
   .opts_set <-
   lst(parametric = nullfile(),
       qt_stat =
@@ -62,7 +71,7 @@ set_opts <- \(.default_font = "trebuchet ms",
           list(n = c("n (%)" = "{n} ({p})")),
       labs =
         list(sex = list(m = "Male", f = "Female"),
-             ny = list(n = "No", y = "Yes"),
+             bin = list(no = "No", yes = "Yes"),
              missing = "Missing data",
              header = "Characteristic",
              overall = "Overall",
@@ -76,13 +85,8 @@ set_opts <- \(.default_font = "trebuchet ms",
              label = "95%CI",
              data = c("conf.low", "conf.high")),
       digits =
-        list(all_continuous() 
-               ~ c(1,
-                   label_number(.1, decimal.mark = getOption("OutDec")),
-                   label_number(.1, decimal.mark = getOption("OutDec"))),
-             all_categorical()
-               ~ c(0, 
-                   label_percent(.1, suffix = "", decimal.mark = getOption("OutDec")))),
+        list(all_continuous() ~ c(1, .label$n, .label$n),
+             all_categorical() ~ c(0, .label$p)),
       pvalue = 
         list(format = label_style_pvalue(digits = 2),
              seuil = 0.05),
@@ -90,9 +94,12 @@ set_opts <- \(.default_font = "trebuchet ms",
         list(alpha = "luciole",
              digit = "luciole"),
       color = 
-        lst(base = "#999",
-            cold = c("#E1F6FF", "#0099EE"),
-            warm = c("#f5E3E0", "#BB2B22")))
+        list(base = "#999",
+             cold = c("#E1F6FF", "#0099EE"),
+             warm = c("#f5E3E0", "#BB2B22")),
+      palette = 
+        c(color$base, 
+          color$cold[2]))
 
   if (getOption("OutDec") == ",") {
 
@@ -103,7 +110,7 @@ set_opts <- \(.default_font = "trebuchet ms",
                          mean = c("Moyenne±SD" = "{mean}±{sd}")),
                   labs = 
                     list(sex = list(m = "Hommes", f = "Femmes"),
-                         ny = list(n = "Non", y = "Oui"),
+                         bin = list(no = "Non", yes = "Oui"),
                          missing = "Donnée manquante",
                          header = "Variable",
                          overall = "Total",
@@ -152,6 +159,13 @@ set_opts <- \(.default_font = "trebuchet ms",
   opts <-
   opts |>
     list_modify(vars = \(x) .vars(x, !!!with(opts, list(parametric, qt_stat, ql_stat))),
+                qt_stat_wide =
+                  opts$qt_stat |> 
+                    list_modify(median =
+                                  list2("{str_remove(names(opts$qt_stat$median), '\\\\s.+')}" :=
+                                          str_remove(opts$qt_stat$median, "\\s.+")) |> 
+                                    unlist()) |>
+                    list_c(),
                 ci = .ci(!!!opts$ci),
                 font = 
                   list(alpha = .fonts(opts$font[[1]]),
