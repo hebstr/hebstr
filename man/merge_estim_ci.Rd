@@ -8,14 +8,19 @@ merge_estim_ci(
   data,
   estim_col = "estimate",
   ci_col = starts_with("conf."),
-  merge_col = "estimate_ci",
-  ci_data,
-  estim_ci_digit = 2,
-  percent = FALSE
+  name = "estimate_ci",
+  ci_data = check_opts(ci$data),
+  digit = 2,
+  percent = FALSE,
+  keep = FALSE
 )
 }
 \arguments{
-\item{percent}{}
+\item{name}{}
+
+\item{digit}{}
+
+\item{keep}{}
 }
 \description{
 Title

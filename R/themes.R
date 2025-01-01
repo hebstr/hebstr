@@ -218,9 +218,8 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
           element_text(size = 9,
                        face = "bold"),
         axis.title.x = element_text(vjust = 0.5),
-        legend.position = legend_position,
-        ...) %+replace%
-          inject(theme(!!!bg))
+        legend.position = legend_position) %+replace%
+          inject(theme(!!!bg, ...))
 
 }
 

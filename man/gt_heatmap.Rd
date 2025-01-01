@@ -16,10 +16,13 @@ gt_heatmap(
   font_size = 10,
   color = TRUE,
   palette = c("indianred2", "skyblue1"),
+  autocolor_text = TRUE,
   arrange = FALSE
 )
 }
 \arguments{
+\item{autocolor_text}{}
+
 \item{arrange}{}
 }
 \description{

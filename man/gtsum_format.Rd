@@ -13,7 +13,7 @@ gtsum_format(
   label_stat = NULL,
   bold_p = 0,
   adj_acro = "a",
-  adj_label = if (getOption("OutDec") == ".") "adjusted {label}" else "{label} adjusté",
+  adj_label = if (getOption("OutDec") == ".") "adjusted {label}" else "{label} ajusté",
   estim_acro = NULL,
   estim_label = NULL,
   ci,

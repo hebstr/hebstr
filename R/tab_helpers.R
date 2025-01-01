@@ -146,11 +146,11 @@ all_dichotomous_uv <- \(data, ...) {
 #' @param data
 #' @param estim_col
 #' @param ci_col
-#' @param merge_col
+#' @param name 
 #' @param ci_data
-#' @param estim_ci_digit
-#' @param pvalue_digit
+#' @param digit 
 #' @param percent
+#' @param keep 
 #'
 #' @return
 #' @export
@@ -160,25 +160,28 @@ all_dichotomous_uv <- \(data, ...) {
 merge_estim_ci <- \(data,
                     estim_col = "estimate",
                     ci_col = starts_with("conf."),
-                    merge_col = "estimate_ci",
-                    ci_data,
-                    estim_ci_digit = 2,
-                    percent = FALSE) {
+                    name = "estimate_ci",
+                    ci_data = check_opts(ci$data),
+                    digit = 2,
+                    percent = FALSE,
+                    keep = FALSE) {
 
+  name <- glue(name)
+  
+  vars <- expr(c(all_of(estim_col), all_of(ci_col)))
+  
   if (percent) multi <- 100 else multi <- 1
 
-  .rnd <- \(x, n) {
-
-    x |>
-    round(n) |>
-      format(nsmall = n)
-
-  }
-
+  data <-
   data |>
-    mutate(across(c(all_of(estim_col), all_of(ci_col)),
-                  ~ .rnd(. * multi, estim_ci_digit)),
-           "{merge_col}" := glue("{get(estim_col)} ", ci_data))
+    mutate(across(!!vars,
+                  ~ round(. * multi, 2) |>
+                    format(nsmall = 2)),
+           "{name}" := glue("{get(estim_col)} ", ci_data))
+  
+  if (!keep) data <- data |> select(-eval(vars))
+  
+  return(data)
 
 }
 

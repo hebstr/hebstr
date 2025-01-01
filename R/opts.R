@@ -95,8 +95,8 @@ set_opts <- \(.default_font = "trebuchet ms",
              digit = "luciole"),
       color = 
         list(base = "#999",
-             cold = c("#E1F6FF", "#0099EE"),
-             warm = c("#f5E3E0", "#BB2B22")),
+             cold = c("#E0F9FF", "#0099EE"),
+             warm = c("#FFEAEA", "#CC0C00")),
       palette = 
         c(color$base, 
           color$cold[2]))
@@ -184,5 +184,32 @@ set_opts <- \(.default_font = "trebuchet ms",
   assign("opts", opts, envir = .GlobalEnv)
   
   return(opts)
+
+}
+
+#' Title
+#'
+#' @param data 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+check_opts <- \(data) {
+  
+  if (exists("opts")) { 
+    
+    data <- with(opts, eval(enexpr(data)))
+    
+    return(data)
+    
+  }
+  
+  else {
+    
+    cli_abort("opts not found")
+    
+  }
 
 }
