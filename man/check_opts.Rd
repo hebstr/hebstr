@@ -4,10 +4,10 @@
 \alias{check_opts}
 \title{Title}
 \usage{
-check_opts(data)
+check_opts(x)
 }
 \arguments{
-\item{data}{}
+\item{x}{}
 }
 \description{
 Title

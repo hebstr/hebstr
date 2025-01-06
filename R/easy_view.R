@@ -2,12 +2,10 @@
 #'
 #' @param x 
 #' @param name 
-#' @param width 
 #' @param font_size 
 #' @param font_family 
-#' @param color_type 
-#' @param palette 
-#' @param out 
+#' @param strip_color 
+#' @param assign 
 #' @param ... 
 #'
 #' @return
@@ -17,13 +15,10 @@
 #' 
 easy_view <- \(x,
                name = NULL,
-               width = 600,
-               font_size = 12,
+               font_size = "0.8rem",
                font_family = check_fonts(.auto = "luciole"),
-               color_type = FALSE,
-               palette = "viridis",
-               raw = FALSE,
-               out = FALSE,
+               strip_color = set_opts(.assign = FALSE)$color$cold[1],
+               assign = FALSE,
                ...) {
 
   if (is.null(name)) name <- enexpr(x)
@@ -73,55 +68,46 @@ easy_view <- \(x,
                  .init = generate_dictionary(x) |> tibble()) |>
           rename(type = col_type,
                  n_miss = missing) |>
-          mutate(type = case_when(bin == "TRUE" ~ "bin",
-                                  bin == "FALSE" ~ "num",
-                                  .default = type),
+          mutate(type = 
+                   case_when(bin == "TRUE" ~ "bin",
+                             bin == "FALSE" ~ "num",
+                             .default = type),
                  n_miss = na_if(n_miss, 0),
                  q1_q2_q3 = if_else(type == "bin", NA, q1_q2_q3)) |>
-          mutate(p_miss = percent(n_miss / nrow(x), accuracy = .1),
+          mutate(p_miss = label_p()(n_miss / nrow(x)),
                  .after = n_miss) |>
           relocate(range, q1_q2_q3, .before = levels) |>
           select(where(~ !is.null(unlist(.))), -bin),
       output =
         data |>
-          gt(rowname_col = "pos") |>
-          sub_missing(missing_text = "") |>
-          tab_options(data_row.padding = 2,
-                      table.width = px(width),
-                      table.font.size = px(font_size)) |>
-          tab_style(style = cell_text(weight = "bold"),
-                    locations = cells_column_labels()) |>
-          opt_table_font(font = font_family))
-
-  if (color_type) {
-
-    .view$output <-
-    .view$output |>
-      tab_style(style = cell_borders(style = NULL),
-                locations = list(cells_column_labels(),
-                                 cells_stubhead(),
-                                 cells_stub(),
-                                 cells_body())) |>
-      data_color(columns = type,
-                 target_columns = gt::everything(),
-                 palette = palette)
-
-  }
-
-  if (!raw) {
+          select(-range, -q1_q2_q3) |>
+          rename("n°" = pos) |> 
+          reactable(defaultExpanded = TRUE,
+                    defaultPageSize = 100,
+                    showSortable = TRUE,
+                    searchable = TRUE,
+                    filterable = TRUE,
+                    striped = TRUE,
+                    resizable = TRUE,
+                    defaultColDef = colDef(minWidth = 100),
+                    columns = 
+                      list("n°" = colDef(minWidth = 50),
+                           variable = colDef(minWidth = 120),
+                           label = colDef(minWidth = 220),
+                           type = colDef(minWidth = 60),
+                           n_miss = colDef(minWidth = 75),
+                           p_miss = colDef(minWidth = 75),
+                           levels = colDef(minWidth = 250)),
+                    theme = 
+                      reactableTheme(style = 
+                                       list(fontSize = font_size,
+                                            fontFamily = font_family),
+                                     stripedColor = strip_color,
+                                     searchInputStyle = list(width = "100%")),
+                    ...))
   
-    assign(glue("{name}_view"), .view, envir = .GlobalEnv)
+  if (assign) assign(glue("{name}_view"), .view, envir = .GlobalEnv)
   
-    if (out) {
-      
-      easy_out(.view$output,
-               filename = glue("{name}_view"),
-               width = width,
-               assign = FALSE,
-               ...)
-      
-    } else .view$output
-    
-  } else .view$data
+  return(.view)
 
 }

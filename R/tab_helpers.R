@@ -437,7 +437,7 @@ str_na_mv <- \(data) {
   
   na <-
   lst(n = data |> filter(if_any(everything(), is.na)) |> nrow(),
-      p = percent(n / n_total, accuracy = .1),
+      p = label_p()(n / n_total),
       obs =
         case_when(n == 0 ~ "aucune observation",
                   n == 1 ~ glue("{n} observation"),

@@ -532,7 +532,6 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #'
 #' @param data 
 #' @param head 
-#' @param align 
 #' @param font_size 
 #' @param ... 
 #'
@@ -543,21 +542,25 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #' 
 gt_qmd <- \(data,
             head = FALSE,
-            align = "left",
             font_size = 15,
             ...) {
   
-  data <- if (!head) gt(data) else gt_preview(data)
+  if ("gtsummary" %in% class(data)) {
+    
+    data <- as_gt(data)
+  
+  } else {
+    
+    if (!head) data <- gt(data) else data <- gt_preview(data)
+    
+  }
   
   data |>
-    tab_options(table.font.size = px(font_size),
+    tab_options(table.font.names = c("luciole", "system-ui"),
+                table.font.size = px(font_size),
                 column_labels.border.top.color = "white",
                 ...) |>
     tab_style(style = cell_text(weight = "bold"),
-              locations = cells_column_labels()) |> 
-    tab_style(style = cell_text(align = align),
-              locations = 
-                list(cells_column_labels(),
-                     cells_body()))
+              locations = cells_column_labels())
   
 }

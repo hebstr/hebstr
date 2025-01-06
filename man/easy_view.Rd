@@ -7,13 +7,10 @@
 easy_view(
   x,
   name = NULL,
-  width = 600,
-  font_size = 12,
+  font_size = "0.8rem",
   font_family = check_fonts(.auto = "luciole"),
-  color_type = FALSE,
-  palette = "viridis",
-  raw = FALSE,
-  out = FALSE,
+  strip_color = set_opts(.assign = FALSE)$color$cold[1],
+  assign = FALSE,
   ...
 )
 }
@@ -22,17 +19,13 @@ easy_view(
 
 \item{name}{}
 
-\item{width}{}
-
 \item{font_size}{}
 
 \item{font_family}{}
 
-\item{color_type}{}
+\item{strip_color}{}
 
-\item{palette}{}
-
-\item{out}{}
+\item{assign}{}
 
 \item{...}{}
 }

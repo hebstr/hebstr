@@ -6,8 +6,6 @@
 #' @param alpha
 #' @param nudge_y
 #' @param pct_min
-#' @param title 
-#' @param caption 
 #' @param ylab
 #' @param family
 #' @param grid
@@ -24,8 +22,6 @@ ggcount <- \(data,
              alpha = 0.7,
              nudge_y = 0.04,
              pct_min = 0.05,
-             title = NULL,
-             caption = NULL,
              ylab = "Effectif",
              family = check_fonts(.auto = "luciole"),
              grid = TRUE,
@@ -45,10 +41,7 @@ ggcount <- \(data,
     geom_text(data = ~ pct_min(., var, pct_min),
               mapping = 
                 aes(y = after_stat(count - nudge_y * max(count)),
-                    label = 
-                      percent(after_stat(count) / nrow(data),
-                              accuracy = 0.1,
-                              decimal.mark = getOption("OutDec")),
+                    label = label_p()(after_stat(count) / nrow(data)),
                     color = after_scale(fill |> lighten(0.95))),
               stat = "count",
               family = family,

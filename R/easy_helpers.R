@@ -423,7 +423,7 @@ cooksd <- \(model,
     
   .out <-
   list(n = "{nrow(obs$inf)} total out. for {nrow(data)} total obs.",
-       p = "({percent(nrow(obs$inf) / nrow(data), accuracy = .1)})")
+       p = "({label_p()(nrow(obs$inf) / nrow(data))})")
   
   .list <-
   lst(data =
@@ -487,10 +487,47 @@ flow_filter <- \(data, ...) {
   .flow <-
   .exprs |>
     accumulate(~ filter(.x, !!.y), .init = data) |>
-    map(~ glue("{nrow(.)} ({percent(nrow(.) / nrow(data), accuracy = .1)})"))
+    map(~ glue("{nrow(.)} ({label_p()(nrow(.) / nrow(data))})"))
   
   assign("flow", .flow, envir = .GlobalEnv)
     
   data |> filter(!!!unname(.exprs))
+  
+}
+
+
+#' Title
+#'
+#' @param accuracy 
+#' @param scale 
+#' @param prefix 
+#' @param suffix 
+#' @param big.mark 
+#' @param decimal.mark 
+#' @param trim 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+label_p <- \(accuracy = 0.1, 
+             scale = 100, 
+             prefix = "", 
+             suffix = "%", 
+             big.mark = " ",
+             decimal.mark = getOption("OutDec"),
+             trim = TRUE,
+             ...) {
+  
+  number_format(accuracy = accuracy, 
+                scale = scale, 
+                prefix = prefix,
+                suffix = suffix,
+                big.mark = big.mark, 
+                decimal.mark = decimal.mark, 
+                trim = trim, 
+                ...)
   
 }

@@ -35,6 +35,7 @@ lang_fr <- \(reset = FALSE) {
 #' Title
 #'
 #' @param .default_font 
+#' @param .assign 
 #' @param ... 
 #'
 #' @return
@@ -43,6 +44,7 @@ lang_fr <- \(reset = FALSE) {
 #' @examples
 #' 
 set_opts <- \(.default_font = "trebuchet ms",
+              .assign = TRUE,
               ...) {
   
   dots <- lst(...)
@@ -154,7 +156,13 @@ set_opts <- \(.default_font = "trebuchet ms",
     
   }
 
-  assign("opts", list_modify(.opts_set, !!!dots), envir = .GlobalEnv)
+  .opts <- list_modify(.opts_set, !!!dots)
+  
+  if (.assign) {
+    
+    assign("opts", .opts, envir = .GlobalEnv)
+    
+  } else opts <- .opts
   
   opts <-
   opts |>
@@ -181,7 +189,7 @@ set_opts <- \(.default_font = "trebuchet ms",
 
   if (identical(opts$font[[1]], opts$font[[2]])) opts$font <- opts$font[[1]]
   
-  assign("opts", opts, envir = .GlobalEnv)
+  if (.assign) assign("opts", opts, envir = .GlobalEnv)
   
   return(opts)
 
@@ -189,26 +197,26 @@ set_opts <- \(.default_font = "trebuchet ms",
 
 #' Title
 #'
-#' @param data 
+#' @param x 
 #'
 #' @return
 #' @export
 #'
 #' @examples
 #' 
-check_opts <- \(data) {
+check_opts <- \(x) {
   
   if (exists("opts")) { 
-    
-    data <- with(opts, eval(enexpr(data)))
-    
-    return(data)
+
+    x <- with(opts, eval(enexpr(x)))
+
+    return(x)
     
   }
   
   else {
     
-    cli_abort("opts not found")
+    cli::cli_abort("opts not found")
     
   }
 
