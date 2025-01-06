@@ -328,8 +328,8 @@ theme_pca <- \(family = check_fonts(.auto = "luciole"),
         axis.text = element_blank(),
         axis.title = element_blank(),
         axis.ticks = element_blank(),
-        plot.caption.position = "plot",
-        ...)
+        plot.caption.position = "plot") %+replace%
+    theme(...)
 
 }
 
