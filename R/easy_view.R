@@ -96,7 +96,7 @@ easy_view <- \(x,
                            label = colDef(minWidth = 220),
                            type = colDef(minWidth = 60),
                            n_miss = colDef(minWidth = 75),
-                           p_miss = colDef(minWidth = 75),
+                           p_miss = colDef(minWidth = 75, align = "right"),
                            levels = colDef(minWidth = 250)),
                     theme = 
                       reactableTheme(style = 
