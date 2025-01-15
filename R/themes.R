@@ -541,7 +541,7 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #' @examples
 #' 
 gt_qmd <- \(data,
-            head = FALSE,
+            head = NULL,
             font_size = 15,
             ...) {
   
@@ -551,7 +551,15 @@ gt_qmd <- \(data,
   
   } else {
     
-    if (!head) data <- gt(data) else data <- gt_preview(data)
+    if (is.null(head)) {
+      
+      data <- gt(data) 
+      
+    } else {
+      
+      data <- gt_preview(data, top_n = head)
+      
+    }
     
   }
   

@@ -4,7 +4,7 @@
 \alias{gt_qmd}
 \title{Title}
 \usage{
-gt_qmd(data, head = FALSE, font_size = 15, ...)
+gt_qmd(data, head = NULL, font_size = 15, ...)
 }
 \arguments{
 \item{data}{}
