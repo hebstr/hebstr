@@ -134,6 +134,7 @@
 #' @importFrom rlang set_names
 #' @importFrom scales label_number
 #' @importFrom scales label_percent
+#' @importFrom scales number_format
 #' @importFrom scales percent
 #' @importFrom stats na.omit
 #' @importFrom stats reformulate
