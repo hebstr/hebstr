@@ -542,6 +542,7 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #' 
 gt_qmd <- \(data,
             head = NULL,
+            font_family = "luciole",
             font_size = 15,
             ...) {
   
@@ -564,7 +565,7 @@ gt_qmd <- \(data,
   }
   
   data |>
-    tab_options(table.font.names = c("luciole", "system-ui"),
+    tab_options(table.font.names = c(font_family, "system-ui"),
                 table.font.size = px(font_size),
                 column_labels.border.top.color = "white",
                 ...) |>
