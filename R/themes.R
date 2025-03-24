@@ -532,7 +532,9 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #'
 #' @param data 
 #' @param head 
+#' @param font_family 
 #' @param font_size 
+#' @param id 
 #' @param ... 
 #'
 #' @return
@@ -544,6 +546,7 @@ gt_qmd <- \(data,
             head = NULL,
             font_family = "luciole",
             font_size = 15,
+            id = "tbl-id",
             ...) {
   
   if ("gtsummary" %in% class(data)) {
@@ -554,7 +557,7 @@ gt_qmd <- \(data,
     
     if (is.null(head)) {
       
-      data <- gt(data) 
+      data <- gt(data, id = id) 
       
     } else {
       

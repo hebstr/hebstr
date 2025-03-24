@@ -4,14 +4,25 @@
 \alias{gt_qmd}
 \title{Title}
 \usage{
-gt_qmd(data, head = NULL, font_family = "luciole", font_size = 15, ...)
+gt_qmd(
+  data,
+  head = NULL,
+  font_family = "luciole",
+  font_size = 15,
+  id = "tbl-id",
+  ...
+)
 }
 \arguments{
 \item{data}{}
 
 \item{head}{}
 
+\item{font_family}{}
+
 \item{font_size}{}
+
+\item{id}{}
 
 \item{...}{}
 }
