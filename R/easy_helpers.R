@@ -362,7 +362,7 @@ logit_lty <- \(df,
                y,
                x,
                breaks = 30,
-               color = "#0099cc",
+               color = "#0099FF",
                label_y = "Logit(P {y})",
                label_x = x) {
   
@@ -417,9 +417,9 @@ logit_lty <- \(df,
 cooksd <- \(model,
             limit_inf_num = 4,
             limit_sup_num = 25,
-            limit_inf_color = "#0099cc",
-            limit_sup_color = "red",
-            obs_color = "black") {
+            limit_inf_color = "#0099FF",
+            limit_sup_color = "#FF0000",
+            obs_color = "#000") {
     
   .out <-
   list(n = "{nrow(obs$inf)} total out. for {nrow(data)} total obs.",

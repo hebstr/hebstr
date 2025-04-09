@@ -9,7 +9,7 @@ logit_lty(
   y,
   x,
   breaks = 30,
-  color = "#0099cc",
+  color = "#0099FF",
   label_y = "Logit(P {y})",
   label_x = x
 )

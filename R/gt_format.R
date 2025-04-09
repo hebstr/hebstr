@@ -29,7 +29,10 @@ gt_format <- \(x,
 
 ### ACRO --------------------------------------------------------------------
 
-  style <- with(x$table_styling$header, c(label, spanning_header))
+  style <-
+  x$table_styling |> 
+    with(c(header$label,
+           spanning_header$spanning_header))
 
   body <-
   x$table_body |> 
@@ -39,7 +42,13 @@ gt_format <- \(x,
     unlist()
 
   .acro <- acro_extract(c(style, body, names(x)), acro_list)
-
+  
+  x <-
+  x$table_styling$abbreviation |> 
+    distinct(abbreviation) |>
+    pull() |> 
+    reduce(remove_abbreviation, .init = x)
+  
 ### THEME -------------------------------------------------------------------
 
   if (!"gt_tbl" %in% class(x)) x <- as_gt(x)

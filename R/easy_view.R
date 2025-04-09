@@ -80,7 +80,7 @@ easy_view <- \(x,
           select(where(~ !is.null(unlist(.))), -bin),
       output =
         data |>
-          select(-range, -q1_q2_q3) |>
+          select(-matches(c("range", "q1_q2_q3"))) |>
           rename("n°" = pos) |> 
           reactable(defaultExpanded = TRUE,
                     defaultPageSize = 100,

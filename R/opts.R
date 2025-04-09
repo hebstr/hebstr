@@ -97,8 +97,8 @@ set_opts <- \(.default_font = "trebuchet ms",
              digit = "luciole"),
       color = 
         list(base = "#999",
-             cold = c("#E0F9FF", "#0099EE"),
-             warm = c("#FFEAEA", "#CC0C00")),
+             cold = c("#E0F9FF", "#0099FF"),
+             warm = c("#FFEAEA", "#FF0000")),
       palette = 
         c(color$base, 
           color$cold[2]))

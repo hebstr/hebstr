@@ -122,6 +122,7 @@ easy_out <- \(x,
   cli_text("\n\n")
   cli_alert_info("{.strong Destination}")
   cli_ul()
+  cli_ul()
     cli_li("Working directory: {.path {getwd()}}")
     cli_li("Filename: {cli::col_br_red(path)}")
     cli_end()
