@@ -188,6 +188,7 @@
               .stat_n,
               .label_n,
               .label_header,
+              .label_reference,
               .bold_p) {
 
   x <-
@@ -220,6 +221,7 @@
   x |>
     modify_header(label ~ .label_header,
                   p.value ~ "**p**") |>
+    add_ref_label(label = .label_reference) |> 
     bold_p(t = .bold_p) |>
     modify_footnote(everything() ~ NA,
                     abbreviation = TRUE)
@@ -246,6 +248,7 @@
 #'
 #' @param x
 #' @param label_header
+#' @param label_reference
 #' @param label_n 
 #' @param stat_n 
 #' @param label_overall 
@@ -271,6 +274,7 @@
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
+                  label_reference = "Reference",
                   label_n = if (.event(x)) "Events/Obs" else "Obs",
                   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
                   label_overall = NULL,
@@ -326,6 +330,7 @@ gtsum_format <- \(x,
                .stat_n = stat_n,
                .label_n = label_n,
                .label_header = label_header,
+               .label_reference = label_reference,
                .bold_p = bold_p)
         
     } else {

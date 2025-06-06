@@ -76,6 +76,7 @@ set_opts <- \(.default_font = "trebuchet ms",
              bin = list(no = "No", yes = "Yes"),
              missing = "Missing data",
              header = "Characteristic",
+             reference = "Reference",
              overall = "Overall",
              spanner = glue("{c('Univariable', 'Multivariable')} analysis")),
       sep = 
@@ -97,8 +98,8 @@ set_opts <- \(.default_font = "trebuchet ms",
              digit = "luciole"),
       color = 
         list(base = "#999",
-             cold = c("#E0F9FF", "#0099FF"),
-             warm = c("#FFEAEA", "#FF0000")),
+             cold = c("#F0FAFF", "#0099FF"),
+             warm = c("#FFF5F5", "#FF0000")),
       palette = 
         c(color$base, 
           color$cold[2]))
@@ -115,6 +116,7 @@ set_opts <- \(.default_font = "trebuchet ms",
                          bin = list(no = "Non", yes = "Oui"),
                          missing = "Donnée manquante",
                          header = "Variable",
+                         reference = "Référence",
                          overall = "Total",
                          spanner = glue("Analyse {c('univariable', 'multivariable')}")),
                   sep =

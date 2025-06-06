@@ -468,3 +468,22 @@ show_single_row <- \(data,
     
 }
 
+
+#' Title
+#'
+#' @param data 
+#' @param label 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+#' 
+add_ref_label <- \(data, label = "Reference") {
+  
+  modify_missing_symbol(x = data,
+                        symbol = label,
+                        columns = c(estimate, conf.low, conf.high),
+                        rows = reference_row == TRUE)
+  
+}
