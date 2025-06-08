@@ -14,18 +14,25 @@ theme_risktable(
 )
 }
 \arguments{
-\item{family}{}
+\item{family}{arg}
 
-\item{label_size}{}
+\item{label_size}{arg}
 
-\item{title_size}{}
+\item{title_size}{arg}
 
-\item{title_margin}{}
+\item{title_margin}{arg}
 
-\item{plot_margin}{}
+\item{plot_margin}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

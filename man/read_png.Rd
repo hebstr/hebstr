@@ -7,8 +7,17 @@
 read_png(file, dir = "output")
 }
 \arguments{
-\item{dir}{}
+\item{file}{arg}
+
+\item{dir}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

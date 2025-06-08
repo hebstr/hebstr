@@ -1,17 +1,17 @@
 #' Title
 #'
-#' @param x 
-#' @param name 
-#' @param font_size 
-#' @param font_family 
-#' @param strip_color 
-#' @param assign 
-#' @param ... 
+#' @param x arg 
+#' @param name arg 
+#' @param font_size arg 
+#' @param font_family arg 
+#' @param strip_color arg 
+#' @param assign arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 easy_view <- \(x,
                name = NULL,
@@ -81,7 +81,7 @@ easy_view <- \(x,
       output =
         data |>
           select(-matches(c("range", "q1_q2_q3"))) |>
-          rename("n°" = pos) |> 
+          rename("n" = pos) |> 
           reactable(defaultExpanded = TRUE,
                     defaultPageSize = 100,
                     showSortable = TRUE,
@@ -91,7 +91,7 @@ easy_view <- \(x,
                     resizable = TRUE,
                     defaultColDef = colDef(minWidth = 100),
                     columns = 
-                      list("n°" = colDef(minWidth = 50),
+                      list("n" = colDef(minWidth = 50),
                            variable = colDef(minWidth = 120),
                            label = colDef(minWidth = 220),
                            type = colDef(minWidth = 60),

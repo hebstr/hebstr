@@ -5,7 +5,7 @@
 #' @return One or more tibbles
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 tab_data <- \(x) {
 

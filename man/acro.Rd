@@ -2,17 +2,177 @@
 % Please edit documentation in R/acro_helpers.R
 \name{acro}
 \alias{acro}
-\title{Title}
+\title{Générer un dictionnaire d'acronymes avec définitions localisées}
 \usage{
 acro(..., .sep = ":", .auto = TRUE, .tolower = FALSE)
 }
 \arguments{
-\item{.sep}{}
+\item{...}{Expressions définissant des acronymes personnalisés sous la
+forme \code{acronyme ~ "définition"}. Utilise la syntaxe de Non-Standard
+Evaluation pour une interface intuitive.}
 
-\item{.auto}{}
+\item{.sep}{Chaîne de caractères définissant le séparateur entre
+l'acronyme et sa définition. Par défaut \code{":"}.}
 
-\item{.tolower}{}
+\item{.auto}{Valeur logique contrôlant l'inclusion des acronymes
+prédéfinis. Si \code{TRUE} (par défaut), combine les définitions
+personnalisées avec la base d'acronymes standards.}
+
+\item{.tolower}{Valeur logique contrôlant la casse des acronymes.
+Si \code{TRUE}, convertit les acronymes en minuscules. Par défaut \code{FALSE}.}
+}
+\value{
+Une liste nommée où les noms correspondent aux acronymes
+et les valeurs aux définitions formatées. Le format inclut
+automatiquement le séparateur spécifié entre l'acronyme et
+sa définition complète.
 }
 \description{
-Title
+Cette fonction crée un dictionnaire d'acronymes statistiques et leurs
+définitions complètes, avec adaptation automatique selon la configuration
+linguistique de l'environnement R. Elle combine des acronymes prédéfinis
+avec des définitions personnalisées, facilitant la production de glossaires
+cohérents pour la documentation technique et les rapports d'analyse.
 }
+\section{Architecture technique de la fonction }{
+
+La fonction utilise un environnement personnalisé pour définir l'opérateur
+\code{~} qui gère le formatage des paires acronyme-définition. Cette approche
+exploite les capacités de métaprogrammation de R via \code{rlang::enexpr()}
+pour capturer les expressions sans évaluation préalable. Le mécanisme
+permet une syntaxe intuitive tout en maintenant la flexibilité nécessaire
+pour diverses configurations de formatage.
+}
+
+\section{Adaptation linguistique automatique }{
+
+La fonction détecte automatiquement la configuration linguistique via
+\code{getOption("OutDec")} et adapte les acronymes prédéfinis en conséquence.
+Pour une configuration anglaise (point décimal), les termes statistiques
+standards sont fournis en anglais avec formatage compact. Pour une
+configuration française (virgule décimale), les équivalents français
+sont utilisés avec adaptation des conventions typographiques locales,
+notamment l'espacement autour des séparateurs.
+}
+
+\section{Acronymes prédéfinis par localisation }{
+
+La base d'acronymes intégrée couvre les termes statistiques descriptifs
+essentiels. En configuration anglaise, elle inclut SD (standard deviation),
+IQR (interquartile range), Q1 et Q3 (quartiles), et 95\%CI (confidence
+interval). En configuration française, les équivalents comprennent
+l'écart-type, l'intervalle interquartile, les quartiles avec ordinaux
+français, et l'intervalle de confiance à 95\%. Cette standardisation
+facilite la cohérence terminologique dans les productions analytiques.
+}
+
+\section{Prérequis techniques et dépendances }{
+
+Cette fonction nécessite les packages \code{rlang} pour la métaprogrammation,
+\code{glue} pour l'interpolation de chaînes, \code{purrr} pour les opérations
+sur listes, et \code{stringr} pour la manipulation de texte. L'environnement
+R doit également supporter les fonctions avancées de Non-Standard
+Evaluation pour un fonctionnement optimal des mécanismes de capture
+d'expressions.
+}
+
+\examples{
+# Génération du dictionnaire par défaut (configuration anglaise)
+options(OutDec = ".")
+dictionnaire_base <- acro()
+dictionnaire_base$SD
+dictionnaire_base$IQR
+
+# Ajout d'acronymes personnalisés
+glossaire_etendu <- acro(
+  BMI ~ "body mass index",
+  SBP ~ "systolic blood pressure",
+  DBP ~ "diastolic blood pressure"
+)
+glossaire_etendu$BMI
+glossaire_etendu$SD
+
+# Configuration française avec adaptation linguistique
+options(OutDec = ",")
+dictionnaire_fr <- acro()
+dictionnaire_fr$SD
+dictionnaire_fr$IQR
+
+# Acronymes personnalisés en français
+glossaire_medical_fr <- acro(
+  IMC ~ "indice de masse corporelle",
+  PAS ~ "pression artérielle systolique",
+  PAD ~ "pression artérielle diastolique"
+)
+glossaire_medical_fr$IMC
+
+# Personnalisation du séparateur
+dictionnaire_tiret <- acro(
+  HR ~ "heart rate",
+  RR ~ "respiratory rate",
+  .sep = " -"
+)
+dictionnaire_tiret$HR
+
+# Utilisation sans acronymes prédéfinis
+acronymes_specifiques <- acro(
+  ROC ~ "receiver operating characteristic",
+  AUC ~ "area under the curve",
+  .auto = FALSE
+)
+names(acronymes_specifiques)
+
+# Application avec conversion en minuscules
+acronymes_minuscules <- acro(
+  COPD ~ "chronic obstructive pulmonary disease",
+  ARDS ~ "acute respiratory distress syndrome",
+  .tolower = TRUE
+)
+names(acronymes_minuscules)
+
+# Démonstration avec datasets officiels pour contexte médical
+# Utilisation dans l'analyse de mtcars comme proxy de données biométriques
+options(OutDec = ".")
+glossaire_automobile <- acro(
+  MPG ~ "miles per gallon",
+  HP ~ "horsepower",
+  WT ~ "weight in thousands of pounds"
+)
+
+# Application pour légendes de graphiques
+paste(glossaire_automobile$MPG)
+paste(glossaire_automobile$HP)
+
+# Configuration pour rapport multilingue
+options(OutDec = ",")
+legende_fr <- acro(
+  CONSO ~ "consommation moyenne",
+  PUIS ~ "puissance nominale",
+  .sep = " :"
+)
+legende_fr$CONSO
+
+# Restauration configuration par défaut
+options(OutDec = ".")
+
+# Intégration dans un pipeline de production de rapports
+glossaire_analyse <- acro(
+  CYL ~ "number of cylinders",
+  DISP ~ "displacement in cubic inches",
+  GEAR ~ "number of forward gears"
+)
+
+}
+\references{
+Documentation rlang sur la métaprogrammation tidyeval :
+\url{https://rlang.r-lib.org/reference/topic-metaprogramming.html}
+}
+\seealso{
+Other fonctions de formatage: 
+\code{\link{acro_str}()},
+\code{\link{str_cap}()},
+\code{\link{str_color}()},
+\code{\link{str_fig}()},
+\code{\link{str_u}()}
+}
+\concept{fonctions de formatage}

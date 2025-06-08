@@ -14,18 +14,25 @@ gt_qmd(
 )
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{head}{}
+\item{head}{arg}
 
-\item{font_family}{}
+\item{font_family}{arg}
 
-\item{font_size}{}
+\item{font_size}{arg}
 
-\item{id}{}
+\item{id}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

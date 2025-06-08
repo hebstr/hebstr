@@ -16,12 +16,29 @@ merge_estim_ci(
 )
 }
 \arguments{
-\item{name}{}
+\item{data}{arg}
 
-\item{digit}{}
+\item{estim_col}{arg}
 
-\item{keep}{}
+\item{ci_col}{arg}
+
+\item{name}{arg}
+
+\item{ci_data}{arg}
+
+\item{digit}{arg}
+
+\item{percent}{arg}
+
+\item{keep}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

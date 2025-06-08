@@ -7,10 +7,21 @@
 pct_min(data, .var, .min, .fun = "max")
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{.fun}{}
+\item{.var}{arg}
+
+\item{.min}{arg}
+
+\item{.fun}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

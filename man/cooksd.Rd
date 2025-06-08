@@ -14,18 +14,25 @@ cooksd(
 )
 }
 \arguments{
-\item{model}{}
+\item{model}{arg}
 
-\item{limit_inf_num}{}
+\item{limit_inf_num}{arg}
 
-\item{limit_sup_num}{}
+\item{limit_sup_num}{arg}
 
-\item{limit_inf_color}{}
+\item{limit_inf_color}{arg}
 
-\item{limit_sup_color}{}
+\item{limit_sup_color}{arg}
 
-\item{obs_color}{}
+\item{obs_color}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -7,10 +7,17 @@
 add_ref_label(data, label = "Reference")
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{label}{}
+\item{label}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

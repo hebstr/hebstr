@@ -2,13 +2,63 @@
 % Please edit documentation in R/opts.R
 \name{check_opts}
 \alias{check_opts}
-\title{Title}
+\title{Vérifier et évaluer des options dans un environnement configuré}
 \usage{
 check_opts(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{Expression R à évaluer dans le contexte de l'objet \code{opts}.
+L'expression est capturée sans évaluation préalable grâce au mécanisme
+de Non-Standard Evaluation.}
+}
+\value{
+La valeur résultant de l'évaluation de l'expression \code{x} dans
+le contexte de l'objet \code{opts}. Le type de retour dépend de la nature
+de l'expression évaluée et des données contenues dans \code{opts}.
 }
 \description{
-Title
+Cette fonction utilitaire vérifie l'existence d'un objet de configuration
+nommé \code{opts} dans l'environnement courant et évalue une expression donnée
+dans le contexte de cet objet. Elle constitue un mécanisme de gestion
+centralisée des paramètres et options de configuration pour les applications
+et packages R nécessitant une personnalisation dynamique des comportements.
 }
+\section{Mécanisme technique }{
+
+La fonction utilise \code{rlang::enexpr()} pour capturer l'expression fournie
+sans l'évaluer immédiatement. Cette expression est ensuite évaluée dans
+l'environnement de l'objet \code{opts} via \code{base::with()}. Cette approche
+permet un accès direct aux éléments de \code{opts} sans qualification
+explicite du namespace.
+}
+
+\section{Gestion des erreurs }{
+
+Si l'objet \code{opts} n'existe pas dans l'environnement courant, la fonction
+génère une erreur claire via \code{cli::cli_abort()}. Cette approche garantit
+un diagnostic précis des problèmes de configuration et facilite le
+débogage dans les environnements de développement complexes.
+}
+
+\section{Prérequis techniques }{
+
+Cette fonction nécessite les packages \code{rlang} pour la capture d'expressions
+et \code{cli} pour la gestion des messages d'erreur. L'objet \code{opts} doit être
+une structure de données compatible avec \code{base::with()}, typiquement
+une liste nommée ou un environnement.
+}
+
+\examples{
+# Initialisation de opts dans l'environnement global
+set_opts()
+
+# Accès direct aux paramètres via `check_opts()`
+check_opts(color)
+
+# Suppression de opts pour déclencher l'erreur
+rm(opts, envir = .GlobalEnv)
+
+check_opts(color)  # Génère une erreur
+  
+}
+\concept{fonctions utilitaires}

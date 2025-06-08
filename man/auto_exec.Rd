@@ -7,10 +7,17 @@
 auto_exec(dir = "scripts", prefix = "_")
 }
 \arguments{
-\item{dir}{}
+\item{dir}{arg}
 
-\item{prefix}{}
+\item{prefix}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

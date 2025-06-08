@@ -2,13 +2,93 @@
 % Please edit documentation in R/opts.R
 \name{lang_fr}
 \alias{lang_fr}
-\title{Title}
+\title{Configurer la localisation française pour R et gtsummary}
 \usage{
 lang_fr(reset = FALSE)
 }
 \arguments{
-\item{reset}{}
+\item{reset}{Valeur logique contrôlant l'action de la fonction. Si \code{FALSE}
+(par défaut), active la localisation française. Si \code{TRUE}, restaure
+les paramètres anglais par défaut.}
+}
+\value{
+Cette fonction est appelée pour ses effets de bord et ne retourne
+aucune valeur. Elle modifie les options globales de R et la configuration
+du package gtsummary.
 }
 \description{
-Title
+Cette fonction configure l'environnement R pour adopter les conventions
+de formatage françaises, incluant le séparateur décimal virgule et les
+paramètres de localisation pour les tableaux gtsummary. Elle permet également
+la restauration des paramètres anglais par défaut. Cette fonction facilite
+la production de rapports et analyses conformes aux standards typographiques
+français dans un contexte professionnel ou académique.
 }
+\section{Configuration française }{
+
+Lorsque la localisation française est activée, la fonction applique plusieurs
+modifications aux paramètres globaux. Le séparateur décimal devient la virgule
+via \code{options(OutDec = ",")}, conforme aux standards typographiques français.
+Le thème gtsummary est configuré pour utiliser la langue française avec
+l'espace comme séparateur de milliers, garantissant une présentation cohérente
+des tableaux statistiques selon les conventions locales.
+}
+
+\section{Restauration des paramètres }{
+
+Le mode reset restaure les paramètres par défaut de R avec le point comme
+séparateur décimal et remet le thème gtsummary à sa configuration initiale.
+Cette fonctionnalité s'avère particulièrement utile dans les environnements
+de développement collaboratifs où différentes conventions de formatage
+peuvent être nécessaires selon les projets ou les destinataires des analyses.
+}
+
+\section{Prérequis techniques }{
+
+Cette fonction nécessite les packages \code{gtsummary} pour la gestion des thèmes
+de tableaux et \code{cli} pour l'affichage des messages informatifs. Les fonctions
+\code{theme_gtsummary_language()} et \code{reset_gtsummary_theme()} doivent être
+disponibles dans l'environnement pour un fonctionnement optimal.
+}
+
+\examples{
+library(gtsummary)
+
+# Activation de la typo française
+lang_fr()
+
+# Vérification du formatage des nombres
+print(3.14159)
+
+mean(mtcars$mpg)
+
+mtcars |>
+  select(mpg, disp, hp) |>
+  tbl_summary()
+
+# Restauration des paramètres en
+lang_fr(reset = TRUE)
+
+# Vérification du retour aux paramètres par défaut
+print(3.14159)
+
+mean(mtcars$mpg)
+
+mtcars |>
+  select(mpg, disp, hp) |>
+  tbl_summary()
+
+}
+\references{
+Documentation gtsummary sur les thèmes et typographies :
+\url{https://www.danieldsjoberg.com/gtsummary/articles/themes.html}
+}
+\seealso{
+\itemize{
+\item \code{\link[gtsummary:theme_gtsummary]{gtsummary::theme_gtsummary_language()}} pour la configuration des tableaux
+}
+
+Other fonctions de configuration: 
+\code{\link{set_opts}()}
+}
+\concept{fonctions de configuration}

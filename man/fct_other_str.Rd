@@ -7,12 +7,19 @@
 fct_other_str(fct, chr, min)
 }
 \arguments{
-\item{fct}{}
+\item{fct}{arg}
 
-\item{chr}{}
+\item{chr}{arg}
 
-\item{min}{}
+\item{min}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -7,14 +7,21 @@
 quali.test(data, variable, by, ...)
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{variable}{}
+\item{variable}{arg}
 
-\item{by}{}
+\item{by}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

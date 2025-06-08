@@ -1,23 +1,23 @@
 #' Title
 #'
-#' @param data
-#' @param rowname_col
-#' @param groupname_col
-#' @param ...
-#' @param title
-#' @param width
-#' @param digit
-#' @param font_family
-#' @param font_size
-#' @param color
-#' @param palette
-#' @param autocolor_text 
-#' @param arrange
+#' @param data arg
+#' @param rowname_col arg
+#' @param groupname_col arg
+#' @param ... arg
+#' @param title arg
+#' @param width arg
+#' @param digit arg
+#' @param font_family arg
+#' @param font_size arg
+#' @param color arg
+#' @param palette arg
+#' @param autocolor_text arg 
+#' @param arrange arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 gt_heatmap <- \(data,
                 rowname_col = NULL,

@@ -1,9 +1,10 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # hebstr
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 ## Installation
@@ -13,5 +14,3 @@
 # install.packages("devtools")
 devtools::install_git("https://codeberg.org/hebstr/hebstr")
 ```
-
-## Example

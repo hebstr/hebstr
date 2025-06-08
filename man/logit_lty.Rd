@@ -15,20 +15,27 @@ logit_lty(
 )
 }
 \arguments{
-\item{df}{}
+\item{df}{arg}
 
-\item{y}{}
+\item{y}{arg}
 
-\item{x}{}
+\item{x}{arg}
 
-\item{breaks}{}
+\item{breaks}{arg}
 
-\item{color}{}
+\item{color}{arg}
 
-\item{label_y}{}
+\item{label_y}{arg}
 
-\item{label_x}{}
+\item{label_x}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

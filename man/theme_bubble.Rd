@@ -22,34 +22,41 @@ theme_bubble(
 )
 }
 \arguments{
-\item{family}{}
+\item{family}{arg}
 
-\item{size}{}
+\item{size}{arg}
 
-\item{base_color}{}
+\item{base_color}{arg}
 
-\item{axis_margin_x}{}
+\item{axis_margin_x}{arg}
 
-\item{axis_margin_y}{}
+\item{axis_margin_y}{arg}
 
-\item{axis_color_x}{}
+\item{axis_color_x}{arg}
 
-\item{axis_color_y}{}
+\item{axis_color_y}{arg}
 
-\item{title_color_x}{}
+\item{title_color_x}{arg}
 
-\item{title_color_y}{}
+\item{title_color_y}{arg}
 
-\item{grid_color_x}{}
+\item{grid_color_x}{arg}
 
-\item{grid_color_y}{}
+\item{grid_color_y}{arg}
 
-\item{grid_lighten_x}{}
+\item{grid_lighten_x}{arg}
 
-\item{grid_lighten_y}{}
+\item{grid_lighten_y}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

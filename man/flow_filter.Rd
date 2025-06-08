@@ -7,10 +7,17 @@
 flow_filter(data, ...)
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

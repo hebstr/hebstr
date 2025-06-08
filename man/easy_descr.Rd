@@ -7,8 +7,21 @@
 easy_descr(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL)
 }
 \arguments{
-\item{ql_stat}{}
+\item{data}{arg}
+
+\item{parametric}{arg}
+
+\item{qt_stat}{arg}
+
+\item{ql_stat}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

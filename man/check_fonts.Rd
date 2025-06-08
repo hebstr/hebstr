@@ -7,12 +7,21 @@
 check_fonts(..., .default = "trebuchet ms", .auto = NULL, .abort = FALSE)
 }
 \arguments{
-\item{.default}{}
+\item{...}{arg}
 
-\item{.auto}{}
+\item{.default}{arg}
 
-\item{.abort}{}
+\item{.auto}{arg}
+
+\item{.abort}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

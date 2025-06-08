@@ -140,9 +140,9 @@
                  str_extract(term, glue("(?<={str_u(x$table_body$variable)}).+")),
                label =
                  case_when(var_type == "dichotomous" & !eval(ref_level)
-                           ~ glue("{level} — ref{.ref_sep}{reference_level}"),
+                           ~ glue("{level} \u2014 ref{.ref_sep}{reference_level}"),
                            var_type == "dichotomous" & eval(ref_level)
-                           ~ glue("{label} — ref{.ref_sep}{.ref_no}"),
+                           ~ glue("{label} \u2014 ref{.ref_sep}{.ref_no}"),
                            .default = label))
     )
 
@@ -246,31 +246,31 @@
 
 #' Title
 #'
-#' @param x
-#' @param label_header
-#' @param label_reference
-#' @param label_n 
-#' @param stat_n 
-#' @param label_overall 
-#' @param label_stat
-#' @param bold_p
-#' @param adj_acro
-#' @param adj_label
-#' @param estim_acro 
-#' @param estim_label
-#' @param ci
-#' @param model_mv
-#' @param show_single_row 
-#' @param ref_sep 
-#' @param ref_no
-#' @param estim_sep
-#' @param vargrp_levels
-#' @param indent
+#' @param x arg
+#' @param label_header arg
+#' @param label_reference arg
+#' @param label_n arg
+#' @param stat_n arg 
+#' @param label_overall arg 
+#' @param label_stat arg
+#' @param bold_p arg
+#' @param adj_acro arg
+#' @param adj_label arg
+#' @param estim_acro arg 
+#' @param estim_label arg
+#' @param ci arg
+#' @param model_mv arg
+#' @param show_single_row arg 
+#' @param ref_sep arg 
+#' @param ref_no arg
+#' @param estim_sep arg
+#' @param vargrp_levels arg
+#' @param indent arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 gtsum_format <- \(x,
                   label_header = NULL,
@@ -281,7 +281,7 @@ gtsum_format <- \(x,
                   label_stat = NULL,
                   bold_p = 0,
                   adj_acro = "a",
-                  adj_label = if (getOption("OutDec") == ".") "adjusted {label}" else "{label} ajusté",
+                  adj_label = if (getOption("OutDec") == ".") "adjusted {label}" else "{label} ajust\u00e9",
                   estim_acro = NULL,
                   estim_label = NULL,
                   ci,

@@ -15,3 +15,7 @@ One or more tibbles
 \description{
 Extract metadata from a gt/gtsummary object.
 }
+\examples{
+"arg"
+
+}

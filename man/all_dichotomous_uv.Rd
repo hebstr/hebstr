@@ -7,8 +7,17 @@
 all_dichotomous_uv(data, ...)
 }
 \arguments{
-\item{...}{}
+\item{data}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

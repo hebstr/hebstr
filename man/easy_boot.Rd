@@ -7,8 +7,23 @@
 easy_boot(data, times = 1000, method, fit, ...)
 }
 \arguments{
-\item{...}{}
+\item{data}{arg}
+
+\item{times}{arg}
+
+\item{method}{arg}
+
+\item{fit}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -7,8 +7,15 @@
 easy_recode(...)
 }
 \arguments{
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -7,10 +7,17 @@
 show_single_row(data, exclude = names(data[, 1]))
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{exclude}{}
+\item{exclude}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -16,22 +16,29 @@ label_p(
 )
 }
 \arguments{
-\item{accuracy}{}
+\item{accuracy}{arg}
 
-\item{scale}{}
+\item{scale}{arg}
 
-\item{prefix}{}
+\item{prefix}{arg}
 
-\item{suffix}{}
+\item{suffix}{arg}
 
-\item{big.mark}{}
+\item{big.mark}{arg}
 
-\item{decimal.mark}{}
+\item{decimal.mark}{arg}
 
-\item{trim}{}
+\item{trim}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

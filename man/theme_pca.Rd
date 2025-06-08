@@ -7,10 +7,17 @@
 theme_pca(family = check_fonts(.auto = "luciole"), ...)
 }
 \arguments{
-\item{family}{}
+\item{family}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_fig}
 \alias{str_fig}
-\title{Title}
+\title{Générer un titre de figure formaté avec note et acronymes}
 \usage{
 str_fig(
   title,
@@ -14,8 +14,101 @@ str_fig(
 )
 }
 \arguments{
-\item{sub_size}{}
+\item{title}{Chaîne de caractères contenant le titre principal de la figure.
+Supporte l'interpolation avec la syntaxe \code{glue}.}
+
+\item{note}{Chaîne de caractères contenant la note explicative à afficher
+sous le titre. Par défaut une chaîne vide. Supporte l'interpolation \code{glue}.}
+
+\item{acro}{Chaîne de caractères contenant les acronymes ou abréviations
+à ajouter après la note. Par défaut une chaîne vide.}
+
+\item{sub_size}{Taille de police pour la note et les acronymes, exprimée
+en points. Par défaut \code{"7.5"}.}
+
+\item{qmd}{Valeur logique indiquant si la sortie est destinée à un document
+Quarto Markdown. Par défaut \code{FALSE}.}
+
+\item{class}{Classe CSS à appliquer à la note dans le contexte Quarto.
+Par défaut \code{"quarto-float-subcaption"}.}
+}
+\value{
+Une chaîne de caractères contenant le HTML formaté du titre
+de figure avec sa note et ses acronymes.
 }
 \description{
-Title
+Cette fonction crée un titre de figure HTML formaté avec une note explicative
+et des acronymes en sous-titre. Elle adapte automatiquement le formatage selon
+le contexte de sortie (document standard ou Quarto Markdown).
 }
+\section{Formatage conditionnel }{
+
+La fonction adapte son comportement selon la valeur du paramètre \code{qmd}.
+Pour les documents standards (\code{qmd = FALSE}), elle utilise des styles
+CSS inline avec la taille de police spécifiée. Pour les documents
+Quarto (\code{qmd = TRUE}), elle applique une classe CSS pour s'intégrer
+au système de styles de Quarto.
+}
+
+\section{Interpolation de variables }{
+
+Les paramètres \code{title} et \code{note} supportent l'interpolation de variables
+via le package \code{glue}. Cette fonctionnalité permet d'insérer dynamiquement
+des valeurs dans les chaînes de caractères.
+}
+
+\examples{
+# Titre simple sans note
+str_fig("Évolution du PIB français (2010-2020)")
+
+# Titre avec note explicative
+str_fig(
+  title = "Distribution des revenus par région",
+  note = "Source : INSEE, enquête revenus fiscaux 2021.",
+  acro = "PIB : Produit Intérieur Brut"
+)
+
+# Adaptation pour Quarto Markdown
+str_fig(
+  title = "Analyse de régression linéaire",
+  note = "Données ajustées pour la saisonnalité.",
+  qmd = TRUE
+)
+
+# Utilisation avec interpolation de variables
+annee_ref <- 2021
+region <- "Île-de-France"
+str_fig(
+  title = "Données démographiques {region}",
+  note = "Période de référence : {annee_ref}",
+  acro = "INSEE : Institut National de la Statistique"
+)
+
+# Personnalisation de la taille de police
+str_fig(
+  title = "Graphique pour présentation",
+  note = "Note lisible en grand format",
+  sub_size = "10"
+)
+
+# Application dans un contexte de rapport automatisé
+titre_figure <- str_fig(
+  title = "Tendances macroéconomiques",
+  note = "Données trimestrielles corrigées des variations saisonnières.",
+  acro = "CVS : Corrigé des Variations Saisonnières"
+)
+
+}
+\references{
+Documentation Quarto sur les figures et légendes :
+\url{https://quarto.org/docs/authoring/figures.html}
+}
+\seealso{
+Other fonctions de formatage: 
+\code{\link{acro}()},
+\code{\link{acro_str}()},
+\code{\link{str_cap}()},
+\code{\link{str_color}()},
+\code{\link{str_u}()}
+}
+\concept{fonctions de formatage}

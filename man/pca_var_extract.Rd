@@ -7,8 +7,15 @@
 pca_var_extract(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

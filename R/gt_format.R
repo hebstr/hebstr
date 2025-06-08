@@ -1,20 +1,20 @@
 #' Title
 #'
-#' @param x
-#' @param title
-#' @param note_global
-#' @param note_pvalue
-#' @param label_vargrp
-#' @param note_vargrp
-#' @param acro_list
-#' @param acro_sep
-#' @param zero_replace 
-#' @param ...
+#' @param x arg
+#' @param title arg
+#' @param note_global arg
+#' @param note_pvalue arg
+#' @param label_vargrp arg
+#' @param note_vargrp arg
+#' @param acro_list arg
+#' @param acro_sep arg
+#' @param zero_replace arg 
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 gt_format <- \(x,
                title = NULL,
@@ -108,7 +108,7 @@ gt_format <- \(x,
   
   if (!is.null(zero_replace)) {
     
-    x <- sub_values(x, pattern = zero_replace, replace = 0)
+    x <- sub_values(x, pattern = zero_replace, replacement = 0)
     
   }
   

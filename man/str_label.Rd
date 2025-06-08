@@ -2,13 +2,70 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_label}
 \alias{str_label}
-\title{Title}
+\title{Concaténer les étiquettes de variables avec formatage grammatical}
 \usage{
 str_label(data, ..., last = "and")
 }
 \arguments{
-\item{...}{}
+\item{data}{Un data.frame ou objet similaire contenant les variables
+à traiter.}
+
+\item{...}{\if{html}{\out{<data-masking>}} Noms des variables dont il faut extraire
+les étiquettes. Accepte la sélection de variables nue (sans guillemets).}
+
+\item{last}{Chaîne de caractères spécifiant la conjonction finale
+à utiliser avant le dernier élément. Par défaut \code{"and"}.}
+}
+\value{
+Une chaîne de caractères unique contenant les étiquettes
+des variables concaténées avec des virgules et la conjonction finale.
 }
 \description{
-Title
+Cette fonction extrait les étiquettes de variables spécifiées depuis un jeu de
+données et les concatène en une chaîne de caractères avec une ponctuation
+grammaticalement correcte (virgules et conjonction finale).
 }
+\section{Dépendances }{
+
+Cette fonction nécessite les packages \code{purrr}, \code{stringr} et \code{glue}.
+Elle utilise également \code{var_label()} qui doit être disponible
+(typiquement via le package \code{labelled}).
+}
+
+\examples{
+# Créer un jeu de données avec étiquettes
+library(labelled)
+
+donnees <- data.frame(
+  age = c(25, 30, 35),
+  revenu = c(30000, 45000, 60000),
+  education = c("BAC", "Master", "Doctorat")
+)
+
+# Ajouter des étiquettes aux variables
+var_label(donnees$age) <- "Âge du répondant"
+var_label(donnees$revenu) <- "Revenu annuel en euros"
+var_label(donnees$education) <- "Niveau d'éducation"
+
+# Utilisation basique avec conjonction anglaise
+str_label(donnees, age, revenu)
+
+# Utilisation avec conjonction française
+str_label(donnees, age, revenu, education, last = "et")
+
+# Utilisation avec une seule variable
+str_label(donnees, age)
+
+# Application dans un contexte de rapport
+variables_demographie <- str_label(donnees, age, education, last = "et")
+message("Variables démographiques analysées : ", variables_demographie)
+
+}
+\seealso{
+\itemize{
+\item \code{\link[labelled:var_label]{labelled::var_label()}} pour l'attribution d'étiquettes aux variables
+\item \code{\link[stringr:str_flatten]{stringr::str_flatten_comma()}} pour la concaténation avec virgules
+\item \code{\link[purrr:map]{purrr::map_chr()}} pour l'application de fonctions sur des vecteurs
+}
+}
+\concept{fonctions d'étiquetage}

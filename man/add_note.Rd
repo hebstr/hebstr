@@ -7,18 +7,25 @@
 add_note(data, vars = NULL, levels = NULL, rows = NULL, pvalue_mv = NULL, note)
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{vars}{}
+\item{vars}{arg}
 
-\item{levels}{}
+\item{levels}{arg}
 
-\item{rows}{}
+\item{rows}{arg}
 
-\item{pvalue_mv}{}
+\item{pvalue_mv}{arg}
 
-\item{note}{}
+\item{note}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

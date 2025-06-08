@@ -7,8 +7,15 @@
 str_na_mv(data)
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

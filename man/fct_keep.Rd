@@ -7,14 +7,21 @@
 fct_keep(data, var, min, sep)
 }
 \arguments{
-\item{data}{}
+\item{data}{arg}
 
-\item{var}{}
+\item{var}{arg}
 
-\item{min}{}
+\item{min}{arg}
 
-\item{sep}{}
+\item{sep}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

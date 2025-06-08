@@ -1,14 +1,14 @@
 #' Title
 #'
-#' @param data 
-#' @param variable 
-#' @param by 
-#' @param ... 
+#' @param data arg 
+#' @param variable arg 
+#' @param by arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 quanti.test.para <- \(data,
                       variable,
@@ -33,15 +33,15 @@ quanti.test.para <- \(data,
 
 #' Title
 #'
-#' @param data 
-#' @param variable 
-#' @param by 
-#' @param ... 
+#' @param data arg
+#' @param variable arg 
+#' @param by arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 quanti.test.nonpara <- \(data, 
                          variable, 
@@ -66,15 +66,15 @@ quanti.test.nonpara <- \(data,
 
 #' Title
 #'
-#' @param data 
-#' @param variable 
-#' @param by 
-#' @param ... 
+#' @param data arg 
+#' @param variable arg 
+#' @param by arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 quali.test <- \(data, variable, by, ...) {
   
@@ -122,13 +122,13 @@ quali.test <- \(data, variable, by, ...) {
 
 #' Title
 #'
-#' @param data
-#' @param ...
+#' @param data arg
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 all_dichotomous_uv <- \(data, ...) {
 
@@ -143,19 +143,19 @@ all_dichotomous_uv <- \(data, ...) {
 
 #' Title
 #'
-#' @param data
-#' @param estim_col
-#' @param ci_col
-#' @param name 
-#' @param ci_data
-#' @param digit 
-#' @param percent
-#' @param keep 
+#' @param data arg
+#' @param estim_col arg
+#' @param ci_col arg
+#' @param name arg 
+#' @param ci_data arg
+#' @param digit arg 
+#' @param percent arg
+#' @param keep arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 merge_estim_ci <- \(data,
                     estim_col = "estimate",
@@ -188,22 +188,22 @@ merge_estim_ci <- \(data,
 
 #' Title
 #'
-#' @param data
-#' @param var
-#' @param new_lab
-#' @param ref_lab 
-#' @param ref_level 
-#' @param tolower_level 
+#' @param data arg
+#' @param var arg
+#' @param new_lab arg
+#' @param ref_lab arg 
+#' @param ref_level arg 
+#' @param tolower_level arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_relab <- \(data,
                 var,
                 new_lab = "{var_label}",
-                ref_lab = " — ref",
+                ref_lab = " \u2014 ref",
                 ref_level = data$table_body$reference_level,
                 tolower_level = TRUE) {
   
@@ -228,17 +228,17 @@ easy_relab <- \(data,
 
 #' Title
 #'
-#' @param data 
-#' @param vars 
-#' @param levels 
-#' @param rows 
-#' @param pvalue_mv 
-#' @param note 
+#' @param data arg
+#' @param vars arg 
+#' @param levels arg 
+#' @param rows arg 
+#' @param pvalue_mv arg 
+#' @param note arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 add_note <- \(data,
               vars = NULL,
@@ -282,13 +282,14 @@ add_note <- \(data,
 
 #' Title
 #'
-#' @param x 
-#' @param cap 
+#' @param x arg 
+#' @param cap arg 
+#' @param sep arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 fct_str <- \(x, 
              sep, 
@@ -313,14 +314,14 @@ fct_str <- \(x,
 
 #' Title
 #'
-#' @param fct 
-#' @param chr 
-#' @param min 
+#' @param fct arg 
+#' @param chr arg 
+#' @param min arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 fct_other_str <- \(fct, chr, min) {
   
@@ -331,7 +332,7 @@ fct_other_str <- \(fct, chr, min) {
     mutate(str = glue("{f} ({n})")) |> 
     pull(str) |> 
     str_flatten_comma() |> 
-    str_to_lower()
+    tolower()
   
   fct <- str_cap(toupper, fct)
   
@@ -343,15 +344,15 @@ fct_other_str <- \(fct, chr, min) {
 
 #' Title
 #'
-#' @param data 
-#' @param var 
-#' @param min 
-#' @param sep 
+#' @param data arg 
+#' @param var arg 
+#' @param min arg 
+#' @param sep arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 fct_keep <- \(data,
               var,
@@ -385,18 +386,15 @@ fct_keep <- \(data,
 
 #' Title
 #'
-#' @param x 
-#' @param name 
-#' @param levels 
-#' @param label_indent 
-#' @param levels_indent 
-#' @param .before 
-#' @param .after 
+#' @param x arg
+#' @param name arg 
+#' @param indent arg
+#' @param levels arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 add_label <- \(x,
                name,
@@ -424,12 +422,12 @@ add_label <- \(x,
 
 #' Title
 #'
-#' @param data 
+#' @param data arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 str_na_mv <- \(data) {
   
@@ -443,20 +441,20 @@ str_na_mv <- \(data) {
                   n == 1 ~ glue("{n} observation"),
                   .default = glue("{n} observations ({p})")))
   
-  glue("{n_total} observations, {na$obs} contenant a minima une données manquante")
+  glue("{n_total} observations, {na$obs} contenant a minima une donn\u00e9es manquante")
 
 }
 
 
 #' Title
 #'
-#' @param data 
-#' @param exclude 
+#' @param data arg 
+#' @param exclude arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 show_single_row <- \(data,
                      exclude = names(data[, 1])) {
@@ -471,13 +469,13 @@ show_single_row <- \(data,
 
 #' Title
 #'
-#' @param data 
-#' @param label 
+#' @param data arg 
+#' @param label arg 
 #'
-#' @returns
+#' @returns arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 add_ref_label <- \(data, label = "Reference") {
   

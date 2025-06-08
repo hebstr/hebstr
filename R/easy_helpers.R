@@ -6,7 +6,7 @@
 #' @return A named character vector
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_replace <- \(..., replace = "</>") {
 
@@ -27,12 +27,12 @@ easy_replace <- \(..., replace = "</>") {
 
 #' Title
 #'
-#' @param ...
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_recode <- \(...) {
 
@@ -46,18 +46,18 @@ easy_recode <- \(...) {
 
 #' Title
 #'
-#' @param x 
-#' @param var 
-#' @param incr 
-#' @param drop 
-#' @param values 
-#' @param labels 
-#' @param ... 
+#' @param x arg 
+#' @param var arg 
+#' @param incr arg 
+#' @param drop arg 
+#' @param values arg 
+#' @param labels arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 easy_cut <- \(x, 
               var, 
@@ -121,12 +121,12 @@ easy_cut <- \(x,
 
 #' Title
 #'
-#' @param x
+#' @param x arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 pca_var_extract <- \(x) {
 
@@ -151,16 +151,16 @@ pca_var_extract <- \(x) {
 
 #' Title
 #'
-#' @param data
-#' @param times
-#' @param method
-#' @param fit
-#' @param ...
+#' @param data arg
+#' @param times arg
+#' @param method arg
+#' @param fit arg
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_boot <- \(data,
                times = 1000,
@@ -204,16 +204,16 @@ easy_boot <- \(data,
 
 #' Title
 #'
-#' @param data
-#' @param model
-#' @param y
-#' @param vars
-#' @param pv
+#' @param data arg
+#' @param model arg
+#' @param y arg
+#' @param vars arg
+#' @param pv arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 p_picking <- \(data,
                model,
@@ -237,16 +237,16 @@ p_picking <- \(data,
 
 #' Title
 #'
-#' @param x
-#' @param column
-#' @param digits
-#' @param seuil
-#' @param table
+#' @param x arg
+#' @param column arg
+#' @param digits arg
+#' @param seuil arg
+#' @param table arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 p_shortenr <- \(x,
                 column = p.value,
@@ -275,15 +275,15 @@ p_shortenr <- \(x,
 
 #' Title
 #'
-#' @param data 
-#' @param .var
-#' @param .min
-#' @param .fun 
+#' @param data arg 
+#' @param .var arg
+#' @param .min arg
+#' @param .fun arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 pct_min <- \(data,
              .var,
@@ -305,13 +305,13 @@ pct_min <- \(data,
 
 #' Title
 #'
-#' @param file
-#' @param dir
+#' @param file arg
+#' @param dir arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 read_png <- \(file,
               dir = "output") {
@@ -325,13 +325,13 @@ read_png <- \(file,
 
 #' Title
 #'
-#' @param dir 
-#' @param prefix 
+#' @param dir arg
+#' @param prefix arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 auto_exec <- \(dir = "scripts",
                prefix = "_") {
@@ -345,18 +345,18 @@ auto_exec <- \(dir = "scripts",
 
 #' Title
 #'
-#' @param df 
-#' @param y 
-#' @param x 
-#' @param breaks 
-#' @param color 
-#' @param label_y 
-#' @param label_x 
+#' @param df arg 
+#' @param y arg 
+#' @param x arg 
+#' @param breaks arg 
+#' @param color arg 
+#' @param label_y arg 
+#' @param label_x arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 logit_lty <- \(df,
                y,
@@ -402,17 +402,17 @@ logit_lty <- \(df,
 
 #' Title
 #'
-#' @param model 
-#' @param limit_inf_num 
-#' @param limit_sup_num 
-#' @param limit_inf_color 
-#' @param limit_sup_color 
-#' @param obs_color 
+#' @param model arg 
+#' @param limit_inf_num arg 
+#' @param limit_sup_num arg 
+#' @param limit_inf_color arg 
+#' @param limit_sup_color arg 
+#' @param obs_color arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 cooksd <- \(model,
             limit_inf_num = 4,
@@ -471,13 +471,13 @@ cooksd <- \(model,
 
 #' Title
 #'
-#' @param data 
-#' @param ... 
+#' @param data arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 flow_filter <- \(data, ...) {
   
@@ -498,19 +498,19 @@ flow_filter <- \(data, ...) {
 
 #' Title
 #'
-#' @param accuracy 
-#' @param scale 
-#' @param prefix 
-#' @param suffix 
-#' @param big.mark 
-#' @param decimal.mark 
-#' @param trim 
-#' @param ... 
+#' @param accuracy arg 
+#' @param scale arg 
+#' @param prefix arg 
+#' @param suffix arg 
+#' @param big.mark arg 
+#' @param decimal.mark arg 
+#' @param trim arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 label_p <- \(accuracy = 0.1, 
              scale = 100, 

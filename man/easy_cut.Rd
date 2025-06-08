@@ -7,20 +7,27 @@
 easy_cut(x, var, incr = FALSE, drop = FALSE, values = NULL, labels = NULL, ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{arg}
 
-\item{var}{}
+\item{var}{arg}
 
-\item{incr}{}
+\item{incr}{arg}
 
-\item{drop}{}
+\item{drop}{arg}
 
-\item{values}{}
+\item{values}{arg}
 
-\item{labels}{}
+\item{labels}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

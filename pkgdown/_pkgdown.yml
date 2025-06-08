@@ -2,7 +2,11 @@ url: https://codeberg.org/hebstr/hebstr/
 
 template:
   bootstrap: 5
-  bootswatch: cerulean
+  bslib:
+    primary: "#0099FF"
+    secondary: "#FF0000"
+    code_font: {google: "Fira Code"}
+    font_scale: 0.9
   light-switch: true
 
 repo:

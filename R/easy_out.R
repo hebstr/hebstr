@@ -1,20 +1,20 @@
 #' Title
 #'
-#' @param x
-#' @param filename
-#' @param dir
-#' @param suffix
-#' @param width
-#' @param height
-#' @param size
-#' @param px 
-#' @param assign 
-#' @param .quiet 
+#' @param x arg
+#' @param filename arg
+#' @param dir arg
+#' @param suffix arg
+#' @param width arg
+#' @param height arg
+#' @param size arg
+#' @param px arg
+#' @param assign arg 
+#' @param .quiet arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_out <- \(x,
               filename = NULL,
@@ -77,7 +77,7 @@ easy_out <- \(x,
 
     cli_progress_step("Creating HTML file")
 
-    gtsave(x, file = to_html)
+    gtsave(x, filename = to_html)
 
     if (!.quiet) browseURL(glue("{getwd()}/{to_html}"))
 
@@ -134,16 +134,16 @@ easy_out <- \(x,
 
 #' Title
 #'
-#' @param data
-#' @param filename
-#' @param dir
-#' @param sep 
-#' @param size
+#' @param data arg
+#' @param filename arg
+#' @param dir arg
+#' @param sep arg 
+#' @param size arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_out_map <- \(data,
                   filename = NULL,

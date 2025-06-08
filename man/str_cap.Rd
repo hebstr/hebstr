@@ -2,13 +2,85 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_cap}
 \alias{str_cap}
-\title{Title}
+\title{Appliquer une fonction de transformation au premier caractère d'une chaîne}
 \usage{
 str_cap(fun, str)
 }
 \arguments{
-\item{str}{}
+\item{fun}{Fonction à appliquer au premier caractère. Doit être une fonction
+qui accepte une chaîne de caractères et retourne une chaîne de caractères
+transformée (par exemple \code{toupper}, \code{tolower}).}
+
+\item{str}{Chaîne de caractères à traiter. Le premier caractère sera
+transformé selon la fonction spécifiée.}
+}
+\value{
+Une chaîne de caractères identique à l'entrée, avec le premier
+caractère transformé selon la fonction appliquée.
 }
 \description{
-Title
+Cette fonction utilitaire permet d'appliquer une transformation spécifique
+au premier caractère d'une chaîne de caractères tout en préservant le reste
+de la chaîne inchangé. Elle constitue un outil flexible pour la manipulation
+typographique et le formatage de texte.
 }
+\section{Mécanisme technique }{
+
+La fonction utilise \code{stringr::str_sub()} pour extraire le premier caractère,
+\code{do.call()} pour appliquer dynamiquement la fonction de transformation,
+puis \code{stringr::str_replace()} pour substituer le caractère transformé
+dans la chaîne originale.
+}
+
+\section{Fonctions compatibles }{
+
+Cette fonction fonctionne avec toute fonction qui accepte une chaîne
+de caractères en entrée et retourne une chaîne transformée. Les fonctions
+couramment utilisées incluent \code{base::toupper()}, \code{base::tolower()},
+ou des fonctions personnalisées de transformation de caractères.
+}
+
+\examples{
+# Conversion du premier caractère en majuscule
+str_cap(toupper, "france")
+
+# Conversion du premier caractère en minuscule
+str_cap(tolower, "PARIS")
+
+# Application sur des phrases complètes
+str_cap(toupper, "analyse des données économiques")
+str_cap(tolower, "RAPPORT TRIMESTRIEL")
+
+# Utilisation avec des chaînes contenant des caractères spéciaux
+str_cap(toupper, "émission de CO₂")
+str_cap(tolower, "ÉLÉVATION du niveau de la mer")
+
+# Application dans un contexte de formatage de titres
+titres_bruts <- c("méthodologie statistique", "RÉSULTATS PRINCIPAUX")
+titres_formates <- sapply(titres_bruts, \(x) str_cap(toupper, x))
+
+# Utilisation avec une fonction personnalisée
+inverser_casse <- function(char) {
+  if (char == toupper(char)) tolower(char) else toupper(char)
+}
+str_cap(inverser_casse, "Données")
+str_cap(inverser_casse, "données")
+
+# Application pour standardiser des noms propres
+noms_regions <- c("île-de-france", "NORMANDIE", "provence-alpes-côte d'azur")
+noms_standardises <- sapply(noms_regions, \(x) str_cap(toupper, x))
+
+}
+\seealso{
+\itemize{
+\item \code{\link[stringr:case]{stringr::str_to_title()}} pour la conversion en casse de titre
+}
+
+Other fonctions de formatage: 
+\code{\link{acro}()},
+\code{\link{acro_str}()},
+\code{\link{str_color}()},
+\code{\link{str_fig}()},
+\code{\link{str_u}()}
+}
+\concept{fonctions de formatage}

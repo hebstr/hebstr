@@ -7,10 +7,23 @@
 easy_out_map(data, filename = NULL, dir = "output", sep = ".", size = NULL)
 }
 \arguments{
-\item{sep}{}
+\item{data}{arg}
 
-\item{size}{}
+\item{filename}{arg}
+
+\item{dir}{arg}
+
+\item{sep}{arg}
+
+\item{size}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

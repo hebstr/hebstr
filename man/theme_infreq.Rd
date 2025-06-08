@@ -18,22 +18,33 @@ theme_infreq(
 )
 }
 \arguments{
-\item{family}{}
+\item{family}{arg}
 
-\item{title_size}{}
+\item{title_size}{arg}
 
-\item{title_margin}{}
+\item{title_margin}{arg}
 
-\item{caption_size}{}
+\item{caption_size}{arg}
 
-\item{caption_margin}{}
+\item{caption_margin}{arg}
 
-\item{label_size}{}
+\item{label_size}{arg}
 
-\item{label_margin}{}
+\item{label_margin}{arg}
 
-\item{...}{}
+\item{grid}{arg}
+
+\item{grid_size}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

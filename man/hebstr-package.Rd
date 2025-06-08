@@ -4,14 +4,14 @@
 \name{hebstr-package}
 \alias{hebstr}
 \alias{hebstr-package}
-\title{hebstr: What the Package Does (One Line, Title Case)}
+\title{hebstr: Fonctions perso}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-What the package does (one paragraph).
+Stockage de fonctions perso.
 }
 \author{
-\strong{Maintainer}: Julien ELICES-DIEZ \email{ju.diez@protonmail.com}
+\strong{Maintainer}: Henry Bostorrhus \email{ju.diez@protonmail.com}
 
 }
 \keyword{internal}

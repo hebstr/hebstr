@@ -14,12 +14,25 @@ easy_relab(
 )
 }
 \arguments{
-\item{ref_lab}{}
+\item{data}{arg}
 
-\item{ref_level}{}
+\item{var}{arg}
 
-\item{tolower_level}{}
+\item{new_lab}{arg}
+
+\item{ref_lab}{arg}
+
+\item{ref_level}{arg}
+
+\item{tolower_level}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

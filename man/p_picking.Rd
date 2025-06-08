@@ -7,8 +7,23 @@
 p_picking(data, model, y, vars, pv)
 }
 \arguments{
-\item{pv}{}
+\item{data}{arg}
+
+\item{model}{arg}
+
+\item{y}{arg}
+
+\item{vars}{arg}
+
+\item{pv}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -27,34 +27,51 @@ theme_gt(
 )
 }
 \arguments{
-\item{width}{}
+\item{x}{arg}
 
-\item{bg}{}
+\item{width}{arg}
 
-\item{row_padding}{}
+\item{alpha}{arg}
 
-\item{title_align}{}
+\item{digit}{arg}
 
-\item{font_size}{}
+\item{base}{arg}
 
-\item{title_font_size}{}
+\item{color}{arg}
 
-\item{stat_font_size}{}
+\item{bg}{arg}
 
-\item{pvalue_font_size}{}
+\item{row_padding}{arg}
 
-\item{row_strip}{}
+\item{title_align}{arg}
 
-\item{footnote_marks}{}
+\item{font_size}{arg}
 
-\item{footnote_font_size}{}
+\item{title_font_size}{arg}
 
-\item{footnote_padding}{}
+\item{stat_font_size}{arg}
 
-\item{docx}{}
+\item{pvalue_font_size}{arg}
 
-\item{...}{}
+\item{row_strip}{arg}
+
+\item{footnote_marks}{arg}
+
+\item{footnote_font_size}{arg}
+
+\item{footnote_padding}{arg}
+
+\item{docx}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -11,13 +11,34 @@ easy_fct(
   sup = NULL,
   cut = NULL,
   .btw = NULL,
-  .name = rlang::enexpr(var),
+  .name = enexpr(var),
   ...
 )
 }
 \arguments{
-\item{...}{}
+\item{x}{arg}
+
+\item{var}{arg}
+
+\item{inf}{arg}
+
+\item{sup}{arg}
+
+\item{cut}{arg}
+
+\item{.btw}{arg}
+
+\item{.name}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

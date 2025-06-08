@@ -28,20 +28,53 @@ gtsum_format(
 )
 }
 \arguments{
-\item{label_n}{}
+\item{x}{arg}
 
-\item{stat_n}{}
+\item{label_header}{arg}
 
-\item{label_overall}{}
+\item{label_reference}{arg}
 
-\item{estim_acro}{}
+\item{label_n}{arg}
 
-\item{show_single_row}{}
+\item{stat_n}{arg}
 
-\item{ref_sep}{}
+\item{label_overall}{arg}
 
-\item{indent}{}
+\item{label_stat}{arg}
+
+\item{bold_p}{arg}
+
+\item{adj_acro}{arg}
+
+\item{adj_label}{arg}
+
+\item{estim_acro}{arg}
+
+\item{estim_label}{arg}
+
+\item{ci}{arg}
+
+\item{model_mv}{arg}
+
+\item{show_single_row}{arg}
+
+\item{ref_sep}{arg}
+
+\item{ref_no}{arg}
+
+\item{estim_sep}{arg}
+
+\item{vargrp_levels}{arg}
+
+\item{indent}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

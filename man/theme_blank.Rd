@@ -15,16 +15,27 @@ theme_blank(
 )
 }
 \arguments{
-\item{family}{}
+\item{family}{arg}
 
-\item{grid}{}
+\item{grid}{arg}
 
-\item{grid_color}{}
+\item{grid_color}{arg}
 
-\item{axis_text_size_y}{}
+\item{grid_size}{arg}
 
-\item{...}{}
+\item{axis_text_size_y}{arg}
+
+\item{legend_position}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

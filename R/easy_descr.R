@@ -1,14 +1,14 @@
 #' Title
 #'
-#' @param data
-#' @param parametric
-#' @param qt_stat
-#' @param ql_stat
+#' @param data arg
+#' @param parametric arg
+#' @param qt_stat arg
+#' @param ql_stat arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_descr <- \(data,
                 parametric = nullfile(),
@@ -43,17 +43,17 @@ easy_descr <- \(data,
   .qt_stat <-
   list(min = c("Min" = "{min}"),
        q1 = c("Q1" = "{p25}"),
-       median = c("Median (IQR)" = "{median} ({p25}—{p75})"),
+       median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
        q3 = c("Q3" = "{p75}"),
        max = c("Max" = "{max}"),
-       mean = c("Mean±SD" = "{mean}±{sd}"))
+       mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}"))
   
   if (getOption("OutDec") == ",") {
    
     .qt_stat <-
     .qt_stat |> 
-      list_modify(median = c("Médiane (IQR)" = "{median} ({p25}—{p75})"),
-                  mean = c("Moyenne±SD" = "{mean}±{sd}"))
+      list_modify(median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
+                  mean = c("Moyenne\u00b1SD" = "{mean}\u00b1{sd}"))
      
   }
   

@@ -17,3 +17,7 @@ A named character vector
 \description{
 Title
 }
+\examples{
+"arg"
+
+}

@@ -15,20 +15,27 @@ easy_view(
 )
 }
 \arguments{
-\item{x}{}
+\item{x}{arg}
 
-\item{name}{}
+\item{name}{arg}
 
-\item{font_size}{}
+\item{font_size}{arg}
 
-\item{font_family}{}
+\item{font_family}{arg}
 
-\item{strip_color}{}
+\item{strip_color}{arg}
 
-\item{assign}{}
+\item{assign}{arg}
 
-\item{...}{}
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

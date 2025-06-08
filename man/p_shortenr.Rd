@@ -7,8 +7,23 @@
 p_shortenr(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE)
 }
 \arguments{
-\item{table}{}
+\item{x}{arg}
+
+\item{column}{arg}
+
+\item{digits}{arg}
+
+\item{seuil}{arg}
+
+\item{table}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

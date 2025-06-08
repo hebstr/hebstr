@@ -7,10 +7,19 @@
 fct_str(x, sep, cap = TRUE)
 }
 \arguments{
-\item{x}{}
+\item{x}{arg}
 
-\item{cap}{}
+\item{sep}{arg}
+
+\item{cap}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

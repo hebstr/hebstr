@@ -2,8 +2,6 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -16,6 +14,7 @@ knitr::opts_chunk$set(
 # hebstr
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 ## Installation
@@ -26,13 +25,5 @@ knitr::opts_chunk$set(
 # install.packages("git2r")
 # install.packages("devtools")
 devtools::install_git("https://codeberg.org/hebstr/hebstr")
-```
-
-## Example
-
-```{r}
-#| include: false
-
-library(hebstr)
 ```
 

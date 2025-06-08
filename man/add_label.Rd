@@ -7,20 +7,21 @@
 add_label(x, name, levels, indent = 0)
 }
 \arguments{
-\item{x}{}
+\item{x}{arg}
 
-\item{name}{}
+\item{name}{arg}
 
-\item{levels}{}
+\item{levels}{arg}
 
-\item{label_indent}{}
-
-\item{levels_indent}{}
-
-\item{.before}{}
-
-\item{.after}{}
+\item{indent}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

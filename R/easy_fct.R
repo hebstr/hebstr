@@ -1,18 +1,18 @@
 #' Title
 #'
-#' @param x
-#' @param var
-#' @param inf
-#' @param sup
-#' @param cut
-#' @param .btw
-#' @param .name
-#' @param ...
+#' @param x arg
+#' @param var arg
+#' @param inf arg
+#' @param sup arg
+#' @param cut arg
+#' @param .btw arg
+#' @param .name arg
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 easy_fct <- \(x,
               var,
@@ -20,19 +20,19 @@ easy_fct <- \(x,
               sup = NULL,
               cut = NULL,
               .btw = NULL,
-              .name = rlang::enexpr(var),
+              .name = enexpr(var),
               ...) {
 
-  var <- rlang::enexpr(var)
+  var <- enexpr(var)
 
   if (!is.numeric(x[[var]])) {
 
-    dots <- rlang::exprs(...)
+    dots <- exprs(...)
 
     x |>
-      dplyr::mutate(!!var :=
-                      rlang::inject(forcats::fct_recode(!!var, !!!dots)) |>
-                      forcats::fct_relevel(names(dots)))
+      mutate(!!var :=
+               inject(fct_recode(!!var, !!!dots)) |>
+                      fct_relevel(names(dots)))
 
   } else {
 
@@ -49,33 +49,32 @@ easy_fct <- \(x,
       if (is.null(.btw)) {
 
         cond <-
-        rlang::exprs(!!var < inf ~ lv$inf,
-                     !!var >= inf & !!var < sup ~ lv$btw,
-                     !!var >= sup ~ lv$sup)
+        exprs(!!var < inf ~ lv$inf,
+              !!var >= inf & !!var < sup ~ lv$btw,
+              !!var >= sup ~ lv$sup)
 
         lvs <- c(lv$inf, lv$btw, lv$sup)
 
       } else {
 
         cond <-
-        rlang::exprs(!!var < inf ~ lv$inf,
-                     !!var >= inf & !!var < .btw ~ lv$btw_inf,
-                     !!var >= .btw & !!var < sup ~ lv$btw_sup,
-                     !!var >= sup ~ lv$sup)
+        exprs(!!var < inf ~ lv$inf,
+              !!var >= inf & !!var < .btw ~ lv$btw_inf,
+              !!var >= .btw & !!var < sup ~ lv$btw_sup,
+              !!var >= sup ~ lv$sup)
 
         lvs <- c(lv$inf, lv$btw_inf, lv$btw_sup, lv$sup)
 
       }
 
-        x |>
-          dplyr::mutate(!!.name :=
-                          rlang::inject(dplyr::case_when(!!!cond)) |>
-                          forcats::fct_relevel(lvs))
+      x |> 
+        mutate(!!.name :=
+                 inject(case_when(!!!cond)) |> fct_relevel(lvs))
 
     } else {
 
       x |>
-        dplyr::mutate(!!.name :=
+        mutate(!!.name :=
                  cut(!!var,
                      breaks = c(0, cut, Inf),
                      labels = lv$cut,

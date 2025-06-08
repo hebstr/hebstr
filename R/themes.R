@@ -1,14 +1,14 @@
 #' Title
 #'
-#' @param ...
-#' @param .default 
-#' @param .auto 
-#' @param .abort 
+#' @param ... arg
+#' @param .default arg 
+#' @param .auto arg 
+#' @param .abort arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 check_fonts <- \(...,
                  .default = "trebuchet ms",
@@ -54,30 +54,30 @@ check_fonts <- \(...,
 
 #' Title
 #'
-#' @param x
-#' @param width 
-#' @param alpha
-#' @param digit
-#' @param base
-#' @param color
-#' @param bg 
-#' @param row_padding 
-#' @param title_align 
-#' @param font_size 
-#' @param title_font_size 
-#' @param stat_font_size 
-#' @param pvalue_font_size 
-#' @param row_strip 
-#' @param footnote_marks 
-#' @param footnote_font_size 
-#' @param footnote_padding 
-#' @param docx 
-#' @param ... 
+#' @param x arg
+#' @param width arg 
+#' @param alpha arg
+#' @param digit arg
+#' @param base arg
+#' @param color arg
+#' @param bg arg 
+#' @param row_padding arg 
+#' @param title_align arg 
+#' @param font_size arg 
+#' @param title_font_size arg 
+#' @param stat_font_size arg 
+#' @param pvalue_font_size arg 
+#' @param row_strip arg 
+#' @param footnote_marks arg 
+#' @param footnote_font_size arg 
+#' @param footnote_padding arg 
+#' @param docx arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 theme_gt <- \(x,
               width = NULL,
@@ -160,22 +160,22 @@ theme_gt <- \(x,
 
 #' Title
 #'
-#' @param family
-#' @param text_color 
-#' @param title_size 
-#' @param title_halign 
-#' @param title_margin 
-#' @param caption_size 
-#' @param caption_halign 
-#' @param caption_margin 
-#' @param grid
-#' @param legend_position 
-#' @param ...
+#' @param family arg
+#' @param text_color arg 
+#' @param title_size arg 
+#' @param title_halign arg 
+#' @param title_margin arg 
+#' @param caption_size arg 
+#' @param caption_halign arg 
+#' @param caption_margin arg 
+#' @param grid arg
+#' @param legend_position arg 
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 theme_bar <- \(family = check_fonts(.auto = "luciole"),
                text_color = "#333333",
@@ -226,16 +226,17 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family 
-#' @param size
-#' @param vjust_y 
-#' @param title_margin 
-#' @param ...
+#' @param family arg
+#' @param size arg
+#' @param vjust_y arg 
+#' @param title_margin arg 
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
+#' 
 theme_tte <- \(family = check_fonts(.auto = "luciole"),
                size = 8,
                vjust_y = 1,
@@ -265,17 +266,17 @@ theme_tte <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family 
-#' @param label_size 
-#' @param title_size 
-#' @param title_margin 
-#' @param plot_margin 
-#' @param ...
+#' @param family arg
+#' @param label_size arg 
+#' @param title_size arg 
+#' @param title_margin arg 
+#' @param plot_margin arg 
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 theme_risktable <- \(family = check_fonts(.auto = "luciole"),
                      label_size = 7,
@@ -305,13 +306,13 @@ theme_risktable <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family 
-#' @param ...
+#' @param family arg 
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 theme_pca <- \(family = check_fonts(.auto = "luciole"),
                ...) {
@@ -336,16 +337,18 @@ theme_pca <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family 
-#' @param grid 
-#' @param grid_color 
-#' @param axis_text_size_y 
-#' @param ...
+#' @param family arg 
+#' @param grid arg 
+#' @param grid_color arg 
+#' @param axis_text_size_y arg 
+#' @param grid_size arg 
+#' @param legend_position arg 
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 theme_blank <- \(family = check_fonts(.auto = "luciole"),
                  grid = FALSE,
@@ -394,20 +397,21 @@ theme_blank <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family 
-#' @param title_size 
-#' @param title_margin 
-#' @param caption_size 
-#' @param caption_margin 
-#' @param label_size 
-#' @param label_margin 
-#' @param grid
-#' @param ...
+#' @param family arg
+#' @param title_size arg 
+#' @param title_margin arg 
+#' @param caption_size arg 
+#' @param caption_margin arg 
+#' @param label_size arg 
+#' @param label_margin arg 
+#' @param grid arg
+#' @param grid_size arg
+#' @param ... arg
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #'
 theme_infreq <- \(family = check_fonts(.auto = "luciole"),
                   title_size = 11,
@@ -466,25 +470,25 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family 
-#' @param size 
-#' @param base_color 
-#' @param axis_margin_x 
-#' @param axis_margin_y 
-#' @param axis_color_x 
-#' @param axis_color_y 
-#' @param title_color_x 
-#' @param title_color_y 
-#' @param grid_color_x 
-#' @param grid_color_y 
-#' @param grid_lighten_x 
-#' @param grid_lighten_y 
-#' @param ... 
+#' @param family arg 
+#' @param size arg 
+#' @param base_color arg 
+#' @param axis_margin_x arg 
+#' @param axis_margin_y arg 
+#' @param axis_color_x arg 
+#' @param axis_color_y arg 
+#' @param title_color_x arg 
+#' @param title_color_y arg 
+#' @param grid_color_x arg 
+#' @param grid_color_y arg 
+#' @param grid_lighten_x arg 
+#' @param grid_lighten_y arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 theme_bubble <- \(family = check_fonts(.auto = "luciole"),
                   size = 13,
@@ -530,17 +534,17 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param data 
-#' @param head 
-#' @param font_family 
-#' @param font_size 
-#' @param id 
-#' @param ... 
+#' @param data arg
+#' @param head arg 
+#' @param font_family arg 
+#' @param font_size arg 
+#' @param id arg 
+#' @param ... arg 
 #'
-#' @return
+#' @return arg
 #' @export
 #'
-#' @examples
+#' @examples "arg"
 #' 
 gt_qmd <- \(data,
             head = NULL,

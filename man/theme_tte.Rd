@@ -13,14 +13,23 @@ theme_tte(
 )
 }
 \arguments{
-\item{family}{}
+\item{family}{arg}
 
-\item{vjust_y}{}
+\item{size}{arg}
 
-\item{title_margin}{}
+\item{vjust_y}{arg}
 
-\item{...}{}
+\item{title_margin}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

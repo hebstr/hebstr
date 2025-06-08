@@ -2,13 +2,119 @@
 % Please edit documentation in R/acro_helpers.R
 \name{acro_match}
 \alias{acro_match}
-\title{Title}
+\title{Identifier et formater automatiquement les acronymes présents dans les étiquettes de variables}
 \usage{
 acro_match(x, vars = names(x), acro_list, acro_sep)
 }
 \arguments{
-\item{acro_sep}{}
+\item{x}{Un data.frame ou objet similaire contenant les variables à analyser.
+Les variables doivent posséder des attributs d'étiquetage pour un
+fonctionnement optimal de l'analyse terminologique.}
+
+\item{vars}{Vecteur de caractères spécifiant les noms des variables à examiner.
+Par défaut utilise \code{names(x)} pour analyser toutes les variables du jeu
+de données.}
+
+\item{acro_list}{Liste nommée servant de dictionnaire de référence pour
+les acronymes. Les noms constituent les acronymes à rechercher et les
+valeurs leurs définitions complètes.}
+
+\item{acro_sep}{Chaîne de caractères définissant le séparateur à utiliser
+entre les différentes définitions d'acronymes dans le résultat formaté.}
+}
+\value{
+Une chaîne de caractères formatée contenant les définitions des
+acronymes identifiés dans les étiquettes des variables, ou \code{NULL} si
+aucun acronyme n'est détecté. Le formatage inclut automatiquement la
+ponctuation finale appropriée.
 }
 \description{
-Title
+Cette fonction analyse automatiquement les étiquettes descriptives des variables
+d'un jeu de données pour identifier les acronymes présents, puis génère une
+chaîne formatée contenant les définitions de ces acronymes selon un dictionnaire
+de référence. Elle constitue un outil essentiel pour la génération automatique
+de glossaires contextuels dans la production de rapports d'analyse professionnels.
 }
+\section{Architecture du processus d'analyse }{
+
+La fonction exécute une séquence d'opérations analytiques coordonnées pour
+identifier les acronymes pertinents. Elle extrait d'abord les attributs
+d'étiquetage de chaque variable spécifiée via \code{label_attribute()}, puis
+consolide ces informations en un corpus textuel unifié. Ce corpus est
+ensuite analysé par \code{acro_extract()} pour identifier les acronymes présents
+selon le dictionnaire de référence fourni. Finalement, \code{acro_str()} formate
+les définitions correspondantes selon les conventions typographiques
+professionnelles établies.
+}
+
+\section{Applications en environnement organisationnel }{
+
+Cette fonction répond aux exigences de documentation automatisée dans les
+contextes professionnels où la cohérence terminologique constitue un enjeu
+stratégique. Elle facilite la génération de notes explicatives pour les
+tableaux statistiques, les graphiques d'analyse et les rapports techniques.
+L'automatisation du processus d'identification des acronymes améliore
+significativement l'efficacité des workflows de production documentaire
+tout en garantissant la conformité aux standards de qualité organisationnels.
+}
+
+\section{Prérequis techniques et dépendances }{
+
+Cette fonction s'appuie sur un écosystème de fonctions auxiliaires
+spécialisées qui doivent être disponibles dans l'environnement d'exécution.
+Les fonctions \code{label_attribute()}, \code{acro_extract()} et \code{acro_str()} constituent
+les composants essentiels de cette architecture modulaire. Les packages
+\code{purrr} pour les opérations sur listes et \code{base} pour les fonctions de
+manipulation d'environnements sont également requis pour un fonctionnement
+optimal de l'ensemble du système d'analyse terminologique.
+}
+
+\examples{
+
+# Préparation d'un dataset avec étiquettes pour démonstration
+library(dplyr)
+library(labelled)
+
+# Configuration d'un dictionnaire d'acronymes statistiques
+acronymes <- acro()
+
+# Création d'un dataset avec étiquettes contenant des acronymes
+df <-
+mtcars |> 
+  select(mpg, hp, wt) |> 
+  set_variable_labels(mpg = "Fuel efficiency with SD calculation",
+                      hp = "Engine power and 95\%CI estimation",
+                      wt = "Vehicle weight distribution")
+
+# Identification automatique des acronymes dans les étiquettes
+acro_match(x = df,
+           acro_list = acronymes,
+           acro_sep = "; ")
+
+# Démonstration avec dataset ne contenant aucun acronyme référencé
+df <-
+mtcars |> 
+  select(mpg, hp, wt) |> 
+  set_variable_labels(mpg = "Fuel efficiency",
+                      hp = "Engine power",
+                      wt = "Vehicle weight")
+
+# Retourne NULL car aucun acronyme détecté
+acro_match(x = df,
+           acro_list = acronymes,
+           acro_sep = "; ")
+
+}
+\references{
+Documentation labelled pour la gestion des métadonnées :
+\url{https://larmarange.github.io/labelled/}
+}
+\seealso{
+\itemize{
+\item \code{\link[labelled:var_label]{labelled::var_label()}} pour la gestion des étiquettes de variables
+}
+
+Other fonctions de manipulation de chaînes: 
+\code{\link{acro_extract}()}
+}
+\concept{fonctions de manipulation de chaînes}

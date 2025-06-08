@@ -18,12 +18,33 @@ easy_out(
 )
 }
 \arguments{
-\item{px}{}
+\item{x}{arg}
 
-\item{assign}{}
+\item{filename}{arg}
 
-\item{.quiet}{}
+\item{dir}{arg}
+
+\item{suffix}{arg}
+
+\item{width}{arg}
+
+\item{height}{arg}
+
+\item{size}{arg}
+
+\item{px}{arg}
+
+\item{assign}{arg}
+
+\item{.quiet}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

@@ -19,24 +19,35 @@ theme_bar(
 )
 }
 \arguments{
-\item{text_color}{}
+\item{family}{arg}
 
-\item{title_size}{}
+\item{text_color}{arg}
 
-\item{title_halign}{}
+\item{title_size}{arg}
 
-\item{title_margin}{}
+\item{title_halign}{arg}
 
-\item{caption_size}{}
+\item{title_margin}{arg}
 
-\item{caption_halign}{}
+\item{caption_size}{arg}
 
-\item{caption_margin}{}
+\item{caption_halign}{arg}
 
-\item{legend_position}{}
+\item{caption_margin}{arg}
 
-\item{...}{}
+\item{grid}{arg}
+
+\item{legend_position}{arg}
+
+\item{...}{arg}
+}
+\value{
+arg
 }
 \description{
 Title
+}
+\examples{
+"arg"
+
 }

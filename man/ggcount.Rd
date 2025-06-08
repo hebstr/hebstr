@@ -2,7 +2,7 @@
 % Please edit documentation in R/fig_helpers.R
 \name{ggcount}
 \alias{ggcount}
-\title{Title}
+\title{Créer un graphique en barres avec comptage d'effectifs et pourcentages}
 \usage{
 ggcount(
   data,
@@ -18,8 +18,110 @@ ggcount(
 )
 }
 \arguments{
-\item{...}{}
+\item{data}{Un data.frame contenant les données à visualiser.}
+
+\item{var}{Nom de la variable catégorielle à analyser (en tant que chaîne
+de caractères). Cette variable servira de base pour le comptage des effectifs.}
+
+\item{color}{Code couleur hexadécimal ou nom CSS pour le remplissage des barres.
+Par défaut \code{"#333333"} (gris foncé).}
+
+\item{alpha}{Valeur de transparence des barres, comprise entre 0 (transparent)
+et 1 (opaque). Par défaut \code{0.7}.}
+
+\item{nudge_y}{Facteur de décalage vertical pour le positionnement des étiquettes,
+exprimé comme proportion de la hauteur maximale. Par défaut \code{0.04}.}
+
+\item{pct_min}{Seuil minimum d'effectif pour l'affichage des pourcentages,
+exprimé comme proportion de l'effectif total. Par défaut \code{0.05}.}
+
+\item{ylab}{Étiquette de l'axe des ordonnées. Par défaut \code{"Effectif"}.}
+
+\item{family}{Famille de police à utiliser pour les étiquettes de texte.
+Par défaut déterminée par \code{check_fonts(.auto = "luciole")}.}
+
+\item{grid}{Valeur logique contrôlant l'affichage de la grille de fond.
+Par défaut \code{TRUE}.}
+
+\item{...}{Arguments supplémentaires transmis aux couches de texte
+(\code{geom_text}), permettant la personnalisation avancée des étiquettes.}
+}
+\value{
+Un objet ggplot représentant le graphique en barres avec effectifs
+et pourcentages, prêt pour l'affichage ou l'export.
 }
 \description{
-Title
+Cette fonction génère un graphique en barres sophistiqué affichant les effectifs
+et pourcentages pour une variable catégorielle. Elle combine automatiquement
+les barres de comptage avec des étiquettes numériques et des annotations
+de pourcentages, optimisée pour la production de visualisations professionnelles
+dans un contexte d'analyse statistique descriptive.
 }
+\section{Architecture de la visualisation }{
+
+Le graphique produit intègre trois couches principales de données. La couche
+de base affiche les barres d'effectifs avec la couleur et transparence
+spécifiées. La première couche de texte présente les valeurs numériques
+d'effectifs positionnées au-dessus des barres. La seconde couche de texte
+affiche les pourcentages correspondants sous les barres, mais uniquement
+pour les modalités dépassant le seuil \code{pct_min}.
+}
+
+\section{Fonctions auxiliaires requises }{
+
+Cette fonction s'appuie sur plusieurs utilitaires spécialisés qui doivent
+être disponibles dans l'environnement. \code{check_fonts()} gère la détection
+automatique des polices système. \code{pct_min()} filtre les modalités selon
+le seuil de pourcentage minimum. \code{label_p()} formate les pourcentages
+selon les conventions typographiques françaises. \code{theme_bar()} applique
+le thème graphique standardisé pour les graphiques en barres.
+}
+
+\section{Gestion automatique des étiquettes }{
+
+La fonction utilise \code{var_label()} pour extraire automatiquement l'étiquette
+descriptive de la variable analysée. Si aucune étiquette n'est définie,
+le nom de la variable est utilisé par défaut. Cette approche garantit
+une cohérence dans la présentation des résultats et facilite l'interprétation
+des graphiques dans un contexte de reporting automatisé.
+}
+
+\examples{
+library(ggplot2)
+library(dplyr)
+
+# Utilisation avec le dataset mpg (ggplot2)
+ggcount(data = mpg,
+        var = "class")
+        
+# Utilisation dans un pipeline d'analyse avec filtrage
+mpg |>
+  filter(year == 2008) |>
+  ggcount(var = "class", 
+          color = "#0099FF")
+          
+# Personnalisation avancée des étiquettes
+mpg |> 
+  ggcount(var = "fl",
+          color = "#FF0000",
+          size = 3.5,
+          fontface = "bold",
+          grid = FALSE)
+          
+# Analyse de données avec distribution déséquilibrée
+storms |>
+  filter(year >= 2010) |>
+  mutate(status = forcats::fct_infreq(status)) |>
+  ggcount(var = "status",
+          pct_min = 0.1)
+
+}
+\seealso{
+\itemize{
+\item \code{\link[ggplot2:geom_bar]{ggplot2::geom_bar()}} pour les graphiques en barres de base
+\item \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} pour l'ajout d'étiquettes textuelles
+\item \code{\link[labelled:var_label]{labelled::var_label()}} pour la gestion des étiquettes de variables
+\item \code{\link[scales:label_percent]{scales::label_percent()}} pour le formatage des pourcentages
+}
+}
+\concept{fonctions de visualisation}
