@@ -26,6 +26,7 @@ Imports:
     htmltools,
     labelled,
     lifecycle,
+    lubridate,
     magick,
     magrittr,
     parsnip,

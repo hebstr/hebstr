@@ -126,6 +126,7 @@
 #' @importFrom labelled label_attribute
 #' @importFrom labelled var_label
 #' @importFrom lifecycle deprecated
+#' @importFrom lubridate is.Date
 #' @importFrom magick image_read_svg
 #' @importFrom magick image_write
 #' @importFrom magrittr %>%
