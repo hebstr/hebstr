@@ -329,8 +329,9 @@ acro_extract <- \(x, acro_list) {
   .acro <- names(acro_list)
 
   x |> 
-    str_extract_all(.acro) |> 
-    unlist() |> 
+    map(str_extract, .acro) |> 
+    unlist() |>
+    na.omit() |> 
     unique()
 
 }

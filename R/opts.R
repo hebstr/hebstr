@@ -285,6 +285,7 @@ set_opts <- \(.default_font = "trebuchet ms",
              sep = "; ",
              label = "95%CI",
              data = c("conf.low", "conf.high")),
+      acro = acro(),
       digits =
         list(all_continuous() ~ c(1, .label$n, .label$n),
              all_categorical() ~ c(0, .label$p)),
@@ -322,7 +323,8 @@ set_opts <- \(.default_font = "trebuchet ms",
                          ext = " ; "),
                   ci =
                     list(sep = " ; ",
-                         label = "IC95%"))
+                         label = "IC95%"),
+                  acro = acro())
 
   }
 
