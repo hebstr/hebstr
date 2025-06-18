@@ -308,7 +308,7 @@ set_opts <- \(.default_font = "trebuchet ms",
     .opts_set <-
     .opts_set |> 
       list_modify(qt_stat =
-                    list(median = c("M\u00b9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
+                    list(median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
                          mean = c("Moyenne\u00b1SD" = "{mean}\u00b1{sd}")),
                   labs = 
                     list(sex = list(m = "Hommes", f = "Femmes"),
