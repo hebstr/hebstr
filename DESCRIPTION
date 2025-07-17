@@ -2,13 +2,16 @@ Package: hebstr
 Title: Fonctions perso
 Version: 0.0.0.9000
 Authors@R: 
-    person("Henry", "Bostorrhus", , "ju.diez@protonmail.com", role = c("aut", "cre"))
+    person("Julien", "ELICES-DIEZ", , "ju.diez@protonmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0001-3983-5713"))
 Description: Stockage de fonctions perso.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Imports: 
+Depends:
+    R (>= 4.1.0)
+Suggests: 
     broom,
     broom.helpers,
     cli,
@@ -30,7 +33,6 @@ Imports:
     magick,
     magrittr,
     parsnip,
-    png,
     purrr,
     reactable,
     rlang,
