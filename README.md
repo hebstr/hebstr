@@ -10,7 +10,6 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 ## Installation
 
 ``` r
-# install.packages("git2r")
-# install.packages("devtools")
-devtools::install_git("https://codeberg.org/hebstr/hebstr")
+#install.packages("pak")
+pak::pkg_install("git::https://codeberg.org/hebstr/hebstr", dependencies = TRUE)
 ```

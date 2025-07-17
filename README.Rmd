@@ -19,11 +19,8 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-```{r}
-#| eval: false
-
-# install.packages("git2r")
-# install.packages("devtools")
-devtools::install_git("https://codeberg.org/hebstr/hebstr")
+```r
+#install.packages("pak")
+pak::pkg_install("git::https://codeberg.org/hebstr/hebstr", dependencies = TRUE)
 ```
 
