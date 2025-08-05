@@ -580,3 +580,61 @@ gt_qmd <- \(data,
               locations = cells_column_labels())
   
 }
+
+#' Title
+#'
+#' @param x arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples "arg"
+#' 
+glue_qmd <- \(x) {
+  
+  glue(x, .open = "<<", .close = ">>", .envir = parent.frame())
+  
+}
+
+#' Title
+#'
+#' @param src arg
+#' @param lang arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples "arg"
+#' 
+include_code_file <- \(src, lang = "r") {
+  
+  glue_qmd("
+  ```{.<<lang>> include='<<src>>' code-line-numbers='true'}
+  ```
+  ")
+  
+}
+
+#' Title
+#'
+#' @param src arg
+#' @param name arg
+#' @param lang arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples "arg"
+#' 
+add_code_file <- \(src, name = NULL, lang = "r") {
+  
+  if (is.null(name)) name <- str_remove(src, ".+/")
+  
+  glue_qmd("
+  ::: {add-from=<<src>> code-line-numbers='true' code-filename=<<name>>}
+  ```<<lang>>
+  ```
+  :::
+  ")
+  
+}

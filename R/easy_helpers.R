@@ -594,16 +594,18 @@ cooksd <- \(model,
 flow_filter <- \(data, ...) {
   
   .exprs <- exprs(...)
-  .exprs <- if (!is_named(.exprs)) set_names(.exprs) else .exprs
+  
+  if (!is_named(.exprs)) .exprs <- set_names(.exprs)
+  
+  .data <- if ("tbl_conn" %in% class(data)) collect(data) else data
   
   .flow <-
   .exprs |>
-    accumulate(~ filter(.x, !!.y), .init = data) |>
-    map(~ glue("{nrow(.)} ({label_p()(nrow(.) / nrow(data))})"))
+    accumulate(~ filter(.x, !!.y), .init = .data) |>
+    map(~ glue("{nrow(.)} ({label_p()(nrow(.) / nrow(.data))})"))
   
-  assign("flow", .flow, envir = .GlobalEnv)
-    
-  data |> filter(!!!unname(.exprs))
+  list(data = .data |> filter(!!!unname(.exprs)),
+       flow = .flow)
   
 }
 
