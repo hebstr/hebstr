@@ -645,3 +645,68 @@ label_p <- \(accuracy = 0.1,
                 ...)
   
 }
+
+#' Title
+#'
+#' @param x arg
+#' @param to_hash arg
+#' @param to_hide arg
+#' @param hash_trunc arg
+#' @param hide_pattern arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples arg
+#' 
+easy_ano <- \(x,
+              to_hash = NULL,
+              to_hide = NULL,
+              hash_trunc = 25,
+              hide_pattern = "---") {
+
+  .ano_hash_fun <- \(x_hash, to_hash) {
+
+    hash_trunc <- as.character(hash_trunc)
+
+    x_hash |>
+      mutate("{to_hash}" :=
+               get(to_hash) |>
+               rlang::hash() |>
+               str_remove_all(glue(".{{{hash_trunc}}}$")),
+             .by = all_of(to_hash))
+
+  }
+
+  .ano_hide_fun <- \(x_hide) {
+
+    x_hide |> mutate(across(matches(to_hide), ~ hide_pattern))
+
+  }
+
+  if (!is.null(to_hash)) {
+
+    .ano_data <-
+    names(x) |>
+      str_subset(to_hash |> paste(collapse = "|")) |>
+      reduce(.ano_hash_fun, .init = x)
+
+    if (!is.null(to_hide)) {
+
+      .ano_data <- .ano_hide_fun(.ano_data)
+
+    }
+
+  } else if (!is.null(to_hide)) {
+
+    .ano_data <- .ano_hide_fun(x)
+
+  } else {
+
+    .ano_data <- x
+
+  }
+
+  return(.ano_data)
+
+}
