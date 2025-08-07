@@ -710,3 +710,108 @@ easy_ano <- \(x,
   return(.ano_data)
 
 }
+
+#' Title
+#'
+#' @param x arg
+#' @param sheet arg
+#' @param ... arg
+#' @param data arg
+#' @param width arg
+#' @param halign arg
+#' @param font_size arg
+#' @param font_color arg
+#' @param concept_var arg
+#' @param concept_color arg
+#' @param text_var arg
+#' @param text_color arg
+#' @param border_color arg
+#' @param border_type arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples arg
+#' 
+wb_add_custom <- \(x,
+                   sheet,
+                   ...,
+                   data,
+                   width = "auto",
+                   halign = "center",
+                   font_size = 8,
+                   font_color = "#222222",
+                   concept_var = "concept",
+                   concept_color = NULL,
+                   text_var = with(config, text),
+                   text_color = NULL,
+                   border_color = "#999999",
+                   border_type = "thin") {
+
+  .xlsx_output <-
+  x |>
+    wb_add_worksheet(sheet = sheet,
+                     zoom = 105,
+                     ...) |>
+    wb_add_data_table(x = data,
+                      na.strings = NULL) |>
+    wb_add_font(dims = wb_dims(x = data, select = "col_names"),
+                size = font_size + 1,
+                bold = TRUE) |>
+    wb_add_font(dims = wb_dims(x = data, select = "data"),
+                size = font_size) |>
+    wb_add_fill(dims = wb_dims(x = data, select = "col_names"),
+                color = wb_color("grey90")) |>
+    wb_set_col_widths(cols = 1:ncol(data), widths = width) |>
+    wb_add_cell_style(dims = wb_dims(x = data),
+                      horizontal = halign,
+                      vertical = "center",
+                      wrap_text = TRUE) |>
+    wb_add_border(dims = wb_dims(x = data),
+                  top_color = wb_color(border_color),
+                  top_border = border_type,
+                  bottom_color = wb_color(border_color),
+                  bottom_border = border_type,
+                  left_color = wb_color(border_color),
+                  left_border = border_type,
+                  right_color = wb_color(border_color),
+                  right_border = border_type,
+                  inner_hcolor = wb_color(border_color),
+                  inner_hgrid = border_type,
+                  inner_vcolor = wb_color(border_color),
+                  inner_vgrid = border_type)
+
+  .add_font <- \(wb, vars, color) {
+
+    wb_add_font(wb = wb,
+                dims =
+                  wb_dims(x = data,
+                          cols = vars,
+                          select = "data"),
+                color = wb_color(color),
+                size = font_size,
+                bold = TRUE)
+
+  }
+
+  if (!is.null(concept_color)) {
+
+    .xlsx_output <-
+    .add_font(.xlsx_output,
+              concept_var,
+              concept_color)
+
+  }
+
+  if (!is.null(text_color)) {
+
+    .xlsx_output <-
+    .add_font(.xlsx_output,
+              text_var,
+              text_color)
+
+  }
+
+  return(.xlsx_output)
+
+}
