@@ -79,7 +79,7 @@ easy_out <- \(x,
 
     gtsave(x, filename = to_html)
 
-    if (!.quiet) browseURL(glue("{getwd()}/{to_html}"))
+    if (!.quiet) browseURL(to_html)
 
     cli_progress_step("Capturing HTML to PNG")
 
@@ -101,7 +101,7 @@ easy_out <- \(x,
     
     .plot <-
     capturePlot(expr = x,
-                filename = glue("{getwd()}/{to_svg}"),
+                filename = to_svg,
                 grDevices::svg,
                 height = size[1],
                 width = size[2])
@@ -109,8 +109,9 @@ easy_out <- \(x,
     if (!.quiet) browseURL(.plot)
 
     cli_progress_step("Capturing SVG to PNG")
-
-    image_read_svg(to_svg, height = px) |>
+    
+    to_svg |> 
+      image_read_svg(height = px) |>
       image_write(to_png, format = "png")
 
     cli_progress_done()
@@ -123,8 +124,8 @@ easy_out <- \(x,
   cli_alert_info("{.strong Destination}")
   cli_ul()
   cli_ul()
-    cli_li("Working directory: {.path {getwd()}}")
-    cli_li("Filename: {cli::col_br_red(path)}")
+    cli_li("Répertoire : {.path {dir}}")
+    cli_li("Filename : {cli::col_br_red(filename)}")
     cli_end()
   cli_text("\n\n")
   cli_rule()
