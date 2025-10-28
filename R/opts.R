@@ -96,6 +96,41 @@ lang_fr <- \(reset = FALSE) {
   
 }
 
+#' Title
+#'
+#' @param data arg
+#' @param .parametric arg
+#' @param ... arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples arg
+#' 
+use_vars <- \(data, .parametric = check_opts(opts$parametric), ...) {
+  
+  assign(".vars_context", new.env(parent = emptyenv()), envir = global_env())
+  
+  .vars_context$current <- easy_descr(data, .parametric, ...)
+  
+  return(data)
+
+}
+
+#' Title
+#'
+#' @param env arg
+#'
+#' @returns arg
+#' @export
+#'
+#' @examples arg
+#' 
+clear_vars <- \(env = ".vars_context") {
+
+  if (exists(env)) rm(list = env, envir = global_env())
+
+}
 
 #' Configurer les options globales pour l'analyse statistique et la visualisation
 #'
@@ -327,10 +362,10 @@ set_opts <- \(.default_font = "trebuchet ms",
                   acro = acro())
 
   }
-
-  .vars <- \(...) {
   
-    data <- easy_descr(...)
+  .vars <- \(...) {
+    
+    data <- .vars_context$current
   
     cap <- \(x) str_cap(tolower, names(x))
     

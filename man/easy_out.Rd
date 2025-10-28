@@ -6,7 +6,7 @@
 \usage{
 easy_out(
   x,
-  filename = NULL,
+  filename = enexpr(x),
   dir = "output",
   suffix = NULL,
   width = NA,

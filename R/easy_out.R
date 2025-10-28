@@ -17,7 +17,7 @@
 #' @examples "arg"
 #'
 easy_out <- \(x,
-              filename = NULL,
+              filename = enexpr(x),
               dir = "output",
               suffix = NULL,
               width = NA,
@@ -30,16 +30,15 @@ easy_out <- \(x,
   cli_h1("easy_out")
   cli_text("\n\n")
   
-  if (is.null(filename)) {
-    
-    filename <- enexpr(x)
-    
-  } else cli_progress_step("Creating {.strong {filename}}")
+  cli_progress_step("Creating {.strong {filename}}")
   
-  if (!TRUE %in% str_detect(class(x), "tbl|gg")) {
+  if (!(inherits(x, "gg") || inherits(x, "gt_tbl") || inherits(x, "gtsummary"))) {
 
-    cli_abort("{.strong {filename}} must be a gt/gtsummary object or a ggplot object")
-
+    cli_abort(
+      c("{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
+        "i" = "Received object of class: {.cls {class(x)}}")
+    )
+    
   }
 
   if (!is.null(suffix)) filename <- glue("{filename}_", suffix)
@@ -59,7 +58,7 @@ easy_out <- \(x,
 
 ### TAB -------------------------------------------------------------------------
 
-  if (TRUE %in% str_detect(class(x), "tbl")) {
+  if (inherits(x, "gt_tbl") || inherits(x, "gtsummary")) {
     
     if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
     
@@ -93,7 +92,7 @@ easy_out <- \(x,
 
 ### PLOT -------------------------------------------------------------------------
 
-  } else if ("gg" %in% class(x)) {
+  } else if (inherits(x, "gg")) {
 
     if (!rlang::is_installed("rsvg")) install.packages("rsvg", quiet = TRUE)
     
@@ -131,7 +130,6 @@ easy_out <- \(x,
   cli_rule()
 
 }
-
 
 #' Title
 #'
