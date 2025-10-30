@@ -273,26 +273,28 @@
 #' @examples "arg"
 #'
 gtsum_format <- \(x,
-                  label_header = NULL,
+                  label_header = check_opts(labs$header),
+                  label_overall = check_opts(labs$overall),
                   label_reference = "Reference",
                   label_n = if (.event(x)) "Events/Obs" else "Obs",
                   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
-                  label_overall = NULL,
                   label_stat = NULL,
                   bold_p = 0,
                   adj_acro = "a",
                   adj_label = if (getOption("OutDec") == ".") "adjusted {label}" else "{label} ajust\u00e9",
                   estim_acro = NULL,
                   estim_label = NULL,
-                  ci,
+                  ci = check_opts(ci),
                   model_mv,
                   show_single_row = FALSE,
-                  ref_sep = "",
+                  ref_sep = check_opts(sep$int),
                   ref_no = "",
-                  estim_sep = ref_sep,
+                  estim_sep = check_opts(sep$int),
                   vargrp_levels = "",
                   indent = 4) {
 
+  clear_vars()
+  
   label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""
   label_stat <- if (!is.null(label_stat)) glue("**{label_stat}**") else ""
   

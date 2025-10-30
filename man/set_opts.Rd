@@ -4,7 +4,13 @@
 \alias{set_opts}
 \title{Configurer les options globales pour l'analyse statistique et la visualisation}
 \usage{
-set_opts(.default_font = "trebuchet ms", .assign = TRUE, ...)
+set_opts(
+  .default_font = "trebuchet ms",
+  .vars_envir = .vars_context$current,
+  .assign = TRUE,
+  .name = "opts",
+  ...
+)
 }
 \arguments{
 \item{.default_font}{Police de caractères par défaut à utiliser dans

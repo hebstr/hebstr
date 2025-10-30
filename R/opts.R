@@ -107,9 +107,9 @@ lang_fr <- \(reset = FALSE) {
 #'
 #' @examples arg
 #' 
-use_vars <- \(data, .parametric = check_opts(opts$parametric), ...) {
+use_vars <- \(data, .parametric = check_opts(parametric), ...) {
   
-  assign(".vars_context", new.env(parent = emptyenv()), envir = global_env())
+  assign(".vars_context", new.env(parent = emptyenv()), envir = globalenv())
   
   .vars_context$current <- easy_descr(data, .parametric, ...)
   
@@ -127,8 +127,10 @@ use_vars <- \(data, .parametric = check_opts(opts$parametric), ...) {
 #' @examples arg
 #' 
 clear_vars <- \(env = ".vars_context") {
-
-  if (exists(env)) rm(list = env, envir = global_env())
+  
+  env <- enexpr(env)
+  
+  if (exists(env, envir = globalenv())) rm(list = env, envir = globalenv())
 
 }
 
@@ -277,7 +279,9 @@ clear_vars <- \(env = ".vars_context") {
 #' 
 #' @export
 set_opts <- \(.default_font = "trebuchet ms",
+              .vars_envir = .vars_context$current,
               .assign = TRUE,
+              .name = "opts",
               ...) {
   
   dots <- lst(...)
@@ -294,7 +298,8 @@ set_opts <- \(.default_font = "trebuchet ms",
                        decimal.mark = getOption("OutDec")))
   
   .opts_set <-
-  lst(parametric = nullfile(),
+  lst(parametric = 
+        nullfile(),
       qt_stat =
         list(min = c("Min" = "{min}"),
              q1 = c("Q1" = "{p25}"),
@@ -320,7 +325,8 @@ set_opts <- \(.default_font = "trebuchet ms",
              sep = "; ",
              label = "95%CI",
              data = c("conf.low", "conf.high")),
-      acro = acro(),
+      acro = 
+        acro(),
       digits =
         list(all_continuous() ~ c(1, .label$n, .label$n),
              all_categorical() ~ c(0, .label$p)),
@@ -359,28 +365,27 @@ set_opts <- \(.default_font = "trebuchet ms",
                   ci =
                     list(sep = " ; ",
                          label = "IC95%"),
-                  acro = acro())
+                  acro = 
+                    acro())
 
   }
   
-  .vars <- \(...) {
-    
-    data <- .vars_context$current
+  .vars <- \(..., envir = .vars_envir) {
   
     cap <- \(x) str_cap(tolower, names(x))
     
     list(test =
-           list(data$qt$vars$parametric ~ "quanti.test.para",
-                data$qt$vars$nonparametric ~ "quanti.test.nonpara",
+           list(envir$qt$vars$parametric ~ "quanti.test.para",
+                envir$qt$vars$nonparametric ~ "quanti.test.nonpara",
                 all_categorical() ~ "quali.test"),
          stat =
-           list(data$qt$vars$parametric ~ data$qt$stat$mean,
-                data$qt$vars$nonparametric ~ data$qt$stat$median,
-                all_categorical() ~ data$ql$stat$n),
+           list(envir$qt$vars$parametric ~ envir$qt$stat$mean,
+                envir$qt$vars$nonparametric ~ envir$qt$stat$median,
+                all_categorical() ~ envir$ql$stat$n),
          label =
-           list(data$qt$vars$parametric ~ cap(data$qt$stat$mean),
-                data$qt$vars$nonparametric ~ cap(data$qt$stat$median),
-                all_categorical() ~ cap(data$ql$stat$n)))
+           list(envir$qt$vars$parametric ~ cap(envir$qt$stat$mean),
+                envir$qt$vars$nonparametric ~ cap(envir$qt$stat$median),
+                all_categorical() ~ cap(envir$ql$stat$n)))
     
   }
   
@@ -393,17 +398,12 @@ set_opts <- \(.default_font = "trebuchet ms",
     
   }
 
-  .opts <- list_modify(.opts_set, !!!dots)
-  
-  if (.assign) {
-    
-    assign("opts", .opts, envir = .GlobalEnv)
-    
-  } else opts <- .opts
+  opts <- .opts_set
   
   opts <-
   opts |>
-    list_modify(vars = \(x) .vars(x, !!!with(opts, list(parametric, qt_stat, ql_stat))),
+    list_modify(vars =
+                  .vars(!!!with(opts, list(parametric, qt_stat, ql_stat))),
                 qt_stat_wide =
                   opts$qt_stat |> 
                     list_modify(median =
@@ -411,24 +411,25 @@ set_opts <- \(.default_font = "trebuchet ms",
                                           str_remove(opts$qt_stat$median, "\\s.+")) |> 
                                     unlist()) |>
                     list_c(),
-                ci = .ci(!!!opts$ci),
+                ci = 
+                  .ci(!!!opts$ci),
                 font = 
                   list(alpha = .fonts(opts$font[[1]]),
                        digit = .fonts(opts$font[[2]])),
-                gt = 
-                  lst(acro_list = opts$acro,
-                      acro_sep = opts$sep$ext,
-                      alpha = .fonts(opts$font[[1]]),
-                      digit = .fonts(opts$font[[2]]),
-                      color = opts$color$cold[1],
-                      docx = if (exists("docx")) docx else FALSE)) |> 
+                !!!dots) |> 
     inject()
 
   if (identical(opts$font[[1]], opts$font[[2]])) opts$font <- opts$font[[1]]
   
-  if (.assign) assign("opts", opts, envir = .GlobalEnv)
-  
-  return(opts)
+  if (.assign) {
+    
+    assign(.name, opts, envir = .GlobalEnv)
+    
+  } else {
+    
+    return(get(.name))
+    
+  }
 
 }
 
@@ -482,18 +483,20 @@ set_opts <- \(.default_font = "trebuchet ms",
 #' @family fonctions utilitaires
 #' 
 #' @export
-check_opts <- \(x) {
+check_opts <- \(x, .name = "opts") {
   
-  if (exists("opts")) { 
+  if (exists(.name)) { 
     
-    with(opts, eval(enexpr(x)))
+    with(get(.name), eval(enexpr(x)))
     
   }
   
   else {
     
-    cli_abort(c("L'objet {.strong opts} n'existe pas dans l'environnement global",
-                i = "Initialiser {.strong opts} avec {.fun set_opts}"))
+    cli_abort(
+      c("L'objet {.strong { .name }} n'existe pas dans l'environnement global",
+        i = "Créer {.strong { .name }} avec {.fun set_opts}")
+    )
     
   }
 

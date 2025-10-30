@@ -7,10 +7,10 @@
 theme_gt(
   x,
   width = NULL,
-  alpha = check_fonts(.auto = "luciole"),
-  digit = check_fonts(.auto = "luciole"),
+  alpha = check_opts(font),
+  digit = check_opts(font),
   base = "#333333",
-  color = "lightgrey",
+  color = check_opts(color$cold[1]),
   bg = "white",
   row_padding = 8,
   title_align = "left",
@@ -22,7 +22,6 @@ theme_gt(
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
-  docx = if (exists("docx")) docx else FALSE,
   ...
 )
 }
@@ -61,9 +60,9 @@ theme_gt(
 
 \item{footnote_padding}{arg}
 
-\item{docx}{arg}
-
 \item{...}{arg}
+
+\item{docx}{arg}
 }
 \value{
 arg

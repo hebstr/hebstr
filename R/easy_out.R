@@ -27,6 +27,8 @@ easy_out <- \(x,
               assign = TRUE,
               .quiet = if (exists("quiet")) quiet else FALSE) {
 
+  clear_vars()
+  
   cli_h1("easy_out")
   cli_text("\n\n")
   

@@ -4,7 +4,7 @@
 \alias{use_vars}
 \title{Title}
 \usage{
-use_vars(data, .parametric = check_opts(opts$parametric), ...)
+use_vars(data, .parametric = check_opts(parametric), ...)
 }
 \arguments{
 \item{data}{arg}

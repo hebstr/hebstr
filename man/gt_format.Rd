@@ -11,8 +11,8 @@ gt_format(
   note_pvalue = NULL,
   label_vargrp = NULL,
   note_vargrp = NULL,
-  acro_list,
-  acro_sep,
+  acro_list = check_opts(acro),
+  acro_sep = check_opts(sep$ext),
   zero_replace = "^0\\\\s",
   ...
 )

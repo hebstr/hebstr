@@ -6,23 +6,23 @@
 \usage{
 gtsum_format(
   x,
-  label_header = NULL,
+  label_header = check_opts(labs$header),
+  label_overall = check_opts(labs$overall),
   label_reference = "Reference",
   label_n = if (.event(x)) "Events/Obs" else "Obs",
   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
-  label_overall = NULL,
   label_stat = NULL,
   bold_p = 0,
   adj_acro = "a",
   adj_label = if (getOption("OutDec") == ".") "adjusted {label}" else "{label} ajusté",
   estim_acro = NULL,
   estim_label = NULL,
-  ci,
+  ci = check_opts(ci),
   model_mv,
   show_single_row = FALSE,
-  ref_sep = "",
+  ref_sep = check_opts(sep$int),
   ref_no = "",
-  estim_sep = ref_sep,
+  estim_sep = check_opts(sep$int),
   vargrp_levels = "",
   indent = 4
 )
@@ -32,13 +32,13 @@ gtsum_format(
 
 \item{label_header}{arg}
 
+\item{label_overall}{arg}
+
 \item{label_reference}{arg}
 
 \item{label_n}{arg}
 
 \item{stat_n}{arg}
-
-\item{label_overall}{arg}
 
 \item{label_stat}{arg}
 

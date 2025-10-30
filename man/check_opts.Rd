@@ -4,7 +4,7 @@
 \alias{check_opts}
 \title{Vérifier et évaluer des options dans un environnement configuré}
 \usage{
-check_opts(x)
+check_opts(x, .name = "opts")
 }
 \arguments{
 \item{x}{Expression R à évaluer dans le contexte de l'objet \code{opts}.
