@@ -30,6 +30,8 @@ wb_add_custom(
 
 \item{data}{arg}
 
+\item{max_width}{arg}
+
 \item{halign}{arg}
 
 \item{font_size}{arg}
@@ -47,8 +49,6 @@ wb_add_custom(
 \item{border_color}{arg}
 
 \item{border_type}{arg}
-
-\item{width}{arg}
 }
 \value{
 arg

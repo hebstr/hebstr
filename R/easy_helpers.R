@@ -717,7 +717,7 @@ easy_ano <- \(x,
 #' @param sheet arg
 #' @param ... arg
 #' @param data arg
-#' @param width arg
+#' @param max_width arg
 #' @param halign arg
 #' @param font_size arg
 #' @param font_color arg
