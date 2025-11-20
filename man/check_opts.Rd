@@ -49,6 +49,7 @@ une liste nommée ou un environnement.
 }
 
 \examples{
+\dontrun{
 # Initialisation de opts dans l'environnement global
 set_opts()
 
@@ -59,6 +60,7 @@ check_opts(color)
 rm(opts, envir = .GlobalEnv)
 
 check_opts(color)  # Génère une erreur
-  
+}
+
 }
 \concept{fonctions utilitaires}

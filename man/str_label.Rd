@@ -33,39 +33,6 @@ Elle utilise également \code{var_label()} qui doit être disponible
 }
 
 \examples{
-# Créer un jeu de données avec étiquettes
-library(labelled)
-
-donnees <- data.frame(
-  age = c(25, 30, 35),
-  revenu = c(30000, 45000, 60000),
-  education = c("BAC", "Master", "Doctorat")
-)
-
-# Ajouter des étiquettes aux variables
-var_label(donnees$age) <- "Âge du répondant"
-var_label(donnees$revenu) <- "Revenu annuel en euros"
-var_label(donnees$education) <- "Niveau d'éducation"
-
-# Utilisation basique avec conjonction anglaise
-str_label(donnees, age, revenu)
-
-# Utilisation avec conjonction française
-str_label(donnees, age, revenu, education, last = "et")
-
-# Utilisation avec une seule variable
-str_label(donnees, age)
-
-# Application dans un contexte de rapport
-variables_demographie <- str_label(donnees, age, education, last = "et")
-message("Variables démographiques analysées : ", variables_demographie)
+"arg"
 
 }
-\seealso{
-\itemize{
-\item \code{\link[labelled:var_label]{labelled::var_label()}} pour l'attribution d'étiquettes aux variables
-\item \code{\link[stringr:str_flatten]{stringr::str_flatten_comma()}} pour la concaténation avec virgules
-\item \code{\link[purrr:map]{purrr::map_chr()}} pour l'application de fonctions sur des vecteurs
-}
-}
-\concept{fonctions d'étiquetage}

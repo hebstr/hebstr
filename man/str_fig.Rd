@@ -41,74 +41,7 @@ Cette fonction crée un titre de figure HTML formaté avec une note explicative
 et des acronymes en sous-titre. Elle adapte automatiquement le formatage selon
 le contexte de sortie (document standard ou Quarto Markdown).
 }
-\section{Formatage conditionnel }{
-
-La fonction adapte son comportement selon la valeur du paramètre \code{qmd}.
-Pour les documents standards (\code{qmd = FALSE}), elle utilise des styles
-CSS inline avec la taille de police spécifiée. Pour les documents
-Quarto (\code{qmd = TRUE}), elle applique une classe CSS pour s'intégrer
-au système de styles de Quarto.
-}
-
-\section{Interpolation de variables }{
-
-Les paramètres \code{title} et \code{note} supportent l'interpolation de variables
-via le package \code{glue}. Cette fonctionnalité permet d'insérer dynamiquement
-des valeurs dans les chaînes de caractères.
-}
-
 \examples{
-# Titre simple sans note
-str_fig("Évolution du PIB français (2010-2020)")
-
-# Titre avec note explicative
-str_fig(
-  title = "Distribution des revenus par région",
-  note = "Source : INSEE, enquête revenus fiscaux 2021.",
-  acro = "PIB : Produit Intérieur Brut"
-)
-
-# Adaptation pour Quarto Markdown
-str_fig(
-  title = "Analyse de régression linéaire",
-  note = "Données ajustées pour la saisonnalité.",
-  qmd = TRUE
-)
-
-# Utilisation avec interpolation de variables
-annee_ref <- 2021
-region <- "Île-de-France"
-str_fig(
-  title = "Données démographiques {region}",
-  note = "Période de référence : {annee_ref}",
-  acro = "INSEE : Institut National de la Statistique"
-)
-
-# Personnalisation de la taille de police
-str_fig(
-  title = "Graphique pour présentation",
-  note = "Note lisible en grand format",
-  sub_size = "10"
-)
-
-# Application dans un contexte de rapport automatisé
-titre_figure <- str_fig(
-  title = "Tendances macroéconomiques",
-  note = "Données trimestrielles corrigées des variations saisonnières.",
-  acro = "CVS : Corrigé des Variations Saisonnières"
-)
+"arg"
 
 }
-\references{
-Documentation Quarto sur les figures et légendes :
-\url{https://quarto.org/docs/authoring/figures.html}
-}
-\seealso{
-Other fonctions de formatage: 
-\code{\link{acro}()},
-\code{\link{acro_str}()},
-\code{\link{str_cap}()},
-\code{\link{str_color}()},
-\code{\link{str_u}()}
-}
-\concept{fonctions de formatage}

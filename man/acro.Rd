@@ -171,8 +171,6 @@ Documentation rlang sur la métaprogrammation tidyeval :
 Other fonctions de formatage: 
 \code{\link{acro_str}()},
 \code{\link{str_cap}()},
-\code{\link{str_color}()},
-\code{\link{str_fig}()},
 \code{\link{str_u}()}
 }
 \concept{fonctions de formatage}

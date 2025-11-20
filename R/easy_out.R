@@ -8,7 +8,7 @@
 #' @param height arg
 #' @param size arg
 #' @param px arg
-#' @param assign arg 
+#' @param assign arg
 #' @param .quiet arg
 #'
 #' @return arg
@@ -28,19 +28,19 @@ easy_out <- \(x,
               .quiet = if (exists("quiet")) quiet else FALSE) {
 
   clear_vars()
-  
+
   cli_h1("easy_out")
   cli_text("\n\n")
-  
+
   cli_progress_step("Creating {.strong {filename}}")
-  
+
   if (!(inherits(x, "gg") || inherits(x, "gt_tbl") || inherits(x, "gtsummary"))) {
 
     cli_abort(
       c("{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
         "i" = "Received object of class: {.cls {class(x)}}")
     )
-    
+
   }
 
   if (!is.null(suffix)) filename <- glue("{filename}_", suffix)
@@ -48,11 +48,11 @@ easy_out <- \(x,
   if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
 
   if (assign && !as.character(filename) %in% ls()) {
-    
+
     assign(as.character(filename), x, envir = .GlobalEnv)
-    
+
   }
-  
+
   path <- glue("{dir}/{filename}")
   to_html <- glue("{path}.html")
   to_svg <- glue("{path}.svg")
@@ -61,11 +61,11 @@ easy_out <- \(x,
 ### TAB -------------------------------------------------------------------------
 
   if (inherits(x, "gt_tbl") || inherits(x, "gtsummary")) {
-    
+
     if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
-    
+
     if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
-    
+
     if (!"gt_tbl" %in% class(x)) x <- as_gt(x)
 
     width <-
@@ -84,7 +84,7 @@ easy_out <- \(x,
 
     cli_progress_step("Capturing HTML to PNG")
 
-    to_html |> 
+    to_html |>
       webshot(file = to_png,
               vwidth = width + width / 10,
               vheight = 1,
@@ -97,9 +97,9 @@ easy_out <- \(x,
   } else if (inherits(x, "gg")) {
 
     if (!rlang::is_installed("rsvg")) install.packages("rsvg", quiet = TRUE)
-    
+
     cli_progress_step("Creating SVG file")
-    
+
     .plot <-
     capturePlot(expr = x,
                 filename = to_svg,
@@ -110,8 +110,8 @@ easy_out <- \(x,
     if (!.quiet) browseURL(.plot)
 
     cli_progress_step("Capturing SVG to PNG")
-    
-    to_svg |> 
+
+    to_svg |>
       image_read_svg(height = px) |>
       image_write(to_png, format = "png")
 
@@ -125,7 +125,7 @@ easy_out <- \(x,
   cli_alert_info("{.strong Destination}")
   cli_ul()
   cli_ul()
-    cli_li("Répertoire : {.path {dir}}")
+    cli_li("R\u00e9dpertoire : {.path {dir}}")
     cli_li("Filename : {cli::col_br_red(filename)}")
     cli_end()
   cli_text("\n\n")
@@ -138,7 +138,7 @@ easy_out <- \(x,
 #' @param data arg
 #' @param filename arg
 #' @param dir arg
-#' @param sep arg 
+#' @param sep arg
 #' @param size arg
 #'
 #' @return arg
@@ -155,13 +155,13 @@ easy_out_map <- \(data,
   if (is.null(filename)) filename <- enexpr(data)
 
   if (!is.list(data)) {
-    
+
     cli_abort("{.strong {filename}} must be a list of tables or figures")
-    
+
   }
 
-  data |> 
-    imap(~ easy_out(x = .x, 
+  data |>
+    imap(~ easy_out(x = .x,
                     filename = glue("{filename}{sep}{.y}"),
                     dir = dir,
                     size = size))

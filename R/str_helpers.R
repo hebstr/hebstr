@@ -30,20 +30,20 @@
 #' @examples
 #' # Chargement préalable requis
 #' library(stringr)
-#' 
+#'
 #' # Construction d'un pattern pour départements français
 #' depts_idf <- str_u("75", "77", "78", "91", "92", "93", "94", "95")
 #' depts_idf
-#' 
+#'
 #' # Application pour filtrer des codes postaux
 #' codes_postaux <- c("75001", "69001", "77300", "78000", "13001")
 #' str_detect(codes_postaux, paste0("^(", depts_idf, ")"))
-#' 
+#'
 #' # Pattern pour extensions de fichiers bureautiques
 #' extensions_office <- str_u("xlsx", "docx", "pptx", "pdf")
 #' fichiers_projet <- c("rapport.docx", "donnees.xlsx", "image.png", "presentation.pptx")
 #' str_detect(fichiers_projet, paste0("\\.(", extensions_office, ")$"))
-#' 
+#'
 #' # Validation de statuts administratifs
 #' statuts_valides <- str_u("actif", "suspendu", "en_attente", "archivé")
 #' base_utilisateurs <- data.frame(
@@ -51,9 +51,9 @@
 #'   statut = c("actif", "invalide", "en_attente", "archivé")
 #' )
 #' utilisateurs_conformes <- base_utilisateurs[
-#'   str_detect(base_utilisateurs$statut, paste0("^(", statuts_valides, ")$")), 
+#'   str_detect(base_utilisateurs$statut, paste0("^(", statuts_valides, ")$")),
 #' ]
-#' 
+#'
 #' # Recherche de terminologie économique
 #' indicateurs_macro <- str_u("PIB", "inflation", "chômage", "croissance", "déficit")
 #' titres_etudes <- c(
@@ -65,14 +65,14 @@
 #' etudes_economiques <- titres_etudes[
 #'   str_detect(titres_etudes, regex(indicateurs_macro, ignore_case = TRUE))
 #' ]
-#' 
+#'
 #' # Construction de patterns pour validation de données
 #' formats_date <- str_u("\\d{2}/\\d{2}/\\d{4}", "\\d{4}-\\d{2}-\\d{2}", "\\d{2}-\\d{2}-\\d{4}")
 #' dates_saisies <- c("01/01/2023", "2023-12-31", "31-12-2023", "invalide")
 #' dates_valides <- dates_saisies[str_detect(dates_saisies, paste0("^(", formats_date, ")$"))]
 #'
 #' @family fonctions de formatage
-#' @seealso 
+#' @seealso
 #' * [stringr::str_c()] pour la concaténation de chaînes de caractères
 #'
 #' @references
@@ -81,9 +81,9 @@
 #'
 #' @export
 str_u <- \(...) {
-  
+
   str_c(c(...), collapse = "|")
-  
+
 }
 
 #' Formater du texte avec couleurs et styles HTML intégrés
@@ -107,77 +107,7 @@ str_u <- \(...) {
 #'   les styles CSS appliqués via attribut `style` et la syntaxe Markdown
 #'   pour l'emphase en gras.
 #'
-#' @section Formats de couleurs supportés :
-#' La fonction accepte tous les formats de spécification des couleurs
-#' reconnus par les standards CSS3. Les noms CSS standard (red, blue, green,
-#' navy, darkgreen), les codes hexadécimaux (#FF0000, #0000FF, #00FF00),
-#' les valeurs RGB (rgb(255,0,0)) et RGBA (rgba(255,0,0,0.8)) sont
-#' entièrement supportés. Le canal alpha dans les codes hexadécimaux
-#' à 8 caractères permet de contrôler la transparence.
-#'
-#' @section Intégration dans les documents :
-#' Le code HTML généré s'intègre parfaitement dans les documents R Markdown,
-#' Quarto, les applications Shiny et les rapports HTML dynamiques. La syntaxe
-#' Markdown combinée (`**texte**`) garantit un rendu en gras compatible
-#' avec la plupart des moteurs de rendu Markdown modernes.
-#'
-#' @section Recommandations d'accessibilité :
-#' Pour garantir l'accessibilité des documents produits, respectez les
-#' directives WCAG concernant les contrastes de couleurs. Utilisez des
-#' combinaisons de couleurs offrant un contraste suffisant et évitez
-#' de transmettre des informations uniquement par la couleur.
-#'
-#' @examples
-#' # Formatage basique avec couleur rouge par défaut
-#' str_color("Attention importante")
-#' 
-#' # Utilisation avec des couleurs CSS nommées
-#' str_color("Information validée", color = "green")
-#' str_color("Statut en attente", color = "orange")
-#' 
-#' # Application de couleurs avec codes hexadécimaux
-#' str_color("Données critiques", color = "#DC143C", bg = "#FFF8DC")
-#' str_color("Résultats finalisés", color = "#006400", bg = "#F0FFF0")
-#' 
-#' # Utilisation de couleurs RGBA avec transparence
-#' str_color("Alerte système", 
-#'           color = "white", 
-#'           bg = "rgba(220, 20, 60, 0.8)")
-#' 
-#' # Interpolation dynamique avec glue
-#' niveau_alerte <- "élevé"
-#' message_alerte <- str_color("Niveau de risque : {niveau_alerte}", 
-#'                            color = "darkred")
-#' 
-#' # Application dans un contexte de tableau de bord
-#' taux_reussite <- 95.2
-#' couleur_performance <- if (taux_reussite >= 90) "green" else "red"
-#' indicateur <- str_color("Taux : {round(taux_reussite, 1)}%", 
-#'                        color = couleur_performance)
-#' 
-#' # Mise en évidence de valeurs dans un rapport
-#' budget_depassement <- 15000
-#' alerte_budget <- str_color(
-#'   "Dépassement budgétaire : {format(budget_depassement, big.mark = ' ')} €",
-#'   color = "#B22222",
-#'   bg = "#FFE4E1"
-#' )
-#' 
-#' # Utilisation pour catégoriser des résultats
-#' resultats_analyses <- c("Conforme", "Non-conforme", "À vérifier")
-#' couleurs_statuts <- c("green", "red", "orange")
-#' statuts_formates <- map2_chr(resultats_analyses, couleurs_statuts,
-#'                             ~ str_color(.x, color = .y))
-#' 
-#' # Application dans la communication de données scientifiques
-#' significativite <- 0.03
-#' seuil_alpha <- 0.05
-#' resultat_test <- str_color(
-#'   "p-value = {significativite} (significatif)",
-#'   color = if (significativite < seuil_alpha) "green" else "red"
-#' )
-#'
-#' @family fonctions de formatage
+#' @examples "arg"
 #'
 #' @export
 str_color <- \(text,
@@ -213,64 +143,7 @@ str_color <- \(text,
 #' @return Une chaîne de caractères contenant le HTML formaté du titre
 #'   de figure avec sa note et ses acronymes.
 #'
-#' @section Formatage conditionnel :
-#' La fonction adapte son comportement selon la valeur du paramètre `qmd`.
-#' Pour les documents standards (`qmd = FALSE`), elle utilise des styles
-#' CSS inline avec la taille de police spécifiée. Pour les documents
-#' Quarto (`qmd = TRUE`), elle applique une classe CSS pour s'intégrer
-#' au système de styles de Quarto.
-#'
-#' @section Interpolation de variables :
-#' Les paramètres `title` et `note` supportent l'interpolation de variables
-#' via le package `glue`. Cette fonctionnalité permet d'insérer dynamiquement
-#' des valeurs dans les chaînes de caractères.
-#'
-#' @examples
-#' # Titre simple sans note
-#' str_fig("Évolution du PIB français (2010-2020)")
-#' 
-#' # Titre avec note explicative
-#' str_fig(
-#'   title = "Distribution des revenus par région",
-#'   note = "Source : INSEE, enquête revenus fiscaux 2021.",
-#'   acro = "PIB : Produit Intérieur Brut"
-#' )
-#' 
-#' # Adaptation pour Quarto Markdown
-#' str_fig(
-#'   title = "Analyse de régression linéaire",
-#'   note = "Données ajustées pour la saisonnalité.",
-#'   qmd = TRUE
-#' )
-#' 
-#' # Utilisation avec interpolation de variables
-#' annee_ref <- 2021
-#' region <- "Île-de-France"
-#' str_fig(
-#'   title = "Données démographiques {region}",
-#'   note = "Période de référence : {annee_ref}",
-#'   acro = "INSEE : Institut National de la Statistique"
-#' )
-#' 
-#' # Personnalisation de la taille de police
-#' str_fig(
-#'   title = "Graphique pour présentation",
-#'   note = "Note lisible en grand format",
-#'   sub_size = "10"
-#' )
-#' 
-#' # Application dans un contexte de rapport automatisé
-#' titre_figure <- str_fig(
-#'   title = "Tendances macroéconomiques",
-#'   note = "Données trimestrielles corrigées des variations saisonnières.",
-#'   acro = "CVS : Corrigé des Variations Saisonnières"
-#' )
-#'
-#' @family fonctions de formatage
-#'
-#' @references
-#' Documentation Quarto sur les figures et légendes :
-#' \url{https://quarto.org/docs/authoring/figures.html}
+#' @examples "arg"
 #'
 #' @export
 str_fig <- \(title,
@@ -279,26 +152,26 @@ str_fig <- \(title,
              sub_size = "7.5",
              qmd = FALSE,
              class = "quarto-float-subcaption") {
-  
+
   title <- glue(title)
   note <- glue(note)
 
   if (!qmd) {
-    
+
     .str <-
     glue("{title}<br>
          <span style='font-size:{sub_size}pt'>{note} {acro}</span>")
-    
+
   } else {
-    
+
     .str <-
     glue("{title}<br>
          <span class='{class}'>{note} {acro}</span>")
-    
+
   }
 
   return(.str)
-  
+
 }
 
 #' Concaténer les étiquettes de variables avec formatage grammatical
@@ -322,43 +195,11 @@ str_fig <- \(title,
 #' Elle utilise également `var_label()` qui doit être disponible
 #' (typiquement via le package `labelled`).
 #'
-#' @examples
-#' # Créer un jeu de données avec étiquettes
-#' library(labelled)
-#' 
-#' donnees <- data.frame(
-#'   age = c(25, 30, 35),
-#'   revenu = c(30000, 45000, 60000),
-#'   education = c("BAC", "Master", "Doctorat")
-#' )
-#' 
-#' # Ajouter des étiquettes aux variables
-#' var_label(donnees$age) <- "Âge du répondant"
-#' var_label(donnees$revenu) <- "Revenu annuel en euros"
-#' var_label(donnees$education) <- "Niveau d'éducation"
-#' 
-#' # Utilisation basique avec conjonction anglaise
-#' str_label(donnees, age, revenu)
-#' 
-#' # Utilisation avec conjonction française
-#' str_label(donnees, age, revenu, education, last = "et")
-#' 
-#' # Utilisation avec une seule variable
-#' str_label(donnees, age)
-#' 
-#' # Application dans un contexte de rapport
-#' variables_demographie <- str_label(donnees, age, education, last = "et")
-#' message("Variables démographiques analysées : ", variables_demographie)
-#'
-#' @family fonctions d'étiquetage
-#' @seealso 
-#' * [labelled::var_label()] pour l'attribution d'étiquettes aux variables
-#' * [stringr::str_flatten_comma()] pour la concaténation avec virgules
-#' * [purrr::map_chr()] pour l'application de fonctions sur des vecteurs
+#' @examples "arg"
 #'
 #' @export
 str_label <- \(data, ..., last = "and") {
-  
+
   c(...) |>
     map_chr(~ with(data, get(.)) |>
               var_label()) |>
@@ -397,35 +238,35 @@ str_label <- \(data, ..., last = "and") {
 #' @examples
 #' # Conversion du premier caractère en majuscule
 #' str_cap(toupper, "france")
-#' 
+#'
 #' # Conversion du premier caractère en minuscule
 #' str_cap(tolower, "PARIS")
-#' 
+#'
 #' # Application sur des phrases complètes
 #' str_cap(toupper, "analyse des données économiques")
 #' str_cap(tolower, "RAPPORT TRIMESTRIEL")
-#' 
+#'
 #' # Utilisation avec des chaînes contenant des caractères spéciaux
 #' str_cap(toupper, "émission de CO₂")
 #' str_cap(tolower, "ÉLÉVATION du niveau de la mer")
-#' 
+#'
 #' # Application dans un contexte de formatage de titres
 #' titres_bruts <- c("méthodologie statistique", "RÉSULTATS PRINCIPAUX")
 #' titres_formates <- sapply(titres_bruts, \(x) str_cap(toupper, x))
-#' 
+#'
 #' # Utilisation avec une fonction personnalisée
 #' inverser_casse <- function(char) {
 #'   if (char == toupper(char)) tolower(char) else toupper(char)
 #' }
 #' str_cap(inverser_casse, "Données")
 #' str_cap(inverser_casse, "données")
-#' 
+#'
 #' # Application pour standardiser des noms propres
 #' noms_regions <- c("île-de-france", "NORMANDIE", "provence-alpes-côte d'azur")
 #' noms_standardises <- sapply(noms_regions, \(x) str_cap(toupper, x))
 #'
 #' @family fonctions de formatage
-#' @seealso 
+#' @seealso
 #' * [stringr::str_to_title()] pour la conversion en casse de titre
 #'
 #' @export

@@ -78,6 +78,7 @@ une exécution complète de la configuration.
 }
 
 \examples{
+\dontrun{
 # Configuration basique avec paramètres par défaut
 config_analyse <- set_opts()
 
@@ -130,7 +131,6 @@ set_opts()
 
 # Application des configurations de test statistique
 # (nécessite l'écosystème gtsummary)
-\dontrun{
 library(gtsummary)
 mpg |>
   select(cty, hwy, class, drv) |>
@@ -138,7 +138,6 @@ mpg |>
     statistic = opts$qt_stat,
     digits = opts$digits
   )
-}
 
 # Configuration pour production de rapports
 set_opts(
@@ -156,6 +155,7 @@ opts$font$digit
 # Démonstration des séparateurs configurés
 opts$sep$int  # Séparateur interne
 opts$sep$ext  # Séparateur externe
+}
 
 }
 \references{

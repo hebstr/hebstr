@@ -52,36 +52,38 @@
 #' des graphiques dans un contexte de reporting automatisé.
 #'
 #' @examples
+#' \dontrun{
 #' library(ggplot2)
 #' library(dplyr)
-#' 
+#'
 #' # Utilisation avec le dataset mpg (ggplot2)
 #' ggcount(data = mpg,
 #'         var = "class")
-#'         
+#'
 #' # Utilisation dans un pipeline d'analyse avec filtrage
 #' mpg |>
 #'   filter(year == 2008) |>
-#'   ggcount(var = "class", 
+#'   ggcount(var = "class",
 #'           color = "#0099FF")
-#'           
+#'
 #' # Personnalisation avancée des étiquettes
-#' mpg |> 
+#' mpg |>
 #'   ggcount(var = "fl",
 #'           color = "#FF0000",
 #'           size = 3.5,
 #'           fontface = "bold",
 #'           grid = FALSE)
-#'           
+#'
 #' # Analyse de données avec distribution déséquilibrée
 #' storms |>
 #'   filter(year >= 2010) |>
 #'   mutate(status = forcats::fct_infreq(status)) |>
 #'   ggcount(var = "status",
 #'           pct_min = 0.1)
+#'}
 #'
 #' @family fonctions de visualisation
-#' @seealso 
+#' @seealso
 #' * [ggplot2::geom_bar()] pour les graphiques en barres de base
 #' * [ggplot2::geom_text()] pour l'ajout d'étiquettes textuelles
 #' * [labelled::var_label()] pour la gestion des étiquettes de variables
@@ -111,7 +113,7 @@ ggcount <- \(data,
               family = family,
               ...) +
     geom_text(data = ~ pct_min(., var, pct_min),
-              mapping = 
+              mapping =
                 aes(y = after_stat(count - nudge_y * max(count)),
                     label = label_p()(after_stat(count) / nrow(data)),
                     color = after_scale(fill |> lighten(0.95))),

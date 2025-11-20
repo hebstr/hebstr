@@ -16,6 +16,6 @@ arg
 Title
 }
 \examples{
-arg
+"arg"
 
 }

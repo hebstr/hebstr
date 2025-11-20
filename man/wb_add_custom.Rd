@@ -9,13 +9,13 @@ wb_add_custom(
   sheet,
   ...,
   data,
-  width = "auto",
+  max_width = 100,
   halign = "center",
   font_size = 8,
   font_color = "#222222",
-  concept_var = "concept",
+  concept_var = NULL,
   concept_color = NULL,
-  text_var = with(config, text),
+  text_var = NULL,
   text_color = NULL,
   border_color = "#999999",
   border_type = "thin"
@@ -29,8 +29,6 @@ wb_add_custom(
 \item{...}{arg}
 
 \item{data}{arg}
-
-\item{width}{arg}
 
 \item{halign}{arg}
 
@@ -49,6 +47,8 @@ wb_add_custom(
 \item{border_color}{arg}
 
 \item{border_type}{arg}
+
+\item{width}{arg}
 }
 \value{
 arg
@@ -57,6 +57,6 @@ arg
 Title
 }
 \examples{
-arg
+"arg"
 
 }

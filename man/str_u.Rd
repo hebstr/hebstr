@@ -64,7 +64,7 @@ base_utilisateurs <- data.frame(
   statut = c("actif", "invalide", "en_attente", "archivé")
 )
 utilisateurs_conformes <- base_utilisateurs[
-  str_detect(base_utilisateurs$statut, paste0("^(", statuts_valides, ")$")), 
+  str_detect(base_utilisateurs$statut, paste0("^(", statuts_valides, ")$")),
 ]
 
 # Recherche de terminologie économique
@@ -97,8 +97,6 @@ Documentation stringr pour les expressions régulières :
 Other fonctions de formatage: 
 \code{\link{acro}()},
 \code{\link{acro_str}()},
-\code{\link{str_cap}()},
-\code{\link{str_color}()},
-\code{\link{str_fig}()}
+\code{\link{str_cap}()}
 }
 \concept{fonctions de formatage}

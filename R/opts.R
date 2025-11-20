@@ -38,62 +38,62 @@
 #'
 #' @examples
 #' library(gtsummary)
-#' 
+#'
 #' # Activation de la typo française
 #' lang_fr()
-#' 
+#'
 #' # Vérification du formatage des nombres
 #' print(3.14159)
-#' 
+#'
 #' mean(mtcars$mpg)
-#' 
+#'
 #' mtcars |>
 #'   select(mpg, disp, hp) |>
 #'   tbl_summary()
-#' 
+#'
 #' # Restauration des paramètres en
 #' lang_fr(reset = TRUE)
-#' 
+#'
 #' # Vérification du retour aux paramètres par défaut
 #' print(3.14159)
-#' 
+#'
 #' mean(mtcars$mpg)
-#' 
+#'
 #' mtcars |>
 #'   select(mpg, disp, hp) |>
 #'   tbl_summary()
 #'
 #' @family fonctions de configuration
-#' @seealso 
+#' @seealso
 #' * [gtsummary::theme_gtsummary_language()] pour la configuration des tableaux
 #'
 #' @references
 #' Documentation gtsummary sur les thèmes et typographies :
 #' \url{https://www.danieldsjoberg.com/gtsummary/articles/themes.html}
-#' 
+#'
 #' @export
 lang_fr <- \(reset = FALSE) {
-  
+
   if (reset) {
-    
+
     options(OutDec = ".")
-  
+
     reset_gtsummary_theme()
-    
+
     cli_alert_info("Setting language: EN")
-    
+
   } else {
-  
+
     options(OutDec = ",")
-    
+
     suppressMessages(
       theme_gtsummary_language(language = "fr", big.mark = " ")
     )
-    
+
     cli_alert_info("Setting language: FR")
-    
+
   }
-  
+
 }
 
 #' Title
@@ -105,14 +105,14 @@ lang_fr <- \(reset = FALSE) {
 #' @returns arg
 #' @export
 #'
-#' @examples arg
-#' 
+#' @examples "arg"
+#'
 use_vars <- \(data, .parametric = check_opts(parametric), ...) {
-  
+
   assign(".vars_context", new.env(parent = emptyenv()), envir = globalenv())
-  
+
   .vars_context$current <- easy_descr(data, .parametric, ...)
-  
+
   return(data)
 
 }
@@ -124,12 +124,12 @@ use_vars <- \(data, .parametric = check_opts(parametric), ...) {
 #' @returns arg
 #' @export
 #'
-#' @examples arg
-#' 
+#' @examples "arg"
+#'
 clear_vars <- \(env = ".vars_context") {
-  
+
   env <- enexpr(env)
-  
+
   if (exists(env, envir = globalenv())) rm(list = env, envir = globalenv())
 
 }
@@ -189,16 +189,17 @@ clear_vars <- \(env = ".vars_context") {
 #' une exécution complète de la configuration.
 #'
 #' @examples
+#' \dontrun{
 #' # Configuration basique avec paramètres par défaut
 #' config_analyse <- set_opts()
-#' 
+#'
 #' # Vérification des paramètres statistiques configurés
 #' config_analyse$qt_stat$mean
 #' config_analyse$ql_stat$n
-#' 
+#'
 #' # Configuration avec police personnalisée
 #' set_opts(.default_font = "arial", .assign = FALSE)
-#' 
+#'
 #' # Personnalisation des étiquettes via arguments supplémentaires
 #' config_personnalise <- set_opts(
 #'   labs = list(
@@ -207,41 +208,40 @@ clear_vars <- \(env = ".vars_context") {
 #'   ),
 #'   .assign = FALSE
 #' )
-#' 
+#'
 #' # Utilisation avec données mtcars pour démonstration
 #' set_opts()
-#' 
+#'
 #' # Accès aux configurations de formatage numérique
 #' opts$digits
 #' opts$pvalue$format
-#' 
+#'
 #' # Configuration des couleurs et palettes
 #' opts$color$base
 #' opts$palette
-#' 
+#'
 #' # Démonstration des configurations d'intervalles de confiance
 #' opts$ci$label
 #' opts$ci$data
-#' 
+#'
 #' # Activation de la localisation française
 #' options(OutDec = ",")
 #' config_fr <- set_opts(.assign = FALSE)
-#' 
+#'
 #' # Vérification des adaptations linguistiques
 #' config_fr$labs$sex
 #' config_fr$qt_stat$median
-#' 
+#'
 #' # Restauration de la configuration anglaise
 #' options(OutDec = ".")
 #' config_en <- set_opts(.assign = FALSE)
 #' config_en$labs$sex
-#' 
+#'
 #' # Utilisation dans un contexte d'analyse avec mpg
 #' set_opts()
-#' 
+#'
 #' # Application des configurations de test statistique
 #' # (nécessite l'écosystème gtsummary)
-#' \dontrun{
 #' library(gtsummary)
 #' mpg |>
 #'   select(cty, hwy, class, drv) |>
@@ -249,8 +249,7 @@ clear_vars <- \(env = ".vars_context") {
 #'     statistic = opts$qt_stat,
 #'     digits = opts$digits
 #'   )
-#' }
-#' 
+#'
 #' # Configuration pour production de rapports
 #' set_opts(
 #'   color = list(
@@ -259,46 +258,47 @@ clear_vars <- \(env = ".vars_context") {
 #'   ),
 #'   .default_font = "calibri"
 #' )
-#' 
+#'
 #' # Vérification des paramètres de police configurés
 #' opts$font$alpha
 #' opts$font$digit
-#' 
+#'
 #' # Démonstration des séparateurs configurés
 #' opts$sep$int  # Séparateur interne
 #' opts$sep$ext  # Séparateur externe
+#'}
 #'
 #' @family fonctions de configuration
-#' @seealso 
+#' @seealso
 #' * [gtsummary::theme_gtsummary_language()] pour la localisation des tableaux
 #' * [scales::label_number()] et [scales::label_percent()] pour le formatage
 #'
 #' @references
 #' Documentation gtsummary sur la configuration des thèmes :
 #' \url{https://www.danieldsjoberg.com/gtsummary/articles/themes.html}
-#' 
+#'
 #' @export
 set_opts <- \(.default_font = "trebuchet ms",
               .vars_envir = .vars_context$current,
               .assign = TRUE,
               .name = "opts",
               ...) {
-  
+
   dots <- lst(...)
 
   .fonts <- \(x) check_fonts(.default = .default_font, .auto = x)
-  
+
   .label <-
-  list(n = 
-         label_number(accuracy = .1, 
+  list(n =
+         label_number(accuracy = .1,
                       decimal.mark = getOption("OutDec")),
-       p = 
+       p =
          label_percent(accuracy = .1,
                        suffix = "",
                        decimal.mark = getOption("OutDec")))
-  
+
   .opts_set <-
-  lst(parametric = 
+  lst(parametric =
         nullfile(),
       qt_stat =
         list(min = c("Min" = "{min}"),
@@ -307,7 +307,7 @@ set_opts <- \(.default_font = "trebuchet ms",
              q3 = c("Q3" = "{p75}"),
              max = c("Max" = "{max}"),
              mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}")),
-        ql_stat = 
+        ql_stat =
           list(n = c("n (%)" = "{n} ({p})")),
       labs =
         list(sex = list(m = "Male", f = "Female"),
@@ -317,7 +317,7 @@ set_opts <- \(.default_font = "trebuchet ms",
              reference = "Reference",
              overall = "Overall",
              spanner = glue("{c('Univariable', 'Multivariable')} analysis")),
-      sep = 
+      sep =
         list(int = ": ",
              ext = "; "),
       ci =
@@ -325,33 +325,33 @@ set_opts <- \(.default_font = "trebuchet ms",
              sep = "; ",
              label = "95%CI",
              data = c("conf.low", "conf.high")),
-      acro = 
+      acro =
         acro(),
       digits =
         list(all_continuous() ~ c(1, .label$n, .label$n),
              all_categorical() ~ c(0, .label$p)),
-      pvalue = 
+      pvalue =
         list(format = label_style_pvalue(digits = 2),
              seuil = 0.05),
       font =
         list(alpha = "luciole",
              digit = "luciole"),
-      color = 
+      color =
         list(base = "#999",
              cold = c("#F0FAFF", "#0099FF"),
              warm = c("#FFF5F5", "#FF0000")),
-      palette = 
-        c(color$base, 
+      palette =
+        c(color$base,
           color$cold[2]))
 
   if (getOption("OutDec") == ",") {
 
     .opts_set <-
-    .opts_set |> 
+    .opts_set |>
       list_modify(qt_stat =
                     list(median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
                          mean = c("Moyenne\u00b1SD" = "{mean}\u00b1{sd}")),
-                  labs = 
+                  labs =
                     list(sex = list(m = "Hommes", f = "Femmes"),
                          bin = list(no = "Non", yes = "Oui"),
                          missing = "Donn\u00e9e manquante",
@@ -365,15 +365,15 @@ set_opts <- \(.default_font = "trebuchet ms",
                   ci =
                     list(sep = " ; ",
                          label = "IC95%"),
-                  acro = 
+                  acro =
                     acro())
 
   }
-  
+
   .vars <- \(..., envir = .vars_envir) {
-  
+
     cap <- \(x) str_cap(tolower, names(x))
-    
+
     list(test =
            list(envir$qt$vars$parametric ~ "quanti.test.para",
                 envir$qt$vars$nonparametric ~ "quanti.test.nonpara",
@@ -386,49 +386,49 @@ set_opts <- \(.default_font = "trebuchet ms",
            list(envir$qt$vars$parametric ~ cap(envir$qt$stat$mean),
                 envir$qt$vars$nonparametric ~ cap(envir$qt$stat$median),
                 all_categorical() ~ cap(envir$ql$stat$n)))
-    
+
   }
-  
+
   .ci <- \(lim, sep, label, data) {
-  
+
     lim <- if (lim == "[") c("[", "]") else c("(", ")")
-    
+
     lst(label = glue("{lim[1]}{label}{lim[2]}"),
         data = glue("{lim[1]}{{{data[1]}}}{sep}{{{data[2]}}}{lim[2]}"))
-    
+
   }
 
   opts <- .opts_set
-  
+
   opts <-
   opts |>
     list_modify(vars =
                   .vars(!!!with(opts, list(parametric, qt_stat, ql_stat))),
                 qt_stat_wide =
-                  opts$qt_stat |> 
+                  opts$qt_stat |>
                     list_modify(median =
                                   list2("{str_remove(names(opts$qt_stat$median), '\\\\s.+')}" :=
-                                          str_remove(opts$qt_stat$median, "\\s.+")) |> 
+                                          str_remove(opts$qt_stat$median, "\\s.+")) |>
                                     unlist()) |>
                     list_c(),
-                ci = 
+                ci =
                   .ci(!!!opts$ci),
-                font = 
+                font =
                   list(alpha = .fonts(opts$font[[1]]),
                        digit = .fonts(opts$font[[2]])),
-                !!!dots) |> 
+                !!!dots) |>
     inject()
 
   if (identical(opts$font[[1]], opts$font[[2]])) opts$font <- opts$font[[1]]
-  
+
   if (.assign) {
-    
+
     assign(.name, opts, envir = .GlobalEnv)
-    
+
   } else {
-    
+
     return(get(.name))
-    
+
   }
 
 }
@@ -469,35 +469,37 @@ set_opts <- \(.default_font = "trebuchet ms",
 #' une liste nommée ou un environnement.
 #'
 #' @examples
+#' \dontrun{
 #' # Initialisation de opts dans l'environnement global
 #' set_opts()
-#' 
+#'
 #' # Accès direct aux paramètres via `check_opts()`
 #' check_opts(color)
 #'
 #' # Suppression de opts pour déclencher l'erreur
 #' rm(opts, envir = .GlobalEnv)
-#' 
+#'
 #' check_opts(color)  # Génère une erreur
-#'   
+#' }
+#'
 #' @family fonctions utilitaires
-#' 
+#'
 #' @export
 check_opts <- \(x, .name = "opts") {
-  
-  if (exists(.name)) { 
-    
+
+  if (exists(.name)) {
+
     with(get(.name), eval(enexpr(x)))
-    
+
   }
-  
+
   else {
-    
+
     cli_abort(
       c("L'objet {.strong { .name }} n'existe pas dans l'environnement global",
-        i = "Créer {.strong { .name }} avec {.fun set_opts}")
+        i = "Cr\u00e9der {.strong { .name }} avec {.fun set_opts}")
     )
-    
+
   }
 
 }

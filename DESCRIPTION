@@ -1,7 +1,7 @@
 Package: hebstr
 Title: Fonctions perso
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person("Julien", "ELICES-DIEZ", , "ju.diez@protonmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0001-3983-5713"))
 Description: Stockage de fonctions perso.
@@ -11,7 +11,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends:
     R (>= 4.1.0)
-Suggests: 
+Imports:
     broom,
     broom.helpers,
     cli,
@@ -29,10 +29,13 @@ Suggests:
     htmltools,
     labelled,
     lifecycle,
+    lobstr,
     lubridate,
     magick,
     magrittr,
+    openxlsx2,
     parsnip,
+    png,
     purrr,
     reactable,
     rlang,
@@ -44,4 +47,11 @@ Suggests:
     tibble,
     tidyr,
     utils,
-    webshot
+    webshot,
+    withr
+Suggests:
+    knitr,
+    quarto,
+    rmarkdown
+VignetteBuilder:
+    quarto

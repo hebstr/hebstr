@@ -87,33 +87,35 @@ des graphiques dans un contexte de reporting automatisé.
 }
 
 \examples{
+\dontrun{
 library(ggplot2)
 library(dplyr)
 
 # Utilisation avec le dataset mpg (ggplot2)
 ggcount(data = mpg,
         var = "class")
-        
+
 # Utilisation dans un pipeline d'analyse avec filtrage
 mpg |>
   filter(year == 2008) |>
-  ggcount(var = "class", 
+  ggcount(var = "class",
           color = "#0099FF")
-          
+
 # Personnalisation avancée des étiquettes
-mpg |> 
+mpg |>
   ggcount(var = "fl",
           color = "#FF0000",
           size = 3.5,
           fontface = "bold",
           grid = FALSE)
-          
+
 # Analyse de données avec distribution déséquilibrée
 storms |>
   filter(year >= 2010) |>
   mutate(status = forcats::fct_infreq(status)) |>
   ggcount(var = "status",
           pct_min = 0.1)
+}
 
 }
 \seealso{
