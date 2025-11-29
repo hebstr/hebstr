@@ -408,7 +408,7 @@ set_opts <- \(.default_font = "trebuchet ms",
                   opts$qt_stat |>
                     list_modify(median =
                                   list2("{str_remove(names(opts$qt_stat$median), '\\\\s.+')}" :=
-                                          str_remove(opts$qt_stat$median, "\\s.+")) |>
+                                          str_remove(unname(opts$qt_stat$median), "\\s.+")) |>
                                     unlist()) |>
                     list_c(),
                 ci =
