@@ -4,12 +4,16 @@
 \alias{add_code_file}
 \title{Title}
 \usage{
-add_code_file(src, name = NULL, lang = "r")
+add_code_file(src, name = NULL, suffix = NULL, sep = " ", lang = NULL)
 }
 \arguments{
 \item{src}{arg}
 
 \item{name}{arg}
+
+\item{suffix}{arg}
+
+\item{sep}{arg}
 
 \item{lang}{arg}
 }

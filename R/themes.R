@@ -1,9 +1,9 @@
 #' Title
 #'
 #' @param ... arg
-#' @param .default arg 
-#' @param .auto arg 
-#' @param .abort arg 
+#' @param .default arg
+#' @param .auto arg
+#' @param .abort arg
 #'
 #' @return arg
 #' @export
@@ -16,38 +16,38 @@ check_fonts <- \(...,
                  .abort = FALSE) {
 
   if (!is.null(.auto)) {
-    
+
     check_dots_empty()
-    
+
     if (!check_fonts(.auto)) .default else .auto
-    
+
   } else {
-    
+
     fonts <- unlist(...)
-  
+
     system <- unique(systemfonts::system_fonts()$family)
     system <- glue("\\b{system}\\b")
     system <- glue("(?i){str_u(system)}")
-    
+
     is_installed <- str_detect(fonts, system)
-  
+
     if (FALSE %in% is_installed) {
-  
+
       which_font <-
       data.frame(fonts, is_installed) |>
         filter(!is_installed) |>
         pull(fonts)
-      
+
       if (.abort) cli::cli_abort("{which_font} font{?s} {?is/are} not installed")
-      
+
       return(FALSE)
-  
+
     }
-  
+
     return(TRUE)
-    
+
   }
-  
+
 }
 
 
@@ -55,24 +55,24 @@ check_fonts <- \(...,
 #' Title
 #'
 #' @param x arg
-#' @param width arg 
+#' @param width arg
 #' @param alpha arg
 #' @param digit arg
 #' @param base arg
 #' @param color arg
-#' @param bg arg 
-#' @param row_padding arg 
-#' @param title_align arg 
-#' @param font_size arg 
-#' @param title_font_size arg 
-#' @param stat_font_size arg 
-#' @param pvalue_font_size arg 
-#' @param row_strip arg 
-#' @param footnote_marks arg 
-#' @param footnote_font_size arg 
-#' @param footnote_padding arg 
-#' @param docx arg 
-#' @param ... arg 
+#' @param bg arg
+#' @param row_padding arg
+#' @param title_align arg
+#' @param font_size arg
+#' @param title_font_size arg
+#' @param stat_font_size arg
+#' @param pvalue_font_size arg
+#' @param row_strip arg
+#' @param footnote_marks arg
+#' @param footnote_font_size arg
+#' @param footnote_padding arg
+#' @param docx arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export
@@ -89,7 +89,7 @@ theme_gt <- \(x,
               row_padding = 8,
               title_align = "left",
               font_size = 13,
-              title_font_size = font_size + 1, 
+              title_font_size = font_size + 1,
               stat_font_size = font_size - 1,
               pvalue_font_size = font_size - 2,
               row_strip = TRUE,
@@ -97,11 +97,11 @@ theme_gt <- \(x,
               footnote_font_size = font_size - 2,
               footnote_padding = row_padding,
               ...) {
-  
+
   .f <- \(str) str_subset(names(x$`_data`), str)
-  
+
   if (!row_strip) color <- "#ffffff00"
-  
+
   x <-
   tab_options(data = x,
               table.width = width,
@@ -136,9 +136,9 @@ theme_gt <- \(x,
               footnotes.padding = px(footnote_padding),
               footnotes.background.color = bg,
               ...)
-  
+
   if (!exists("docx", envir = globalenv())) {
-    
+
     x <-
     x |>
       tab_style(style = cell_text(align = "justify"),
@@ -146,29 +146,29 @@ theme_gt <- \(x,
       tab_style(style = cell_text(font = digit),
                 locations = cells_body(columns = .f("stat|estimate|p.value"))) |>
       tab_style(style = cell_text(size = px(stat_font_size)),
-                locations = cells_body(columns = .f("stat|estimate"))) |>     
+                locations = cells_body(columns = .f("stat|estimate"))) |>
       tab_style(style = cell_text(size = px(pvalue_font_size)),
                 locations = cells_body(columns = .f("p.value")))
-      
+
   }
 
   return(x)
-  
+
 }
 
 
 #' Title
 #'
 #' @param family arg
-#' @param text_color arg 
-#' @param title_size arg 
-#' @param title_halign arg 
-#' @param title_margin arg 
-#' @param caption_size arg 
-#' @param caption_halign arg 
-#' @param caption_margin arg 
+#' @param text_color arg
+#' @param title_size arg
+#' @param title_halign arg
+#' @param title_margin arg
+#' @param caption_size arg
+#' @param caption_halign arg
+#' @param caption_margin arg
 #' @param grid arg
-#' @param legend_position arg 
+#' @param legend_position arg
 #' @param ... arg
 #'
 #' @return arg
@@ -197,17 +197,17 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
 
   } else bg <- NULL
 
-  theme(text = 
+  theme(text =
           element_text(family = family,
                        color = text_color),
-        plot.title = 
+        plot.title =
           element_textbox(size = title_size,
                           halign = title_halign,
                           margin = title_margin,
                           lineheight = 1.05,
                           width = unit(1, "npc")),
         plot.caption.position = "plot",
-        plot.caption = 
+        plot.caption =
           element_textbox(size = caption_size,
                           halign = caption_halign,
                           margin = caption_margin,
@@ -227,15 +227,15 @@ theme_bar <- \(family = check_fonts(.auto = "luciole"),
 #'
 #' @param family arg
 #' @param size arg
-#' @param vjust_y arg 
-#' @param title_margin arg 
+#' @param vjust_y arg
+#' @param title_margin arg
 #' @param ... arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 theme_tte <- \(family = check_fonts(.auto = "luciole"),
                size = 8,
                vjust_y = 1,
@@ -252,7 +252,7 @@ theme_tte <- \(family = check_fonts(.auto = "luciole"),
           panel.background = element_blank(),
           plot.background = element_blank(),
           plot.margin = margin(0, 0, 0, 0),
-          plot.caption = 
+          plot.caption =
             element_textbox(size = size,
                             width = unit(1, "npc"),
                             margin = title_margin),
@@ -266,10 +266,10 @@ theme_tte <- \(family = check_fonts(.auto = "luciole"),
 #' Title
 #'
 #' @param family arg
-#' @param label_size arg 
-#' @param title_size arg 
-#' @param title_margin arg 
-#' @param plot_margin arg 
+#' @param label_size arg
+#' @param title_size arg
+#' @param title_margin arg
+#' @param plot_margin arg
 #' @param ... arg
 #'
 #' @return arg
@@ -286,10 +286,10 @@ theme_risktable <- \(family = check_fonts(.auto = "luciole"),
 
   .title_margin <- margin(-title_margin, 0, title_margin, 0)
   .plot_margin <- margin(plot_margin, 0, -plot_margin, 0)
-  
+
   list(theme_risktable_default(),
        theme(text = element_text(family = family),
-             plot.title = 
+             plot.title =
                element_text(size = title_size,
                             face = "bold",
                             margin = .title_margin),
@@ -305,7 +305,7 @@ theme_risktable <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family arg 
+#' @param family arg
 #' @param ... arg
 #'
 #' @return arg
@@ -318,7 +318,7 @@ theme_pca <- \(family = check_fonts(.auto = "luciole"),
 
   theme(text = element_text(family = family),
         legend.position = "none",
-        plot.caption = 
+        plot.caption =
           element_textbox(size = 9,
                           hjust = 1,
                           lineheight = 1.05,
@@ -336,12 +336,12 @@ theme_pca <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family arg 
-#' @param grid arg 
-#' @param grid_color arg 
-#' @param axis_text_size_y arg 
-#' @param grid_size arg 
-#' @param legend_position arg 
+#' @param family arg
+#' @param grid arg
+#' @param grid_color arg
+#' @param axis_text_size_y arg
+#' @param grid_size arg
+#' @param legend_position arg
 #' @param ... arg
 #'
 #' @return arg
@@ -360,16 +360,16 @@ theme_blank <- \(family = check_fonts(.auto = "luciole"),
   .blank <- element_rect(color = "white", fill = "white")
 
   .width <- unit(1, "npc")
-  
+
   grid <- if (grid) {
-    
+
     list(panel.grid.major.y =
            element_line(color = grid_color,
                         size = grid_size),
-         axis.text.y = 
+         axis.text.y =
            element_text(color = grid_color,
                         size = axis_text_size_y))
-    
+
   } else NULL
 
   theme_void() %+replace%
@@ -397,12 +397,12 @@ theme_blank <- \(family = check_fonts(.auto = "luciole"),
 #' Title
 #'
 #' @param family arg
-#' @param title_size arg 
-#' @param title_margin arg 
-#' @param caption_size arg 
-#' @param caption_margin arg 
-#' @param label_size arg 
-#' @param label_margin arg 
+#' @param title_size arg
+#' @param title_margin arg
+#' @param caption_size arg
+#' @param caption_margin arg
+#' @param label_size arg
+#' @param label_margin arg
 #' @param grid arg
 #' @param grid_size arg
 #' @param ... arg
@@ -429,7 +429,7 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
     list(panel.grid.major.x =
            element_line(color = "grey95",
                         size = 0.3),
-         axis.text.x = 
+         axis.text.x =
            element_text(color = "grey90",
                         size = grid_size,
                         margin = margin(0)))
@@ -437,20 +437,20 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
   } else grid <- NULL
 
     theme(plot.title.position = "plot",
-          plot.title = 
+          plot.title =
             element_markdown(size = title_size,
                              color = "#333333",
                              hjust = 0.5,
                              halign = 0.5,
                              margin = margin(0, 0, title_margin, 0)),
-          plot.caption = 
+          plot.caption =
             element_markdown(size = caption_size,
                              lineheight = 1.05,
                              hjust = 1,
                              halign = 1,
                              margin = margin(caption_margin, 0, 0, 0)),
           axis.title = element_blank(),
-          axis.text.y = 
+          axis.text.y =
             element_text(size = label_size,
                          margin = label_margin),
           text = element_text(family = family),
@@ -469,26 +469,26 @@ theme_infreq <- \(family = check_fonts(.auto = "luciole"),
 
 #' Title
 #'
-#' @param family arg 
-#' @param size arg 
-#' @param base_color arg 
-#' @param axis_margin_x arg 
-#' @param axis_margin_y arg 
-#' @param axis_color_x arg 
-#' @param axis_color_y arg 
-#' @param title_color_x arg 
-#' @param title_color_y arg 
-#' @param grid_color_x arg 
-#' @param grid_color_y arg 
-#' @param grid_lighten_x arg 
-#' @param grid_lighten_y arg 
-#' @param ... arg 
+#' @param family arg
+#' @param size arg
+#' @param base_color arg
+#' @param axis_margin_x arg
+#' @param axis_margin_y arg
+#' @param axis_color_x arg
+#' @param axis_color_y arg
+#' @param title_color_x arg
+#' @param title_color_y arg
+#' @param grid_color_x arg
+#' @param grid_color_y arg
+#' @param grid_lighten_x arg
+#' @param grid_lighten_y arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 theme_bubble <- \(family = check_fonts(.auto = "luciole"),
                   size = 13,
                   base_color = "#333333",
@@ -505,24 +505,24 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
                   ...) {
 
   theme(panel.background = element_blank(),
-        panel.grid.major.x = 
+        panel.grid.major.x =
           element_line(color = lighten(grid_color_x, grid_lighten_x)),
-        panel.grid.major.y = 
+        panel.grid.major.y =
           element_line(color = lighten(grid_color_y, grid_lighten_y)),
-        text = 
-          element_text(size = size, 
+        text =
+          element_text(size = size,
                        family = family),
         axis.title =
           element_markdown(face = "bold"),
-        axis.title.x = 
+        axis.title.x =
           element_markdown(margin = margin(t = axis_margin_x),
                            color = title_color_x),
         axis.title.y =
           element_markdown(margin = margin(l = 20, r = axis_margin_y),
                            color = title_color_y),
-        axis.text.x = 
+        axis.text.x =
           element_markdown(color = axis_color_x),
-        axis.text.y = 
+        axis.text.y =
           element_markdown(color = axis_color_y),
         axis.ticks = element_blank(),
         legend.position = "none",
@@ -534,42 +534,42 @@ theme_bubble <- \(family = check_fonts(.auto = "luciole"),
 #' Title
 #'
 #' @param data arg
-#' @param head arg 
-#' @param font_family arg 
-#' @param font_size arg 
-#' @param id arg 
-#' @param ... arg 
+#' @param head arg
+#' @param font_family arg
+#' @param font_size arg
+#' @param id arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 gt_qmd <- \(data,
             head = NULL,
             font_family = "luciole",
             font_size = 15,
             id = "tbl-id",
             ...) {
-  
+
   if ("gtsummary" %in% class(data)) {
-    
+
     data <- as_gt(data)
-  
+
   } else {
-    
+
     if (is.null(head)) {
-      
-      data <- gt(data, id = id) 
-      
+
+      data <- gt(data, id = id)
+
     } else {
-      
+
       data <- gt_preview(data, top_n = head)
-      
+
     }
-    
+
   }
-  
+
   data |>
     tab_options(table.font.names = c(font_family, "system-ui"),
                 table.font.size = px(font_size),
@@ -577,7 +577,7 @@ gt_qmd <- \(data,
                 ...) |>
     tab_style(style = cell_text(weight = "bold"),
               locations = cells_column_labels())
-  
+
 }
 
 #' Title
@@ -588,11 +588,11 @@ gt_qmd <- \(data,
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 glue_qmd <- \(x) {
-  
+
   glue(x, .open = "<<", .close = ">>", .envir = parent.frame())
-  
+
 }
 
 #' Title
@@ -604,36 +604,48 @@ glue_qmd <- \(x) {
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 include_code_file <- \(src, lang = "r") {
-  
+
   glue_qmd("
   ```{.<<lang>> include='<<src>>' code-line-numbers='true'}
   ```
   ")
-  
+
 }
 
 #' Title
 #'
 #' @param src arg
 #' @param name arg
+#' @param suffix arg
+#' @param sep arg
 #' @param lang arg
 #'
 #' @returns arg
 #' @export
 #'
 #' @examples "arg"
-#' 
-add_code_file <- \(src, name = NULL, lang = "r") {
-  
-  if (is.null(name)) name <- str_remove(src, ".+/")
-  
+#'
+add_code_file <- \(
+  src,
+  name = NULL,
+  suffix = NULL,
+  sep = " ",
+  lang = NULL
+) {
+
+  name <- name %||% str_remove(src, ".+/")
+
+  if (!is.null(suffix)) name <- glue("{name}{sep}{suffix}")
+
+  lang <- lang %||% tolower(str_match(src, "\\w+$"))
+
   glue_qmd("
-  ::: {add-from=<<src>> code-line-numbers='true' code-filename=<<name>>}
+  ::: {add-from=<<src>> code-line-numbers='true' code-filename=\"<<name>>\"}
   ```<<lang>>
   ```
   :::
   ")
-  
+
 }
