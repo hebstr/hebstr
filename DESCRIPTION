@@ -14,6 +14,7 @@ Depends:
 Imports:
     broom,
     broom.helpers,
+    car,
     cli,
     colorspace,
     dplyr,
@@ -34,6 +35,7 @@ Imports:
     magick,
     magrittr,
     openxlsx2,
+    parameters,
     parsnip,
     png,
     purrr,

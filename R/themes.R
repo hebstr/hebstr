@@ -571,7 +571,7 @@ gt_qmd <- \(data,
   }
 
   data |>
-    tab_options(table.font.names = c(font_family, "system-ui"),
+    tab_options(table.font.names = font_family,
                 table.font.size = px(font_size),
                 column_labels.border.top.color = "white",
                 ...) |>
