@@ -42,6 +42,7 @@ Imports:
     reactable,
     rlang,
     rsample,
+    rsvg,
     scales,
     stats,
     stringr,

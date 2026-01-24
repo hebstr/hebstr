@@ -96,8 +96,6 @@ easy_out <- \(x,
 
   } else if (inherits(x, "gg")) {
 
-    if (!rlang::is_installed("rsvg")) install.packages("rsvg", quiet = TRUE)
-
     cli_progress_step("Creating SVG file")
 
     .plot <-
