@@ -8,7 +8,7 @@ gtsum_format(
   x,
   label_header = check_opts(labs$header),
   label_overall = check_opts(labs$overall),
-  label_reference = "Reference",
+  label_reference = check_opts(labs$reference),
   label_n = if (.event(x)) "Events/Obs" else "Obs",
   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
   label_stat = NULL,

@@ -8,13 +8,12 @@ easy_out(
   x,
   filename = enexpr(x),
   dir = "output",
-  suffix = NULL,
+  suffix = "",
+  sep = ".",
   width = NA,
-  height = NULL,
   size = NULL,
   px = 2000,
-  assign = TRUE,
-  .quiet = if (exists("quiet")) quiet else FALSE
+  quiet = FALSE
 )
 }
 \arguments{
@@ -28,15 +27,13 @@ easy_out(
 
 \item{width}{arg}
 
-\item{height}{arg}
-
 \item{size}{arg}
 
 \item{px}{arg}
 
-\item{assign}{arg}
+\item{quiet}{arg}
 
-\item{.quiet}{arg}
+\item{height}{arg}
 }
 \value{
 arg

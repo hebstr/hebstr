@@ -59,9 +59,9 @@
   .lab_test <-
   list(beta = "Beta",
        or = "OR",
-       hr = "HR") |> 
+       hr = "HR") |>
     list_modify(!!!.estim_acro)
-  
+
   .lab <-
   list(beta = "regression coefficient",
        or = "odds ratio",
@@ -152,18 +152,18 @@
 
 .event <- \(x) "n_event" %in% names(x$table_body)
 
-.fmt_reg_n <- \(x, 
+.fmt_reg_n <- \(x,
                 .stat_n,
                 .label_n) {
-  
+
   .n_type <- if (.event(x)) "n_event" else "n_obs"
-    
+
   x <-
   x |>
     modify_table_body(
       ~ . |>
-        mutate(stat_n = 
-                 if_else(var_type == "continuous" | row_type == "level", 
+        mutate(stat_n =
+                 if_else(var_type == "continuous" | row_type == "level",
                          glue(.stat_n), NA),
                .after = .n_type)
     ) |>
@@ -212,16 +212,16 @@
   }
 
   if ("tbl_uvregression" %in% class(x)) {
-    
+
     x <- .fmt_reg_n(x, .stat_n, .label_n)
-    
+
   }
 
   x <-
   x |>
     modify_header(label ~ .label_header,
                   p.value ~ "**p**") |>
-    add_ref_label(label = .label_reference) |> 
+    add_ref_label(label = .label_reference) |>
     bold_p(t = .bold_p) |>
     modify_footnote(everything() ~ NA,
                     abbreviation = TRUE)
@@ -250,18 +250,18 @@
 #' @param label_header arg
 #' @param label_reference arg
 #' @param label_n arg
-#' @param stat_n arg 
-#' @param label_overall arg 
+#' @param stat_n arg
+#' @param label_overall arg
 #' @param label_stat arg
 #' @param bold_p arg
 #' @param adj_acro arg
 #' @param adj_label arg
-#' @param estim_acro arg 
+#' @param estim_acro arg
 #' @param estim_label arg
 #' @param ci arg
 #' @param model_mv arg
-#' @param show_single_row arg 
-#' @param ref_sep arg 
+#' @param show_single_row arg
+#' @param ref_sep arg
 #' @param ref_no arg
 #' @param estim_sep arg
 #' @param vargrp_levels arg
@@ -275,7 +275,7 @@
 gtsum_format <- \(x,
                   label_header = check_opts(labs$header),
                   label_overall = check_opts(labs$overall),
-                  label_reference = "Reference",
+                  label_reference = check_opts(labs$reference),
                   label_n = if (.event(x)) "Events/Obs" else "Obs",
                   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
                   label_stat = NULL,
@@ -294,14 +294,14 @@ gtsum_format <- \(x,
                   indent = 4) {
 
   clear_vars()
-  
+
   label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""
   label_stat <- if (!is.null(label_stat)) glue("**{label_stat}**") else ""
-  
+
   if ("tbl_merge" %in% class(x)) {
 
     check_by <- x$tbls[[1]]$inputs$by
-    
+
   } else check_by <- x$inputs$by
 
   if (length(check_by) > 0) {
@@ -334,7 +334,7 @@ gtsum_format <- \(x,
                .label_header = label_header,
                .label_reference = label_reference,
                .bold_p = bold_p)
-        
+
     } else {
 
       x <-

@@ -8,106 +8,113 @@
 #' @param height arg
 #' @param size arg
 #' @param px arg
-#' @param assign arg
-#' @param .quiet arg
+#' @param quiet arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
 #'
-easy_out <- \(x,
-              filename = enexpr(x),
-              dir = "output",
-              suffix = NULL,
-              width = NA,
-              height = NULL,
-              size = NULL,
-              px = 2000,
-              assign = TRUE,
-              .quiet = if (exists("quiet")) quiet else FALSE) {
+easy_out <- \(
+  x,
+  filename = enexpr(x),
+  dir = "output",
+  suffix = "",
+  sep = ".",
+  width = NA,
+  size = NULL,
+  px = 2000,
+  quiet = FALSE
+) {
 
   clear_vars()
 
   cli_h1("easy_out")
   cli_text("\n\n")
 
-  cli_progress_step("Creating {.strong {filename}}")
+  cli_alert_info("Objet : {.strong {filename}} {.cls {class(x)}}")
+  cli_text("\n\n")
 
-  if (!(inherits(x, "gg") || inherits(x, "gt_tbl") || inherits(x, "gtsummary"))) {
+  if (!(is_ggplot(x) || inherits(x, c("ggmatrix", "gt_tbl", "gtsummary")))) {
 
-    cli_abort(
-      c("{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
-        "i" = "Received object of class: {.cls {class(x)}}")
-    )
-
-  }
-
-  if (!is.null(suffix)) filename <- glue("{filename}_", suffix)
-
-  if (!dir.exists(dir)) dir.create(path = dir, recursive = TRUE)
-
-  if (assign && !as.character(filename) %in% ls()) {
-
-    assign(as.character(filename), x, envir = .GlobalEnv)
+    cli_abort(c(
+      "{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
+      "i" = "Received object of class: {.cls {class(x)}}"
+    ))
 
   }
 
-  path <- glue("{dir}/{filename}")
-  to_html <- glue("{path}.html")
-  to_svg <- glue("{path}.svg")
-  to_png <- glue("{path}.png")
+  if (nzchar(suffix)) filename <- str_glue("{filename}{sep}{suffix}")
+
+  fs::dir_create(path = dir)
+
+  if (quiet) withr::local_options(easy_out.quiet = quiet)
+
+  path <- fs::path(dir, filename)
+
+  to_html <- fs::path(path, ext = "html")
+  to_svg <- fs::path(path, ext = "svg")
+  to_png <- fs::path(path, ext = "png")
 
 ### TAB -------------------------------------------------------------------------
 
-  if (inherits(x, "gt_tbl") || inherits(x, "gtsummary")) {
+  if (inherits(x, c("gt_tbl", "gtsummary"))) {
+
+    if (inherits(x, "gtsummary")) x <- as_gt(x)
 
     if (R.version$os == "linux-gnu") Sys.setenv(OPENSSL_CONF = "/dev/null")
 
     if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
 
-    if (!"gt_tbl" %in% class(x)) x <- as_gt(x)
-
     width <-
     x[["_options"]] |>
       filter(parameter == "table_width") |>
       pull(value) |>
-      unlist() |>
       str_extract("\\d+") |>
       as.numeric()
 
-    cli_progress_step("Creating HTML file")
+    cli_progress_step("Cr\u00e9ation du fichier au format HTML")
 
     gtsave(x, filename = to_html)
 
-    if (!.quiet) browseURL(to_html)
+    cli_progress_step("Cr\u00e9ation du fichier au format PNG")
 
-    cli_progress_step("Capturing HTML to PNG")
-
-    to_html |>
-      webshot(file = to_png,
-              vwidth = width + width / 10,
-              vheight = 1,
-              zoom = 3)
+    webshot(
+      url = to_html,
+      file = to_png,
+      vwidth = width + 0.1 * width,
+      vheight = 1,
+      zoom = 3
+    )
 
     cli_progress_done()
 
+    cli_path <- cli::col_br_red(str_glue("{path}.<html/png>"))
+
+    cli_text("\n\n")
+    cli_alert_info("Répertoire racine : {.path {here::here()}}")
+    cli_alert_info("Fichiers enregistrés dans {cli_path}")
+    cli_text("\n\n")
+
+    cli_rule()
+
+    if (!isTRUE(getOption("easy_out.quiet"))) browseURL(to_html)
+
 ### PLOT -------------------------------------------------------------------------
 
-  } else if (inherits(x, "gg")) {
+  } else if (is_ggplot(x) || inherits(x, "ggmatrix")) {
 
-    cli_progress_step("Creating SVG file")
+    cli_progress_step("Cr\u00e9ation du fichier au format SVG")
 
-    .plot <-
-    capturePlot(expr = x,
-                filename = to_svg,
-                grDevices::svg,
-                height = size[1],
-                width = size[2])
+    .plot <- capturePlot(
+      expr = x,
+      filename = to_svg,
+      grDevices::svg,
+      height = size[1],
+      width = size[2]
+    )
 
-    if (!.quiet) browseURL(.plot)
-
-    cli_progress_step("Capturing SVG to PNG")
+    cli_progress_step("Cr\u00e9ation du fichier au format PNG")
 
     to_svg |>
       image_read_svg(height = px) |>
@@ -115,53 +122,56 @@ easy_out <- \(x,
 
     cli_progress_done()
 
+    cli_path <- cli::col_br_red(str_glue("{path}.<svg/png>"))
+
+    cli_text("\n\n")
+    cli_alert_info("Répertoire racine : {.path {here::here()}}")
+    cli_alert_info("Fichiers enregistrés dans {cli_path}")
+    cli_text("\n\n")
+
+    cli_rule()
+
+    if (!isTRUE(getOption("easy_out.quiet"))) browseURL(.plot)
+
   }
-
-### CLI --------------------------------------------------------------------------
-
-  cli_text("\n\n")
-  cli_alert_info("{.strong Destination}")
-  cli_ul()
-  cli_ul()
-    cli_li("R\u00e9dpertoire : {.path {dir}}")
-    cli_li("Filename : {cli::col_br_red(filename)}")
-    cli_end()
-  cli_text("\n\n")
-  cli_rule()
 
 }
 
 #' Title
 #'
-#' @param data arg
+#' @param x arg
 #' @param filename arg
-#' @param dir arg
 #' @param sep arg
-#' @param size arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
 #'
-easy_out_map <- \(data,
-                  filename = NULL,
-                  dir = "output",
-                  sep = ".",
-                  size = NULL) {
+easy_out_map <- \(
+  x,
+  filename = NULL,
+  sep = ".",
+  ...
+) {
 
-  if (is.null(filename)) filename <- enexpr(data)
+  if (is.null(filename)) filename <- enexpr(x)
 
-  if (!is.list(data)) {
+  if (!is.list(x) || is.data.frame(x)) {
 
-    cli_abort("{.strong {filename}} must be a list of tables or figures")
+    cli_abort(c(
+      "{.strong {filename}} must be a list of tables/figures",
+      "i" = "Received object of class: {.cls {class(x)}}"
+    ))
 
   }
 
-  data |>
-    imap(~ easy_out(x = .x,
-                    filename = glue("{filename}{sep}{.y}"),
-                    dir = dir,
-                    size = size))
+  map_fun <- \(data, name) easy_out(
+    x = data,
+    filename = str_glue("{filename}{sep}{name}"),
+    ...
+  )
+
+  iwalk(x, map_fun)
 
 }

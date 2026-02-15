@@ -4,18 +4,14 @@
 \alias{easy_out_map}
 \title{Title}
 \usage{
-easy_out_map(data, filename = NULL, dir = "output", sep = ".", size = NULL)
+easy_out_map(x, filename = NULL, sep = ".", ...)
 }
 \arguments{
-\item{data}{arg}
+\item{x}{arg}
 
 \item{filename}{arg}
 
-\item{dir}{arg}
-
 \item{sep}{arg}
-
-\item{size}{arg}
 }
 \value{
 arg
