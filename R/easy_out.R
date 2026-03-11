@@ -4,8 +4,8 @@
 #' @param filename arg
 #' @param dir arg
 #' @param suffix arg
+#' @param sep arg
 #' @param width arg
-#' @param height arg
 #' @param size arg
 #' @param px arg
 #' @param quiet arg
@@ -92,8 +92,8 @@ easy_out <- \(
     cli_path <- cli::col_br_red(str_glue("{path}.<html/png>"))
 
     cli_text("\n\n")
-    cli_alert_info("Répertoire racine : {.path {here::here()}}")
-    cli_alert_info("Fichiers enregistrés dans {cli_path}")
+    cli_alert_info("R\u00e9pertoire racine : {.path {here::here()}}")
+    cli_alert_info("Fichiers enregistr\u00e9s dans {cli_path}")
     cli_text("\n\n")
 
     cli_rule()
@@ -125,8 +125,8 @@ easy_out <- \(
     cli_path <- cli::col_br_red(str_glue("{path}.<svg/png>"))
 
     cli_text("\n\n")
-    cli_alert_info("Répertoire racine : {.path {here::here()}}")
-    cli_alert_info("Fichiers enregistrés dans {cli_path}")
+    cli_alert_info("R\u00e9pertoire parent : {.path {here::here()}}")
+    cli_alert_info("Fichiers enregistr\u00e9s dans {cli_path}")
     cli_text("\n\n")
 
     cli_rule()
@@ -142,6 +142,7 @@ easy_out <- \(
 #' @param x arg
 #' @param filename arg
 #' @param sep arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export

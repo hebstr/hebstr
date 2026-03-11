@@ -83,7 +83,7 @@ doivent également être disponibles dans l'environnement d'exécution.
 \examples{
 # Configuration par défaut avec classification automatique
 df_mtcars <- easy_descr(mtcars)
-lobstr::tree(df_mtcars)
+str(df_mtcars, max.level = 2)
 df_mtcars
 
 # Appel des éléments

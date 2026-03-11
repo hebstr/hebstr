@@ -25,6 +25,8 @@ easy_out(
 
 \item{suffix}{arg}
 
+\item{sep}{arg}
+
 \item{width}{arg}
 
 \item{size}{arg}
@@ -32,8 +34,6 @@ easy_out(
 \item{px}{arg}
 
 \item{quiet}{arg}
-
-\item{height}{arg}
 }
 \value{
 arg

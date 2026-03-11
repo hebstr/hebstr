@@ -12,6 +12,8 @@ easy_out_map(x, filename = NULL, sep = ".", ...)
 \item{filename}{arg}
 
 \item{sep}{arg}
+
+\item{...}{arg}
 }
 \value{
 arg

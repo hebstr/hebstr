@@ -10,6 +10,9 @@ check_opts(x, .name = "opts")
 \item{x}{Expression R à évaluer dans le contexte de l'objet \code{opts}.
 L'expression est capturée sans évaluation préalable grâce au mécanisme
 de Non-Standard Evaluation.}
+
+\item{.name}{Nom de l'objet de configuration à rechercher.
+Par défaut \code{"opts"}.}
 }
 \value{
 La valeur résultant de l'évaluation de l'expression \code{x} dans

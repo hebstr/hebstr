@@ -144,9 +144,12 @@ clear_vars <- \(env = ".vars_context") {
 #'
 #' @param .default_font Police de caractères par défaut à utiliser dans
 #'   l'ensemble du système. Par défaut `"trebuchet ms"`.
+#' @param .vars_envir Environnement de variables contextuelles.
 #' @param .assign Valeur logique contrôlant l'assignation de l'objet `opts`
 #'   dans l'environnement global. Si `TRUE` (par défaut), l'objet est
 #'   automatiquement disponible pour les autres fonctions.
+#' @param .name Nom de l'objet assigné dans l'environnement global.
+#'   Par défaut `"opts"`.
 #' @param ... Arguments supplémentaires permettant de personnaliser ou
 #'   surcharger les paramètres de configuration par défaut.
 #'
@@ -444,6 +447,8 @@ set_opts <- \(.default_font = "trebuchet ms",
 #' @param x Expression R à évaluer dans le contexte de l'objet `opts`.
 #'   L'expression est capturée sans évaluation préalable grâce au mécanisme
 #'   de Non-Standard Evaluation.
+#' @param .name Nom de l'objet de configuration à rechercher.
+#'   Par défaut `"opts"`.
 #'
 #' @returns La valeur résultant de l'évaluation de l'expression `x` dans
 #'   le contexte de l'objet `opts`. Le type de retour dépend de la nature

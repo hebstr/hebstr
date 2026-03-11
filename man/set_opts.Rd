@@ -16,9 +16,14 @@ set_opts(
 \item{.default_font}{Police de caractères par défaut à utiliser dans
 l'ensemble du système. Par défaut \code{"trebuchet ms"}.}
 
+\item{.vars_envir}{Environnement de variables contextuelles.}
+
 \item{.assign}{Valeur logique contrôlant l'assignation de l'objet \code{opts}
 dans l'environnement global. Si \code{TRUE} (par défaut), l'objet est
 automatiquement disponible pour les autres fonctions.}
+
+\item{.name}{Nom de l'objet assigné dans l'environnement global.
+Par défaut \code{"opts"}.}
 
 \item{...}{Arguments supplémentaires permettant de personnaliser ou
 surcharger les paramètres de configuration par défaut.}

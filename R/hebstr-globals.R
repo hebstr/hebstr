@@ -6,5 +6,6 @@ utils::globalVariables(c(
   "name", "opts", "outliers", "p", "p.value", "p.value_2", "parameter",
   "pos", "q1_q2_q3", "quiet", "reference_level", "reference_row",
   "remove_abbreviation", "row_type", "splits", "stat", "str", "term",
-  "total", "type", "value", "variable"
+  "total", "type", "value", "variable",
+  ".vars_context", "font", "parametric", "sep"
 ))

@@ -1,122 +1,116 @@
 #' Title
 #'
-#' @param data arg 
-#' @param variable arg 
-#' @param by arg 
-#' @param ... arg 
+#' @param data arg
+#' @param variable arg
+#' @param by arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
-quanti.test.para <- \(data,
-                      variable,
-                      by,
-                      ...) {
-  
+#'
+quanti.test.para <- \(data, variable, by, ...) {
+
   .var <- data[[variable]]
   .by <- data[[by]]
-  
+
   if (nlevels(factor(.by)) == 2) {
-      
+
     tidy(t.test(.var ~ .by, var.equal = TRUE))
-      
+
   } else {
-    
+
     tidy(anova(.var ~ .by, var.equal = TRUE))
-      
+
   }
-  
+
 }
 
 
 #' Title
 #'
 #' @param data arg
-#' @param variable arg 
-#' @param by arg 
-#' @param ... arg 
+#' @param variable arg
+#' @param by arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
-quanti.test.nonpara <- \(data, 
-                         variable, 
-                         by,
-                         ...) {
-  
+#'
+quanti.test.nonpara <- \(data, variable, by, ...) {
+
   .var <- data[[variable]]
   .by <- data[[by]]
-  
+
   if (nlevels(factor(.by)) == 2) {
-      
+
     tidy(wilcox.test(.var ~ .by, exact = FALSE, correct = FALSE))
-      
+
   } else {
-    
+
     tidy(kruskal.test(.var ~ .by))
-      
+
   }
-  
+
 }
 
 
 #' Title
 #'
-#' @param data arg 
-#' @param variable arg 
-#' @param by arg 
-#' @param ... arg 
+#' @param data arg
+#' @param variable arg
+#' @param by arg
+#' @param ... arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 quali.test <- \(data, variable, by, ...) {
-  
+
   .var <- data[[variable]]
   .by <- factor(data[[by]])
-  
+
   chisq_is_correct <- \(correct) {
-  
+
     chisq.test(.var, .by, correct = correct) |>
     suppressWarnings()
-    
+
   }
-  
+
   chisq.test.no.correct <- chisq_is_correct(FALSE)
-  
+
   is_under <- \(n) {
-    
+
     chisq.test.no.correct$expected |>
       data.frame() |>
       filter(if_any(everything(), ~ . < n)) |>
       nrow() > 0
-    
+
   }
 
   if (is_under(5)) {
-    
+
     if (!is_under(2)) {
-  
+
       tidy(chisq_is_correct(TRUE))
-  
+
     } else {
-      
+
       tidy(fisher.test(.var, .by))
-      
+
     }
-    
+
   } else {
-    
+
     tidy(chisq.test.no.correct)
-    
+
   }
-  
+
 }
 
 
@@ -133,7 +127,7 @@ quali.test <- \(data, variable, by, ...) {
 all_dichotomous_uv <- \(data, ...) {
 
   dots <- c(...) %||% names(data)
-  
+
   level <- map_int(dots, ~ nlevels(data[[.]]))
 
   dots[level == 2]
@@ -144,56 +138,11 @@ all_dichotomous_uv <- \(data, ...) {
 #' Title
 #'
 #' @param data arg
-#' @param estim_col arg
-#' @param ci_col arg
-#' @param name arg 
-#' @param ci_data arg
-#' @param digit arg 
-#' @param percent arg
-#' @param keep arg 
-#'
-#' @return arg
-#' @export
-#'
-#' @examples "arg"
-#'
-merge_estim_ci <- \(data,
-                    estim_col = "estimate",
-                    ci_col = starts_with("conf."),
-                    name = "estimate_ci",
-                    ci_data = check_opts(ci$data),
-                    digit = 2,
-                    percent = FALSE,
-                    keep = FALSE) {
-
-  name <- glue(name)
-  
-  vars <- expr(c(all_of(estim_col), all_of(ci_col)))
-  
-  if (percent) multi <- 100 else multi <- 1
-
-  data <-
-  data |>
-    mutate(across(!!vars,
-                  ~ round(. * multi, 2) |>
-                    format(nsmall = 2)),
-           "{name}" := glue("{get(estim_col)} ", ci_data))
-  
-  if (!keep) data <- data |> select(-eval(vars))
-  
-  return(data)
-
-}
-
-
-#' Title
-#'
-#' @param data arg
 #' @param var arg
 #' @param new_lab arg
-#' @param ref_lab arg 
-#' @param ref_level arg 
-#' @param tolower_level arg 
+#' @param ref_lab arg
+#' @param ref_level arg
+#' @param tolower_level arg
 #'
 #' @return arg
 #' @export
@@ -206,7 +155,7 @@ easy_relab <- \(data,
                 ref_lab = " \u2014 ref",
                 ref_level = data$table_body$reference_level,
                 tolower_level = TRUE) {
-  
+
   ref_sep <-
   data$table_body$label |>
     str_extract(glue("(?<={ref_lab}).\\s*")) |>
@@ -214,7 +163,7 @@ easy_relab <- \(data,
     unique()
 
   if (tolower_level) ref_level <- tolower(ref_level) else ref_level
-  
+
   str <- "{glue(new_lab)}{ref_lab}{ref_sep}{ref_level}"
 
   data |>
@@ -229,52 +178,58 @@ easy_relab <- \(data,
 #' Title
 #'
 #' @param data arg
-#' @param vars arg 
-#' @param levels arg 
-#' @param rows arg 
-#' @param pvalue_mv arg 
-#' @param note arg 
+#' @param vars arg
+#' @param levels arg
+#' @param rows arg
+#' @param pvalue_mv arg
+#' @param note arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
-add_note <- \(data,
-              vars = NULL,
-              levels = NULL,
-              rows = NULL,
-              pvalue_mv = NULL,
-              note) {
-  
+#'
+add_note <- \(
+  data,
+  vars = NULL,
+  levels = NULL,
+  rows = NULL,
+  pvalue_mv = NULL,
+  note
+) {
+
   if (is.null(pvalue_mv)) {
-  
+
     rows <- enexpr(rows)
-    
+
     if (!is.null(vars)) {
-      
+
       vars <- expr(variable %in% !!vars & row_type == "label")
-      
+
     } else if (!is.null(levels)) {
-      
+
       vars <- expr(label %in% !!levels)
-    
+
     } else if (!is.null(rows)) {
-      
+
       vars <- enexpr(rows)
-    
+
     }
 
-    tab_footnote(data = data,
-                 footnote = note,
-                 locations = cells_body(columns = label, rows = !!vars))
-    
+    tab_footnote(
+      data = data,
+      footnote = note,
+      locations = cells_body(columns = label, rows = !!vars)
+    )
+
   } else {
-    
-    tab_footnote(data = data,
-                 footnote = note,
-                 locations = cells_column_labels(glue("p.value_{pvalue_mv + 1}")))
-    
+
+    tab_footnote(
+      data = data,
+      footnote = note,
+      locations = cells_column_labels(glue("p.value_{pvalue_mv + 1}"))
+    )
+
   }
 
 }
@@ -282,137 +237,137 @@ add_note <- \(data,
 
 #' Title
 #'
-#' @param x arg 
-#' @param cap arg 
+#' @param x arg
+#' @param cap arg
 #' @param sep arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
-fct_str <- \(x, 
-             sep, 
+#'
+fct_str <- \(x,
+             sep,
              cap = TRUE) {
-  
+
   str <-
   x |>
-    str_squish() |> 
-    fct_count(sort = TRUE) |> 
-    drop_na() |> 
-    mutate(str = glue("{f} [{n}]")) |> 
-    pull(str) |> 
-    str_flatten(sep) |> 
+    str_squish() |>
+    fct_count(sort = TRUE) |>
+    drop_na() |>
+    mutate(str = glue("{f} [{n}]")) |>
+    pull(str) |>
+    str_flatten(sep) |>
     glue(".")
-    
+
   if (cap) str <- str |> tolower() %>% str_cap(toupper, .)
 
   return(str)
-    
+
 }
 
 
 #' Title
 #'
-#' @param fct arg 
-#' @param chr arg 
-#' @param min arg 
+#' @param fct arg
+#' @param chr arg
+#' @param min arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 fct_other_str <- \(fct, chr, min) {
-  
+
   fct <-
-  fct |> 
-    fct_count(sort = TRUE) |> 
-    filter(f != "Other", n < min) |> 
-    mutate(str = glue("{f} ({n})")) |> 
-    pull(str) |> 
-    str_flatten_comma() |> 
+  fct |>
+    fct_count(sort = TRUE) |>
+    filter(f != "Other", n < min) |>
+    mutate(str = glue("{f} ({n})")) |>
+    pull(str) |>
+    str_flatten_comma() |>
     tolower()
-  
+
   fct <- str_cap(toupper, fct)
-  
+
   chr <- fct_str(chr, cap = FALSE)
-  
+
   paste(fct, chr, sep = ", ")
-   
+
 }
 
 #' Title
 #'
-#' @param data arg 
-#' @param var arg 
-#' @param min arg 
-#' @param sep arg 
+#' @param data arg
+#' @param var arg
+#' @param min arg
+#' @param sep arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 fct_keep <- \(data,
               var,
               min,
               sep) {
 
   x <-
-  data |> 
-    separate_longer_delim(!!var, delim = regex("\\s*(,|et)\\s*")) |> 
+  data |>
+    separate_longer_delim(!!var, delim = regex("\\s*(,|et)\\s*")) |>
     count(!!var := get(var), sort = TRUE) |>
-    drop_na() |> 
-    split(~ n >= min) |> 
+    drop_na() |>
+    split(~ n >= min) |>
     set_names(c("drop", "keep"))
-  
+
   y <-
   list(keep =
-         x$keep |> 
-           pull(!!var) |> 
+         x$keep |>
+           pull(!!var) |>
            as.character(),
-       drop = 
-         x$drop |> 
-           mutate(str = glue("{get(var)} [{n}]")) |> 
-           pull(str) |> 
+       drop =
+         x$drop |>
+           mutate(str = glue("{get(var)} [{n}]")) |>
+           pull(str) |>
            str_flatten(sep) %>%
            glue("."))
 
   return(y)
-  
+
 }
 
 
 #' Title
 #'
 #' @param x arg
-#' @param name arg 
+#' @param name arg
 #' @param indent arg
-#' @param levels arg 
+#' @param levels arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 add_label <- \(x,
                name,
                levels,
                indent = 0) {
-  
+
   .before_index <- grep(levels[1], x$table_body$variable)[1]
-  
+
   x <-
-  x |> 
+  x |>
     modify_table_body(
       ~ . |>
-        add_row(label = name, 
+        add_row(label = name,
                 .before = .before_index)
     ) |>
     modify_column_indent(columns = label,
                          rows = label == name,
-                         indent = indent) |> 
+                         indent = indent) |>
     modify_column_indent(columns = label,
                          rows = variable %in% levels,
                          indent = indent + 4)
@@ -428,11 +383,11 @@ add_label <- \(x,
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 str_na_mv <- \(data) {
-  
+
   n_total <- nrow(data)
-  
+
   na <-
   lst(n = data |> filter(if_any(everything(), is.na)) |> nrow(),
       p = label_p()(n / n_total),
@@ -440,7 +395,7 @@ str_na_mv <- \(data) {
         case_when(n == 0 ~ "aucune observation",
                   n == 1 ~ glue("{n} observation"),
                   .default = glue("{n} observations ({p})")))
-  
+
   glue("{n_total} observations, {na$obs} contenant a minima une donn\u00e9es manquante")
 
 }
@@ -448,40 +403,44 @@ str_na_mv <- \(data) {
 
 #' Title
 #'
-#' @param data arg 
-#' @param exclude arg 
+#' @param data arg
+#' @param exclude arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
-#' 
-show_single_row <- \(data,
-                     exclude = names(data[, 1])) {
-  
+#'
+show_single_row <- \(
+  data,
+  exclude = names(data[, 1])
+) {
+
   all_dichotomous <- expr(c(where(~ nlevels(.) == 2), -all_of(exclude)))
 
-  data |> 
+  data |>
     mutate(across(!!all_dichotomous, ~ if_else(as.numeric(.) == 1, 0, 1)))
-    
+
 }
 
 
 #' Title
 #'
-#' @param data arg 
-#' @param label arg 
+#' @param data arg
+#' @param label arg
 #'
 #' @returns arg
 #' @export
 #'
 #' @examples "arg"
-#' 
+#'
 add_ref_label <- \(data, label = "Reference") {
-  
-  modify_missing_symbol(x = data,
-                        symbol = label,
-                        columns = c(estimate, conf.low, conf.high),
-                        rows = reference_row == TRUE)
-  
+
+  modify_missing_symbol(
+    x = data,
+    symbol = label,
+    columns = c(estimate, conf.low, conf.high),
+    rows = reference_row == TRUE
+  )
+
 }

@@ -71,7 +71,6 @@ check_fonts <- \(...,
 #' @param footnote_marks arg
 #' @param footnote_font_size arg
 #' @param footnote_padding arg
-#' @param docx arg
 #' @param ... arg
 #'
 #' @return arg

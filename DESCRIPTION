@@ -2,7 +2,7 @@ Package: hebstr
 Title: Fonctions perso
 Version: 0.0.0.9000
 Authors@R:
-    person("Julien", "ELICES-DIEZ", , "ju.diez@protonmail.com", role = c("aut", "cre"),
+    person("Henry", "Bostorrhus", , "ju.diez@protonmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0001-3983-5713"))
 Description: Stockage de fonctions perso.
 License: GPL (>= 3)
@@ -14,11 +14,11 @@ Depends:
 Imports:
     broom,
     broom.helpers,
-    car,
     cli,
     colorspace,
     dplyr,
     forcats,
+    fs,
     ggplot2,
     ggsurvfit,
     ggtext,
@@ -27,22 +27,20 @@ Imports:
     grid,
     gt,
     gtsummary,
+    here,
     htmltools,
     labelled,
     lifecycle,
-    lobstr,
     lubridate,
     magick,
     magrittr,
     openxlsx2,
-    parameters,
     parsnip,
     png,
     purrr,
     reactable,
     rlang,
     rsample,
-    rsvg,
     scales,
     stats,
     stringr,
@@ -55,6 +53,8 @@ Imports:
 Suggests:
     knitr,
     quarto,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder:
     quarto
+Config/testthat/edition: 3

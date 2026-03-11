@@ -61,8 +61,6 @@ theme_gt(
 \item{footnote_padding}{arg}
 
 \item{...}{arg}
-
-\item{docx}{arg}
 }
 \value{
 arg
