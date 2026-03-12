@@ -30,10 +30,10 @@ easy_out <- \(
   clear_vars()
 
   cli_h1("easy_out")
-  cli_text("\n\n")
+  cat_line()
 
   cli_alert_info("Objet : {.strong {filename}} {.cls {class(x)}}")
-  cli_text("\n\n")
+  cat_line()
 
   if (!(is_ggplot(x) || inherits(x, c("ggmatrix", "gt_tbl", "gtsummary")))) {
 
@@ -91,10 +91,10 @@ easy_out <- \(
 
     cli_path <- cli::col_br_red(str_glue("{path}.<html/png>"))
 
-    cli_text("\n\n")
+    cat_line()
     cli_alert_info("R\u00e9pertoire racine : {.path {here::here()}}")
     cli_alert_info("Fichiers enregistr\u00e9s dans {cli_path}")
-    cli_text("\n\n")
+    cat_line()
 
     cli_rule()
 
@@ -124,10 +124,10 @@ easy_out <- \(
 
     cli_path <- cli::col_br_red(str_glue("{path}.<svg/png>"))
 
-    cli_text("\n\n")
+    cat_line()
     cli_alert_info("R\u00e9pertoire parent : {.path {here::here()}}")
     cli_alert_info("Fichiers enregistr\u00e9s dans {cli_path}")
-    cli_text("\n\n")
+    cat_line()
 
     cli_rule()
 
