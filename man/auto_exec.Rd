@@ -34,5 +34,4 @@ auto_exec(
   ext = ".md"
 )
 }
-
 }

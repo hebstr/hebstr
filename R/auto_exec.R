@@ -24,29 +24,30 @@
 #'   ext = ".md"
 #' )
 #' }
-#'
 auto_exec <- \(
   dir = "scripts",
   except_starts_with = "_",
   ext = ".R"
 ) {
-
   cli_h1("auto_exec")
   cat_line()
 
-  if (!fs::dir_exists(dir)) cli_abort(
-    "Aucun r\u00e9pertoire nomm\u00e9 {.path {dir}} trouv\u00e9 dans {.path {here::here()}}"
-  )
+  if (!fs::dir_exists(dir)) {
+    cli_abort(
+      "Aucun r\u00e9pertoire nomm\u00e9 {.path {dir}} trouv\u00e9 dans {.path {here::here()}}"
+    )
+  }
 
-  files <-
-  list.files(dir) |>
+  files <- list.files(dir) |>
     discard(startsWith, except_starts_with) |>
     keep(endsWith, ext)
 
-  if (length(files) == 0) cli_abort(c(
-    "Aucun fichier {.code *{ext}} trouv\u00e9 dans {.path {dir}}",
-    "i" = "Fichiers exclus : pr\u00e9fixe {.val {except_starts_with}}"
-  ))
+  if (length(files) == 0) {
+    cli_abort(c(
+      "Aucun fichier {.code *{ext}} trouv\u00e9 dans {.path {dir}}",
+      "i" = "Fichiers exclus : pr\u00e9fixe {.val {except_starts_with}}"
+    ))
+  }
 
   cli_alert_info("R\u00e9pertoire : {.path {dir}}")
   cli_alert_info("Fichiers sourc\u00e9s : {.file {files}}")
@@ -55,5 +56,4 @@ auto_exec <- \(
   walk(files, ~ source(fs::path(dir, .)))
 
   cli_rule()
-
 }

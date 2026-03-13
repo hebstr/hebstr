@@ -14,8 +14,18 @@ theme_bubble(
   axis_color_y = base_color,
   title_color_x = if (length(axis_color_x) == 1) axis_color_x else base_color,
   title_color_y = if (length(axis_color_y) == 1) axis_color_y else base_color,
-  grid_color_x = if (all(axis_color_x != base_color)) axis_color_x else "grey95",
-  grid_color_y = if (all(axis_color_y != base_color)) axis_color_y else "grey95",
+  grid_color_x = if (all(axis_color_x != base_color)) {
+     axis_color_x
+ } else {
+    
+    "grey95"
+ },
+  grid_color_y = if (all(axis_color_y != base_color)) {
+     axis_color_y
+ } else {
+    
+    "grey95"
+ },
   grid_lighten_x = if (all(grid_color_x != "grey95")) 0.85 else 0,
   grid_lighten_y = if (all(grid_color_y != "grey95")) 0.85 else 0,
   ...

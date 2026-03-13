@@ -1,0 +1,30 @@
+[format]
+# Largeur de ligne préférée (1-320, défaut: 80)
+line-width = 80
+
+# Nombre d'espaces par niveau d'indentation (1-24, défaut: 2)
+indent-width = 2
+
+# Style d'indentation: "space" ou "tab" (défaut: "space")
+indent-style = "space"
+
+# Fins de ligne: "auto", "lf", "crlf", "native" (défaut: "auto")
+line-ending = "auto"
+
+# Respecter les sauts de ligne intentionnels (défaut: true)
+persistent-line-breaks = true
+
+# Fichiers à exclure du formatage (patterns gitignore)
+exclude = []
+
+# Utiliser les exclusions par défaut (défaut: true)
+default-exclude = true
+
+# Fonctions dont le contenu ne sera pas reformaté (évite d'ajouter # fmt: skip)
+skip = []
+
+# Appels de fonctions formatés automatiquement en table (ex: tribble, fcase)
+table = []
+
+# Utiliser les règles de formatage table par défaut (défaut: true)
+default-table = true
