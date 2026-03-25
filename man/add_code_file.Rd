@@ -2,28 +2,33 @@
 % Please edit documentation in R/qmd_helpers.R
 \name{add_code_file}
 \alias{add_code_file}
-\title{Title}
+\title{Add an external code file in a Quarto document}
 \usage{
 add_code_file(src, name = NULL, suffix = NULL, sep = " ", lang = NULL)
 }
 \arguments{
-\item{src}{arg}
+\item{src}{Path to the source file to include (relative to the Quarto
+project root).}
 
-\item{name}{arg}
+\item{name}{Display name for the code block. Defaults to the basename of
+\code{src} (everything after the last \code{/}).}
 
-\item{suffix}{arg}
+\item{suffix}{Optional suffix appended to \code{name}.}
 
-\item{sep}{arg}
+\item{sep}{Separator between \code{name} and \code{suffix}. Defaults to \code{" "}.}
 
-\item{lang}{arg}
+\item{lang}{Language identifier for syntax highlighting. Defaults to the
+file extension of \code{src} (lowercased).}
 }
 \value{
-arg
+A \code{\link[glue:glue]{glue::glue()}} string containing the Quarto \code{add-from} directive.
 }
 \description{
-Title
+Generates a Quarto \code{add-from} directive that embeds the contents of an
+external source file with line numbers and a custom filename label.
 }
 \examples{
-"arg"
+add_code_file("R/analysis.R")
+add_code_file("src/utils.py", suffix = "(v2)")
 
 }

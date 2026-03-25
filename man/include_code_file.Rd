@@ -2,22 +2,25 @@
 % Please edit documentation in R/qmd_helpers.R
 \name{include_code_file}
 \alias{include_code_file}
-\title{Title}
+\title{Include an external code file in a Quarto document}
 \usage{
 include_code_file(src, lang = "r")
 }
 \arguments{
-\item{src}{arg}
+\item{src}{Path to the source file to include (relative to the Quarto
+project root).}
 
-\item{lang}{arg}
+\item{lang}{Language identifier for syntax highlighting. Defaults to \code{"r"}.}
 }
 \value{
-arg
+A \code{\link[glue:glue]{glue::glue()}} string containing the Quarto include directive.
 }
 \description{
-Title
+Generates a Quarto fenced code block that includes the contents of an
+external source file with line numbers enabled.
 }
 \examples{
-"arg"
+include_code_file("script.R")
+include_code_file("query.sql", lang = "sql")
 
 }

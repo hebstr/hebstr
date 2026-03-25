@@ -86,17 +86,37 @@ glue_qmd <- \(string) {
   glue(string, .open = "<<", .close = ">>", .envir = parent.frame())
 }
 
-#' Title
+#' Include an external code file in a Quarto document
 #'
-#' @param src arg
-#' @param lang arg
+#' Generates a Quarto fenced code block that includes the contents of an
+#' external source file with line numbers enabled.
 #'
-#' @returns arg
+#' @param src Path to the source file to include (relative to the Quarto
+#'   project root).
+#' @param lang Language identifier for syntax highlighting. Defaults to `"r"`.
+#'
+#' @returns A [glue::glue()] string containing the Quarto include directive.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' include_code_file("script.R")
+#' include_code_file("query.sql", lang = "sql")
 #'
 include_code_file <- \(src, lang = "r") {
+  if (!is.character(src) || length(src) != 1) {
+    cli_abort(c(
+      "{.arg src} must be a single character string",
+      "x" = "Object of class {.cls {class(src)}} of length {length(src)} supplied"
+    ))
+  }
+
+  if (!is.character(lang) || length(lang) != 1) {
+    cli_abort(c(
+      "{.arg lang} must be a single character string",
+      "x" = "Object of class {.cls {class(lang)}} of length {length(lang)} supplied"
+    ))
+  }
+
   glue_qmd(
     "
   ```{.<<lang>> include='<<src>>' code-line-numbers='true'}
@@ -105,18 +125,26 @@ include_code_file <- \(src, lang = "r") {
   )
 }
 
-#' Title
+#' Add an external code file in a Quarto document
 #'
-#' @param src arg
-#' @param name arg
-#' @param suffix arg
-#' @param sep arg
-#' @param lang arg
+#' Generates a Quarto `add-from` directive that embeds the contents of an
+#' external source file with line numbers and a custom filename label.
 #'
-#' @returns arg
+#' @param src Path to the source file to include (relative to the Quarto
+#'   project root).
+#' @param name Display name for the code block. Defaults to the basename of
+#'   `src` (everything after the last `/`).
+#' @param suffix Optional suffix appended to `name`.
+#' @param sep Separator between `name` and `suffix`. Defaults to `" "`.
+#' @param lang Language identifier for syntax highlighting. Defaults to the
+#'   file extension of `src` (lowercased).
+#'
+#' @returns A [glue::glue()] string containing the Quarto `add-from` directive.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' add_code_file("R/analysis.R")
+#' add_code_file("src/utils.py", suffix = "(v2)")
 #'
 add_code_file <- \(
   src,
@@ -125,6 +153,13 @@ add_code_file <- \(
   sep = " ",
   lang = NULL
 ) {
+  if (!is.character(src) || length(src) != 1) {
+    cli_abort(c(
+      "{.arg src} must be a single character string",
+      "x" = "Object of class {.cls {class(src)}} of length {length(src)} supplied"
+    ))
+  }
+
   name <- name %||% str_remove(src, ".+/")
 
   if (!is.null(suffix)) {

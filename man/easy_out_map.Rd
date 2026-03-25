@@ -2,26 +2,30 @@
 % Please edit documentation in R/easy_out.R
 \name{easy_out_map}
 \alias{easy_out_map}
-\title{Title}
+\title{Save a list of ggplot or gt objects to disk}
 \usage{
-easy_out_map(x, filename = NULL, sep = ".", ...)
+easy_out_map(x, filename = NULL, sep = "_", ...)
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A named list of ggplot, ggmatrix, gt_tbl, or gtsummary objects.}
 
-\item{filename}{arg}
+\item{filename}{Base filename. Defaults to the unevaluated expression
+passed as \code{x}.}
 
-\item{sep}{arg}
+\item{sep}{Separator between \code{filename} and the list element name.}
 
-\item{...}{arg}
+\item{...}{Additional arguments passed to \code{\link[=easy_out]{easy_out()}}.}
 }
 \value{
-arg
+\code{NULL} (invisibly, via \code{\link[=easy_out]{easy_out()}}).
 }
 \description{
-Title
+Iterate over a named list and call \code{\link[=easy_out]{easy_out()}} on each element, appending
+the list name to the filename.
 }
 \examples{
-"arg"
+\dontrun{
+easy_out_map(list(fig1 = p1, fig2 = p2))
+}
 
 }
