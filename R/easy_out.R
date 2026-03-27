@@ -59,7 +59,7 @@ easy_out <- \(
   }
 
   if (nzchar(suffix)) {
-    filename <- str_glue("{filename}{sep}{suffix}")
+    filename <- paste0(filename, sep, suffix)
   }
 
   fs::dir_create(path = dir)
@@ -226,7 +226,7 @@ easy_out_map <- \(
   map_fun <- \(data, name) {
     easy_out(
       x = data,
-      filename = str_glue("{filename}{sep}{name}"),
+      filename = paste0(filename, sep, name),
       ...
     )
   }
