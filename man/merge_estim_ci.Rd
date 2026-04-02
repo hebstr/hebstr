@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_estim_ci.R
 \name{merge_estim_ci}
 \alias{merge_estim_ci}
-\title{Title}
+\title{Merge estimate and confidence interval into a single formatted column}
 \usage{
 merge_estim_ci(
   data,
@@ -16,29 +16,34 @@ merge_estim_ci(
 )
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame containing the estimate and CI columns.}
 
-\item{estim_col}{arg}
+\item{estim_col}{String. Name of the estimate column. Default \code{"estimate"}.}
 
-\item{ci_col}{arg}
+\item{ci_col}{Tidy-select. Columns containing the CI bounds.
+Default \code{starts_with("conf.")}.}
 
-\item{name}{arg}
+\item{name}{String. Name of the output column. Supports glue syntax.
+Default \code{"estimate_ci"}.}
 
-\item{ci_data}{arg}
+\item{ci_data}{A glue template for formatting the CI
+(e.g. \code{"[{conf.low}; {conf.high}]"}). Default from \code{check_opts(ci$data)}.}
 
-\item{digit}{arg}
+\item{digit}{Integer. Number of decimal places. Default \code{2}.}
 
-\item{percent}{arg}
+\item{percent}{If \code{TRUE}, multiply values by 100 before formatting.}
 
-\item{keep}{arg}
+\item{keep}{If \code{TRUE}, keep the original estimate and CI columns.}
 }
 \value{
-arg
+A data frame with the merged column (and optionally the originals).
 }
 \description{
-Title
+Combines a point estimate column and its confidence interval columns into
+a single character column (e.g. \code{"1.23 [0.98; 1.50]"}).
 }
 \examples{
-"arg"
+df <- data.frame(estimate = 1.234, conf.low = 0.5, conf.high = 2.0)
+merge_estim_ci(df, ci_data = "[{conf.low}; {conf.high}]")
 
 }

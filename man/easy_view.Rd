@@ -9,6 +9,7 @@ easy_view(
   name = NULL,
   font_size = "0.8rem",
   font_family = check_fonts(.auto = "luciole"),
+  level_sep = " ; ",
   strip_color = set_opts(.assign = FALSE)$color$cold[1],
   assign = FALSE,
   ...

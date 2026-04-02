@@ -77,6 +77,19 @@ clear_vars <- \(env = ".vars_context") {
 }
 
 
+#' Title
+#'
+#' @param .default_font arg
+#' @param .vars_envir arg
+#' @param .assign arg
+#' @param .name arg
+#' @param ... arg
+#'
+#' @returns arg
+#'
+#' @export
+#' @examples "arg"
+#'
 set_opts <- \(
   .default_font = "trebuchet ms",
   .vars_envir = .vars_context$current,
