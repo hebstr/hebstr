@@ -92,12 +92,40 @@ clear_vars <- \(env = ".vars_context") {
 #'
 set_opts <- \(
   .default_font = "trebuchet ms",
-  .vars_envir = .vars_context$current,
+  .vars_envir = NULL,
   .assign = TRUE,
   .name = "opts",
   ...
 ) {
+  if (!.assign && exists(.name, envir = .GlobalEnv)) {
+    return(get(.name, envir = .GlobalEnv))
+  }
+
   dots <- lst(...)
+
+  user_vars_envir <- .vars_envir
+  last_seen_envir <- NULL
+  resolve_vars_envir <- \() {
+    if (!is.null(user_vars_envir)) {
+      return(user_vars_envir)
+    }
+    if (
+      exists(".vars_context", envir = globalenv()) &&
+        !is.null(get(".vars_context", envir = globalenv())$current)
+    ) {
+      last_seen_envir <<- get(".vars_context", envir = globalenv())$current
+      return(last_seen_envir)
+    }
+    if (!is.null(last_seen_envir)) {
+      return(last_seen_envir)
+    }
+    cli_abort(
+      c(
+        "{.code .vars_context$current} is not set.",
+        i = "Call {.fun use_vars} on your dataset before evaluating {.code opts$vars$*}, or pass {.arg .vars_envir} explicitly to {.fun set_opts}."
+      )
+    )
+  }
 
   .fonts <- \(x) check_fonts(.default = .default_font, .auto = x)
 
@@ -177,24 +205,25 @@ set_opts <- \(
       )
   }
 
-  .vars <- \(..., envir = .vars_envir) {
+  .vars <- \(...) {
     cap <- \(x) str_cap(tolower, names(x))
+    e <- \() resolve_vars_envir()
 
     list(
       test = list(
-        envir$qt$vars$parametric ~ "quanti.test.para",
-        envir$qt$vars$nonparametric ~ "quanti.test.nonpara",
+        e()$qt$vars$parametric ~ "quanti.test.para",
+        e()$qt$vars$nonparametric ~ "quanti.test.nonpara",
         all_categorical() ~ "quali.test"
       ),
       stat = list(
-        envir$qt$vars$parametric ~ envir$qt$stat$mean,
-        envir$qt$vars$nonparametric ~ envir$qt$stat$median,
-        all_categorical() ~ envir$ql$stat$n
+        e()$qt$vars$parametric ~ e()$qt$stat$mean,
+        e()$qt$vars$nonparametric ~ e()$qt$stat$median,
+        all_categorical() ~ e()$ql$stat$n
       ),
       label = list(
-        envir$qt$vars$parametric ~ cap(envir$qt$stat$mean),
-        envir$qt$vars$nonparametric ~ cap(envir$qt$stat$median),
-        all_categorical() ~ cap(envir$ql$stat$n)
+        e()$qt$vars$parametric ~ cap(e()$qt$stat$mean),
+        e()$qt$vars$nonparametric ~ cap(e()$qt$stat$median),
+        all_categorical() ~ cap(e()$ql$stat$n)
       )
     )
   }
@@ -252,7 +281,7 @@ check_opts <- \(x, .name = "opts") {
   } else {
     cli_abort(
       c(
-        "{.strong {.name}} does not exist in the global environment.",
+        "{.strong { .name }} does not exist in the global environment.",
         i = "Create it with {.fun set_opts}."
       )
     )

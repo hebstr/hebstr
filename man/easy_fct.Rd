@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_fct.R
 \name{easy_fct}
 \alias{easy_fct}
-\title{Title}
+\title{Recode or bin a variable in a data frame}
 \usage{
 easy_fct(
   x,
@@ -12,33 +12,65 @@ easy_fct(
   cut = NULL,
   .btw = NULL,
   .name = enexpr(var),
+  .dots = list(),
   ...
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A data frame.}
 
-\item{var}{arg}
+\item{var}{<\code{\link[rlang:args_data_masking]{data-masking}}> Column to
+recode or bin (unquoted).}
 
-\item{inf}{arg}
+\item{inf, sup}{Lower and upper bounds for numeric binning.
+Both required when \code{cut} is \code{NULL}.}
 
-\item{sup}{arg}
+\item{cut}{Single numeric threshold for a binary split. When
+supplied, \code{inf} and \code{sup} are ignored.}
 
-\item{cut}{arg}
+\item{.btw}{Optional intermediate breakpoint between \code{inf} and
+\code{sup}, producing 4 classes instead of 3.}
 
-\item{.btw}{arg}
+\item{.name}{Name for the output column (defaults to \code{var}).
+Useful to create a new column instead of overwriting.}
 
-\item{.name}{arg}
+\item{.dots}{A named list of recode mappings, as an alternative
+to passing them via \code{...}.}
 
-\item{...}{arg}
+\item{...}{For categorical variables: recode mappings forwarded
+to \code{\link[forcats:fct_recode]{forcats::fct_recode()}}. For numeric \code{cut} mode: extra
+arguments forwarded to \code{\link[base:cut]{base::cut()}}.}
 }
 \value{
-arg
+A data frame with the recoded or binned column.
 }
 \description{
-Title
+Dual-purpose helper that either recodes a categorical variable
+using \code{\link[forcats:fct_recode]{forcats::fct_recode()}} or bins a numeric variable into
+ordered factor levels. The dispatch is automatic based on the
+column type.
 }
+\section{Categorical variables}{
+
+When \code{var} is non-numeric, \code{...} and \code{.dots} are forwarded to
+\code{\link[forcats:fct_recode]{forcats::fct_recode()}} as \code{"new_level" = "old_level"} pairs.
+The resulting factor is releveled in the order of the supplied
+mappings.
+}
+
+\section{Numeric variables}{
+
+Three binning modes are available:
+\itemize{
+\item \strong{\code{inf} + \code{sup}}: 3 classes: \verb{<inf}, \verb{[inf-sup)}, \verb{>=sup}.
+\item \strong{\code{inf} + \code{sup} + \code{.btw}}: 4 classes with an intermediate
+breakpoint at \code{.btw}.
+\item \strong{\code{cut}}: 2 classes via \code{\link[base:cut]{base::cut()}}: \verb{<cut}, \verb{>=cut}.
+}
+}
+
 \examples{
-"arg"
+df <- data.frame(age = c(20, 45, 60, 75))
+easy_fct(df, age, inf = 30, sup = 65)
 
 }

@@ -65,146 +65,132 @@
 #' df_mtcars <- easy_descr(mtcars)
 #' str(df_mtcars, max.level = 2)
 #' df_mtcars
-#' 
+#'
 #' # Appel des éléments
 #' df_mtcars$qt$vars$total
 #' df_mtcars$ql$vars
-#' 
+#'
 #' # Spécification explicite de variables paramétriques
 #' df_mtcars_para <- mtcars |> easy_descr(parametric = "mpg|hp|disp")
 #' df_mtcars_para$qt$vars$parametric
-#' 
+#'
 #' # Typographie par défaut (EN)
 #' df_en <- easy_descr(mtcars)
 #' df_en$qt$stat |> with(c(median, mean))
-#' 
+#'
 #' # Typographie FR
-#' lang_fr() 
+#' lang_fr()
 #' df_fr <- easy_descr(mtcars)
 #' df_fr$qt$stat |> with(c(median, mean))
-#' 
+#'
 #' # Personnalisation des statistiques quantitatives
-#' df_stats <- 
+#' df_stats <-
 #' easy_descr(data = mtcars,
-#'            qt_stat = 
+#'            qt_stat =
 #'              list(median = c("Median" = "{median}"),
 #'                   range = c("Range" = "{min}-{max}")))
-#' 
+#'
 #' df_stats$qt$stat
-#' 
+#'
 #' # Analyse avec données temporelles
 #' df_storms <-
-#' dplyr::storms |> 
+#' dplyr::storms |>
 #'   dplyr::mutate(date_storm = as.Date(paste(year, month, day, sep = "-")))
-#' 
+#'
 #' # Configuration avec toutes variables continues comme paramétriques
 #' df_storms_para <- df_storms |> easy_descr(parametric = "all_continuous")
 #' df_storms_para$qt$vars$parametric
 #' df_storms_para$qt$vars$nonparametric
-#' 
+#'
 #' # Application avec gtsummary (TODO)
 #'
 #' @family fonctions d'analyse exploratoire
 #'
 #' @export
-easy_descr <- \(data,
-                parametric = nullfile(),
-                qt_stat = NULL,
-                ql_stat = NULL) {
-
+easy_descr <- \(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL) {
   cli_h1("easy_descr")
   cli_text("\n\n")
 
-### QT DATA -------------------------------------------------------------------------------
+  ### QT DATA -------------------------------------------------------------------------------
 
   str_parametric <- glue("\\b{parametric}\\b")
-  
+
   qt_vars <-
-  lst(total = 
-        data |> 
-          keep(~ is.numeric(.) & length(unique(na.omit(.))) != 2) |>
-          names(),
+    lst(
+      total = data |>
+        keep(~ is.numeric(.) & length(unique(na.omit(.))) != 2) |>
+        names(),
       parametric = str_subset(total, str_u(str_parametric)),
-      nonparametric = 
-        data |> 
-          select(all_of(total), -matches(str_parametric)) |> 
-          names())
-  
+      nonparametric = data |>
+        select(all_of(total), -matches(str_parametric)) |>
+        names()
+    )
+
   if (all(parametric == "all_continuous")) {
-    
     qt_vars$parametric <- qt_vars$total
     qt_vars$nonparametric <- NULL
-    
   }
-  
+
   .qt_stat <-
-  list(min = c("Min" = "{min}"),
-       q1 = c("Q1" = "{p25}"),
-       median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
-       q3 = c("Q3" = "{p75}"),
-       max = c("Max" = "{max}"),
-       mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}"))
-  
+    list(
+      min = c("Min" = "{min}"),
+      q1 = c("Q1" = "{p25}"),
+      median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
+      q3 = c("Q3" = "{p75}"),
+      max = c("Max" = "{max}"),
+      mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}")
+    )
+
   if (getOption("OutDec") == ",") {
-   
     .qt_stat <-
-    .qt_stat |> 
-      list_modify(median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
-                  mean = c("Moyenne\u00b1SD" = "{mean}\u00b1{sd}"))
-     
+      .qt_stat |>
+      list_modify(
+        median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
+        mean = c("Moyenne\u00b1SD" = "{mean}\u00b1{sd}")
+      )
   }
-  
+
   qt_stat <- .qt_stat |> list_modify(!!!qt_stat)
 
-### QL DATA -----------------------------------------------------------------------------
+  ### QL DATA -----------------------------------------------------------------------------
 
   ql_vars <-
-  data |> 
-    keep(~ !is.numeric(.) & !is.Date(.)) |> 
+    data |>
+    keep(~ !is.numeric(.) & !is.Date(.)) |>
     names()
 
   ql_stat <-
-  list(n = c("n (%)" = "{n} ({p})")) |>
+    list(n = c("n (%)" = "{n} ({p})")) |>
     list_modify(!!!ql_stat)
 
-### BIN DATA ----------------------------------------------------------------------------
+  ### BIN DATA ----------------------------------------------------------------------------
 
   bin_vars <-
-  data |>
-    select(-eval(qt_vars$total), 
-           -all_of(ql_vars), 
-           -where(is.Date)) |>
+    data |>
+    select(-eval(qt_vars$total), -all_of(ql_vars), -where(is.Date)) |>
     names()
 
-### DATE DATA ---------------------------------------------------------------------------
+  ### DATE DATA ---------------------------------------------------------------------------
 
-  date_vars <- 
-  data |>
+  date_vars <-
+    data |>
     keep(is.Date) |>
     names()
 
-### ASSIGN ------------------------------------------------------------------------------
+  ### ASSIGN ------------------------------------------------------------------------------
 
   descr <-
-  lst(qt =
-        lst(vars = qt_vars,
-            stat = qt_stat,
-            spanner = names(list_c(stat))),
-      ql =
-        lst(vars = ql_vars,
-            stat = ql_stat,
-            spanner = names(list_c(stat))),
-      bin =
-        lst(vars = bin_vars,
-            stat = ql_stat,
-            spanner = names(list_c(stat))),
-      date =
-        lst(vars = date_vars))
+    lst(
+      qt = lst(vars = qt_vars, stat = qt_stat, spanner = names(list_c(stat))),
+      ql = lst(vars = ql_vars, stat = ql_stat, spanner = names(list_c(stat))),
+      bin = lst(vars = bin_vars, stat = ql_stat, spanner = names(list_c(stat))),
+      date = lst(vars = date_vars)
+    )
 
-### CLI -------------------------------------------------------------------------------
+  ### CLI -------------------------------------------------------------------------------
 
   cli_qt_total_length <-
-  data |>
+    data |>
     select(eval(descr$qt$vars$total)) |>
     length()
 
@@ -217,20 +203,18 @@ easy_descr <- \(data,
   cli_alert_info("{.strong {substitute(data)}}: {length(data)} variables")
   cli_text("\n\n")
   cli_alert_success("{.strong Quantitative:} {cli_qt_total_length} variables")
-    cli_li(c("Parametric: {cli_qt_p}",
-             "Non-parametric: {cli_qt_np}"))
+  cli_li(c("Parametric: {cli_qt_p}", "Non-parametric: {cli_qt_np}"))
   cli_text("\n\n")
   cli_alert_success("{.strong Qualitative:} {length(descr$ql$vars)} variables")
-    cli_li("{cli_ql}")
+  cli_li("{cli_ql}")
   cli_text("\n\n")
   cli_alert_success("{.strong Dichotomous:} {length(descr$bin$vars)} variables")
-    cli_li("{cli_bin}")
+  cli_li("{cli_bin}")
   cli_text("\n\n")
   cli_alert_success("{.strong Date:} {length(descr$date$vars)} variables")
-    cli_li("{cli_date}")
+  cli_li("{cli_date}")
   cli_text("\n\n")
   cli_rule()
 
   return(descr)
-
 }

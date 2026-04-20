@@ -6,7 +6,7 @@
 \usage{
 set_opts(
   .default_font = "trebuchet ms",
-  .vars_envir = .vars_context$current,
+  .vars_envir = NULL,
   .assign = TRUE,
   .name = "opts",
   ...

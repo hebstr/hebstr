@@ -99,14 +99,14 @@ df_en <- easy_descr(mtcars)
 df_en$qt$stat |> with(c(median, mean))
 
 # Typographie FR
-lang_fr() 
+lang_fr()
 df_fr <- easy_descr(mtcars)
 df_fr$qt$stat |> with(c(median, mean))
 
 # Personnalisation des statistiques quantitatives
-df_stats <- 
+df_stats <-
 easy_descr(data = mtcars,
-           qt_stat = 
+           qt_stat =
              list(median = c("Median" = "{median}"),
                   range = c("Range" = "{min}-{max}")))
 
@@ -114,7 +114,7 @@ df_stats$qt$stat
 
 # Analyse avec données temporelles
 df_storms <-
-dplyr::storms |> 
+dplyr::storms |>
   dplyr::mutate(date_storm = as.Date(paste(year, month, day, sep = "-")))
 
 # Configuration avec toutes variables continues comme paramétriques
