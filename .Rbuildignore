@@ -11,3 +11,4 @@
 ^\.vscode$
 ^[.]?air[.]toml$
 ^TODO.md$
+^\.claude$
