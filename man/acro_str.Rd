@@ -127,9 +127,9 @@ definitions_statistiques
 
 }
 \seealso{
-Other fonctions de formatage: 
-\code{\link{acro}()},
-\code{\link{str_cap}()},
-\code{\link{str_u}()}
+Other fonctions de formatage:
+\code{\link[=acro]{acro()}},
+\code{\link[=str_cap]{str_cap()}},
+\code{\link[=str_u]{str_u()}}
 }
 \concept{fonctions de formatage}

@@ -24,6 +24,8 @@ easy_view(
 
 \item{font_family}{arg}
 
+\item{level_sep}{arg}
+
 \item{strip_color}{arg}
 
 \item{assign}{arg}

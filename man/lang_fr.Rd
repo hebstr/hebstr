@@ -30,6 +30,6 @@ withr::with_options(list(OutDec = "."), {
 
 }
 \seealso{
-\code{\link[gtsummary:theme_gtsummary]{gtsummary::theme_gtsummary_language()}}
+\code{\link[gtsummary:theme_gtsummary_language]{gtsummary::theme_gtsummary_language()}}
 }
 \concept{configuration}

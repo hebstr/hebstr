@@ -73,12 +73,12 @@ noms_standardises <- sapply(noms_regions, \(x) str_cap(toupper, x))
 }
 \seealso{
 \itemize{
-\item \code{\link[stringr:case]{stringr::str_to_title()}} pour la conversion en casse de titre
+\item \code{\link[stringr:str_to_title]{stringr::str_to_title()}} pour la conversion en casse de titre
 }
 
-Other fonctions de formatage: 
-\code{\link{acro}()},
-\code{\link{acro_str}()},
-\code{\link{str_u}()}
+Other fonctions de formatage:
+\code{\link[=acro]{acro()}},
+\code{\link[=acro_str]{acro_str()}},
+\code{\link[=str_u]{str_u()}}
 }
 \concept{fonctions de formatage}

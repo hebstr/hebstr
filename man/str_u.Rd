@@ -94,9 +94,9 @@ Documentation stringr pour les expressions régulières :
 \item \code{\link[stringr:str_c]{stringr::str_c()}} pour la concaténation de chaînes de caractères
 }
 
-Other fonctions de formatage: 
-\code{\link{acro}()},
-\code{\link{acro_str}()},
-\code{\link{str_cap}()}
+Other fonctions de formatage:
+\code{\link[=acro]{acro()}},
+\code{\link[=acro_str]{acro_str()}},
+\code{\link[=str_cap]{str_cap()}}
 }
 \concept{fonctions de formatage}

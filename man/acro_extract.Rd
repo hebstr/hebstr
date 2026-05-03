@@ -137,7 +137,7 @@ acronymes_business
 
 }
 \seealso{
-Other fonctions de manipulation de chaînes: 
-\code{\link{acro_match}()}
+Other fonctions de manipulation de chaînes:
+\code{\link[=acro_match]{acro_match()}}
 }
 \concept{fonctions de manipulation de chaînes}

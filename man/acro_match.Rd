@@ -114,7 +114,7 @@ Documentation labelled pour la gestion des métadonnées :
 \item \code{\link[labelled:var_label]{labelled::var_label()}} pour la gestion des étiquettes de variables
 }
 
-Other fonctions de manipulation de chaînes: 
-\code{\link{acro_extract}()}
+Other fonctions de manipulation de chaînes:
+\code{\link[=acro_extract]{acro_extract()}}
 }
 \concept{fonctions de manipulation de chaînes}

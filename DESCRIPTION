@@ -7,8 +7,6 @@ Authors@R:
 Description: Stockage de fonctions perso.
 License: GPL (>= 3)
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -51,10 +49,15 @@ Imports:
     webshot2,
     withr
 Suggests:
+    car,
     knitr,
+    parameters,
     quarto,
     rmarkdown,
+    rsvg,
     testthat (>= 3.0.0)
 VignetteBuilder:
     quarto
 Config/testthat/edition: 3
+Config/roxygen2/markdown: TRUE
+Config/roxygen2/version: 8.0.0

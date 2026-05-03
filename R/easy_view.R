@@ -4,6 +4,7 @@
 #' @param name arg
 #' @param font_size arg
 #' @param font_family arg
+#' @param level_sep arg
 #' @param strip_color arg
 #' @param assign arg
 #' @param ... arg

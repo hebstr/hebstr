@@ -13,5 +13,10 @@ Stockage de fonctions perso.
 \author{
 \strong{Maintainer}: Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID})
 
+Authors:
+\itemize{
+  \item Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID})
+}
+
 }
 \keyword{internal}

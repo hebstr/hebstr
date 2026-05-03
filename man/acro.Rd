@@ -168,9 +168,9 @@ Documentation rlang sur la métaprogrammation tidyeval :
 \url{https://rlang.r-lib.org/reference/topic-metaprogramming.html}
 }
 \seealso{
-Other fonctions de formatage: 
-\code{\link{acro_str}()},
-\code{\link{str_cap}()},
-\code{\link{str_u}()}
+Other fonctions de formatage:
+\code{\link[=acro_str]{acro_str()}},
+\code{\link[=str_cap]{str_cap()}},
+\code{\link[=str_u]{str_u()}}
 }
 \concept{fonctions de formatage}
