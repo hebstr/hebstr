@@ -12,6 +12,7 @@ Depends:
 Imports:
     broom,
     broom.helpers,
+    car,
     cli,
     colorspace,
     dplyr,
@@ -33,12 +34,14 @@ Imports:
     magick,
     magrittr,
     openxlsx2,
+    parameters,
     parsnip,
     png,
     purrr,
     reactable,
     rlang,
     rsample,
+    rsvg,
     scales,
     stats,
     stringr,
@@ -49,12 +52,9 @@ Imports:
     webshot2,
     withr
 Suggests:
-    car,
     knitr,
-    parameters,
     quarto,
     rmarkdown,
-    rsvg,
     testthat (>= 3.0.0)
 VignetteBuilder:
     quarto
