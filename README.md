@@ -11,5 +11,5 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ``` r
 #install.packages("pak")
-pak::pkg_install("git::https://codeberg.org/hebstr/hebstr", dependencies = TRUE)
+pak::pak("hebstr/hebstr")
 ```

@@ -10,6 +10,14 @@
 
 Stockage de fonctions perso.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/hebstr/hebstr}
+  \item Report bugs at \url{https://github.com/hebstr/hebstr/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID})
 

@@ -2,22 +2,16 @@
 
 @font-face {
   font-family: "Luciole";
-  src:
-    local("Luciole-Regular"),
-    url('https://codeberg.org/hebstr/r_doc/raw/branch/main/Luciole_webfonts/Luciole-Regular/Luciole-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: fallback;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Luciole-Regular.woff2') format('woff2');
 }
 
 @font-face {
   font-family: "Luciole";
-  src:
-    local("Luciole-Bold"),
-    url('https://codeberg.org/hebstr/r_doc/raw/branch/main/Luciole_webfonts/Luciole-Bold/Luciole-Bold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: bold;
-  font-display: fallback;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Luciole-Bold.woff2') format('woff2');
 }
 
 body {

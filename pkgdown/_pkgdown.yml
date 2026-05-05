@@ -1,4 +1,4 @@
-url: https://codeberg.org/hebstr/hebstr/
+url: https://github.com/hebstr/hebstr/
 
 template:
   bootstrap: 5
@@ -11,5 +11,5 @@ template:
 
 repo:
   url:
-    home: https://codeberg.org/hebstr/hebstr/
-    source: https://codeberg.org/hebstr/hebstr/src/branch/main/
+    home: https://github.com/hebstr/hebstr/
+    source: https://github.com/hebstr/hebstr/blob/main/
