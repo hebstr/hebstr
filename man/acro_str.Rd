@@ -61,7 +61,7 @@ acro_str("IQR: interquartile range", "OR: odds ratio", "HR: hazard ratio")
 # Application avec le dataset mtcars pour contexte automobile
 definitions_vehicules <- c(
   "MPG: miles per gallon",
-  "HP: horsepower", 
+  "HP: horsepower",
   "CYL: number of cylinders"
 )
 acro_str(definitions_vehicules[1], definitions_vehicules[2])

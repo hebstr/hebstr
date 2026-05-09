@@ -81,9 +81,7 @@
 #'
 #' @export
 str_u <- \(...) {
-
   str_c(c(...), collapse = "|")
-
 }
 
 #' Formater du texte avec couleurs et styles HTML intégrés
@@ -110,15 +108,11 @@ str_u <- \(...) {
 #' @examples "arg"
 #'
 #' @export
-str_color <- \(text,
-               color = "red",
-               bg = "#ffffff00") {
-
+str_color <- \(text, color = "red", bg = "#ffffff00") {
   color <- glue("color:{color};")
   bg <- glue("background-color:{bg};")
 
   glue("<span style='{color}{bg}'>**{text}**</span>")
-
 }
 
 #' Générer un titre de figure formaté avec note et acronymes
@@ -146,32 +140,32 @@ str_color <- \(text,
 #' @examples "arg"
 #'
 #' @export
-str_fig <- \(title,
-             note = "",
-             acro = "",
-             sub_size = "7.5",
-             qmd = FALSE,
-             class = "quarto-float-subcaption") {
-
+str_fig <- \(
+  title,
+  note = "",
+  acro = "",
+  sub_size = "7.5",
+  qmd = FALSE,
+  class = "quarto-float-subcaption"
+) {
   title <- glue(title)
   note <- glue(note)
 
   if (!qmd) {
-
     .str <-
-    glue("{title}<br>
-         <span style='font-size:{sub_size}pt'>{note} {acro}</span>")
-
+      glue(
+        "{title}<br>
+         <span style='font-size:{sub_size}pt'>{note} {acro}</span>"
+      )
   } else {
-
     .str <-
-    glue("{title}<br>
-         <span class='{class}'>{note} {acro}</span>")
-
+      glue(
+        "{title}<br>
+         <span class='{class}'>{note} {acro}</span>"
+      )
   }
 
   return(.str)
-
 }
 
 #' Concaténer les étiquettes de variables avec formatage grammatical
@@ -199,12 +193,12 @@ str_fig <- \(title,
 #'
 #' @export
 str_label <- \(data, ..., last = "and") {
-
   c(...) |>
-    map_chr(~ with(data, get(.)) |>
-              var_label()) |>
+    map_chr(
+      ~ with(data, get(.)) |>
+        var_label()
+    ) |>
     str_flatten_comma(glue(" {last} "))
-
 }
 
 #' Appliquer une fonction de transformation au premier caractère d'une chaîne
@@ -271,10 +265,8 @@ str_label <- \(data, ..., last = "and") {
 #'
 #' @export
 str_cap <- \(fun, str) {
-
   cap <- str_sub(str, end = 1)
   call <- do.call(fun, list(cap))
 
   str_replace(str, cap, call)
-
 }

@@ -28,10 +28,9 @@ gt_format <- \(
   zero_replace = "^0\\s",
   ...
 ) {
-
   clear_vars()
 
-### ACRO --------------------------------------------------------------------
+  ### ACRO --------------------------------------------------------------------
 
   style <- with(
     data = x$table_styling,
@@ -39,7 +38,7 @@ gt_format <- \(
   )
 
   body <-
-  x$table_body |>
+    x$table_body |>
     names() |>
     str_subset(".*label") |>
     map(~ x$table_body[[.]]) |>
@@ -48,22 +47,23 @@ gt_format <- \(
   .acro <- acro_extract(c(style, body, names(x)), acro_list)
 
   x <-
-  x$table_styling$abbreviation |>
+    x$table_styling$abbreviation |>
     distinct(abbreviation) |>
     pull() |>
     reduce(remove_abbreviation, .init = x)
 
-### THEME -------------------------------------------------------------------
+  ### THEME -------------------------------------------------------------------
 
-  if (!"gt_tbl" %in% class(x)) x <- as_gt(x)
+  if (!"gt_tbl" %in% class(x)) {
+    x <- as_gt(x)
+  }
 
   x <-
-  x |>
+    x |>
     tab_header(title = if (!is.null(title)) md(title)) |>
     theme_gt(...)
 
   if (TRUE %in% str_starts(names(x[["_data"]]), "coef")) {
-
     .acro_str <- acro_str(
       .estim$uv,
       .estim$mv,
@@ -72,36 +72,27 @@ gt_format <- \(
     )
 
     if (!is.null(note_global) || !is.null(.acro_str)) {
-
       x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
-
     }
 
     if (!is.null(note_pvalue)) {
-
       x <- tab_footnote(
         x,
         footnote = note_pvalue,
         locations = cells_column_labels(p.value_2)
       )
-
     }
-
   } else {
-
     .acro_str <- acro_str(
       with(acro_list, mget(.acro)),
       collapse = acro_sep
     )
 
     if (!is.null(note_global) || !is.null(.acro_str)) {
-
       x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
-
     }
 
     if (!is.null(note_vargrp)) {
-
       x <- tab_footnote(
         x,
         footnote = note_vargrp,
@@ -110,17 +101,12 @@ gt_format <- \(
           rows = variable %in% label_vargrp
         )
       )
-
     }
-
   }
 
   if (!is.null(zero_replace)) {
-
     x <- sub_values(x, pattern = zero_replace, replacement = 0)
-
   }
 
   return(x)
-
 }

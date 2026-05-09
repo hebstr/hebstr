@@ -62,7 +62,7 @@
 #' dictionnaire_base <- acro()
 #' dictionnaire_base$SD
 #' dictionnaire_base$IQR
-#' 
+#'
 #' # Ajout d'acronymes personnalisés
 #' glossaire_etendu <- acro(
 #'   BMI ~ "body mass index",
@@ -71,13 +71,13 @@
 #' )
 #' glossaire_etendu$BMI
 #' glossaire_etendu$SD
-#' 
+#'
 #' # Configuration française avec adaptation linguistique
 #' options(OutDec = ",")
 #' dictionnaire_fr <- acro()
 #' dictionnaire_fr$SD
 #' dictionnaire_fr$IQR
-#' 
+#'
 #' # Acronymes personnalisés en français
 #' glossaire_medical_fr <- acro(
 #'   IMC ~ "indice de masse corporelle",
@@ -85,7 +85,7 @@
 #'   PAD ~ "pression artérielle diastolique"
 #' )
 #' glossaire_medical_fr$IMC
-#' 
+#'
 #' # Personnalisation du séparateur
 #' dictionnaire_tiret <- acro(
 #'   HR ~ "heart rate",
@@ -93,7 +93,7 @@
 #'   .sep = " -"
 #' )
 #' dictionnaire_tiret$HR
-#' 
+#'
 #' # Utilisation sans acronymes prédéfinis
 #' acronymes_specifiques <- acro(
 #'   ROC ~ "receiver operating characteristic",
@@ -101,7 +101,7 @@
 #'   .auto = FALSE
 #' )
 #' names(acronymes_specifiques)
-#' 
+#'
 #' # Application avec conversion en minuscules
 #' acronymes_minuscules <- acro(
 #'   COPD ~ "chronic obstructive pulmonary disease",
@@ -109,7 +109,7 @@
 #'   .tolower = TRUE
 #' )
 #' names(acronymes_minuscules)
-#' 
+#'
 #' # Démonstration avec datasets officiels pour contexte médical
 #' # Utilisation dans l'analyse de mtcars comme proxy de données biométriques
 #' options(OutDec = ".")
@@ -118,11 +118,11 @@
 #'   HP ~ "horsepower",
 #'   WT ~ "weight in thousands of pounds"
 #' )
-#' 
+#'
 #' # Application pour légendes de graphiques
 #' paste(glossaire_automobile$MPG)
 #' paste(glossaire_automobile$HP)
-#' 
+#'
 #' # Configuration pour rapport multilingue
 #' options(OutDec = ",")
 #' legende_fr <- acro(
@@ -131,17 +131,17 @@
 #'   .sep = " :"
 #' )
 #' legende_fr$CONSO
-#' 
+#'
 #' # Restauration configuration par défaut
 #' options(OutDec = ".")
-#' 
+#'
 #' # Intégration dans un pipeline de production de rapports
 #' glossaire_analyse <- acro(
 #'   CYL ~ "number of cylinders",
 #'   DISP ~ "displacement in cubic inches",
 #'   GEAR ~ "number of forward gears"
 #' )
-#' 
+#'
 #' @family fonctions de formatage
 #'
 #' @references
@@ -149,55 +149,46 @@
 #' \url{https://rlang.r-lib.org/reference/topic-metaprogramming.html}
 #'
 #' @export
-acro <- \(...,
-          .sep = ":",
-          .auto = TRUE,
-          .tolower = FALSE) {
-  
+acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
   .envir <- \(x, y) {
-    
     x <- if (.tolower) tolower(enexpr(x)) else enexpr(x)
-    
+
     glue("{x}{sep}{y}")
-  
   }
-  
+
   .fun <- \(...) {
-  
-    list(...) |> 
-      map(eval, env("~" = .envir)) |> 
+    list(...) |>
+      map(eval, env("~" = .envir)) |>
       set_names(str_extract, glue(".+(?={sep})"))
-  
   }
 
   if (getOption("OutDec") == ".") {
-  
     sep <- glue("{.sep} ")
-      
-    base <-
-    .fun(SD ~ "standard deviation",
-         IQR ~ "interquartile range",
-         Q1 ~ "1st quartile",
-         Q3 ~ "3rd quartile",
-         `95%CI` ~ "95% confidence interval")
-  
-  } else {
-    
-    sep <- glue(" {.sep} ")
-    
-    base <-
-    .fun(SD ~ "\u00e9cart-type",
-         IQR ~ "intervalle interquartile",
-         Q1 ~ "1er quartile",
-         Q3 ~ "3e quartile",
-         `IC95%` ~ "intervalle de confiance \u00e0 95%")
-    
-  }
-  
-  .acro <- if (.auto) list_modify(base, !!!.fun(...)) else .fun(...)
-  
-  return(.acro)
 
+    base <-
+      .fun(
+        SD ~ "standard deviation",
+        IQR ~ "interquartile range",
+        Q1 ~ "1st quartile",
+        Q3 ~ "3rd quartile",
+        `95%CI` ~ "95% confidence interval"
+      )
+  } else {
+    sep <- glue(" {.sep} ")
+
+    base <-
+      .fun(
+        SD ~ "\u00e9cart-type",
+        IQR ~ "intervalle interquartile",
+        Q1 ~ "1er quartile",
+        Q3 ~ "3e quartile",
+        `IC95%` ~ "intervalle de confiance \u00e0 95%"
+      )
+  }
+
+  .acro <- if (.auto) list_modify(base, !!!.fun(...)) else .fun(...)
+
+  return(.acro)
 }
 
 #' Extraire les acronymes présents dans un texte selon un dictionnaire de référence
@@ -250,49 +241,49 @@ acro <- \(...,
 #' # Création d'un dictionnaire d'acronymes statistiques
 #' dictionnaire_analyse <- list(
 #'   "SD" = "standard deviation",
-#'   "IQR" = "interquartile range", 
+#'   "IQR" = "interquartile range",
 #'   "CI" = "confidence interval",
 #'   "OR" = "odds ratio"
 #' )
-#' 
+#'
 #' # Extraction d'acronymes dans un titre de rapport
 #' titre_rapport <- "Statistical analysis with SD and CI calculations"
 #' acro_extract(titre_rapport, dictionnaire_analyse)
-#' 
+#'
 #' # Analyse d'une description de méthodologie
 #' methodologie <- "Results include OR estimates with 95% CI bounds"
 #' acro_extract(methodologie, dictionnaire_analyse)
-#' 
+#'
 #' # Application avec le dataset mtcars pour contexte automobile
 #' dictionnaire_vehicules <- list(
 #'   "MPG" = "miles per gallon",
-#'   "HP" = "horsepower", 
+#'   "HP" = "horsepower",
 #'   "CYL" = "cylinders",
 #'   "DISP" = "displacement"
 #' )
-#' 
+#'
 #' description_vehicule <- "Vehicle performance: MPG efficiency and HP output analysis"
 #' acro_extract(description_vehicule, dictionnaire_vehicules)
-#' 
+#'
 #' # Utilisation avec dataset diamonds pour analyse gemmologique
 #' dictionnaire_gemmes <- list(
 #'   "CT" = "carat weight",
 #'   "CL" = "clarity",
 #'   "COL" = "color grade"
 #' )
-#' 
+#'
 #' rapport_diamants <- "Diamond evaluation considers CT and CL parameters"
 #' acro_extract(rapport_diamants, dictionnaire_gemmes)
-#' 
+#'
 #' # Démonstration avec texte ne contenant aucun acronyme référencé
 #' texte_general <- "This comprehensive analysis examines various factors"
 #' acro_extract(texte_general, dictionnaire_analyse)
-#' 
+#'
 #' # Application pour validation de cohérence terminologique
 #' resume_executif <- "Key findings show significant OR values with narrow CI ranges"
 #' termes_detectes <- acro_extract(resume_executif, dictionnaire_analyse)
 #' length(termes_detectes)
-#' 
+#'
 #' # Utilisation dans l'analyse de documentation technique
 #' specification_technique <- "System requirements include RAM and CPU specifications"
 #' dictionnaire_informatique <- list(
@@ -301,7 +292,7 @@ acro <- \(...,
 #'   "GPU" = "graphics processing unit"
 #' )
 #' acro_extract(specification_technique, dictionnaire_informatique)
-#' 
+#'
 #' # Analyse de légendes de graphiques avec données storms
 #' legende_meteo <- "Hurricane analysis: wind speed and pressure measurements"
 #' dictionnaire_meteorologie <- list(
@@ -310,7 +301,7 @@ acro <- \(...,
 #'   "KPH" = "kilometers per hour"
 #' )
 #' acro_extract(legende_meteo, dictionnaire_meteorologie)
-#' 
+#'
 #' # Application pour audit de présentation professionnelle
 #' slide_presentation <- "Market analysis reveals ROI improvements and KPI achievements"
 #' dictionnaire_business <- list(
@@ -325,15 +316,13 @@ acro <- \(...,
 #'
 #' @export
 acro_extract <- \(x, acro_list) {
-
   .acro <- names(acro_list)
 
-  x |> 
-    map(str_extract, .acro) |> 
+  x |>
+    map(str_extract, .acro) |>
     unlist() |>
-    na.omit() |> 
+    na.omit() |>
     unique()
-
 }
 
 #' Formater une chaîne d'acronymes avec séparateurs et ponctuation automatiques
@@ -378,21 +367,21 @@ acro_extract <- \(x, acro_list) {
 #' @examples
 #' # Formatage basique avec séparateurs par défaut
 #' acro_str("SD: standard deviation", "CI: confidence interval")
-#' 
+#'
 #' # Utilisation avec des définitions d'acronymes statistiques
 #' acro_str("IQR: interquartile range", "OR: odds ratio", "HR: hazard ratio")
-#' 
+#'
 #' # Application avec le dataset mtcars pour contexte automobile
 #' definitions_vehicules <- c(
 #'   "MPG: miles per gallon",
-#'   "HP: horsepower", 
+#'   "HP: horsepower",
 #'   "CYL: number of cylinders"
 #' )
 #' acro_str(definitions_vehicules[1], definitions_vehicules[2])
-#' 
+#'
 #' # Personnalisation du séparateur pour différents contextes
 #' acro_str("Mean: average value", "SD: standard deviation", collapse = " | ")
-#' 
+#'
 #' # Utilisation avec le dataset diamonds pour analyses gemmologiques
 #' termes_gemmes <- c(
 #'   "CT: carat weight",
@@ -400,11 +389,11 @@ acro_extract <- \(x, acro_list) {
 #'   "COL: color classification"
 #' )
 #' acro_str(termes_gemmes[1], termes_gemmes[3], collapse = " - ")
-#' 
+#'
 #' # Gestion des cas de chaînes vides
 #' acro_str("")  # Retourne NULL
 #' acro_str()    # Retourne NULL
-#' 
+#'
 #' # Application dans la génération de légendes de graphiques
 #' legende_analyse <- acro_str(
 #'   "n: sample size",
@@ -412,34 +401,34 @@ acro_extract <- \(x, acro_list) {
 #'   "CI: confidence interval"
 #' )
 #' legende_analyse
-#' 
+#'
 #' # Utilisation avec le dataset storms pour la météorologie
 #' variables_meteo <- acro_str(
 #'   "mph: miles per hour",
 #'   "mb: millibars pressure",
 #'   "cat: category scale"
 #' )
-#' 
+#'
 #' # Intégration dans un workflow de documentation automatisée
 #' glossaire_medical <- acro_str(
 #'   "BMI: body mass index",
 #'   "BP: blood pressure",
 #'   "HR: heart rate"
 #' )
-#' 
+#'
 #' # Application pour notes de bas de page techniques
 #' note_methodologique <- acro_str(
 #'   "ANOVA: analysis of variance",
 #'   "post-hoc: posterior comparison tests"
 #' )
-#' 
+#'
 #' # Utilisation conditionnelle dans des rapports
 #' acronymes_detectes <- c("ROC: receiver operating characteristic")
 #' if (length(acronymes_detectes) > 0) {
 #'   note_finale <- acro_str(acronymes_detectes)
 #'   note_finale
 #' }
-#' 
+#'
 #' # Démonstration avec formatage personnalisé pour publications
 #' definitions_statistiques <- acro_str(
 #'   "α: significance level",
@@ -453,11 +442,9 @@ acro_extract <- \(x, acro_list) {
 #'
 #' @export
 acro_str <- \(..., collapse = "; ") {
-
   acro <- paste(c(...), collapse = collapse)
-  
-  if (acro != "") glue("{acro}.") else NULL
 
+  if (acro != "") glue("{acro}.") else NULL
 }
 
 #' Identifier et formater automatiquement les acronymes présents dans les étiquettes de variables
@@ -514,42 +501,42 @@ acro_str <- \(..., collapse = "; ") {
 #' optimal de l'ensemble du système d'analyse terminologique.
 #'
 #' @examples
-#' 
+#'
 #' # Préparation d'un dataset avec étiquettes pour démonstration
 #' library(dplyr)
 #' library(labelled)
-#' 
+#'
 #' # Configuration d'un dictionnaire d'acronymes statistiques
 #' acronymes <- acro()
-#' 
+#'
 #' # Création d'un dataset avec étiquettes contenant des acronymes
 #' df <-
-#' mtcars |> 
-#'   select(mpg, hp, wt) |> 
+#' mtcars |>
+#'   select(mpg, hp, wt) |>
 #'   set_variable_labels(mpg = "Fuel efficiency with SD calculation",
 #'                       hp = "Engine power and 95%CI estimation",
 #'                       wt = "Vehicle weight distribution")
-#' 
+#'
 #' # Identification automatique des acronymes dans les étiquettes
 #' acro_match(x = df,
 #'            acro_list = acronymes,
 #'            acro_sep = "; ")
-#' 
+#'
 #' # Démonstration avec dataset ne contenant aucun acronyme référencé
 #' df <-
-#' mtcars |> 
-#'   select(mpg, hp, wt) |> 
+#' mtcars |>
+#'   select(mpg, hp, wt) |>
 #'   set_variable_labels(mpg = "Fuel efficiency",
 #'                       hp = "Engine power",
 #'                       wt = "Vehicle weight")
-#' 
+#'
 #' # Retourne NULL car aucun acronyme détecté
 #' acro_match(x = df,
 #'            acro_list = acronymes,
 #'            acro_sep = "; ")
-#' 
+#'
 #' @family fonctions de manipulation de chaînes
-#' @seealso 
+#' @seealso
 #' * [labelled::var_label()] pour la gestion des étiquettes de variables
 #'
 #' @references
@@ -557,18 +544,12 @@ acro_str <- \(..., collapse = "; ") {
 #' \url{https://larmarange.github.io/labelled/}
 #'
 #' @export
-acro_match <- \(x,
-                vars = names(x),
-                acro_list,
-                acro_sep) {
-  
+acro_match <- \(x, vars = names(x), acro_list, acro_sep) {
   .acro <-
-  vars |>
+    vars |>
     map_chr(~ label_attribute(x[[.]])) |>
     paste(collapse = " ") |>
     acro_extract(acro_list)
-  
-  acro_str(with(acro_list, mget(.acro)),
-           collapse = acro_sep)
 
+  acro_str(with(acro_list, mget(.acro)), collapse = acro_sep)
 }

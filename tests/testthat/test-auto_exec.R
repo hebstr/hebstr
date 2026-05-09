@@ -1,7 +1,8 @@
 test_that("auto_exec() errors when directory does not exist", {
-  expect_error(
-    auto_exec(dir = "nonexistent_dir_abc123"),
-    class = "rlang_error"
+  expect_snapshot(
+    error = TRUE,
+    transform = \(x) gsub(here::here(), "<pkgdir>", x, fixed = TRUE),
+    auto_exec(dir = "nonexistent_dir_abc123")
   )
 })
 
@@ -9,9 +10,10 @@ test_that("auto_exec() errors when no matching files found", {
   dir <- withr::local_tempdir()
   writeLines("x <- 1", file.path(dir, "_hidden.R"))
 
-  expect_error(
-    auto_exec(dir = dir, except_starts_with = "_", ext = ".R"),
-    class = "rlang_error"
+  expect_snapshot(
+    error = TRUE,
+    transform = \(x) gsub(dir, "<tmpdir>", x, fixed = TRUE),
+    auto_exec(dir = dir, except_starts_with = "_", ext = ".R")
   )
 })
 
@@ -19,17 +21,31 @@ test_that("auto_exec() errors when only non-.R files exist", {
   dir <- withr::local_tempdir()
   writeLines("hello", file.path(dir, "readme.txt"))
 
-  expect_error(
-    auto_exec(dir = dir),
-    class = "rlang_error"
+  expect_snapshot(
+    error = TRUE,
+    transform = \(x) gsub(dir, "<tmpdir>", x, fixed = TRUE),
+    auto_exec(dir = dir)
   )
+})
+
+test_that("auto_exec() suppresses output when quiet = TRUE", {
+  dir <- withr::local_tempdir()
+  writeLines("test_auto_exec_quiet <- TRUE", file.path(dir, "script.R"))
+  withr::defer(rm(test_auto_exec_quiet, envir = globalenv()))
+
+  expect_no_message(auto_exec(dir = dir, quiet = TRUE))
+  expect_identical(get("test_auto_exec_quiet", envir = globalenv()), TRUE)
 })
 
 test_that("auto_exec() sources .R files in directory", {
   dir <- withr::local_tempdir()
   writeLines("test_auto_exec_val_1 <- 42", file.path(dir, "script1.R"))
   writeLines("test_auto_exec_val_2 <- 99", file.path(dir, "script2.R"))
-  withr::defer(rm(test_auto_exec_val_1, test_auto_exec_val_2, envir = globalenv()))
+  withr::defer(rm(
+    test_auto_exec_val_1,
+    test_auto_exec_val_2,
+    envir = globalenv()
+  ))
 
   auto_exec(dir = dir)
 

@@ -11,20 +11,14 @@
 #' @examples "arg"
 #'
 quanti.test.para <- \(data, variable, by, ...) {
-
   .var <- data[[variable]]
   .by <- data[[by]]
 
   if (nlevels(factor(.by)) == 2) {
-
     tidy(t.test(.var ~ .by, var.equal = TRUE))
-
   } else {
-
     tidy(anova(.var ~ .by, var.equal = TRUE))
-
   }
-
 }
 
 
@@ -41,20 +35,14 @@ quanti.test.para <- \(data, variable, by, ...) {
 #' @examples "arg"
 #'
 quanti.test.nonpara <- \(data, variable, by, ...) {
-
   .var <- data[[variable]]
   .by <- data[[by]]
 
   if (nlevels(factor(.by)) == 2) {
-
     tidy(wilcox.test(.var ~ .by, exact = FALSE, correct = FALSE))
-
   } else {
-
     tidy(kruskal.test(.var ~ .by))
-
   }
-
 }
 
 
@@ -71,46 +59,33 @@ quanti.test.nonpara <- \(data, variable, by, ...) {
 #' @examples "arg"
 #'
 quali.test <- \(data, variable, by, ...) {
-
   .var <- data[[variable]]
   .by <- factor(data[[by]])
 
   chisq_is_correct <- \(correct) {
-
     chisq.test(.var, .by, correct = correct) |>
-    suppressWarnings()
-
+      suppressWarnings()
   }
 
   chisq.test.no.correct <- chisq_is_correct(FALSE)
 
   is_under <- \(n) {
-
     chisq.test.no.correct$expected |>
       data.frame() |>
       filter(if_any(everything(), ~ . < n)) |>
-      nrow() > 0
-
+      nrow() >
+      0
   }
 
   if (is_under(5)) {
-
     if (!is_under(2)) {
-
       tidy(chisq_is_correct(TRUE))
-
     } else {
-
       tidy(fisher.test(.var, .by))
-
     }
-
   } else {
-
     tidy(chisq.test.no.correct)
-
   }
-
 }
 
 
@@ -125,13 +100,11 @@ quali.test <- \(data, variable, by, ...) {
 #' @examples "arg"
 #'
 all_dichotomous_uv <- \(data, ...) {
-
   dots <- c(...) %||% names(data)
 
   level <- map_int(dots, ~ nlevels(data[[.]]))
 
   dots[level == 2]
-
 }
 
 
@@ -149,20 +122,25 @@ all_dichotomous_uv <- \(data, ...) {
 #'
 #' @examples "arg"
 #'
-easy_relab <- \(data,
-                var,
-                new_lab = "{var_label}",
-                ref_lab = " \u2014 ref",
-                ref_level = data$table_body$reference_level,
-                tolower_level = TRUE) {
-
+easy_relab <- \(
+  data,
+  var,
+  new_lab = "{var_label}",
+  ref_lab = " \u2014 ref",
+  ref_level = data$table_body$reference_level,
+  tolower_level = TRUE
+) {
   ref_sep <-
-  data$table_body$label |>
+    data$table_body$label |>
     str_extract(glue("(?<={ref_lab}).\\s*")) |>
     na.omit() |>
     unique()
 
-  if (tolower_level) ref_level <- tolower(ref_level) else ref_level
+  if (tolower_level) {
+    ref_level <- tolower(ref_level)
+  } else {
+    ref_level
+  }
 
   str <- "{glue(new_lab)}{ref_lab}{ref_sep}{ref_level}"
 
@@ -171,7 +149,6 @@ easy_relab <- \(data,
       ~ . |>
         mutate(label = ifelse(variable %in% var, glue(str), label))
     )
-
 }
 
 
@@ -197,23 +174,15 @@ add_note <- \(
   pvalue_mv = NULL,
   note
 ) {
-
   if (is.null(pvalue_mv)) {
-
     rows <- enexpr(rows)
 
     if (!is.null(vars)) {
-
       vars <- expr(variable %in% !!vars & row_type == "label")
-
     } else if (!is.null(levels)) {
-
       vars <- expr(label %in% !!levels)
-
     } else if (!is.null(rows)) {
-
       vars <- enexpr(rows)
-
     }
 
     tab_footnote(
@@ -221,17 +190,13 @@ add_note <- \(
       footnote = note,
       locations = cells_body(columns = label, rows = !!vars)
     )
-
   } else {
-
     tab_footnote(
       data = data,
       footnote = note,
       locations = cells_column_labels(glue("p.value_{pvalue_mv + 1}"))
     )
-
   }
-
 }
 
 
@@ -246,12 +211,9 @@ add_note <- \(
 #'
 #' @examples "arg"
 #'
-fct_str <- \(x,
-             sep,
-             cap = TRUE) {
-
+fct_str <- \(x, sep, cap = TRUE) {
   str <-
-  x |>
+    x |>
     str_squish() |>
     fct_count(sort = TRUE) |>
     drop_na() |>
@@ -260,10 +222,11 @@ fct_str <- \(x,
     str_flatten(sep) |>
     glue(".")
 
-  if (cap) str <- str |> tolower() %>% str_cap(toupper, .)
+  if (cap) {
+    str <- str |> tolower() %>% str_cap(toupper, .)
+  }
 
   return(str)
-
 }
 
 
@@ -279,9 +242,8 @@ fct_str <- \(x,
 #' @examples "arg"
 #'
 fct_other_str <- \(fct, chr, min) {
-
   fct <-
-  fct |>
+    fct |>
     fct_count(sort = TRUE) |>
     filter(f != "Other", n < min) |>
     mutate(str = glue("{f} ({n})")) |>
@@ -294,7 +256,6 @@ fct_other_str <- \(fct, chr, min) {
   chr <- fct_str(chr, cap = FALSE)
 
   paste(fct, chr, sep = ", ")
-
 }
 
 #' Title
@@ -309,13 +270,9 @@ fct_other_str <- \(fct, chr, min) {
 #'
 #' @examples "arg"
 #'
-fct_keep <- \(data,
-              var,
-              min,
-              sep) {
-
+fct_keep <- \(data, var, min, sep) {
   x <-
-  data |>
+    data |>
     separate_longer_delim(!!var, delim = regex("\\s*(,|et)\\s*")) |>
     count(!!var := get(var), sort = TRUE) |>
     drop_na() |>
@@ -323,19 +280,18 @@ fct_keep <- \(data,
     set_names(c("drop", "keep"))
 
   y <-
-  list(keep =
-         x$keep |>
-           pull(!!var) |>
-           as.character(),
-       drop =
-         x$drop |>
-           mutate(str = glue("{get(var)} [{n}]")) |>
-           pull(str) |>
-           str_flatten(sep) %>%
-           glue("."))
+    list(
+      keep = x$keep |>
+        pull(!!var) |>
+        as.character(),
+      drop = x$drop |>
+        mutate(str = glue("{get(var)} [{n}]")) |>
+        pull(str) |>
+        str_flatten(sep) %>%
+        glue(".")
+    )
 
   return(y)
-
 }
 
 
@@ -351,27 +307,25 @@ fct_keep <- \(data,
 #'
 #' @examples "arg"
 #'
-add_label <- \(x,
-               name,
-               levels,
-               indent = 0) {
-
+add_label <- \(x, name, levels, indent = 0) {
   .before_index <- grep(levels[1], x$table_body$variable)[1]
 
   x <-
-  x |>
+    x |>
     modify_table_body(
       ~ . |>
-        add_row(label = name,
-                .before = .before_index)
+        add_row(label = name, .before = .before_index)
     ) |>
-    modify_column_indent(columns = label,
-                         rows = label == name,
-                         indent = indent) |>
-    modify_column_indent(columns = label,
-                         rows = variable %in% levels,
-                         indent = indent + 4)
-
+    modify_column_indent(
+      columns = label,
+      rows = label == name,
+      indent = indent
+    ) |>
+    modify_column_indent(
+      columns = label,
+      rows = variable %in% levels,
+      indent = indent + 4
+    )
 }
 
 
@@ -385,19 +339,22 @@ add_label <- \(x,
 #' @examples "arg"
 #'
 str_na_mv <- \(data) {
-
   n_total <- nrow(data)
 
   na <-
-  lst(n = data |> filter(if_any(everything(), is.na)) |> nrow(),
+    lst(
+      n = data |> filter(if_any(everything(), is.na)) |> nrow(),
       p = label_p()(n / n_total),
-      obs =
-        case_when(n == 0 ~ "aucune observation",
-                  n == 1 ~ glue("{n} observation"),
-                  .default = glue("{n} observations ({p})")))
+      obs = case_when(
+        n == 0 ~ "aucune observation",
+        n == 1 ~ glue("{n} observation"),
+        .default = glue("{n} observations ({p})")
+      )
+    )
 
-  glue("{n_total} observations, {na$obs} contenant a minima une donn\u00e9es manquante")
-
+  glue(
+    "{n_total} observations, {na$obs} contenant a minima une donn\u00e9es manquante"
+  )
 }
 
 
@@ -415,12 +372,10 @@ show_single_row <- \(
   data,
   exclude = names(data[, 1])
 ) {
-
   all_dichotomous <- expr(c(where(~ nlevels(.) == 2), -all_of(exclude)))
 
   data |>
     mutate(across(!!all_dichotomous, ~ if_else(as.numeric(.) == 1, 0, 1)))
-
 }
 
 
@@ -435,12 +390,10 @@ show_single_row <- \(
 #' @examples "arg"
 #'
 add_ref_label <- \(data, label = "Reference") {
-
   modify_missing_symbol(
     x = data,
     symbol = label,
     columns = c(estimate, conf.low, conf.high),
     rows = reference_row == TRUE
   )
-
 }

@@ -80,8 +80,8 @@ acronymes <- acro()
 
 # Création d'un dataset avec étiquettes contenant des acronymes
 df <-
-mtcars |> 
-  select(mpg, hp, wt) |> 
+mtcars |>
+  select(mpg, hp, wt) |>
   set_variable_labels(mpg = "Fuel efficiency with SD calculation",
                       hp = "Engine power and 95\%CI estimation",
                       wt = "Vehicle weight distribution")
@@ -93,8 +93,8 @@ acro_match(x = df,
 
 # Démonstration avec dataset ne contenant aucun acronyme référencé
 df <-
-mtcars |> 
-  select(mpg, hp, wt) |> 
+mtcars |>
+  select(mpg, hp, wt) |>
   set_variable_labels(mpg = "Fuel efficiency",
                       hp = "Engine power",
                       wt = "Vehicle weight")

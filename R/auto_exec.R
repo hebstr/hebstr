@@ -8,6 +8,7 @@
 #' @param except_starts_with Prefix used to exclude files. Files starting with
 #'   this string are skipped. Defaults to `"_"`.
 #' @param ext File extension to match. Defaults to `".R"`.
+#' @param quiet If `TRUE`, suppresses all cli output. Defaults to `FALSE`.
 #'
 #' @return Called for its side effects. Returns `NULL` invisibly.
 #' @export
@@ -27,10 +28,13 @@
 auto_exec <- \(
   dir = "scripts",
   except_starts_with = "_",
-  ext = ".R"
+  ext = ".R",
+  quiet = FALSE
 ) {
-  cli_h1("auto_exec")
-  cat_line()
+  if (!quiet) {
+    cli_h1("auto_exec")
+    cat_line()
+  }
 
   if (!fs::dir_exists(dir)) {
     cli_abort(
@@ -49,11 +53,13 @@ auto_exec <- \(
     ))
   }
 
-  cli_alert_info("R\u00e9pertoire : {.path {dir}}")
-  cli_alert_info("Fichiers sourc\u00e9s : {.file {files}}")
-  cat_line()
+  if (!quiet) {
+    cli_alert_info("R\u00e9pertoire : {.path {dir}}")
+    cli_alert_info("Fichiers sourc\u00e9s : {.file {files}}")
+    cat_line()
+  }
 
   walk(files, ~ source(fs::path(dir, .)))
 
-  cli_rule()
+  if (!quiet) cli_rule()
 }

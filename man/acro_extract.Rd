@@ -64,7 +64,7 @@ manipulation de chaînes de caractères.
 # Création d'un dictionnaire d'acronymes statistiques
 dictionnaire_analyse <- list(
   "SD" = "standard deviation",
-  "IQR" = "interquartile range", 
+  "IQR" = "interquartile range",
   "CI" = "confidence interval",
   "OR" = "odds ratio"
 )
@@ -80,7 +80,7 @@ acro_extract(methodologie, dictionnaire_analyse)
 # Application avec le dataset mtcars pour contexte automobile
 dictionnaire_vehicules <- list(
   "MPG" = "miles per gallon",
-  "HP" = "horsepower", 
+  "HP" = "horsepower",
   "CYL" = "cylinders",
   "DISP" = "displacement"
 )

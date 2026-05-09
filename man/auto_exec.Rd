@@ -4,7 +4,7 @@
 \alias{auto_exec}
 \title{Source all scripts from a directory}
 \usage{
-auto_exec(dir = "scripts", except_starts_with = "_", ext = ".R")
+auto_exec(dir = "scripts", except_starts_with = "_", ext = ".R", quiet = FALSE)
 }
 \arguments{
 \item{dir}{Path to the directory containing the scripts. Defaults to
@@ -14,6 +14,8 @@ auto_exec(dir = "scripts", except_starts_with = "_", ext = ".R")
 this string are skipped. Defaults to \code{"_"}.}
 
 \item{ext}{File extension to match. Defaults to \code{".R"}.}
+
+\item{quiet}{If \code{TRUE}, suppresses all cli output. Defaults to \code{FALSE}.}
 }
 \value{
 Called for its side effects. Returns \code{NULL} invisibly.
