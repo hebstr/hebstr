@@ -1,4 +1,4 @@
-.Rproj.user
-docs
+/docs
 /demo/
-/.claude/
+.claude/
+TODO.md
