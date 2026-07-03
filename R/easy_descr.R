@@ -113,7 +113,7 @@ easy_descr <- \(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL) {
 
   ### QT DATA -------------------------------------------------------------------------------
 
-  str_parametric <- glue("\\b{parametric}\\b")
+  str_parametric <- glue("\\b(?:{parametric})\\b")
 
   qt_vars <-
     lst(

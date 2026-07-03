@@ -1,3 +1,86 @@
+test_that("set_opts(.assign = FALSE) returns the options with a custom .name", {
+  res <- set_opts(.assign = FALSE, .name = "custom_opts_regression")
+
+  expect_type(res, "list")
+  expect_contains(names(res), c("parametric", "qt_stat", "font"))
+  expect_false(exists("custom_opts_regression", envir = globalenv()))
+})
+
+test_that("set_opts(.assign = FALSE) returns the options with the default .name", {
+  res <- set_opts(.assign = FALSE)
+
+  expect_type(res, "list")
+  expect_contains(names(res), c("parametric", "qt_stat", "font"))
+})
+
+test_that("set_opts() aborts on unknown option names in ...", {
+  expect_error(
+    set_opts(.assign = FALSE, collor = list(base = "#000")),
+    "collor"
+  )
+})
+
+test_that("set_opts(.assign = FALSE) applies ... overrides over an existing object", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(sentinel = TRUE), envir = globalenv())
+
+  res <- set_opts(.assign = FALSE, sep = list(int = " >> "))
+
+  expect_null(res$sentinel)
+  expect_equal(res$sep$int, " >> ")
+  expect_equal(res$sep$ext, "; ")
+})
+
+test_that("set_opts(.assign = FALSE) recomputes when .default_font is supplied", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(sentinel = TRUE), envir = globalenv())
+
+  res <- set_opts(.assign = FALSE, .default_font = "arial")
+
+  expect_null(res$sentinel)
+  expect_contains(names(res), "font")
+})
+
+test_that("set_opts(.assign = FALSE) returns the existing object when no override is supplied", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(sentinel = TRUE), envir = globalenv())
+
+  res <- set_opts(.assign = FALSE)
+
+  expect_true(res$sentinel)
+})
+
+test_that("check_opts() resolves keys of the global opts object", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(sep = list(int = ": ", ext = "; ")), envir = globalenv())
+
+  expect_equal(check_opts(sep$int), ": ")
+})
+
+test_that("check_opts() aborts on an absent key instead of falling through to scope", {
+  withr::defer(rm(list = c("opts", "phantom_key"), envir = globalenv()))
+  assign("opts", list(parametric = "x"), envir = globalenv())
+  assign("phantom_key", "leaked", envir = globalenv())
+
+  expect_error(check_opts(phantom_key), "phantom_key")
+})
+
+test_that("check_opts() aborts on an absent root key of a nested expression", {
+  withr::defer(rm(list = c("opts", "color"), envir = globalenv()))
+  assign("opts", list(parametric = "x"), envir = globalenv())
+  assign("color", list(cold = c("#FFF", "#000")), envir = globalenv())
+
+  expect_error(check_opts(color$cold[1]), "color")
+})
+
+test_that("check_opts() aborts when the opts object does not exist", {
+  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
+    rm(list = "opts", envir = globalenv())
+  }
+
+  expect_error(check_opts(font), "does not exist")
+})
+
 test_that("lang_fr() sets French locale", {
   withr::local_options(OutDec = ".")
 

@@ -1,3 +1,5 @@
+.estim_channel <- new.env(parent = emptyenv())
+
 .fmt_by <- \(x, .check_by, .label_header, .label_overall, .bold_p) {
   .by <-
     lst(
@@ -62,18 +64,18 @@
     modify_table_body(
       ~ . |>
         mutate(
-          coefficients_label = case_match(
+          coefficients_label = recode_values(
             coefficients_label,
             "Beta" ~ .lab_test$beta,
             "exp(Beta)" ~ .lab_test$or,
             "HR" ~ .lab_test$hr,
-            .default = coefficients_label
+            default = coefficients_label
           ),
           adj_coefficients_label = case_when(
             is_mvreg ~ glue("{.adj_acro}{coefficients_label}"),
             .default = coefficients_label
           ),
-          estim_label = case_match(
+          estim_label = recode_values(
             coefficients_label,
             .lab_test$beta ~ .lab$beta,
             .lab_test$or ~ .lab$or,
@@ -112,11 +114,7 @@
       )
     )
 
-  assign(
-    ".estim",
-    list(uv = estim$str$uv, mv = estim$str$mv),
-    envir = .GlobalEnv
-  )
+  .estim_channel$estim <- list(uv = estim$str$uv, mv = estim$str$mv)
 
   return(x)
 }

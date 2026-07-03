@@ -8,7 +8,8 @@ easy_ano(
   x,
   to_hash = NULL,
   to_hide = NULL,
-  hash_trunc = 25,
+  hash_trunc = 16,
+  hash_salt = NULL,
   hide_pattern = "---"
 )
 }

@@ -265,8 +265,7 @@ str_label <- \(data, ..., last = "and") {
 #'
 #' @export
 str_cap <- \(fun, str) {
-  cap <- str_sub(str, end = 1)
-  call <- do.call(fun, list(cap))
+  str_sub(str, end = 1) <- do.call(fun, list(str_sub(str, end = 1)))
 
-  str_replace(str, cap, call)
+  str
 }

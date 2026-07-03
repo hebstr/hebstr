@@ -182,9 +182,7 @@ easy_boot <- \(data, times = 1000, method, fit, ...) {
       fitted = boot$fitted
     )
 
-  assign("boot", boot, envir = .GlobalEnv)
-
-  print(boot$estim$int)
+  return(boot)
 }
 
 
@@ -317,7 +315,7 @@ logit_lty <- \(
   df,
   y,
   x,
-  breaks = 30,
+  breaks = 40,
   color = "#0099FF",
   label_y = "Logit(P {y})",
   label_x = x
@@ -327,7 +325,7 @@ logit_lty <- \(
 
   lst(
     data = df |>
-      mutate("{x}_cat" := cut(!!x, breaks = 40)) |>
+      mutate("{x}_cat" := cut(!!x, breaks = breaks)) |>
       summarise(
         "mean_{x}" := mean(!!x),
         "prop_{y}" := mean(as.numeric(!!y) == 2),
@@ -502,29 +500,45 @@ easy_ano <- \(
   x,
   to_hash = NULL,
   to_hide = NULL,
-  hash_trunc = 25,
+  hash_trunc = 16,
+  hash_salt = NULL,
   hide_pattern = "---"
 ) {
-  .ano_hash_fun <- \(x_hash, to_hash) {
-    hash_trunc <- as.character(hash_trunc)
+  .ano_match_cols <- \(patterns) {
+    hits <- map(patterns, \(p) str_subset(names(x), glue("^(?:{p})$")))
+    missed <- patterns[lengths(hits) == 0]
 
+    if (length(missed) > 0) {
+      cli_abort(
+        c(
+          "No column of {.arg x} matches {.field {missed}}.",
+          i = "Patterns match full column names; use a regex (e.g. {.code \"id_.*\"}) to target a family of columns."
+        )
+      )
+    }
+
+    unique(unlist(hits))
+  }
+
+  .ano_hash_fun <- \(x_hash, to_hash) {
     x_hash |>
       mutate(
-        "{to_hash}" := get(to_hash) |>
-          rlang::hash() |>
-          str_remove_all(glue(".{{{hash_trunc}}}$")),
-        .by = all_of(to_hash)
+        "{to_hash}" := map_chr(
+          get(to_hash),
+          \(v) rlang::hash(if (is.null(hash_salt)) v else paste0(hash_salt, v))
+        ) |>
+          str_remove_all(glue(".{{{hash_trunc}}}$"))
       )
   }
 
   .ano_hide_fun <- \(x_hide) {
-    x_hide |> mutate(across(matches(to_hide), ~hide_pattern))
+    x_hide |>
+      mutate(across(all_of(.ano_match_cols(to_hide)), ~hide_pattern))
   }
 
   if (!is.null(to_hash)) {
     .ano_data <-
-      names(x) |>
-      str_subset(to_hash |> paste(collapse = "|")) |>
+      .ano_match_cols(to_hash) |>
       reduce(.ano_hash_fun, .init = x)
 
     if (!is.null(to_hide)) {

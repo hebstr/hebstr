@@ -4,7 +4,7 @@
 \alias{fct_other_str}
 \title{Title}
 \usage{
-fct_other_str(fct, chr, min)
+fct_other_str(fct, chr, min, sep = ", ")
 }
 \arguments{
 \item{fct}{arg}
@@ -12,6 +12,8 @@ fct_other_str(fct, chr, min)
 \item{chr}{arg}
 
 \item{min}{arg}
+
+\item{sep}{arg}
 }
 \value{
 arg

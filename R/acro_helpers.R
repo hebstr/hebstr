@@ -545,9 +545,15 @@ acro_str <- \(..., collapse = "; ") {
 #'
 #' @export
 acro_match <- \(x, vars = names(x), acro_list, acro_sep) {
+  vars_missing <- setdiff(vars, names(x))
+
+  if (length(vars_missing) > 0) {
+    cli_abort("{.field {vars_missing}} not found in {.arg x}.")
+  }
+
   .acro <-
     vars |>
-    map_chr(~ label_attribute(x[[.]])) |>
+    map_chr(~ label_attribute(x[[.]]) %||% "") |>
     paste(collapse = " ") |>
     acro_extract(acro_list)
 

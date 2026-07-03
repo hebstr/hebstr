@@ -17,7 +17,7 @@ quanti.test.para <- \(data, variable, by, ...) {
   if (nlevels(factor(.by)) == 2) {
     tidy(t.test(.var ~ .by, var.equal = TRUE))
   } else {
-    tidy(anova(.var ~ .by, var.equal = TRUE))
+    tidy(oneway.test(.var ~ .by, var.equal = TRUE))
   }
 }
 
@@ -235,13 +235,14 @@ fct_str <- \(x, sep, cap = TRUE) {
 #' @param fct arg
 #' @param chr arg
 #' @param min arg
+#' @param sep arg
 #'
 #' @return arg
 #' @export
 #'
 #' @examples "arg"
 #'
-fct_other_str <- \(fct, chr, min) {
+fct_other_str <- \(fct, chr, min, sep = ", ") {
   fct <-
     fct |>
     fct_count(sort = TRUE) |>
@@ -253,7 +254,7 @@ fct_other_str <- \(fct, chr, min) {
 
   fct <- str_cap(toupper, fct)
 
-  chr <- fct_str(chr, cap = FALSE)
+  chr <- fct_str(chr, sep, cap = FALSE)
 
   paste(fct, chr, sep = ", ")
 }

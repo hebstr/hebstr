@@ -64,6 +64,17 @@ gt_format <- \(
     theme_gt(...)
 
   if (TRUE %in% str_starts(names(x[["_data"]]), "coef")) {
+    if (!exists("estim", envir = .estim_channel, inherits = FALSE)) {
+      cli_abort(
+        c(
+          "No estimator annotation is available for this coefficient table.",
+          i = "Run {.fun gtsum_format} on the regression table, then {.fun gt_format}, in the same session."
+        )
+      )
+    }
+
+    .estim <- .estim_channel$estim
+
     .acro_str <- acro_str(
       .estim$uv,
       .estim$mv,

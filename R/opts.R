@@ -97,7 +97,13 @@ set_opts <- \(
   .name = "opts",
   ...
 ) {
-  if (!.assign && exists(.name, envir = .GlobalEnv)) {
+  if (
+    !.assign &&
+      ...length() == 0L &&
+      missing(.default_font) &&
+      is.null(.vars_envir) &&
+      exists(.name, envir = .GlobalEnv)
+  ) {
     return(get(.name, envir = .GlobalEnv))
   }
 
@@ -181,6 +187,17 @@ set_opts <- \(
       ),
       palette = c(color$base, color$cold[2])
     )
+
+  valid_opts <- c(names(.opts_set), "vars", "qt_stat_wide")
+  unknown_opts <- setdiff(names(dots), valid_opts)
+  if (length(unknown_opts) > 0) {
+    cli_abort(
+      c(
+        "Invalid option names in {.arg ...}: {.field {unknown_opts}}.",
+        i = "Valid names: {.field {valid_opts}}."
+      )
+    )
+  }
 
   if (getOption("OutDec") == ",") {
     .opts_set <-
@@ -270,15 +287,13 @@ set_opts <- \(
   if (.assign) {
     assign(.name, opts, envir = .GlobalEnv)
   } else {
-    return(get(.name))
+    return(opts)
   }
 }
 
 
 check_opts <- \(x, .name = "opts") {
-  if (exists(.name)) {
-    with(get(.name), eval(enexpr(x)))
-  } else {
+  if (!exists(.name, envir = .GlobalEnv, inherits = FALSE)) {
     cli_abort(
       c(
         "{.strong { .name }} does not exist in the global environment.",
@@ -286,4 +301,23 @@ check_opts <- \(x, .name = "opts") {
       )
     )
   }
+
+  opts <- get(.name, envir = .GlobalEnv, inherits = FALSE)
+  key <- enexpr(x)
+
+  root <- key
+  while (is.call(root) && length(root) >= 2) {
+    root <- root[[2]]
+  }
+
+  if (!is_symbol(root) || !as_string(root) %in% names(opts)) {
+    cli_abort(
+      c(
+        "{.field {as_label(root)}} is not a key of {.strong { .name }}.",
+        i = "Available keys: {.field {names(opts)}}."
+      )
+    )
+  }
+
+  eval(key, opts)
 }

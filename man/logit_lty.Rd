@@ -8,7 +8,7 @@ logit_lty(
   df,
   y,
   x,
-  breaks = 30,
+  breaks = 40,
   color = "#0099FF",
   label_y = "Logit(P {y})",
   label_x = x
