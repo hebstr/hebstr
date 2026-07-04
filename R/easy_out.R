@@ -30,7 +30,7 @@
 #'
 easy_out <- \(
   x,
-  filename = enexpr(x),
+  filename = as_label(enexpr(x)),
   dir = getOption("easy_out.dir", default = "output"),
   suffix = "",
   sep = "_",
@@ -209,7 +209,7 @@ easy_out_map <- \(
   ...
 ) {
   if (is.null(filename)) {
-    filename <- enexpr(x)
+    filename <- as_label(enexpr(x))
   }
 
   if (!is.list(x) || is.data.frame(x)) {

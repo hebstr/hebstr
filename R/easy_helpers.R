@@ -442,7 +442,12 @@ flow_filter <- \(data, ...) {
   .exprs <- exprs(...)
 
   if (!is_named(.exprs)) {
-    .exprs <- set_names(.exprs)
+    .auto <- map_chr(.exprs, as_label)
+    .nms <- names(.exprs)
+    .exprs <- set_names(
+      .exprs,
+      if (is.null(.nms)) .auto else if_else(nzchar(.nms), .nms, .auto)
+    )
   }
 
   .data <- if (inherits(data, c("tbl_sql", "tbl_lazy"))) collect(data) else data

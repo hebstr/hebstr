@@ -6,7 +6,7 @@
 \usage{
 easy_out(
   x,
-  filename = enexpr(x),
+  filename = as_label(enexpr(x)),
   dir = getOption("easy_out.dir", default = "output"),
   suffix = "",
   sep = "_",

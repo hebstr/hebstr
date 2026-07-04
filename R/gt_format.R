@@ -72,7 +72,7 @@ gt_format <- \(
     tab_header(title = if (!is.null(title)) md(title)) |>
     theme_gt(...)
 
-  if (TRUE %in% str_starts(names(x[["_data"]]), "coef")) {
+  if (any(str_starts(names(x[["_data"]]), "coef"))) {
     if (!exists("estim", envir = .estim_channel, inherits = FALSE)) {
       cli_abort(
         c(

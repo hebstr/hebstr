@@ -74,7 +74,6 @@
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 ggsave
 #' @importFrom ggplot2 is_ggplot
-#' @importFrom ggplot2 is.ggplot
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 margin
 #' @importFrom ggplot2 theme
