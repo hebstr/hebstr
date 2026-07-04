@@ -133,7 +133,7 @@ clear_vars <- \(env = ".vars_context") {
 #'
 #' @family configuration
 #'
-#' @seealso [use_vars()], [check_opts()], [lang_fr()]
+#' @seealso [use_vars()], `check_opts()`, [lang_fr()]
 #'
 #' @examples
 #' opts <- set_opts(.assign = FALSE)

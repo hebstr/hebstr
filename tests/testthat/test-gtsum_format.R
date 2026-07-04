@@ -8,6 +8,21 @@
   list(tbl = gtsummary::tbl_regression(mod, exponentiate = TRUE), mod = mod)
 }
 
+.make_uvreg_tbl <- \() {
+  df <- data.frame(
+    y = rep(c(0, 1), 15),
+    x = seq_len(30) + rep(c(0, 2), 15),
+    z = seq_len(30) - rep(c(0, 1), 15)
+  )
+  gtsummary::tbl_uvregression(
+    df,
+    method = glm,
+    y = y,
+    method.args = list(family = binomial()),
+    exponentiate = TRUE
+  )
+}
+
 .make_summary_df <- \() {
   data.frame(
     grp = rep(c("a", "b"), 10),
@@ -112,6 +127,19 @@ test_that("gtsum_format() aborts when show_single_row is TRUE without model_mv",
     gtsum_format(reg$tbl, show_single_row = TRUE),
     "show_single_row"
   )
+})
+
+test_that("gtsum_format() routes a univariate regression through the n-column formatter", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  set_opts()
+
+  uv <- suppressMessages(.make_uvreg_tbl())
+  res <- expect_no_warning(gtsum_format(uv))
+
+  expect_s3_class(res, "tbl_uvregression")
+  expect_true("stat_n" %in% names(res$table_body))
+  header <- res$table_styling$header
+  expect_equal(header$label[header$column == "stat_n"], "**Events/Obs**")
 })
 
 test_that("gt_format() aborts informatively on a non-gtsummary input", {

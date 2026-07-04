@@ -25,7 +25,7 @@
       bold_p(t = .bold_p)
   }
 
-  return(x)
+  x
 }
 
 .fmt_uni <- \(x, .label_header, .label_stat) {
@@ -45,7 +45,7 @@
   .ci_data,
   .estim_sep
 ) {
-  is_mvreg <- "tbl_regression" %in% class(x)
+  is_mvreg <- inherits(x, "tbl_regression")
 
   .lab_test <-
     list(beta = "Beta", or = "OR", hr = "HR") |>
@@ -71,10 +71,11 @@
             "HR" ~ .lab_test$hr,
             default = coefficients_label
           ),
-          adj_coefficients_label = case_when(
-            is_mvreg ~ glue("{.adj_acro}{coefficients_label}"),
-            .default = coefficients_label
-          ),
+          adj_coefficients_label = if (is_mvreg) {
+            glue("{.adj_acro}{coefficients_label}")
+          } else {
+            coefficients_label
+          },
           estim_label = recode_values(
             coefficients_label,
             .lab_test$beta ~ .lab$beta,
@@ -116,7 +117,7 @@
 
   .estim_channel$estim <- list(uv = estim$str$uv, mv = estim$str$mv)
 
-  return(x)
+  x
 }
 
 
@@ -150,7 +151,7 @@
         )
     )
 
-  return(x)
+  x
 }
 
 .event <- \(x) "n_event" %in% names(x$table_body)
@@ -168,12 +169,12 @@
             glue(.stat_n),
             NA
           ),
-          .after = .n_type
+          .after = all_of(.n_type)
         )
     ) |>
     modify_header(stat_n = glue("**{.label_n}**"))
 
-  return(x)
+  x
 }
 
 
@@ -228,12 +229,11 @@
     }
   }
 
-  if ("tbl_uvregression" %in% class(x)) {
+  if (inherits(x, "tbl_uvregression")) {
     x <- .fmt_reg_n(x, .stat_n, .label_n)
   }
 
-  x <-
-    x |>
+  x |>
     modify_header(label ~ .label_header, p.value ~ "**p**") |>
     add_ref_label(label = .label_reference) |>
     bold_p(t = .bold_p) |>
@@ -256,33 +256,65 @@
     )
 }
 
-#' Title
+#' Standardise a gtsummary table before styling
 #'
-#' @param x arg
-#' @param label_header arg
-#' @param label_reference arg
-#' @param label_n arg
-#' @param stat_n arg
-#' @param label_overall arg
-#' @param label_stat arg
-#' @param bold_p arg
-#' @param adj_acro arg
-#' @param adj_label arg
-#' @param estim_acro arg
-#' @param estim_label arg
-#' @param ci arg
-#' @param model_mv arg
-#' @param show_single_row arg
-#' @param ref_sep arg
-#' @param ref_no arg
-#' @param estim_sep arg
-#' @param vargrp_levels arg
-#' @param indent arg
+#' Applies the package's header, label, and footnote conventions to a
+#' `gtsummary` table, dispatching on its type: by-group summaries gain an
+#' overall column and level spanners, univariate summaries get a single-stat
+#' header, and regression tables get merged estimator/confidence-interval
+#' columns, reference-level annotations, and (for univariate regressions) an
+#' observation/event count column. The estimator definitions are recorded for
+#' [gt_format()] to render as a footnote. Typically piped into [gt_format()].
 #'
-#' @return arg
+#' @param x A `gtsummary` table: [gtsummary::tbl_summary()] (optionally with a
+#'   `by` group or `add_p()`), [gtsummary::tbl_regression()],
+#'   [gtsummary::tbl_uvregression()], or a [gtsummary::tbl_merge()].
+#' @param label_header Header label for the characteristic (`label`) column.
+#'   Defaults to the `labs$header` option. `NULL` leaves it blank.
+#' @param label_overall Label for the overall column added to by-group
+#'   summaries. Defaults to the `labs$overall` option.
+#' @param label_reference Label placed on reference rows of regression tables.
+#'   Defaults to the `labs$reference` option.
+#' @param label_n Header for the count column of univariate regressions.
+#'   Defaults to `"Events/Obs"` when the model carries events, else `"Obs"`.
+#' @param stat_n Glue template for the count column values. Defaults to
+#'   `"{n_event}/{n_obs}"` when events are present, else `"{n_obs}"`.
+#' @param label_stat Label for the single statistic column (`stat_0`) of a
+#'   univariate summary. `NULL` (default) leaves it blank.
+#' @param bold_p P-value threshold below which p-values are bolded. Defaults to
+#'   `0` (no bolding).
+#' @param adj_acro Acronym prefix marking the adjusted (multivariable)
+#'   estimator. Defaults to `"a"`.
+#' @param adj_label Glue template for the adjusted estimator definition.
+#'   Defaults to a bilingual template keyed on `getOption("OutDec")`.
+#' @param estim_acro Named list overriding the default estimator acronyms
+#'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults.
+#' @param estim_label Named list overriding the default estimator definitions
+#'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults.
+#' @param ci Confidence-interval specification (`label` and `data` pattern).
+#'   Defaults to the `ci` option.
+#' @param model_mv The fitted multivariable model, used to read factor
+#'   reference levels. Required when `show_single_row` is `TRUE`.
+#' @param show_single_row Whether to annotate dichotomous variables with their
+#'   reference level, read from `model_mv`. Defaults to `FALSE`.
+#' @param ref_sep Separator inserted before the reference-level value in the
+#'   annotation. Defaults to the `sep$int` option.
+#' @param ref_no Placeholder for an absent reference level. Defaults to `""`.
+#' @param estim_sep Separator between acronym and definition in the estimator
+#'   footnote. Defaults to the `sep$int` option.
+#' @param vargrp_levels Character vector of variable names whose rows are forced
+#'   to render as indented levels. Defaults to `""`.
+#' @param indent Indentation width, in points, applied to level rows. Defaults
+#'   to `4`.
+#'
+#' @returns The formatted `gtsummary` table, ready for [gt_format()].
+#'
+#' @examples
+#' set_opts()
+#' tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
+#' gtsum_format(tbl, label_stat = "Overall")
+#'
 #' @export
-#'
-#' @examples "arg"
 #'
 gtsum_format <- \(
   x,
@@ -315,7 +347,7 @@ gtsum_format <- \(
   label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""
   label_stat <- if (!is.null(label_stat)) glue("**{label_stat}**") else ""
 
-  if ("tbl_merge" %in% class(x)) {
+  if (inherits(x, "tbl_merge")) {
     check_by <- x$tbls[[1]]$inputs$by
   } else {
     check_by <- x$inputs$by
@@ -331,7 +363,7 @@ gtsum_format <- \(
         .bold_p = bold_p
       )
   } else {
-    if (str_detect(class(x)[1], "tbl_(uv)?reg")) {
+    if (inherits(x, c("tbl_regression", "tbl_uvregression"))) {
       x <-
         .fmt_reg(
           x,

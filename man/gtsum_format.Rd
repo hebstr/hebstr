@@ -2,7 +2,7 @@
 % Please edit documentation in R/gtsum_format.R
 \name{gtsum_format}
 \alias{gtsum_format}
-\title{Title}
+\title{Standardise a gtsummary table before styling}
 \usage{
 gtsum_format(
   x,
@@ -33,53 +33,81 @@ gtsum_format(
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A \code{gtsummary} table: \code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}} (optionally with a
+\code{by} group or \code{add_p()}), \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}},
+\code{\link[gtsummary:tbl_uvregression]{gtsummary::tbl_uvregression()}}, or a \code{\link[gtsummary:tbl_merge]{gtsummary::tbl_merge()}}.}
 
-\item{label_header}{arg}
+\item{label_header}{Header label for the characteristic (\code{label}) column.
+Defaults to the \code{labs$header} option. \code{NULL} leaves it blank.}
 
-\item{label_overall}{arg}
+\item{label_overall}{Label for the overall column added to by-group
+summaries. Defaults to the \code{labs$overall} option.}
 
-\item{label_reference}{arg}
+\item{label_reference}{Label placed on reference rows of regression tables.
+Defaults to the \code{labs$reference} option.}
 
-\item{label_n}{arg}
+\item{label_n}{Header for the count column of univariate regressions.
+Defaults to \code{"Events/Obs"} when the model carries events, else \code{"Obs"}.}
 
-\item{stat_n}{arg}
+\item{stat_n}{Glue template for the count column values. Defaults to
+\code{"{n_event}/{n_obs}"} when events are present, else \code{"{n_obs}"}.}
 
-\item{label_stat}{arg}
+\item{label_stat}{Label for the single statistic column (\code{stat_0}) of a
+univariate summary. \code{NULL} (default) leaves it blank.}
 
-\item{bold_p}{arg}
+\item{bold_p}{P-value threshold below which p-values are bolded. Defaults to
+\code{0} (no bolding).}
 
-\item{adj_acro}{arg}
+\item{adj_acro}{Acronym prefix marking the adjusted (multivariable)
+estimator. Defaults to \code{"a"}.}
 
-\item{adj_label}{arg}
+\item{adj_label}{Glue template for the adjusted estimator definition.
+Defaults to a bilingual template keyed on \code{getOption("OutDec")}.}
 
-\item{estim_acro}{arg}
+\item{estim_acro}{Named list overriding the default estimator acronyms
+(\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults.}
 
-\item{estim_label}{arg}
+\item{estim_label}{Named list overriding the default estimator definitions
+(\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults.}
 
-\item{ci}{arg}
+\item{ci}{Confidence-interval specification (\code{label} and \code{data} pattern).
+Defaults to the \code{ci} option.}
 
-\item{model_mv}{arg}
+\item{model_mv}{The fitted multivariable model, used to read factor
+reference levels. Required when \code{show_single_row} is \code{TRUE}.}
 
-\item{show_single_row}{arg}
+\item{show_single_row}{Whether to annotate dichotomous variables with their
+reference level, read from \code{model_mv}. Defaults to \code{FALSE}.}
 
-\item{ref_sep}{arg}
+\item{ref_sep}{Separator inserted before the reference-level value in the
+annotation. Defaults to the \code{sep$int} option.}
 
-\item{ref_no}{arg}
+\item{ref_no}{Placeholder for an absent reference level. Defaults to \code{""}.}
 
-\item{estim_sep}{arg}
+\item{estim_sep}{Separator between acronym and definition in the estimator
+footnote. Defaults to the \code{sep$int} option.}
 
-\item{vargrp_levels}{arg}
+\item{vargrp_levels}{Character vector of variable names whose rows are forced
+to render as indented levels. Defaults to \code{""}.}
 
-\item{indent}{arg}
+\item{indent}{Indentation width, in points, applied to level rows. Defaults
+to \code{4}.}
 }
 \value{
-arg
+The formatted \code{gtsummary} table, ready for \code{\link[=gt_format]{gt_format()}}.
 }
 \description{
-Title
+Applies the package's header, label, and footnote conventions to a
+\code{gtsummary} table, dispatching on its type: by-group summaries gain an
+overall column and level spanners, univariate summaries get a single-stat
+header, and regression tables get merged estimator/confidence-interval
+columns, reference-level annotations, and (for univariate regressions) an
+observation/event count column. The estimator definitions are recorded for
+\code{\link[=gt_format]{gt_format()}} to render as a footnote. Typically piped into \code{\link[=gt_format]{gt_format()}}.
 }
 \examples{
-"arg"
+set_opts()
+tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
+gtsum_format(tbl, label_stat = "Overall")
 
 }
