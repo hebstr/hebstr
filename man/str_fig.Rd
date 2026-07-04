@@ -2,7 +2,7 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_fig}
 \alias{str_fig}
-\title{Générer un titre de figure formaté avec note et acronymes}
+\title{Generate a formatted figure title with note and acronyms}
 \usage{
 str_fig(
   title,
@@ -14,32 +14,32 @@ str_fig(
 )
 }
 \arguments{
-\item{title}{Chaîne de caractères contenant le titre principal de la figure.
-Supporte l'interpolation avec la syntaxe \code{glue}.}
+\item{title}{String containing the main figure title. Supports interpolation
+with the \code{glue} syntax.}
 
-\item{note}{Chaîne de caractères contenant la note explicative à afficher
-sous le titre. Par défaut une chaîne vide. Supporte l'interpolation \code{glue}.}
+\item{note}{String containing the explanatory note shown below the title.
+Defaults to an empty string. Supports \code{glue} interpolation.}
 
-\item{acro}{Chaîne de caractères contenant les acronymes ou abréviations
-à ajouter après la note. Par défaut une chaîne vide.}
+\item{acro}{String containing the acronyms or abbreviations to append after
+the note. Defaults to an empty string.}
 
-\item{sub_size}{Taille de police pour la note et les acronymes, exprimée
-en points. Par défaut \code{"7.5"}.}
+\item{sub_size}{Font size for the note and acronyms, in points. Defaults to
+\code{"7.5"}.}
 
-\item{qmd}{Valeur logique indiquant si la sortie est destinée à un document
-Quarto Markdown. Par défaut \code{FALSE}.}
+\item{qmd}{Logical value indicating whether the output targets a Quarto
+Markdown document. Defaults to \code{FALSE}.}
 
-\item{class}{Classe CSS à appliquer à la note dans le contexte Quarto.
-Par défaut \code{"quarto-float-subcaption"}.}
+\item{class}{CSS class applied to the note in the Quarto context. Defaults to
+\code{"quarto-float-subcaption"}.}
 }
 \value{
-Une chaîne de caractères contenant le HTML formaté du titre
-de figure avec sa note et ses acronymes.
+A string containing the formatted HTML for the figure title with its
+note and acronyms.
 }
 \description{
-Cette fonction crée un titre de figure HTML formaté avec une note explicative
-et des acronymes en sous-titre. Elle adapte automatiquement le formatage selon
-le contexte de sortie (document standard ou Quarto Markdown).
+Builds a formatted HTML figure title with an explanatory note and acronyms as
+a subtitle. The formatting adapts to the output context (standard document or
+Quarto Markdown).
 }
 \examples{
 "arg"

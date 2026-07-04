@@ -2,34 +2,34 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_label}
 \alias{str_label}
-\title{Concaténer les étiquettes de variables avec formatage grammatical}
+\title{Concatenate variable labels with grammatical formatting}
 \usage{
 str_label(data, ..., last = "and")
 }
 \arguments{
-\item{data}{Un data.frame ou objet similaire contenant les variables
-à traiter.}
+\item{data}{A data.frame or similar object containing the variables to
+process.}
 
-\item{...}{\if{html}{\out{<data-masking>}} Noms des variables dont il faut extraire
-les étiquettes. Accepte la sélection de variables nue (sans guillemets).}
+\item{...}{\if{html}{\out{<data-masking>}} Names of the variables whose labels are extracted.
+Accepts bare variable selection (unquoted).}
 
-\item{last}{Chaîne de caractères spécifiant la conjonction finale
-à utiliser avant le dernier élément. Par défaut \code{"and"}.}
+\item{last}{String specifying the final conjunction to use before the last
+element. Defaults to \code{"and"}.}
 }
 \value{
-Une chaîne de caractères unique contenant les étiquettes
-des variables concaténées avec des virgules et la conjonction finale.
+A single string containing the variable labels concatenated with
+commas and the final conjunction.
 }
 \description{
-Cette fonction extrait les étiquettes de variables spécifiées depuis un jeu de
-données et les concatène en une chaîne de caractères avec une ponctuation
-grammaticalement correcte (virgules et conjonction finale).
+Extracts the labels of the specified variables from a data set and
+concatenates them into a single string with grammatically correct
+punctuation (commas and a final conjunction).
 }
-\section{Dépendances }{
+\section{Dependencies}{
 
-Cette fonction nécessite les packages \code{purrr}, \code{stringr} et \code{glue}.
-Elle utilise également \code{var_label()} qui doit être disponible
-(typiquement via le package \code{labelled}).
+This function requires the \code{purrr}, \code{stringr}, and \code{glue} packages. It also
+uses \code{var_label()}, which must be available (typically through the \code{labelled}
+package).
 }
 
 \examples{

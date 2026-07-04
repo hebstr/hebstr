@@ -183,6 +183,28 @@ test_that("easy_out() uses gt table_width when set", {
   expect_equal(captured_vwidth, 400 * 1.1)
 })
 
+test_that("easy_out() ignores a percentage table_width and falls back to default px", {
+  skip_if_not_installed("gt")
+
+  tmp <- withr::local_tempdir()
+  gt_obj <- gt::gt(head(mtcars, 3)) |>
+    gt::tab_options(table.width = gt::pct(80))
+
+  captured_vwidth <- NULL
+  local_mocked_bindings(
+    gtsave = \(data, filename, ...) writeLines("<html></html>", filename),
+    webshot = \(url, file, vwidth, ...) {
+      captured_vwidth <<- vwidth
+      invisible(NULL)
+    },
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(gt_obj, filename = "test_pct", dir = tmp, quiet = TRUE)
+
+  expect_equal(captured_vwidth, 700 * 1.1)
+})
+
 test_that("easy_out() rejects a character string", {
   expect_error(
     easy_out("not_a_plot", quiet = TRUE),

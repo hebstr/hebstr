@@ -71,6 +71,12 @@ easy_cut <- \(
   var <- enexpr(var)
 
   if (!incr) {
+    if (is.null(values)) {
+      cli_abort(
+        "{.arg values} must be provided when {.arg incr} is {.code FALSE}."
+      )
+    }
+
     name <- glue("{var}_cat")
 
     .min <- min(x[[var]], na.rm = TRUE)
@@ -79,7 +85,11 @@ easy_cut <- \(
 
     .values <- map_dbl(values, ~ . - 1 / 10000)
 
-    .labels <- labels |> str_replace_all("\\.|,", getOption("OutDec"))
+    .labels <- if (is.null(labels)) {
+      NULL
+    } else {
+      str_replace_all(labels, "\\.|,", getOption("OutDec"))
+    }
 
     x <-
       x |>
@@ -250,7 +260,8 @@ p_shortenr <- \(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE) {
         glue(inf, !!column),
         glue(sup, !!column)
       )
-    )
+    ) |>
+    ungroup()
 }
 
 
@@ -434,7 +445,7 @@ flow_filter <- \(data, ...) {
     .exprs <- set_names(.exprs)
   }
 
-  .data <- if ("tbl_conn" %in% class(data)) collect(data) else data
+  .data <- if (inherits(data, c("tbl_sql", "tbl_lazy"))) collect(data) else data
 
   .flow <-
     .exprs |>
@@ -489,6 +500,7 @@ label_p <- \(
 #' @param to_hash arg
 #' @param to_hide arg
 #' @param hash_trunc arg
+#' @param hash_salt arg
 #' @param hide_pattern arg
 #'
 #' @returns arg
@@ -631,7 +643,7 @@ wb_add_custom <- \(
       color = .colors$header
     ) |>
     wb_set_col_widths(
-      cols = 1:ncol(data),
+      cols = seq_len(ncol(data)),
       widths = "auto"
     ) |>
     wb_add_cell_style(

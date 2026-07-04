@@ -113,3 +113,68 @@ test_that("merge_estim_ci() preserves other columns in the data", {
   expect_true("term" %in% names(result))
   expect_equal(result$term, c("age", "sex"))
 })
+
+test_that("merge_estim_ci() does not pad values of differing widths", {
+  df <- data.frame(
+    estimate = c(1.2, 10.5),
+    conf.low = c(0.5, 9.1),
+    conf.high = c(2.0, 12.0)
+  )
+
+  result <- merge_estim_ci(df, ci_data = "[{conf.low}; {conf.high}]")
+
+  expect_equal(
+    result$estimate_ci,
+    c("1.20 [0.50; 2.00]", "10.50 [9.10; 12.00]")
+  )
+})
+
+test_that("merge_estim_ci() accepts a custom ci_col tidy-selection", {
+  df <- data.frame(
+    estimate = 1.5,
+    ci_low = 1.0,
+    ci_high = 2.0
+  )
+
+  result <- merge_estim_ci(
+    df,
+    ci_col = starts_with("ci_"),
+    ci_data = "[{ci_low}; {ci_high}]"
+  )
+
+  expect_equal(result$estimate_ci, "1.50 [1.00; 2.00]")
+  expect_false("ci_low" %in% names(result))
+  expect_false("ci_high" %in% names(result))
+})
+
+test_that("merge_estim_ci() interpolates glue in the output column name", {
+  df <- data.frame(
+    OR = 2.5,
+    conf.low = 1.2,
+    conf.high = 5.1
+  )
+
+  result <- merge_estim_ci(
+    df,
+    estim_col = "OR",
+    name = "{estim_col}_ci",
+    ci_data = "[{conf.low}; {conf.high}]"
+  )
+
+  expect_true("OR_ci" %in% names(result))
+  expect_false("estimate_ci" %in% names(result))
+})
+
+test_that("merge_estim_ci() formats decimals with the FR locale (OutDec = ',')", {
+  withr::local_options(OutDec = ",")
+
+  df <- data.frame(
+    estimate = 1.2,
+    conf.low = 0.5,
+    conf.high = 2.0
+  )
+
+  result <- merge_estim_ci(df, ci_data = "[{conf.low}; {conf.high}]")
+
+  expect_equal(result$estimate_ci, "1,20 [0,50; 2,00]")
+})

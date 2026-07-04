@@ -1,89 +1,81 @@
-#' Analyser automatiquement la structure descriptive d'un jeu de données
+#' Automatically analyze the descriptive structure of a dataset
 #'
-#' Cette fonction effectue une analyse automatisée de la structure d'un jeu de
-#' données en catégorisant les variables selon leur type statistique et génère
-#' un rapport descriptif formaté. Elle identifie automatiquement les variables
-#' quantitatives (paramétriques et non-paramétriques), qualitatives, dichotomiques
-#' et de type date, puis configure les statistiques descriptives appropriées
-#' pour chaque catégorie. Cette fonction constitue un outil essentiel pour
-#' l'exploration préliminaire et la préparation d'analyses statistiques.
+#' Classifies the variables of a dataset by their statistical type and returns
+#' a formatted descriptive report. Quantitative (parametric and non-parametric),
+#' qualitative, dichotomous and date variables are identified automatically, and
+#' the appropriate descriptive statistics are configured for each category. The
+#' function supports preliminary data exploration and the preparation of
+#' statistical analyses.
 #'
-#' @param data Un data.frame contenant les données à analyser. Toutes les
-#'   colonnes seront examinées et catégorisées selon leur type statistique.
-#' @param parametric Pattern d'expression régulière ou critère spécifiant
-#'   quelles variables numériques doivent être considérées comme paramétriques.
-#'   Par défaut utilise `nullfile()` pour une détection automatique.
-#' @param qt_stat Liste optionnelle de statistiques personnalisées pour les
-#'   variables quantitatives. Permet de surcharger les statistiques par défaut
-#'   (min, Q1, médiane, Q3, max, moyenne±écart-type).
-#' @param ql_stat Liste optionnelle de statistiques personnalisées pour les
-#'   variables qualitatives. Permet de surcharger la statistique par défaut
-#'   (effectifs et pourcentages).
+#' @param data A data.frame containing the data to analyze. Every column is
+#'   examined and classified by its statistical type.
+#' @param parametric Regular expression pattern or criterion specifying which
+#'   numeric variables should be treated as parametric. Defaults to `nullfile()`
+#'   for automatic detection.
+#' @param qt_stat Optional list of custom statistics for quantitative variables.
+#'   Overrides the default statistics (min, Q1, median, Q3, max,
+#'   mean±standard deviation).
+#' @param ql_stat Optional list of custom statistics for qualitative variables.
+#'   Overrides the default statistic (counts and percentages).
 #'
-#' @returns Une liste structurée contenant la classification des variables
-#'   et leurs statistiques associées, organisée en quatre catégories principales.
-#'   Chaque catégorie inclut les noms des variables (`vars`), les statistiques
-#'   configurées (`stat`) et les en-têtes de colonnes (`spanner`) appropriés.
+#' @returns A structured list containing the variable classification and its
+#'   associated statistics, organized into four main categories. Each category
+#'   includes the variable names (`vars`), the configured statistics (`stat`)
+#'   and the corresponding column headers (`spanner`).
 #'
-#' @section Architecture de classification automatique :
-#' La fonction implémente un algorithme de classification séquentielle qui
-#' examine chaque variable selon des critères statistiques précis. Les variables
-#' numériques avec plus de deux valeurs uniques sont classées comme quantitatives,
-#' puis subdivisées en paramétriques et non-paramétriques selon le pattern
-#' spécifié. Les variables non-numériques et non-dates deviennent qualitatives.
-#' Les variables numériques binaires (exactement deux valeurs) sont catégorisées
-#' comme dichotomiques. Les variables de type Date sont identifiées séparément
-#' pour un traitement temporel approprié.
+#' @section Automatic classification:
+#' The function applies a sequential classification algorithm that examines each
+#' variable against defined statistical criteria. Numeric variables with more
+#' than two unique values are classified as quantitative, then split into
+#' parametric and non-parametric according to the specified pattern. Non-numeric,
+#' non-date variables become qualitative. Binary numeric variables (exactly two
+#' values) are classified as dichotomous. Date variables are identified
+#' separately for date-specific handling.
 #'
-#' @section Adaptation linguistique des statistiques :
-#' La fonction détecte automatiquement la configuration linguistique via
-#' `getOption("OutDec")` et adapte les étiquettes statistiques en conséquence.
-#' Pour une configuration française (virgule décimale), les termes "Médiane"
-#' et "Moyenne" remplacent automatiquement leurs équivalents anglais. Cette
-#' adaptation garantit la cohérence culturelle des productions analytiques
-#' sans intervention manuelle de l'utilisateur.
+#' @section Language adaptation of statistics:
+#' The function detects the language configuration via `getOption("OutDec")` and
+#' adapts the statistic labels accordingly. Under a French configuration (decimal
+#' comma), the terms "Médiane" and "Moyenne" replace their English equivalents.
+#' This adaptation applies without manual intervention.
 #'
-#' @section Génération de rapports CLI formatés :
-#' La fonction produit un rapport détaillé utilisant l'interface CLI pour
-#' présenter la classification des variables de manière structurée et visuelle.
-#' Le rapport inclut le nombre total de variables par catégorie, la liste
-#' des variables dans chaque groupe, et utilise des codes couleur pour
-#' améliorer la lisibilité. Cette fonctionnalité facilite l'inspection
-#' rapide de la structure des données et la validation des classifications
-#' automatiques avant l'analyse statistique proprement dite.
+#' @section Formatted CLI report:
+#' The function produces a report through the CLI interface presenting the
+#' variable classification in a structured, visual form. The report includes the
+#' total number of variables per category, the list of variables in each group,
+#' and color coding for readability. This supports rapid inspection of the data
+#' structure and validation of the automatic classification before statistical
+#' analysis.
 #'
-#' @section Prérequis techniques et dépendances :
-#' Cette fonction nécessite un écosystème de packages spécialisés pour un
-#' fonctionnement optimal. Les packages `cli` pour le formatage de sortie,
-#' `stringr` pour la manipulation de chaînes, `purrr` pour les opérations
-#' sur listes, et `glue` pour l'interpolation sont essentiels. Les fonctions
-#' auxiliaires `nullfile()`, `str_u()`, `str_flatten_comma()` et `list_modify()`
-#' doivent également être disponibles dans l'environnement d'exécution.
+#' @section Technical requirements and dependencies:
+#' The function relies on `cli` for output formatting, `stringr` for string
+#' manipulation, `purrr` for list operations, and `glue` for interpolation. The
+#' helper functions `nullfile()`, `str_u()`, `str_flatten_comma()` and
+#' `list_modify()` must also be available in the execution environment.
 #'
 #' @examples
-#' # Configuration par défaut avec classification automatique
+#' # Default configuration with automatic classification
 #' df_mtcars <- easy_descr(mtcars)
 #' str(df_mtcars, max.level = 2)
 #' df_mtcars
 #'
-#' # Appel des éléments
+#' # Accessing elements
 #' df_mtcars$qt$vars$total
 #' df_mtcars$ql$vars
 #'
-#' # Spécification explicite de variables paramétriques
+#' # Explicit specification of parametric variables
 #' df_mtcars_para <- mtcars |> easy_descr(parametric = "mpg|hp|disp")
 #' df_mtcars_para$qt$vars$parametric
 #'
-#' # Typographie par défaut (EN)
+#' # Default typography (EN)
 #' df_en <- easy_descr(mtcars)
 #' df_en$qt$stat |> with(c(median, mean))
 #'
-#' # Typographie FR
+#' # FR typography
 #' lang_fr()
 #' df_fr <- easy_descr(mtcars)
 #' df_fr$qt$stat |> with(c(median, mean))
 #'
-#' # Personnalisation des statistiques quantitatives
+#' # Customizing quantitative statistics
 #' df_stats <-
 #' easy_descr(data = mtcars,
 #'            qt_stat =
@@ -92,19 +84,19 @@
 #'
 #' df_stats$qt$stat
 #'
-#' # Analyse avec données temporelles
+#' # Analysis with date data
 #' df_storms <-
 #' dplyr::storms |>
 #'   dplyr::mutate(date_storm = as.Date(paste(year, month, day, sep = "-")))
 #'
-#' # Configuration avec toutes variables continues comme paramétriques
+#' # Configuration treating all continuous variables as parametric
 #' df_storms_para <- df_storms |> easy_descr(parametric = "all_continuous")
 #' df_storms_para$qt$vars$parametric
 #' df_storms_para$qt$vars$nonparametric
 #'
-#' # Application avec gtsummary (TODO)
+#' # Application with gtsummary (TODO)
 #'
-#' @family fonctions d'analyse exploratoire
+#' @family exploratory analysis functions
 #'
 #' @export
 easy_descr <- \(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL) {

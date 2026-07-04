@@ -2,62 +2,56 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_u}
 \alias{str_u}
-\title{Construire une expression d'union pour expressions régulières}
+\title{Build an alternation expression for regular expressions}
 \usage{
 str_u(...)
 }
 \arguments{
-\item{...}{Chaînes de caractères représentant les différents motifs
-à combiner dans l'expression d'union. Chaque argument devient un
-élément de l'alternative dans le pattern résultant.}
+\item{...}{Strings representing the patterns to combine into the alternation
+expression. Each argument becomes one branch of the alternation in the
+resulting pattern.}
 }
 \value{
-Une chaîne de caractères unique contenant tous les motifs
-séparés par le caractère pipe (|), prête à être utilisée comme
-expression régulière d'union.
+A single string containing all patterns separated by the pipe
+character (|), ready to use as an alternation regular expression.
 }
 \description{
-Cette fonction utilitaire génère une chaîne de caractères représentant
-une expression d'union (OR) pour les expressions régulières, en combinant
-plusieurs motifs avec le séparateur pipe (|). Elle constitue un raccourci
-syntaxique pour la construction efficace de patterns regex d'alternatives
-multiples.
+Generates a string representing an alternation (OR) expression for regular
+expressions by joining several patterns with the pipe separator (|). It is
+a syntactic shortcut for building regex patterns with multiple alternatives.
 }
-\section{Prérequis techniques }{
+\section{Technical requirements}{
 
-Cette fonction nécessite que le package \code{stringr} soit chargé dans
-l'environnement ou que la fonction \code{str_c()} soit explicitement
-importée. Utilisez \code{library(stringr)} ou \code{stringr::str_c()} selon
-votre configuration de projet.
+This function requires the \code{stringr} package to be loaded in the environment,
+or the \code{str_c()} function to be explicitly imported. Use \code{library(stringr)}
+or \code{stringr::str_c()} depending on your project setup.
 }
 
-\section{Applications professionnelles }{
+\section{Applications}{
 
-Cette fonction s'avère particulièrement utile dans les contextes
-d'analyse de données textuelles, de validation de formats multiples,
-et de filtrage de grandes bases de données selon des critères
-d'inclusion variés. Elle simplifie significativement la construction
-de patterns regex complexes en production.
+Useful for text data analysis, validation against multiple formats, and
+filtering large data sets against several inclusion criteria. It simplifies
+the construction of complex regex patterns.
 }
 
 \examples{
-# Chargement préalable requis
+# Load stringr first
 library(stringr)
 
-# Construction d'un pattern pour départements français
+# Build a pattern for French departments
 depts_idf <- str_u("75", "77", "78", "91", "92", "93", "94", "95")
 depts_idf
 
-# Application pour filtrer des codes postaux
+# Filter postal codes
 codes_postaux <- c("75001", "69001", "77300", "78000", "13001")
 str_detect(codes_postaux, paste0("^(", depts_idf, ")"))
 
-# Pattern pour extensions de fichiers bureautiques
+# Pattern for office file extensions
 extensions_office <- str_u("xlsx", "docx", "pptx", "pdf")
 fichiers_projet <- c("rapport.docx", "donnees.xlsx", "image.png", "presentation.pptx")
 str_detect(fichiers_projet, paste0("\\\\.(", extensions_office, ")$"))
 
-# Validation de statuts administratifs
+# Validate administrative statuses
 statuts_valides <- str_u("actif", "suspendu", "en_attente", "archivé")
 base_utilisateurs <- data.frame(
   identifiant = 1:4,
@@ -67,7 +61,7 @@ utilisateurs_conformes <- base_utilisateurs[
   str_detect(base_utilisateurs$statut, paste0("^(", statuts_valides, ")$")),
 ]
 
-# Recherche de terminologie économique
+# Search for economic terminology
 indicateurs_macro <- str_u("PIB", "inflation", "chômage", "croissance", "déficit")
 titres_etudes <- c(
   "Analyse du PIB français 2023",
@@ -79,24 +73,24 @@ etudes_economiques <- titres_etudes[
   str_detect(titres_etudes, regex(indicateurs_macro, ignore_case = TRUE))
 ]
 
-# Construction de patterns pour validation de données
+# Build patterns for data validation
 formats_date <- str_u("\\\\d{2}/\\\\d{2}/\\\\d{4}", "\\\\d{4}-\\\\d{2}-\\\\d{2}", "\\\\d{2}-\\\\d{2}-\\\\d{4}")
 dates_saisies <- c("01/01/2023", "2023-12-31", "31-12-2023", "invalide")
 dates_valides <- dates_saisies[str_detect(dates_saisies, paste0("^(", formats_date, ")$"))]
 
 }
 \references{
-Documentation stringr pour les expressions régulières :
+stringr documentation on regular expressions:
 \url{https://stringr.tidyverse.org/articles/regular-expressions.html}
 }
 \seealso{
 \itemize{
-\item \code{\link[stringr:str_c]{stringr::str_c()}} pour la concaténation de chaînes de caractères
+\item \code{\link[stringr:str_c]{stringr::str_c()}} for string concatenation
 }
 
-Other fonctions de formatage:
+Other formatting functions:
 \code{\link[=acro]{acro()}},
 \code{\link[=acro_str]{acro_str()}},
 \code{\link[=str_cap]{str_cap()}}
 }
-\concept{fonctions de formatage}
+\concept{formatting functions}

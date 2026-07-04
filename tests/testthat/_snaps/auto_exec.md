@@ -9,7 +9,7 @@
       
     Condition
       Error in `auto_exec()`:
-      ! Aucun répertoire nommé 'nonexistent_dir_abc123' trouvé dans '<pkgdir>'
+      ! No directory named 'nonexistent_dir_abc123' found in '<pkgdir>'.
 
 # auto_exec() errors when no matching files found
 
@@ -22,8 +22,8 @@
       
     Condition
       Error in `auto_exec()`:
-      ! Aucun fichier `*.R` trouvé dans '<tmpdir>'
-      i Fichiers exclus : préfixe "_"
+      ! No `*.R` file found in '<tmpdir>'.
+      i Excluded files: prefix "_".
 
 # auto_exec() errors when only non-.R files exist
 
@@ -36,6 +36,6 @@
       
     Condition
       Error in `auto_exec()`:
-      ! Aucun fichier `*.R` trouvé dans '<tmpdir>'
-      i Fichiers exclus : préfixe "_"
+      ! No `*.R` file found in '<tmpdir>'.
+      i Excluded files: prefix "_".
 

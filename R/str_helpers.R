@@ -1,50 +1,44 @@
-#' Construire une expression d'union pour expressions régulières
+#' Build an alternation expression for regular expressions
 #'
-#' Cette fonction utilitaire génère une chaîne de caractères représentant
-#' une expression d'union (OR) pour les expressions régulières, en combinant
-#' plusieurs motifs avec le séparateur pipe (|). Elle constitue un raccourci
-#' syntaxique pour la construction efficace de patterns regex d'alternatives
-#' multiples.
+#' Generates a string representing an alternation (OR) expression for regular
+#' expressions by joining several patterns with the pipe separator (|). It is
+#' a syntactic shortcut for building regex patterns with multiple alternatives.
 #'
-#' @param ... Chaînes de caractères représentant les différents motifs
-#'   à combiner dans l'expression d'union. Chaque argument devient un
-#'   élément de l'alternative dans le pattern résultant.
+#' @param ... Strings representing the patterns to combine into the alternation
+#'   expression. Each argument becomes one branch of the alternation in the
+#'   resulting pattern.
 #'
-#' @return Une chaîne de caractères unique contenant tous les motifs
-#'   séparés par le caractère pipe (|), prête à être utilisée comme
-#'   expression régulière d'union.
+#' @return A single string containing all patterns separated by the pipe
+#'   character (|), ready to use as an alternation regular expression.
 #'
-#' @section Prérequis techniques :
-#' Cette fonction nécessite que le package `stringr` soit chargé dans
-#' l'environnement ou que la fonction `str_c()` soit explicitement
-#' importée. Utilisez `library(stringr)` ou `stringr::str_c()` selon
-#' votre configuration de projet.
+#' @section Technical requirements:
+#' This function requires the `stringr` package to be loaded in the environment,
+#' or the `str_c()` function to be explicitly imported. Use `library(stringr)`
+#' or `stringr::str_c()` depending on your project setup.
 #'
-#' @section Applications professionnelles :
-#' Cette fonction s'avère particulièrement utile dans les contextes
-#' d'analyse de données textuelles, de validation de formats multiples,
-#' et de filtrage de grandes bases de données selon des critères
-#' d'inclusion variés. Elle simplifie significativement la construction
-#' de patterns regex complexes en production.
+#' @section Applications:
+#' Useful for text data analysis, validation against multiple formats, and
+#' filtering large data sets against several inclusion criteria. It simplifies
+#' the construction of complex regex patterns.
 #'
 #' @examples
-#' # Chargement préalable requis
+#' # Load stringr first
 #' library(stringr)
 #'
-#' # Construction d'un pattern pour départements français
+#' # Build a pattern for French departments
 #' depts_idf <- str_u("75", "77", "78", "91", "92", "93", "94", "95")
 #' depts_idf
 #'
-#' # Application pour filtrer des codes postaux
+#' # Filter postal codes
 #' codes_postaux <- c("75001", "69001", "77300", "78000", "13001")
 #' str_detect(codes_postaux, paste0("^(", depts_idf, ")"))
 #'
-#' # Pattern pour extensions de fichiers bureautiques
+#' # Pattern for office file extensions
 #' extensions_office <- str_u("xlsx", "docx", "pptx", "pdf")
 #' fichiers_projet <- c("rapport.docx", "donnees.xlsx", "image.png", "presentation.pptx")
 #' str_detect(fichiers_projet, paste0("\\.(", extensions_office, ")$"))
 #'
-#' # Validation de statuts administratifs
+#' # Validate administrative statuses
 #' statuts_valides <- str_u("actif", "suspendu", "en_attente", "archivé")
 #' base_utilisateurs <- data.frame(
 #'   identifiant = 1:4,
@@ -54,7 +48,7 @@
 #'   str_detect(base_utilisateurs$statut, paste0("^(", statuts_valides, ")$")),
 #' ]
 #'
-#' # Recherche de terminologie économique
+#' # Search for economic terminology
 #' indicateurs_macro <- str_u("PIB", "inflation", "chômage", "croissance", "déficit")
 #' titres_etudes <- c(
 #'   "Analyse du PIB français 2023",
@@ -66,17 +60,17 @@
 #'   str_detect(titres_etudes, regex(indicateurs_macro, ignore_case = TRUE))
 #' ]
 #'
-#' # Construction de patterns pour validation de données
+#' # Build patterns for data validation
 #' formats_date <- str_u("\\d{2}/\\d{2}/\\d{4}", "\\d{4}-\\d{2}-\\d{2}", "\\d{2}-\\d{2}-\\d{4}")
 #' dates_saisies <- c("01/01/2023", "2023-12-31", "31-12-2023", "invalide")
 #' dates_valides <- dates_saisies[str_detect(dates_saisies, paste0("^(", formats_date, ")$"))]
 #'
-#' @family fonctions de formatage
+#' @family formatting functions
 #' @seealso
-#' * [stringr::str_c()] pour la concaténation de chaînes de caractères
+#' * [stringr::str_c()] for string concatenation
 #'
 #' @references
-#' Documentation stringr pour les expressions régulières :
+#' stringr documentation on regular expressions:
 #' \url{https://stringr.tidyverse.org/articles/regular-expressions.html}
 #'
 #' @export
@@ -84,26 +78,21 @@ str_u <- \(...) {
   str_c(c(...), collapse = "|")
 }
 
-#' Formater du texte avec couleurs et styles HTML intégrés
+#' Format text with inline HTML colors and styles
 #'
-#' Cette fonction génère du code HTML formaté permettant d'appliquer simultanément
-#' des couleurs de texte et d'arrière-plan à du contenu textuel. Elle combine
-#' automatiquement la mise en forme colorée avec l'emphase typographique en gras,
-#' optimisée pour l'intégration dans des documents Markdown, des rapports HTML
-#' et des interfaces web interactives.
+#' Generates HTML code that applies both text and background colors to text
+#' content. It combines the color styling with bold emphasis, for use in
+#' Markdown documents, HTML reports, and interactive web interfaces.
 #'
-#' @param text Chaîne de caractères contenant le texte à formater.
-#'   Supporte l'interpolation avec la syntaxe `glue` pour l'insertion
-#'   dynamique de variables.
-#' @param color Couleur du texte exprimée sous forme de nom CSS standard,
-#'   code hexadécimal ou valeur RGB/RGBA. Par défaut `"red"`.
-#' @param bg Couleur d'arrière-plan exprimée sous forme de code hexadécimal,
-#'   nom CSS ou valeur RGB/RGBA. Par défaut `"#ffffff00"` (transparent
-#'   avec canal alpha).
+#' @param text String containing the text to format. Supports interpolation
+#'   with the `glue` syntax for dynamic variable insertion.
+#' @param color Text color given as a standard CSS name, hexadecimal code, or
+#'   RGB/RGBA value. Defaults to `"red"`.
+#' @param bg Background color given as a hexadecimal code, CSS name, or RGB/RGBA
+#'   value. Defaults to `"#ffffff00"` (transparent via the alpha channel).
 #'
-#' @return Une chaîne de caractères contenant le code HTML formaté avec
-#'   les styles CSS appliqués via attribut `style` et la syntaxe Markdown
-#'   pour l'emphase en gras.
+#' @return A string containing the HTML code with the CSS styles applied through
+#'   the `style` attribute and the Markdown syntax for bold emphasis.
 #'
 #' @examples "arg"
 #'
@@ -115,27 +104,27 @@ str_color <- \(text, color = "red", bg = "#ffffff00") {
   glue("<span style='{color}{bg}'>**{text}**</span>")
 }
 
-#' Générer un titre de figure formaté avec note et acronymes
+#' Generate a formatted figure title with note and acronyms
 #'
-#' Cette fonction crée un titre de figure HTML formaté avec une note explicative
-#' et des acronymes en sous-titre. Elle adapte automatiquement le formatage selon
-#' le contexte de sortie (document standard ou Quarto Markdown).
+#' Builds a formatted HTML figure title with an explanatory note and acronyms as
+#' a subtitle. The formatting adapts to the output context (standard document or
+#' Quarto Markdown).
 #'
-#' @param title Chaîne de caractères contenant le titre principal de la figure.
-#'   Supporte l'interpolation avec la syntaxe `glue`.
-#' @param note Chaîne de caractères contenant la note explicative à afficher
-#'   sous le titre. Par défaut une chaîne vide. Supporte l'interpolation `glue`.
-#' @param acro Chaîne de caractères contenant les acronymes ou abréviations
-#'   à ajouter après la note. Par défaut une chaîne vide.
-#' @param sub_size Taille de police pour la note et les acronymes, exprimée
-#'   en points. Par défaut `"7.5"`.
-#' @param qmd Valeur logique indiquant si la sortie est destinée à un document
-#'   Quarto Markdown. Par défaut `FALSE`.
-#' @param class Classe CSS à appliquer à la note dans le contexte Quarto.
-#'   Par défaut `"quarto-float-subcaption"`.
+#' @param title String containing the main figure title. Supports interpolation
+#'   with the `glue` syntax.
+#' @param note String containing the explanatory note shown below the title.
+#'   Defaults to an empty string. Supports `glue` interpolation.
+#' @param acro String containing the acronyms or abbreviations to append after
+#'   the note. Defaults to an empty string.
+#' @param sub_size Font size for the note and acronyms, in points. Defaults to
+#'   `"7.5"`.
+#' @param qmd Logical value indicating whether the output targets a Quarto
+#'   Markdown document. Defaults to `FALSE`.
+#' @param class CSS class applied to the note in the Quarto context. Defaults to
+#'   `"quarto-float-subcaption"`.
 #'
-#' @return Une chaîne de caractères contenant le HTML formaté du titre
-#'   de figure avec sa note et ses acronymes.
+#' @return A string containing the formatted HTML for the figure title with its
+#'   note and acronyms.
 #'
 #' @examples "arg"
 #'
@@ -168,100 +157,96 @@ str_fig <- \(
   return(.str)
 }
 
-#' Concaténer les étiquettes de variables avec formatage grammatical
+#' Concatenate variable labels with grammatical formatting
 #'
-#' Cette fonction extrait les étiquettes de variables spécifiées depuis un jeu de
-#' données et les concatène en une chaîne de caractères avec une ponctuation
-#' grammaticalement correcte (virgules et conjonction finale).
+#' Extracts the labels of the specified variables from a data set and
+#' concatenates them into a single string with grammatically correct
+#' punctuation (commas and a final conjunction).
 #'
-#' @param data Un data.frame ou objet similaire contenant les variables
-#'   à traiter.
-#' @param ... <data-masking> Noms des variables dont il faut extraire
-#'   les étiquettes. Accepte la sélection de variables nue (sans guillemets).
-#' @param last Chaîne de caractères spécifiant la conjonction finale
-#'   à utiliser avant le dernier élément. Par défaut `"and"`.
+#' @param data A data.frame or similar object containing the variables to
+#'   process.
+#' @param ... <data-masking> Names of the variables whose labels are extracted.
+#'   Accepts bare variable selection (unquoted).
+#' @param last String specifying the final conjunction to use before the last
+#'   element. Defaults to `"and"`.
 #'
-#' @return Une chaîne de caractères unique contenant les étiquettes
-#'   des variables concaténées avec des virgules et la conjonction finale.
+#' @return A single string containing the variable labels concatenated with
+#'   commas and the final conjunction.
 #'
-#' @section Dépendances :
-#' Cette fonction nécessite les packages `purrr`, `stringr` et `glue`.
-#' Elle utilise également `var_label()` qui doit être disponible
-#' (typiquement via le package `labelled`).
+#' @section Dependencies:
+#' This function requires the `purrr`, `stringr`, and `glue` packages. It also
+#' uses `var_label()`, which must be available (typically through the `labelled`
+#' package).
 #'
 #' @examples "arg"
 #'
 #' @export
 str_label <- \(data, ..., last = "and") {
-  c(...) |>
-    map_chr(
-      ~ with(data, get(.)) |>
-        var_label()
-    ) |>
+  enexprs(...) |>
+    map_chr(~ var_label(data[[as_string(.x)]]) %||% "") |>
     str_flatten_comma(glue(" {last} "))
 }
 
-#' Appliquer une fonction de transformation au premier caractère d'une chaîne
+#' Apply a transformation function to the first character of a string
 #'
-#' Cette fonction utilitaire permet d'appliquer une transformation spécifique
-#' au premier caractère d'une chaîne de caractères tout en préservant le reste
-#' de la chaîne inchangé. Elle constitue un outil flexible pour la manipulation
-#' typographique et le formatage de texte.
+#' Applies a transformation to the first character of a string while leaving the
+#' rest of the string unchanged. Useful for typographic manipulation and text
+#' formatting.
 #'
-#' @param fun Fonction à appliquer au premier caractère. Doit être une fonction
-#'   qui accepte une chaîne de caractères et retourne une chaîne de caractères
-#'   transformée (par exemple `toupper`, `tolower`).
-#' @param str Chaîne de caractères à traiter. Le premier caractère sera
-#'   transformé selon la fonction spécifiée.
+#' @param fun Function to apply to the first character. Must be a function that
+#'   takes a string and returns a transformed string (for example `toupper`,
+#'   `tolower`).
+#' @param str String to process. Its first character is transformed by the
+#'   specified function.
 #'
-#' @return Une chaîne de caractères identique à l'entrée, avec le premier
-#'   caractère transformé selon la fonction appliquée.
+#' @return A string identical to the input, with the first character transformed
+#'   by the applied function.
 #'
-#' @section Mécanisme technique :
-#' La fonction utilise `stringr::str_sub()` pour extraire le premier caractère,
-#' `do.call()` pour appliquer dynamiquement la fonction de transformation,
-#' puis `stringr::str_replace()` pour substituer le caractère transformé
-#' dans la chaîne originale.
+#' @section Mechanism:
+#' The function uses `stringr::str_sub()` to extract the first character,
+#' `do.call()` to apply the transformation function dynamically, then
+#' `stringr::str_replace()` to substitute the transformed character back into
+#' the original string.
 #'
-#' @section Fonctions compatibles :
-#' Cette fonction fonctionne avec toute fonction qui accepte une chaîne
-#' de caractères en entrée et retourne une chaîne transformée. Les fonctions
-#' couramment utilisées incluent `base::toupper()`, `base::tolower()`,
-#' ou des fonctions personnalisées de transformation de caractères.
+#' @section Compatible functions:
+#' This function works with any function that takes a string as input and
+#' returns a transformed string. Commonly used functions include
+#' `base::toupper()`, `base::tolower()`, or custom character-transformation
+#' functions.
 #'
 #' @examples
-#' # Conversion du premier caractère en majuscule
+#' # Convert the first character to upper case
 #' str_cap(toupper, "france")
 #'
-#' # Conversion du premier caractère en minuscule
+#' # Convert the first character to lower case
 #' str_cap(tolower, "PARIS")
 #'
-#' # Application sur des phrases complètes
+#' # Apply to full sentences
 #' str_cap(toupper, "analyse des données économiques")
 #' str_cap(tolower, "RAPPORT TRIMESTRIEL")
 #'
-#' # Utilisation avec des chaînes contenant des caractères spéciaux
+#' # Use with strings containing special characters
 #' str_cap(toupper, "émission de CO₂")
 #' str_cap(tolower, "ÉLÉVATION du niveau de la mer")
 #'
-#' # Application dans un contexte de formatage de titres
+#' # Apply in a title-formatting context
 #' titres_bruts <- c("méthodologie statistique", "RÉSULTATS PRINCIPAUX")
 #' titres_formates <- sapply(titres_bruts, \(x) str_cap(toupper, x))
 #'
-#' # Utilisation avec une fonction personnalisée
+#' # Use with a custom function
 #' inverser_casse <- function(char) {
 #'   if (char == toupper(char)) tolower(char) else toupper(char)
 #' }
 #' str_cap(inverser_casse, "Données")
 #' str_cap(inverser_casse, "données")
 #'
-#' # Application pour standardiser des noms propres
+#' # Standardize proper nouns
 #' noms_regions <- c("île-de-france", "NORMANDIE", "provence-alpes-côte d'azur")
 #' noms_standardises <- sapply(noms_regions, \(x) str_cap(toupper, x))
 #'
-#' @family fonctions de formatage
+#' @family formatting functions
 #' @seealso
-#' * [stringr::str_to_title()] pour la conversion en casse de titre
+#' * [stringr::str_to_title()] for title-case conversion
 #'
 #' @export
 str_cap <- \(fun, str) {

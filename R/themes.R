@@ -16,13 +16,21 @@ check_fonts <- \(..., .default = "trebuchet ms", .auto = NULL, .abort = FALSE) {
 
     if (!check_fonts(.auto)) .default else .auto
   } else {
-    fonts <- unlist(...)
+    fonts <- unlist(list(...))
 
     system <- unique(systemfonts::system_fonts()$family)
-    system <- glue("\\b{system}\\b")
-    system <- glue("(?i){str_u(system)}")
 
-    is_installed <- str_detect(fonts, system)
+    is_installed <- fonts |>
+      map_lgl(
+        \(f) {
+          any(
+            str_detect(
+              system,
+              regex(as.character(glue("\\b{f}\\b")), ignore_case = TRUE)
+            )
+          )
+        }
+      )
 
     if (FALSE %in% is_installed) {
       which_font <-
@@ -61,6 +69,9 @@ check_fonts <- \(..., .default = "trebuchet ms", .auto = NULL, .abort = FALSE) {
 #' @param footnote_marks arg
 #' @param footnote_font_size arg
 #' @param footnote_padding arg
+#' @param docx If `TRUE`, skip the style refinements (justified title and
+#'   footnotes, digit font, reduced stat and p-value sizes) that render poorly
+#'   in Word output. Defaults to `getOption("theme_gt.docx", FALSE)`.
 #' @param ... arg
 #'
 #' @return arg
@@ -86,54 +97,57 @@ theme_gt <- \(
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
+  docx = getOption("theme_gt.docx", default = FALSE),
   ...
 ) {
+  if (!is_bool(docx)) {
+    cli_abort("{.arg docx} must be logical.")
+  }
+
   .f <- \(str) str_subset(names(x$`_data`), str)
 
   if (!row_strip) {
     color <- "#ffffff00"
   }
 
-  x <-
-    tab_options(
-      data = x,
-      table.width = width,
-      table.font.names = alpha,
-      table.font.size = px(font_size),
-      table.font.color = base,
-      table.background.color = color,
-      heading.align = title_align,
-      heading.background.color = bg,
-      heading.title.font.size = px(title_font_size),
-      heading.border.bottom.style = "none",
-      heading.padding = px(10),
-      column_labels.border.top.style = "none",
-      column_labels.border.bottom.width = px(1),
-      column_labels.border.bottom.color = base,
-      column_labels.background.color = bg,
-      table.border.top.style = "none",
-      table.border.bottom.style = "none",
-      table_body.border.top.width = px(1),
-      table_body.border.top.color = base,
-      table_body.border.bottom.width = px(1),
-      table_body.border.bottom.color = base,
-      table_body.hlines.style = "none",
-      container.height = pct(100),
-      container.width = pct(100),
-      data_row.padding = px(row_padding),
-      data_row.padding.horizontal = px(5),
-      row.striping.include_table_body = TRUE,
-      row.striping.background_color = bg,
-      footnotes.marks = footnote_marks,
-      footnotes.font.size = px(footnote_font_size),
-      footnotes.padding = px(footnote_padding),
-      footnotes.background.color = bg,
-      ...
-    )
+  x <- tab_options(
+    data = x,
+    table.width = width,
+    table.font.names = alpha,
+    table.font.size = px(font_size),
+    table.font.color = base,
+    table.background.color = color,
+    heading.align = title_align,
+    heading.background.color = bg,
+    heading.title.font.size = px(title_font_size),
+    heading.border.bottom.style = "none",
+    heading.padding = px(10),
+    column_labels.border.top.style = "none",
+    column_labels.border.bottom.width = px(1),
+    column_labels.border.bottom.color = base,
+    column_labels.background.color = bg,
+    table.border.top.style = "none",
+    table.border.bottom.style = "none",
+    table_body.border.top.width = px(1),
+    table_body.border.top.color = base,
+    table_body.border.bottom.width = px(1),
+    table_body.border.bottom.color = base,
+    table_body.hlines.style = "none",
+    container.height = pct(100),
+    container.width = pct(100),
+    data_row.padding = px(row_padding),
+    data_row.padding.horizontal = px(5),
+    row.striping.include_table_body = TRUE,
+    row.striping.background_color = bg,
+    footnotes.marks = footnote_marks,
+    footnotes.font.size = px(footnote_font_size),
+    footnotes.padding = px(footnote_padding),
+    footnotes.background.color = bg,
+    ...
+  )
 
-  if (!exists("docx", envir = globalenv())) {
-    x <-
-      x |>
+  if (!docx) {
+    x <- x |>
       tab_style(
         style = cell_text(align = "justify"),
         locations = list(cells_title(), cells_footnotes())
@@ -189,12 +203,11 @@ theme_bar <- \(
   ...
 ) {
   if (!grid) {
-    bg <-
-      list(
-        panel.background = element_blank(),
-        axis.line = element_line(),
-        strip.text = element_blank()
-      )
+    bg <- list(
+      panel.background = element_blank(),
+      axis.line = element_line(),
+      strip.text = element_blank()
+    )
   } else {
     bg <- NULL
   }
@@ -436,15 +449,14 @@ theme_infreq <- \(
   ...
 ) {
   if (grid) {
-    grid <-
-      list(
-        panel.grid.major.x = element_line(color = "grey95", size = 0.3),
-        axis.text.x = element_text(
-          color = "grey90",
-          size = grid_size,
-          margin = margin(0)
-        )
+    grid <- list(
+      panel.grid.major.x = element_line(color = "grey95", size = 0.3),
+      axis.text.x = element_text(
+        color = "grey90",
+        size = grid_size,
+        margin = margin(0)
       )
+    )
   } else {
     grid <- NULL
   }

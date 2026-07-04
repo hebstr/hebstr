@@ -2,66 +2,55 @@
 % Please edit documentation in R/acro_helpers.R
 \name{acro_extract}
 \alias{acro_extract}
-\title{Extraire les acronymes présents dans un texte selon un dictionnaire de référence}
+\title{Extract the acronyms present in a text using a reference dictionary}
 \usage{
 acro_extract(x, acro_list)
 }
 \arguments{
-\item{x}{Chaîne de caractères dans laquelle rechercher les acronymes.
-Accepte du texte libre, des titres, des descriptions ou tout contenu
-textuel nécessitant une analyse terminologique systematique.}
+\item{x}{Character string in which to search for acronyms. Accepts free
+text, titles, descriptions, or any textual content requiring systematic
+terminology analysis.}
 
-\item{acro_list}{Liste nommée d'acronymes servant de dictionnaire de
-référence. Les noms de cette liste constituent les termes à rechercher
-dans le texte d'entrée.}
+\item{acro_list}{Named list of acronyms used as the reference dictionary.
+The names of this list are the terms to search for in the input text.}
 }
 \value{
-Vecteur de caractères contenant les acronymes uniques identifiés
-dans le texte d'entrée. Les résultats sont automatiquement dédupliqués
-pour éliminer les occurrences multiples d'un même terme.
+Character vector of the unique acronyms identified in the input
+text. Results are deduplicated to remove multiple occurrences of the same
+term.
 }
 \description{
-Cette fonction identifie et extrait tous les acronymes contenus dans une
-chaîne de caractères en utilisant un dictionnaire de référence prédéfini.
-Elle applique une recherche exhaustive pour détecter toutes les occurrences
-des acronymes spécifiés, retournant une liste dédupliquée des termes
-identifiés. Cette fonction facilite l'analyse terminologique automatisée
-et la génération de glossaires contextuels pour la documentation technique.
+Identifies and extracts all acronyms contained in a character string using
+a predefined reference dictionary. It searches the text for every
+occurrence of the specified acronyms and returns a deduplicated list of the
+identified terms. The function supports automated terminology analysis and
+the generation of contextual glossaries for technical documentation.
 }
-\section{Mécanisme d'extraction }{
+\section{Extraction mechanism}{
 
-La fonction utilise une approche de recherche exhaustive qui examine
-le texte d'entrée pour identifier toutes les occurrences des acronymes
-présents dans le dictionnaire de référence. Le processus d'extraction
-applique automatiquement la déduplication des résultats pour garantir
-qu'un acronyme n'apparaisse qu'une seule fois dans la liste retournée,
-indépendamment du nombre de ses occurrences dans le texte source.
+The function scans the input text to identify every occurrence of the
+acronyms present in the reference dictionary. The extraction process
+deduplicates the results so that an acronym appears only once in the
+returned list, regardless of how many times it occurs in the source text.
 }
 
-\section{Applications dans l'environnement professionnel }{
+\section{Use cases}{
 
-Cette fonction répond aux besoins d'analyse documentaire dans les
-contextes organisationnels où la cohérence terminologique constitue
-un enjeu stratégique. Elle facilite l'identification automatique des
-acronymes utilisés dans les rapports d'analyse, les présentations
-techniques et la documentation projet. Cette automatisation améliore
-l'efficacité des processus de révision documentaire et garantit
-la conformité aux standards terminologiques établis.
+The function identifies the acronyms used in analysis reports, technical
+presentations, and project documentation, supporting terminology
+consistency across documents.
 }
 
-\section{Considérations techniques importantes }{
+\section{Technical considerations}{
 
-Cette implémentation utilise une approche de correspondance simple
-qui peut détecter des acronymes même lorsqu'ils constituent une
-partie d'un terme plus large. Les utilisateurs doivent considérer
-cette caractéristique lors de la construction de leurs dictionnaires
-d'acronymes pour éviter les correspondances non intentionnelles.
-La fonction nécessite le package stringr pour les opérations de
-manipulation de chaînes de caractères.
+This implementation uses a simple matching approach that can detect
+acronyms even when they form part of a larger term. Users should account
+for this when building their acronym dictionaries to avoid unintended
+matches. The function requires the stringr package for string manipulation.
 }
 
 \examples{
-# Création d'un dictionnaire d'acronymes statistiques
+# Create a dictionary of statistical acronyms
 dictionnaire_analyse <- list(
   "SD" = "standard deviation",
   "IQR" = "interquartile range",
@@ -69,15 +58,15 @@ dictionnaire_analyse <- list(
   "OR" = "odds ratio"
 )
 
-# Extraction d'acronymes dans un titre de rapport
+# Extract acronyms from a report title
 titre_rapport <- "Statistical analysis with SD and CI calculations"
 acro_extract(titre_rapport, dictionnaire_analyse)
 
-# Analyse d'une description de méthodologie
+# Analyze a methodology description
 methodologie <- "Results include OR estimates with 95\% CI bounds"
 acro_extract(methodologie, dictionnaire_analyse)
 
-# Application avec le dataset mtcars pour contexte automobile
+# Using the mtcars dataset in an automotive context
 dictionnaire_vehicules <- list(
   "MPG" = "miles per gallon",
   "HP" = "horsepower",
@@ -88,7 +77,7 @@ dictionnaire_vehicules <- list(
 description_vehicule <- "Vehicle performance: MPG efficiency and HP output analysis"
 acro_extract(description_vehicule, dictionnaire_vehicules)
 
-# Utilisation avec dataset diamonds pour analyse gemmologique
+# Using the diamonds dataset for gemological analysis
 dictionnaire_gemmes <- list(
   "CT" = "carat weight",
   "CL" = "clarity",
@@ -98,16 +87,16 @@ dictionnaire_gemmes <- list(
 rapport_diamants <- "Diamond evaluation considers CT and CL parameters"
 acro_extract(rapport_diamants, dictionnaire_gemmes)
 
-# Démonstration avec texte ne contenant aucun acronyme référencé
+# Demonstration with text containing no referenced acronym
 texte_general <- "This comprehensive analysis examines various factors"
 acro_extract(texte_general, dictionnaire_analyse)
 
-# Application pour validation de cohérence terminologique
+# For terminology-consistency validation
 resume_executif <- "Key findings show significant OR values with narrow CI ranges"
 termes_detectes <- acro_extract(resume_executif, dictionnaire_analyse)
 length(termes_detectes)
 
-# Utilisation dans l'analyse de documentation technique
+# Use in technical documentation analysis
 specification_technique <- "System requirements include RAM and CPU specifications"
 dictionnaire_informatique <- list(
   "RAM" = "random access memory",
@@ -116,7 +105,7 @@ dictionnaire_informatique <- list(
 )
 acro_extract(specification_technique, dictionnaire_informatique)
 
-# Analyse de légendes de graphiques avec données storms
+# Analyze plot captions with the storms data
 legende_meteo <- "Hurricane analysis: wind speed and pressure measurements"
 dictionnaire_meteorologie <- list(
   "MPH" = "miles per hour",
@@ -125,7 +114,7 @@ dictionnaire_meteorologie <- list(
 )
 acro_extract(legende_meteo, dictionnaire_meteorologie)
 
-# Application pour audit de présentation professionnelle
+# For auditing a business presentation
 slide_presentation <- "Market analysis reveals ROI improvements and KPI achievements"
 dictionnaire_business <- list(
   "ROI" = "return on investment",
@@ -137,7 +126,7 @@ acronymes_business
 
 }
 \seealso{
-Other fonctions de manipulation de chaînes:
+Other string manipulation functions:
 \code{\link[=acro_match]{acro_match()}}
 }
-\concept{fonctions de manipulation de chaînes}
+\concept{string manipulation functions}

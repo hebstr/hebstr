@@ -28,6 +28,15 @@ gt_format <- \(
   zero_replace = "^0\\s",
   ...
 ) {
+  if (!inherits(x, "gtsummary")) {
+    cli_abort(
+      c(
+        "{.arg x} must be a {.cls gtsummary} table.",
+        i = "Build it with {.fun gtsummary::tbl_summary}, {.fun gtsummary::tbl_regression} (optionally via {.fun gtsum_format}) before {.fun gt_format}."
+      )
+    )
+  }
+
   clear_vars()
 
   ### ACRO --------------------------------------------------------------------
@@ -87,10 +96,21 @@ gt_format <- \(
     }
 
     if (!is.null(note_pvalue)) {
+      p_col <- str_subset(names(x[["_data"]]), "^p\\.value")
+
+      if (length(p_col) == 0) {
+        cli_abort(
+          c(
+            "No p-value column to attach {.arg note_pvalue} to.",
+            i = "This coefficient table has no {.field p.value} column."
+          )
+        )
+      }
+
       x <- tab_footnote(
         x,
         footnote = note_pvalue,
-        locations = cells_column_labels(p.value_2)
+        locations = cells_column_labels(all_of(tail(p_col, 1)))
       )
     }
   } else {

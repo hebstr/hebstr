@@ -207,14 +207,25 @@
       .estim_sep = .estim_sep
     )
 
-  if (!is.null(model_list_terms_levels(.model_mv)) && .show_single_row) {
-    x <-
-      .fmt_reg_level(
-        x,
-        .model_mv = .model_mv,
-        .ref_sep = .ref_sep,
-        .ref_no = .ref_no
+  if (.show_single_row) {
+    if (is.null(.model_mv)) {
+      cli_abort(
+        c(
+          "{.arg model_mv} must be supplied when {.arg show_single_row} is {.code TRUE}.",
+          i = "{.fun gtsum_format} reads factor reference levels from the fitted model."
+        )
       )
+    }
+
+    if (!is.null(model_list_terms_levels(.model_mv))) {
+      x <-
+        .fmt_reg_level(
+          x,
+          .model_mv = .model_mv,
+          .ref_sep = .ref_sep,
+          .ref_no = .ref_no
+        )
+    }
   }
 
   if ("tbl_uvregression" %in% class(x)) {
@@ -291,7 +302,7 @@ gtsum_format <- \(
   estim_acro = NULL,
   estim_label = NULL,
   ci = check_opts(ci),
-  model_mv,
+  model_mv = NULL,
   show_single_row = FALSE,
   ref_sep = check_opts(sep$int),
   ref_no = "",
@@ -346,6 +357,5 @@ gtsum_format <- \(
     }
   }
 
-  x <-
-    .fmt_indent(x, .vargrp_levels = vargrp_levels, .indent = indent)
+  .fmt_indent(x, .vargrp_levels = vargrp_levels, .indent = indent)
 }

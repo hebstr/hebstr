@@ -2,33 +2,28 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_color}
 \alias{str_color}
-\title{Formater du texte avec couleurs et styles HTML intégrés}
+\title{Format text with inline HTML colors and styles}
 \usage{
 str_color(text, color = "red", bg = "#ffffff00")
 }
 \arguments{
-\item{text}{Chaîne de caractères contenant le texte à formater.
-Supporte l'interpolation avec la syntaxe \code{glue} pour l'insertion
-dynamique de variables.}
+\item{text}{String containing the text to format. Supports interpolation
+with the \code{glue} syntax for dynamic variable insertion.}
 
-\item{color}{Couleur du texte exprimée sous forme de nom CSS standard,
-code hexadécimal ou valeur RGB/RGBA. Par défaut \code{"red"}.}
+\item{color}{Text color given as a standard CSS name, hexadecimal code, or
+RGB/RGBA value. Defaults to \code{"red"}.}
 
-\item{bg}{Couleur d'arrière-plan exprimée sous forme de code hexadécimal,
-nom CSS ou valeur RGB/RGBA. Par défaut \code{"#ffffff00"} (transparent
-avec canal alpha).}
+\item{bg}{Background color given as a hexadecimal code, CSS name, or RGB/RGBA
+value. Defaults to \code{"#ffffff00"} (transparent via the alpha channel).}
 }
 \value{
-Une chaîne de caractères contenant le code HTML formaté avec
-les styles CSS appliqués via attribut \code{style} et la syntaxe Markdown
-pour l'emphase en gras.
+A string containing the HTML code with the CSS styles applied through
+the \code{style} attribute and the Markdown syntax for bold emphasis.
 }
 \description{
-Cette fonction génère du code HTML formaté permettant d'appliquer simultanément
-des couleurs de texte et d'arrière-plan à du contenu textuel. Elle combine
-automatiquement la mise en forme colorée avec l'emphase typographique en gras,
-optimisée pour l'intégration dans des documents Markdown, des rapports HTML
-et des interfaces web interactives.
+Generates HTML code that applies both text and background colors to text
+content. It combines the color styling with bold emphasis, for use in
+Markdown documents, HTML reports, and interactive web interfaces.
 }
 \examples{
 "arg"

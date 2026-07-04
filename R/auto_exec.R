@@ -38,7 +38,7 @@ auto_exec <- \(
 
   if (!fs::dir_exists(dir)) {
     cli_abort(
-      "Aucun r\u00e9pertoire nomm\u00e9 {.path {dir}} trouv\u00e9 dans {.path {here::here()}}"
+      "No directory named {.path {dir}} found in {.path {here::here()}}."
     )
   }
 
@@ -48,18 +48,31 @@ auto_exec <- \(
 
   if (length(files) == 0) {
     cli_abort(c(
-      "Aucun fichier {.code *{ext}} trouv\u00e9 dans {.path {dir}}",
-      "i" = "Fichiers exclus : pr\u00e9fixe {.val {except_starts_with}}"
+      "No {.code *{ext}} file found in {.path {dir}}.",
+      "i" = "Excluded files: prefix {.val {except_starts_with}}."
     ))
   }
 
   if (!quiet) {
-    cli_alert_info("R\u00e9pertoire : {.path {dir}}")
-    cli_alert_info("Fichiers sourc\u00e9s : {.file {files}}")
+    cli_alert_info("Directory: {.path {dir}}")
+    cli_alert_info("Sourced files: {.file {files}}")
     cat_line()
   }
 
-  walk(files, ~ source(fs::path(dir, .)))
+  walk(
+    files,
+    \(f) {
+      tryCatch(
+        source(fs::path(dir, f)),
+        error = \(e) {
+          cli_abort(
+            "Failed to execute script {.file {f}}.",
+            parent = e
+          )
+        }
+      )
+    }
+  )
 
   if (!quiet) cli_rule()
 }

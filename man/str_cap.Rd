@@ -2,83 +2,82 @@
 % Please edit documentation in R/str_helpers.R
 \name{str_cap}
 \alias{str_cap}
-\title{Appliquer une fonction de transformation au premier caractère d'une chaîne}
+\title{Apply a transformation function to the first character of a string}
 \usage{
 str_cap(fun, str)
 }
 \arguments{
-\item{fun}{Fonction à appliquer au premier caractère. Doit être une fonction
-qui accepte une chaîne de caractères et retourne une chaîne de caractères
-transformée (par exemple \code{toupper}, \code{tolower}).}
+\item{fun}{Function to apply to the first character. Must be a function that
+takes a string and returns a transformed string (for example \code{toupper},
+\code{tolower}).}
 
-\item{str}{Chaîne de caractères à traiter. Le premier caractère sera
-transformé selon la fonction spécifiée.}
+\item{str}{String to process. Its first character is transformed by the
+specified function.}
 }
 \value{
-Une chaîne de caractères identique à l'entrée, avec le premier
-caractère transformé selon la fonction appliquée.
+A string identical to the input, with the first character transformed
+by the applied function.
 }
 \description{
-Cette fonction utilitaire permet d'appliquer une transformation spécifique
-au premier caractère d'une chaîne de caractères tout en préservant le reste
-de la chaîne inchangé. Elle constitue un outil flexible pour la manipulation
-typographique et le formatage de texte.
+Applies a transformation to the first character of a string while leaving the
+rest of the string unchanged. Useful for typographic manipulation and text
+formatting.
 }
-\section{Mécanisme technique }{
+\section{Mechanism}{
 
-La fonction utilise \code{stringr::str_sub()} pour extraire le premier caractère,
-\code{do.call()} pour appliquer dynamiquement la fonction de transformation,
-puis \code{stringr::str_replace()} pour substituer le caractère transformé
-dans la chaîne originale.
+The function uses \code{stringr::str_sub()} to extract the first character,
+\code{do.call()} to apply the transformation function dynamically, then
+\code{stringr::str_replace()} to substitute the transformed character back into
+the original string.
 }
 
-\section{Fonctions compatibles }{
+\section{Compatible functions}{
 
-Cette fonction fonctionne avec toute fonction qui accepte une chaîne
-de caractères en entrée et retourne une chaîne transformée. Les fonctions
-couramment utilisées incluent \code{base::toupper()}, \code{base::tolower()},
-ou des fonctions personnalisées de transformation de caractères.
+This function works with any function that takes a string as input and
+returns a transformed string. Commonly used functions include
+\code{base::toupper()}, \code{base::tolower()}, or custom character-transformation
+functions.
 }
 
 \examples{
-# Conversion du premier caractère en majuscule
+# Convert the first character to upper case
 str_cap(toupper, "france")
 
-# Conversion du premier caractère en minuscule
+# Convert the first character to lower case
 str_cap(tolower, "PARIS")
 
-# Application sur des phrases complètes
+# Apply to full sentences
 str_cap(toupper, "analyse des données économiques")
 str_cap(tolower, "RAPPORT TRIMESTRIEL")
 
-# Utilisation avec des chaînes contenant des caractères spéciaux
+# Use with strings containing special characters
 str_cap(toupper, "émission de CO₂")
 str_cap(tolower, "ÉLÉVATION du niveau de la mer")
 
-# Application dans un contexte de formatage de titres
+# Apply in a title-formatting context
 titres_bruts <- c("méthodologie statistique", "RÉSULTATS PRINCIPAUX")
 titres_formates <- sapply(titres_bruts, \(x) str_cap(toupper, x))
 
-# Utilisation avec une fonction personnalisée
+# Use with a custom function
 inverser_casse <- function(char) {
   if (char == toupper(char)) tolower(char) else toupper(char)
 }
 str_cap(inverser_casse, "Données")
 str_cap(inverser_casse, "données")
 
-# Application pour standardiser des noms propres
+# Standardize proper nouns
 noms_regions <- c("île-de-france", "NORMANDIE", "provence-alpes-côte d'azur")
 noms_standardises <- sapply(noms_regions, \(x) str_cap(toupper, x))
 
 }
 \seealso{
 \itemize{
-\item \code{\link[stringr:str_to_title]{stringr::str_to_title()}} pour la conversion en casse de titre
+\item \code{\link[stringr:str_to_title]{stringr::str_to_title()}} for title-case conversion
 }
 
-Other fonctions de formatage:
+Other formatting functions:
 \code{\link[=acro]{acro()}},
 \code{\link[=acro_str]{acro_str()}},
 \code{\link[=str_u]{str_u()}}
 }
-\concept{fonctions de formatage}
+\concept{formatting functions}

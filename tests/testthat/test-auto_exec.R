@@ -89,6 +89,14 @@ test_that("auto_exec() respects custom ext", {
   expect_false(exists("test_auto_exec_txt", envir = globalenv()))
 })
 
+test_that("auto_exec() names the offending file when a script errors", {
+  dir <- withr::local_tempdir()
+  writeLines("1 + 1", file.path(dir, "a_ok.R"))
+  writeLines("stop('boom')", file.path(dir, "b_bad.R"))
+
+  expect_error(auto_exec(dir = dir, quiet = TRUE), "b_bad\\.R")
+})
+
 test_that("auto_exec() only sources files matching ext", {
   dir <- withr::local_tempdir()
   writeLines("test_auto_exec_rmd <- TRUE", file.path(dir, "report.Rmd"))

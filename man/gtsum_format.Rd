@@ -23,7 +23,7 @@ gtsum_format(
   estim_acro = NULL,
   estim_label = NULL,
   ci = check_opts(ci),
-  model_mv,
+  model_mv = NULL,
   show_single_row = FALSE,
   ref_sep = check_opts(sep$int),
   ref_no = "",

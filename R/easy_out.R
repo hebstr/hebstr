@@ -114,7 +114,7 @@ easy_out <- \(
       x[["_options"]] |>
       filter(parameter == "table_width") |>
       pull(value) |>
-      str_extract("\\d+") |>
+      str_extract("^(\\d+)px$", group = 1) |>
       as.numeric()
 
     if (length(gt_width) > 0 && !is.na(gt_width)) {

@@ -2,63 +2,54 @@
 % Please edit documentation in R/acro_helpers.R
 \name{acro_str}
 \alias{acro_str}
-\title{Formater une chaîne d'acronymes avec séparateurs et ponctuation automatiques}
+\title{Format an acronym string with automatic separators and punctuation}
 \usage{
 acro_str(..., collapse = "; ")
 }
 \arguments{
-\item{...}{Éléments à concaténer en une chaîne unique. Accepte des
-vecteurs de caractères, des chaînes individuelles, ou tout objet
-convertible en caractère via \code{paste()}.}
+\item{...}{Elements to concatenate into a single string. Accepts character
+vectors, individual strings, or any object coercible to character via
+\code{paste()}.}
 
-\item{collapse}{Chaîne de caractères utilisée pour séparer les éléments
-lors de la concaténation. Par défaut \code{"; "} (point-virgule suivi d'un espace),
-conforme aux conventions typographiques pour les énumérations techniques.}
+\item{collapse}{Character string used to separate the elements during
+concatenation. Defaults to \code{"; "} (semicolon followed by a space),
+following typographic conventions for technical enumerations.}
 }
 \value{
-Une chaîne de caractères formatée avec séparateurs appropriés et
-point final si le contenu n'est pas vide, ou \code{NULL} si la concaténation
-produit une chaîne vide. Le formatage garantit la conformité aux standards
-typographiques pour les documents professionnels.
+A character string formatted with the separator and a final period
+when the content is non-empty, or \code{NULL} when concatenation produces an
+empty string.
 }
 \description{
-Cette fonction utilitaire concatène des éléments textuels en une chaîne
-de caractères unique en utilisant des séparateurs standardisés et applique
-automatiquement un point final pour respecter les conventions typographiques
-professionnelles. Elle gère les cas de chaînes vides en retournant NULL,
-facilitant l'intégration dans des systèmes de formatage conditionnel pour
-la production de documentation technique et de rapports d'analyse.
+Concatenates textual elements into a single character string using a
+standard separator and appends a final period. Empty strings return NULL,
+which makes the function easy to integrate into conditional formatting for
+technical documentation and analysis reports.
 }
-\section{Mécanisme de formatage standardisé }{
+\section{Formatting mechanism}{
 
-La fonction utilise \code{base::paste()} pour effectuer la concaténation initiale
-des éléments fournis avec le séparateur spécifié, puis applique \code{glue::glue()}
-pour ajouter la ponctuation finale. Cette approche en deux étapes garantit
-un contrôle précis sur le formatage tout en maintenant la flexibilité
-nécessaire pour diverses applications de mise en forme textuelle. Le
-traitement conditionnel des chaînes vides évite la génération de contenu
-superflu dans les documents automatisés.
+The function uses \code{base::paste()} to concatenate the supplied elements with
+the specified separator, then \code{glue::glue()} to add the final punctuation.
+The conditional handling of empty strings avoids generating superfluous
+content in automated documents.
 }
 
-\section{Applications dans l'environnement professionnel }{
+\section{Use cases}{
 
-Cette fonction s'intègre efficacement dans les systèmes de génération
-automatique de légendes, de notes explicatives, et d'annotations techniques.
-Elle facilite la production de glossaires formatés et la standardisation
-typographique dans les environnements organisationnels où la cohérence
-de présentation constitue un enjeu de qualité documentaire. L'utilisation
-du point-virgule comme séparateur par défaut respecte les conventions
-éditoriales françaises pour les énumérations complexes.
+The function fits into automated generation of captions, explanatory notes,
+and technical annotations, and into the production of formatted glossaries.
+The semicolon default separator follows French editorial conventions for
+complex enumerations.
 }
 
 \examples{
-# Formatage basique avec séparateurs par défaut
+# Basic formatting with default separators
 acro_str("SD: standard deviation", "CI: confidence interval")
 
-# Utilisation avec des définitions d'acronymes statistiques
+# With statistical acronym definitions
 acro_str("IQR: interquartile range", "OR: odds ratio", "HR: hazard ratio")
 
-# Application avec le dataset mtcars pour contexte automobile
+# Using the mtcars dataset in an automotive context
 definitions_vehicules <- c(
   "MPG: miles per gallon",
   "HP: horsepower",
@@ -66,10 +57,10 @@ definitions_vehicules <- c(
 )
 acro_str(definitions_vehicules[1], definitions_vehicules[2])
 
-# Personnalisation du séparateur pour différents contextes
+# Custom separator for different contexts
 acro_str("Mean: average value", "SD: standard deviation", collapse = " | ")
 
-# Utilisation avec le dataset diamonds pour analyses gemmologiques
+# Using the diamonds dataset for gemological analysis
 termes_gemmes <- c(
   "CT: carat weight",
   "CL: clarity grade",
@@ -77,11 +68,11 @@ termes_gemmes <- c(
 )
 acro_str(termes_gemmes[1], termes_gemmes[3], collapse = " - ")
 
-# Gestion des cas de chaînes vides
-acro_str("")  # Retourne NULL
-acro_str()    # Retourne NULL
+# Handling empty strings
+acro_str("")  # Returns NULL
+acro_str()    # Returns NULL
 
-# Application dans la génération de légendes de graphiques
+# Use in generating plot captions
 legende_analyse <- acro_str(
   "n: sample size",
   "p: probability value",
@@ -89,34 +80,34 @@ legende_analyse <- acro_str(
 )
 legende_analyse
 
-# Utilisation avec le dataset storms pour la météorologie
+# Using the storms dataset for meteorology
 variables_meteo <- acro_str(
   "mph: miles per hour",
   "mb: millibars pressure",
   "cat: category scale"
 )
 
-# Intégration dans un workflow de documentation automatisée
+# Integration into an automated documentation workflow
 glossaire_medical <- acro_str(
   "BMI: body mass index",
   "BP: blood pressure",
   "HR: heart rate"
 )
 
-# Application pour notes de bas de page techniques
+# For technical footnotes
 note_methodologique <- acro_str(
   "ANOVA: analysis of variance",
   "post-hoc: posterior comparison tests"
 )
 
-# Utilisation conditionnelle dans des rapports
+# Conditional use in reports
 acronymes_detectes <- c("ROC: receiver operating characteristic")
 if (length(acronymes_detectes) > 0) {
   note_finale <- acro_str(acronymes_detectes)
   note_finale
 }
 
-# Démonstration avec formatage personnalisé pour publications
+# Demonstration with custom formatting for publications
 definitions_statistiques <- acro_str(
   "α: significance level",
   "β: type II error probability",
@@ -127,9 +118,9 @@ definitions_statistiques
 
 }
 \seealso{
-Other fonctions de formatage:
+Other formatting functions:
 \code{\link[=acro]{acro()}},
 \code{\link[=str_cap]{str_cap()}},
 \code{\link[=str_u]{str_u()}}
 }
-\concept{fonctions de formatage}
+\concept{formatting functions}

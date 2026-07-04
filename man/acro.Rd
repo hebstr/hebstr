@@ -2,88 +2,82 @@
 % Please edit documentation in R/acro_helpers.R
 \name{acro}
 \alias{acro}
-\title{Générer un dictionnaire d'acronymes avec définitions localisées}
+\title{Generate an acronym dictionary with localized definitions}
 \usage{
 acro(..., .sep = ":", .auto = TRUE, .tolower = FALSE)
 }
 \arguments{
-\item{...}{Expressions définissant des acronymes personnalisés sous la
-forme \code{acronyme ~ "définition"}. Utilise la syntaxe de Non-Standard
-Evaluation pour une interface intuitive.}
+\item{...}{Expressions defining custom acronyms in the form
+\code{acronym ~ "definition"}. Uses non-standard evaluation for an intuitive
+interface.}
 
-\item{.sep}{Chaîne de caractères définissant le séparateur entre
-l'acronyme et sa définition. Par défaut \code{":"}.}
+\item{.sep}{Character string setting the separator between the acronym and
+its definition. Defaults to \code{":"}.}
 
-\item{.auto}{Valeur logique contrôlant l'inclusion des acronymes
-prédéfinis. Si \code{TRUE} (par défaut), combine les définitions
-personnalisées avec la base d'acronymes standards.}
+\item{.auto}{Logical controlling inclusion of the predefined acronyms. If
+\code{TRUE} (default), combines the custom definitions with the standard
+acronym base.}
 
-\item{.tolower}{Valeur logique contrôlant la casse des acronymes.
-Si \code{TRUE}, convertit les acronymes en minuscules. Par défaut \code{FALSE}.}
+\item{.tolower}{Logical controlling acronym case. If \code{TRUE}, converts
+acronyms to lowercase. Defaults to \code{FALSE}.}
 }
 \value{
-Une liste nommée où les noms correspondent aux acronymes
-et les valeurs aux définitions formatées. Le format inclut
-automatiquement le séparateur spécifié entre l'acronyme et
-sa définition complète.
+A named list where the names are the acronyms and the values are
+the formatted definitions. The format includes the specified separator
+between each acronym and its full definition.
 }
 \description{
-Cette fonction crée un dictionnaire d'acronymes statistiques et leurs
-définitions complètes, avec adaptation automatique selon la configuration
-linguistique de l'environnement R. Elle combine des acronymes prédéfinis
-avec des définitions personnalisées, facilitant la production de glossaires
-cohérents pour la documentation technique et les rapports d'analyse.
+Creates a dictionary of statistical acronyms and their full definitions,
+adapting automatically to the language configuration of the R environment.
+It combines predefined acronyms with custom definitions to help produce
+consistent glossaries for technical documentation and analysis reports.
 }
-\section{Architecture technique de la fonction }{
+\section{Technical architecture}{
 
-La fonction utilise un environnement personnalisé pour définir l'opérateur
-\code{~} qui gère le formatage des paires acronyme-définition. Cette approche
-exploite les capacités de métaprogrammation de R via \code{rlang::enexpr()}
-pour capturer les expressions sans évaluation préalable. Le mécanisme
-permet une syntaxe intuitive tout en maintenant la flexibilité nécessaire
-pour diverses configurations de formatage.
+The function uses a custom environment to define the \code{~} operator, which
+handles the formatting of acronym-definition pairs. This approach relies on
+R metaprogramming via \code{rlang::enexpr()} to capture expressions without
+prior evaluation. The mechanism supports an intuitive syntax while
+retaining the flexibility needed for various formatting configurations.
 }
 
-\section{Adaptation linguistique automatique }{
+\section{Automatic language adaptation}{
 
-La fonction détecte automatiquement la configuration linguistique via
-\code{getOption("OutDec")} et adapte les acronymes prédéfinis en conséquence.
-Pour une configuration anglaise (point décimal), les termes statistiques
-standards sont fournis en anglais avec formatage compact. Pour une
-configuration française (virgule décimale), les équivalents français
-sont utilisés avec adaptation des conventions typographiques locales,
-notamment l'espacement autour des séparateurs.
+The function detects the language configuration via \code{getOption("OutDec")}
+and adapts the predefined acronyms accordingly. For an English
+configuration (decimal point), standard statistical terms are provided in
+English with compact formatting. For a French configuration (decimal
+comma), the French equivalents are used, following local typographic
+conventions, notably the spacing around separators.
 }
 
-\section{Acronymes prédéfinis par localisation }{
+\section{Predefined acronyms by locale}{
 
-La base d'acronymes intégrée couvre les termes statistiques descriptifs
-essentiels. En configuration anglaise, elle inclut SD (standard deviation),
-IQR (interquartile range), Q1 et Q3 (quartiles), et 95\%CI (confidence
-interval). En configuration française, les équivalents comprennent
-l'écart-type, l'intervalle interquartile, les quartiles avec ordinaux
-français, et l'intervalle de confiance à 95\%. Cette standardisation
-facilite la cohérence terminologique dans les productions analytiques.
+The built-in acronym base covers the essential descriptive statistics
+terms. In English configuration, it includes SD (standard deviation), IQR
+(interquartile range), Q1 and Q3 (quartiles), and 95\%CI (confidence
+interval). In French configuration, the equivalents cover the standard
+deviation, the interquartile range, the quartiles with French ordinals,
+and the 95\% confidence interval. This standardization supports terminology
+consistency across analytical outputs.
 }
 
-\section{Prérequis techniques et dépendances }{
+\section{Requirements and dependencies}{
 
-Cette fonction nécessite les packages \code{rlang} pour la métaprogrammation,
-\code{glue} pour l'interpolation de chaînes, \code{purrr} pour les opérations
-sur listes, et \code{stringr} pour la manipulation de texte. L'environnement
-R doit également supporter les fonctions avancées de Non-Standard
-Evaluation pour un fonctionnement optimal des mécanismes de capture
-d'expressions.
+The function requires the \code{rlang} package for metaprogramming, \code{glue} for
+string interpolation, \code{purrr} for list operations, and \code{stringr} for text
+manipulation. The R environment must also support non-standard evaluation
+for the expression-capture mechanisms to work.
 }
 
 \examples{
-# Génération du dictionnaire par défaut (configuration anglaise)
+# Generate the default dictionary (English configuration)
 options(OutDec = ".")
 dictionnaire_base <- acro()
 dictionnaire_base$SD
 dictionnaire_base$IQR
 
-# Ajout d'acronymes personnalisés
+# Add custom acronyms
 glossaire_etendu <- acro(
   BMI ~ "body mass index",
   SBP ~ "systolic blood pressure",
@@ -92,13 +86,13 @@ glossaire_etendu <- acro(
 glossaire_etendu$BMI
 glossaire_etendu$SD
 
-# Configuration française avec adaptation linguistique
+# French configuration with language adaptation
 options(OutDec = ",")
 dictionnaire_fr <- acro()
 dictionnaire_fr$SD
 dictionnaire_fr$IQR
 
-# Acronymes personnalisés en français
+# Custom acronyms in French
 glossaire_medical_fr <- acro(
   IMC ~ "indice de masse corporelle",
   PAS ~ "pression artérielle systolique",
@@ -106,7 +100,7 @@ glossaire_medical_fr <- acro(
 )
 glossaire_medical_fr$IMC
 
-# Personnalisation du séparateur
+# Custom separator
 dictionnaire_tiret <- acro(
   HR ~ "heart rate",
   RR ~ "respiratory rate",
@@ -114,7 +108,7 @@ dictionnaire_tiret <- acro(
 )
 dictionnaire_tiret$HR
 
-# Utilisation sans acronymes prédéfinis
+# Without predefined acronyms
 acronymes_specifiques <- acro(
   ROC ~ "receiver operating characteristic",
   AUC ~ "area under the curve",
@@ -122,7 +116,7 @@ acronymes_specifiques <- acro(
 )
 names(acronymes_specifiques)
 
-# Application avec conversion en minuscules
+# With conversion to lowercase
 acronymes_minuscules <- acro(
   COPD ~ "chronic obstructive pulmonary disease",
   ARDS ~ "acute respiratory distress syndrome",
@@ -130,8 +124,8 @@ acronymes_minuscules <- acro(
 )
 names(acronymes_minuscules)
 
-# Démonstration avec datasets officiels pour contexte médical
-# Utilisation dans l'analyse de mtcars comme proxy de données biométriques
+# Demonstration with built-in datasets in a medical context
+# Using mtcars as a proxy for biometric data
 options(OutDec = ".")
 glossaire_automobile <- acro(
   MPG ~ "miles per gallon",
@@ -139,11 +133,11 @@ glossaire_automobile <- acro(
   WT ~ "weight in thousands of pounds"
 )
 
-# Application pour légendes de graphiques
+# For plot captions
 paste(glossaire_automobile$MPG)
 paste(glossaire_automobile$HP)
 
-# Configuration pour rapport multilingue
+# Configuration for a multilingual report
 options(OutDec = ",")
 legende_fr <- acro(
   CONSO ~ "consommation moyenne",
@@ -152,10 +146,10 @@ legende_fr <- acro(
 )
 legende_fr$CONSO
 
-# Restauration configuration par défaut
+# Restore default configuration
 options(OutDec = ".")
 
-# Intégration dans un pipeline de production de rapports
+# Integration into a report-production pipeline
 glossaire_analyse <- acro(
   CYL ~ "number of cylinders",
   DISP ~ "displacement in cubic inches",
@@ -164,13 +158,13 @@ glossaire_analyse <- acro(
 
 }
 \references{
-Documentation rlang sur la métaprogrammation tidyeval :
+rlang documentation on tidyeval metaprogramming:
 \url{https://rlang.r-lib.org/reference/topic-metaprogramming.html}
 }
 \seealso{
-Other fonctions de formatage:
+Other formatting functions:
 \code{\link[=acro_str]{acro_str()}},
 \code{\link[=str_cap]{str_cap()}},
 \code{\link[=str_u]{str_u()}}
 }
-\concept{fonctions de formatage}
+\concept{formatting functions}

@@ -12,7 +12,6 @@ Depends:
 Imports:
     broom,
     broom.helpers,
-    car,
     cli,
     colorspace,
     dplyr,
@@ -34,14 +33,12 @@ Imports:
     magick,
     magrittr,
     openxlsx2,
-    parameters,
     parsnip,
     png,
     purrr,
     reactable,
     rlang,
     rsample,
-    rsvg,
     scales,
     stats,
     stringr,
@@ -52,6 +49,7 @@ Imports:
     webshot2,
     withr
 Suggests:
+    dbplyr,
     knitr,
     quarto,
     rmarkdown,

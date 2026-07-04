@@ -10,3 +10,5 @@
 ^air\.toml$
 ^TODO\.md$
 ^\.claude$
+^README\.html$
+^output$

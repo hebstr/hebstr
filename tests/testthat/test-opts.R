@@ -50,6 +50,37 @@ test_that("set_opts(.assign = FALSE) returns the existing object when no overrid
   expect_true(res$sentinel)
 })
 
+test_that("set_opts() applies French labels when OutDec is a comma", {
+  withr::local_options(OutDec = ",")
+  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
+    rm(list = "opts", envir = globalenv())
+  }
+
+  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+
+  expect_equal(res$labs$header, "Variable")
+  expect_equal(res$labs$overall, "Total")
+  expect_equal(res$labs$sex$m, "Hommes")
+  expect_equal(res$labs$bin$yes, "Oui")
+  expect_equal(res$sep$int, " : ")
+  expect_match(as.character(res$ci$label), "IC95%")
+  expect_match(names(res$qt_stat$median), "Médiane")
+})
+
+test_that("set_opts() uses English labels by default", {
+  withr::local_options(OutDec = ".")
+  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
+    rm(list = "opts", envir = globalenv())
+  }
+
+  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+
+  expect_equal(res$labs$header, "Characteristic")
+  expect_equal(res$labs$overall, "Overall")
+  expect_equal(res$sep$int, ": ")
+  expect_match(as.character(res$ci$label), "95%CI")
+})
+
 test_that("check_opts() resolves keys of the global opts object", {
   withr::defer(rm(list = "opts", envir = globalenv()))
   assign("opts", list(sep = list(int = ": ", ext = "; ")), envir = globalenv())

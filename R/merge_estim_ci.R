@@ -40,7 +40,10 @@ merge_estim_ci <- \(
 
   data <- mutate(
     .data = data,
-    across(!!vars, ~ round(. * multi, digit) |> format(nsmall = digit)),
+    across(
+      !!vars,
+      ~ round(. * multi, digit) |> format(nsmall = digit, trim = TRUE)
+    ),
     "{name}" := str_c(.data[[estim_col]], " ", str_glue(ci_data))
   )
 

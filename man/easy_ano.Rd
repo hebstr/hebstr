@@ -22,6 +22,8 @@ easy_ano(
 
 \item{hash_trunc}{arg}
 
+\item{hash_salt}{arg}
+
 \item{hide_pattern}{arg}
 }
 \value{

@@ -183,6 +183,10 @@ add_note <- \(
       vars <- expr(label %in% !!levels)
     } else if (!is.null(rows)) {
       vars <- enexpr(rows)
+    } else {
+      cli_abort(
+        "Provide at least one of {.arg vars}, {.arg levels}, or {.arg rows} to target the footnote to specific rows."
+      )
     }
 
     tab_footnote(
@@ -272,13 +276,19 @@ fct_other_str <- \(fct, chr, min, sep = ", ") {
 #' @examples "arg"
 #'
 fct_keep <- \(data, var, min, sep) {
-  x <-
+  tab <-
     data |>
     separate_longer_delim(!!var, delim = regex("\\s*(,|et)\\s*")) |>
     count(!!var := get(var), sort = TRUE) |>
-    drop_na() |>
-    split(~ n >= min) |>
-    set_names(c("drop", "keep"))
+    drop_na()
+
+  x <-
+    tab |>
+    split(factor(
+      tab$n >= min,
+      levels = c(FALSE, TRUE),
+      labels = c("drop", "keep")
+    ))
 
   y <-
     list(

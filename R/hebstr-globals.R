@@ -1,7 +1,6 @@
 utils::globalVariables(c(
   ".",
   ".cooksd",
-  ".data",
   ".sum",
   "PC1",
   "abbreviation",
@@ -16,7 +15,6 @@ utils::globalVariables(c(
   "contrib",
   "coord",
   "data",
-  "docx",
   "estimate",
   "f",
   "fill",
@@ -32,7 +30,6 @@ utils::globalVariables(c(
   "outliers",
   "p",
   "p.value",
-  "p.value_2",
   "parameter",
   "pos",
   "q1_q2_q3",

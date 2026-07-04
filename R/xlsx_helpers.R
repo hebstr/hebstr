@@ -97,22 +97,24 @@
 #' one formatted sheet per element.
 #'
 #' @param sheets Named list of data frames. Each name becomes a sheet name.
-#' @param ... Styling arguments passed to the internal sheet builder.
-#'   See below for supported parameters.
-#' @param max_width Maximum column width forwarded to `openxlsx2.maxWidth`.
-#'   Default: `60`.
-#' @param halign Horizontal cell alignment. One of `"center"`, `"left"`,
-#'   `"right"`. Default: `"center"`.
-#' @param font_size Base font size for data cells. Header row uses
-#'   `font_size + 1`. Default: `8`.
-#' @param header_color Fill color for the header row (hex string).
-#'   Default: `"#E5E5E5"`.
-#' @param border_color Border color for all cells (hex string).
-#'   Default: `"#999999"`.
-#' @param border_type Border line type passed to [openxlsx2::wb_add_border()].
-#'   Default: `"thin"`.
-#' @param color Named list mapping column names to hex colors for bold-colored
-#'   data cells, e.g. `list(status = "#FF0000")`. `NULL` skips coloring.
+#' @param ... Styling arguments forwarded to the internal sheet builder:
+#'   \itemize{
+#'     \item `max_width`: Maximum column width forwarded to
+#'       `openxlsx2.maxWidth`. Default: `60`.
+#'     \item `halign`: Horizontal cell alignment. One of `"center"`, `"left"`,
+#'       `"right"`. Default: `"center"`.
+#'     \item `font_size`: Base font size for data cells. Header row uses
+#'       `font_size + 1`. Default: `8`.
+#'     \item `header_color`: Fill color for the header row (hex string).
+#'       Default: `"#E5E5E5"`.
+#'     \item `border_color`: Border color for all cells (hex string).
+#'       Default: `"#999999"`.
+#'     \item `border_type`: Border line type passed to
+#'       [openxlsx2::wb_add_border()]. Default: `"thin"`.
+#'     \item `color`: Named list mapping column names to hex colors for
+#'       bold-colored data cells, e.g. `list(status = "#FF0000")`. `NULL`
+#'       skips coloring.
+#'   }
 #'
 #' @return An `openxlsx2` Workbook object.
 #' @export
