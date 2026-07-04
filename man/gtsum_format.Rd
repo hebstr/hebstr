@@ -34,8 +34,8 @@ gtsum_format(
 }
 \arguments{
 \item{x}{A \code{gtsummary} table: \code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}} (optionally with a
-\code{by} group or \code{add_p()}), \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}},
-\code{\link[gtsummary:tbl_uvregression]{gtsummary::tbl_uvregression()}}, or a \code{\link[gtsummary:tbl_merge]{gtsummary::tbl_merge()}}.}
+\code{by} group or \code{add_p()}), \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}}, or
+\code{\link[gtsummary:tbl_uvregression]{gtsummary::tbl_uvregression()}}.}
 
 \item{label_header}{Header label for the characteristic (\code{label}) column.
 Defaults to the \code{labs$header} option. \code{NULL} leaves it blank.}

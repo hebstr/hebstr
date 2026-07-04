@@ -3,7 +3,9 @@
 .fmt_by <- \(x, .check_by, .label_header, .label_overall, .bold_p) {
   .by <-
     lst(
-      cols = names(x$table_body) |> str_subset("stat_[^(label|0)]"),
+      cols = names(x$table_body) |>
+        str_subset("^stat_\\d+$") |>
+        setdiff("stat_0"),
       name = x$inputs$data[[.check_by]],
       N = length(na.omit(name)),
       spanner = var_label(name) %||% .check_by
@@ -107,7 +109,7 @@
         } else {
           glue("{acro}{.estim_sep}{label}")
         },
-        mv = if (str_detect(adj_acro, "\\s+") | .adj_acro == "") {
+        mv = if (str_detect(adj_acro, "\\s+") || .adj_acro == "") {
           NULL
         } else {
           glue("{adj_acro}{.estim_sep}{adj_label}")
@@ -267,8 +269,8 @@
 #' [gt_format()] to render as a footnote. Typically piped into [gt_format()].
 #'
 #' @param x A `gtsummary` table: [gtsummary::tbl_summary()] (optionally with a
-#'   `by` group or `add_p()`), [gtsummary::tbl_regression()],
-#'   [gtsummary::tbl_uvregression()], or a [gtsummary::tbl_merge()].
+#'   `by` group or `add_p()`), [gtsummary::tbl_regression()], or
+#'   [gtsummary::tbl_uvregression()].
 #' @param label_header Header label for the characteristic (`label`) column.
 #'   Defaults to the `labs$header` option. `NULL` leaves it blank.
 #' @param label_overall Label for the overall column added to by-group
@@ -347,11 +349,7 @@ gtsum_format <- \(
   label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""
   label_stat <- if (!is.null(label_stat)) glue("**{label_stat}**") else ""
 
-  if (inherits(x, "tbl_merge")) {
-    check_by <- x$tbls[[1]]$inputs$by
-  } else {
-    check_by <- x$inputs$by
-  }
+  check_by <- x$inputs$by
 
   if (length(check_by) > 0) {
     x <-

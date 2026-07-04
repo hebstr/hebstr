@@ -44,7 +44,7 @@ test_that("gtsum_format() routes a by-group summary through the by-table formatt
       gtsummary::add_p()
   )
 
-  res <- gtsum_format(tbl)
+  res <- expect_no_warning(gtsum_format(tbl))
 
   expect_s3_class(res, "gtsummary")
   expect_true(all(c("stat_0", "stat_1", "stat_2") %in% names(res$table_body)))
@@ -63,7 +63,7 @@ test_that("gtsum_format() routes a univariate summary through the uni formatter"
     )
   )
 
-  res <- gtsum_format(tbl, label_stat = "Total")
+  res <- expect_no_warning(gtsum_format(tbl, label_stat = "Total"))
 
   expect_s3_class(res, "gtsummary")
   header <- res$table_styling$header
@@ -127,6 +127,51 @@ test_that("gtsum_format() aborts when show_single_row is TRUE without model_mv",
     gtsum_format(reg$tbl, show_single_row = TRUE),
     "show_single_row"
   )
+})
+
+test_that("gtsum_format() annotates dichotomous reference levels with show_single_row", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  set_opts()
+
+  df <- data.frame(
+    y = rep(c(0, 1), 30),
+    sex = factor(rep(c("f", "m"), 30), levels = c("f", "m")),
+    x = seq_len(60) + rep(c(0, 2), 30)
+  )
+  mod <- suppressWarnings(glm(y ~ sex + x, data = df, family = binomial()))
+  tbl <- suppressWarnings(suppressMessages(
+    gtsummary::tbl_regression(mod, exponentiate = TRUE, show_single_row = sex)
+  ))
+
+  res <- gtsum_format(tbl, model_mv = mod, show_single_row = TRUE)
+
+  sex_label <- as.character(res$table_body$label[
+    res$table_body$variable == "sex"
+  ])
+  expect_match(sex_label, "ref")
+  expect_match(sex_label, "m")
+  expect_match(sex_label, "f")
+  cont_label <- as.character(res$table_body$label[
+    res$table_body$variable == "x"
+  ])
+  expect_equal(unname(cont_label), "x")
+})
+
+test_that("gtsum_format() forces vargrp_levels rows to indented levels", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  set_opts()
+
+  tbl <- suppressMessages(
+    gtsummary::tbl_summary(.make_summary_df(), include = c(age, sex))
+  )
+
+  res <- gtsum_format(tbl, vargrp_levels = "age", indent = 12)
+
+  age_row_type <- unique(
+    res$table_body$row_type[res$table_body$variable == "age"]
+  )
+  expect_equal(age_row_type, "level")
+  expect_true(12L %in% res$table_styling$indent$n_spaces)
 })
 
 test_that("gtsum_format() routes a univariate regression through the n-column formatter", {
