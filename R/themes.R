@@ -386,7 +386,10 @@ theme_blank <- \(
 
   grid <- if (grid) {
     list(
-      panel.grid.major.y = element_line(color = grid_color, size = grid_size),
+      panel.grid.major.y = element_line(
+        color = grid_color,
+        linewidth = grid_size
+      ),
       axis.text.y = element_text(color = grid_color, size = axis_text_size_y)
     )
   } else {
@@ -450,7 +453,7 @@ theme_infreq <- \(
 ) {
   if (grid) {
     grid <- list(
-      panel.grid.major.x = element_line(color = "grey95", size = 0.3),
+      panel.grid.major.x = element_line(color = "grey95", linewidth = 0.3),
       axis.text.x = element_text(
         color = "grey90",
         size = grid_size,

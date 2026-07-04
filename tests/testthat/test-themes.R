@@ -71,8 +71,13 @@ test_that("theme_blank() returns a theme", {
   expect_s3_class(theme_blank(family = ""), "theme")
 })
 
+test_that("theme_blank() draws its grid without a deprecation warning", {
+  expect_no_warning(theme_blank(family = "", grid = TRUE))
+})
+
 test_that("theme_infreq() returns a theme", {
-  expect_s3_class(suppressWarnings(theme_infreq(family = "")), "theme")
+  themed <- expect_no_warning(theme_infreq(family = ""))
+  expect_s3_class(themed, "theme")
 })
 
 test_that("theme_bubble() returns a theme", {
