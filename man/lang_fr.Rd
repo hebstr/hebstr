@@ -31,5 +31,10 @@ withr::with_options(list(OutDec = "."), {
 }
 \seealso{
 \code{\link[gtsummary:theme_gtsummary_language]{gtsummary::theme_gtsummary_language()}}
+
+Other configuration:
+\code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=set_opts]{set_opts()}},
+\code{\link[=use_vars]{use_vars()}}
 }
 \concept{configuration}

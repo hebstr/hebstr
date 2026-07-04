@@ -2,20 +2,33 @@
 % Please edit documentation in R/opts.R
 \name{clear_vars}
 \alias{clear_vars}
-\title{Title}
+\title{Remove the cached variable classification}
 \usage{
 clear_vars(env = ".vars_context")
 }
 \arguments{
-\item{env}{arg}
+\item{env}{Name of the object to remove from the global environment.
+Defaults to \code{".vars_context"}.}
 }
 \value{
-arg
+Called for its side effect (invisible \code{NULL}).
 }
 \description{
-Title
+Removes the \code{.vars_context} object created by \code{\link[=use_vars]{use_vars()}} from the global
+environment. No-op when the object is absent.
 }
 \examples{
-"arg"
+set_opts()
+use_vars(mtcars)
+clear_vars()
 
 }
+\seealso{
+\code{\link[=use_vars]{use_vars()}}, \code{\link[=set_opts]{set_opts()}}
+
+Other configuration:
+\code{\link[=lang_fr]{lang_fr()}},
+\code{\link[=set_opts]{set_opts()}},
+\code{\link[=use_vars]{use_vars()}}
+}
+\concept{configuration}

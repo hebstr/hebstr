@@ -7,8 +7,8 @@
 theme_gt(
   x,
   width = NULL,
-  alpha = check_opts(font),
-  digit = check_opts(font),
+  alpha = check_opts(font$alpha),
+  digit = check_opts(font$digit),
   base = "#333333",
   color = check_opts(color$cold[1]),
   bg = "white",

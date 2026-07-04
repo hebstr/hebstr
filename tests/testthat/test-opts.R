@@ -50,6 +50,20 @@ test_that("set_opts(.assign = FALSE) returns the existing object when no overrid
   expect_true(res$sentinel)
 })
 
+test_that("set_opts() keeps font as a named alpha/digit list when both are equal", {
+  res <- set_opts(.assign = FALSE)
+
+  expect_type(res$font, "list")
+  expect_named(res$font, c("alpha", "digit"))
+})
+
+test_that("set_opts() normalizes a scalar font override to a named alpha/digit list", {
+  res <- set_opts(.assign = FALSE, font = "Courier")
+
+  expect_named(res$font, c("alpha", "digit"))
+  expect_identical(res$font$alpha, res$font$digit)
+})
+
 test_that("set_opts() applies French labels when OutDec is a comma", {
   withr::local_options(OutDec = ",")
   if (exists("opts", envir = globalenv(), inherits = FALSE)) {
@@ -79,6 +93,86 @@ test_that("set_opts() uses English labels by default", {
   expect_equal(res$labs$overall, "Overall")
   expect_equal(res$sep$int, ": ")
   expect_match(as.character(res$ci$label), "95%CI")
+})
+
+# Characterization / pinning tests: lock the observable behavior the idiomatic
+# refactor of set_opts() touches (deferred opts$vars formulas, qt_stat_wide, ci)
+# before restructuring the builder. Fresh builds forced via explicit .default_font.
+
+test_that("set_opts() builds opts$vars as deferred test/stat/label formula lists", {
+  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+
+  expect_named(res$vars, c("test", "stat", "label"))
+  expect_length(res$vars$test, 3)
+  expect_s3_class(res$vars$test[[1]], "formula")
+})
+
+test_that("opts$vars formulas resolve against an explicit .vars_envir", {
+  fake <- list(
+    qt = list(
+      vars = list(parametric = "mpg", nonparametric = "wt"),
+      stat = list(mean = c(Mean = "{mean}"), median = c(Med = "{median}"))
+    ),
+    ql = list(stat = list(n = c(n = "{n}")))
+  )
+
+  res <- set_opts(.assign = FALSE, .vars_envir = fake)
+  f <- res$vars$test[[1]]
+
+  expect_equal(eval(rlang::f_lhs(f), environment(f)), "mpg")
+})
+
+test_that("opts$vars formulas abort when no vars context is available", {
+  if (exists(".vars_context", envir = globalenv(), inherits = FALSE)) {
+    rm(list = ".vars_context", envir = globalenv())
+  }
+
+  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  f <- res$vars$test[[1]]
+
+  expect_error(eval(rlang::f_lhs(f), environment(f)), "vars_context")
+})
+
+test_that("opts$vars stays resolvable after clear_vars between two formula evals", {
+  gl <- globalenv()
+  withr::defer(
+    if (exists(".vars_context", envir = gl, inherits = FALSE)) {
+      rm(list = ".vars_context", envir = gl)
+    }
+  )
+  fake <- list(
+    qt = list(
+      vars = list(parametric = "mpg", nonparametric = "wt"),
+      stat = list(mean = c(Mean = "{mean}"), median = c(Med = "{median}"))
+    ),
+    ql = list(stat = list(n = c(n = "{n}")))
+  )
+  assign(".vars_context", new.env(parent = emptyenv()), envir = gl)
+  gl$.vars_context$current <- fake
+
+  res <- set_opts(.assign = FALSE)
+  f1 <- res$vars$test[[1]]
+  f2 <- res$vars$test[[2]]
+
+  expect_equal(eval(rlang::f_lhs(f1), environment(f1)), "mpg")
+  rm(list = ".vars_context", envir = gl)
+  expect_equal(eval(rlang::f_lhs(f2), environment(f2)), "wt")
+})
+
+test_that("set_opts() strips the IQR suffix in opts$qt_stat_wide", {
+  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+
+  expect_type(res$qt_stat_wide, "character")
+  expect_true("Median" %in% names(res$qt_stat_wide))
+  expect_equal(unname(res$qt_stat_wide[["Median"]]), "{median}")
+})
+
+test_that("set_opts() formats opts$ci$data as a bracketed glue template", {
+  withr::local_options(OutDec = ".")
+
+  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+
+  expect_equal(as.character(res$ci$data), "[{conf.low}; {conf.high}]")
 })
 
 test_that("check_opts() resolves keys of the global opts object", {

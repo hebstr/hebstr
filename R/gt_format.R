@@ -1,20 +1,42 @@
-#' Title
+#' Finalise a gtsummary table into a styled gt table
 #'
-#' @param x arg
-#' @param title arg
-#' @param note_global arg
-#' @param note_pvalue arg
-#' @param label_vargrp arg
-#' @param note_vargrp arg
-#' @param acro_list arg
-#' @param acro_sep arg
-#' @param zero_replace arg
-#' @param ... arg
+#' Converts a `gtsummary` table into a themed `gt` table: applies the package
+#' `gt` theme, an optional markdown title, automatic acronym footnotes drawn
+#' from a reference dictionary, optional user footnotes (global, p-value column,
+#' variable group), and an optional zero-value substitution. Acronyms present in
+#' the table headers, labels, and column names are detected and their
+#' definitions appended as a footnote, replacing the native `gtsummary`
+#' abbreviations.
 #'
-#' @return arg
+#' @param x A `gtsummary` table, typically built with
+#'   [gtsummary::tbl_summary()] or [gtsummary::tbl_regression()], optionally
+#'   pre-formatted with [gtsum_format()].
+#' @param title Optional table title, interpreted as markdown.
+#' @param note_global Optional character string added as a global table
+#'   footnote, alongside the automatic acronym definitions.
+#' @param note_pvalue Optional footnote attached to the p-value column.
+#'   Coefficient (regression) tables only.
+#' @param label_vargrp Character vector of variable names identifying the row
+#'   group(s) targeted by `note_vargrp`. Non-coefficient tables only.
+#' @param note_vargrp Optional footnote attached to the label cells of the
+#'   variables named in `label_vargrp`. Non-coefficient tables only.
+#' @param acro_list Named list used as the acronym dictionary: names are the
+#'   acronyms to detect, values their definitions. Defaults to the `acro`
+#'   option (`check_opts(acro)`).
+#' @param acro_sep Separator inserted between acronym definitions in the
+#'   footnote. Defaults to the `sep$ext` option.
+#' @param zero_replace Regular expression; matching cell values are replaced
+#'   with `0`. Set to `NULL` to disable. Defaults to `"^0\\s"`.
+#' @param ... Passed on to [theme_gt()].
+#'
+#' @returns A `gt_tbl` object.
+#'
+#' @examples
+#' set_opts()
+#' tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
+#' gt_format(tbl)
+#'
 #' @export
-#'
-#' @examples "arg"
 #'
 gt_format <- \(
   x,
@@ -39,18 +61,18 @@ gt_format <- \(
 
   clear_vars()
 
-  ### ACRO --------------------------------------------------------------------
+  ### ACRONYMS ----------------------------------------------------------------
 
-  style <- with(
-    data = x$table_styling,
-    expr = c(header$label, spanning_header$spanning_header)
+  style <- c(
+    x$table_styling$header$label,
+    x$table_styling$spanning_header$spanning_header
   )
 
   body <-
     x$table_body |>
     names() |>
-    str_subset(".*label") |>
-    map(~ x$table_body[[.]]) |>
+    str_subset("label") |>
+    map(~ x$table_body[[.x]]) |>
     unlist()
 
   .acro <- acro_extract(c(style, body, names(x)), acro_list)
@@ -61,9 +83,9 @@ gt_format <- \(
     pull() |>
     reduce(remove_abbreviation, .init = x)
 
-  ### THEME -------------------------------------------------------------------
+  ### THEME --------------------------------------------------------------------
 
-  if (!"gt_tbl" %in% class(x)) {
+  if (!inherits(x, "gt_tbl")) {
     x <- as_gt(x)
   }
 
@@ -72,7 +94,11 @@ gt_format <- \(
     tab_header(title = if (!is.null(title)) md(title)) |>
     theme_gt(...)
 
-  if (any(str_starts(names(x[["_data"]]), "coef"))) {
+  ### FOOTNOTES ----------------------------------------------------------------
+
+  is_coef <- any(str_starts(names(x[["_data"]]), "coef"))
+
+  if (is_coef) {
     if (!exists("estim", envir = .estim_channel, inherits = FALSE)) {
       cli_abort(
         c(
@@ -87,57 +113,50 @@ gt_format <- \(
     .acro_str <- acro_str(
       .estim$uv,
       .estim$mv,
-      with(acro_list, mget(.acro[.acro != "N"])),
+      acro_list[.acro[.acro != "N"]],
       collapse = acro_sep
     )
-
-    if (!is.null(note_global) || !is.null(.acro_str)) {
-      x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
-    }
-
-    if (!is.null(note_pvalue)) {
-      p_col <- str_subset(names(x[["_data"]]), "^p\\.value")
-
-      if (length(p_col) == 0) {
-        cli_abort(
-          c(
-            "No p-value column to attach {.arg note_pvalue} to.",
-            i = "This coefficient table has no {.field p.value} column."
-          )
-        )
-      }
-
-      x <- tab_footnote(
-        x,
-        footnote = note_pvalue,
-        locations = cells_column_labels(all_of(tail(p_col, 1)))
-      )
-    }
   } else {
-    .acro_str <- acro_str(
-      with(acro_list, mget(.acro)),
-      collapse = acro_sep
-    )
+    .acro_str <- acro_str(acro_list[.acro], collapse = acro_sep)
+  }
 
-    if (!is.null(note_global) || !is.null(.acro_str)) {
-      x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
-    }
+  if (!is.null(note_global) || !is.null(.acro_str)) {
+    x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
+  }
 
-    if (!is.null(note_vargrp)) {
-      x <- tab_footnote(
-        x,
-        footnote = note_vargrp,
-        locations = cells_body(
-          columns = label,
-          rows = variable %in% label_vargrp
+  if (is_coef && !is.null(note_pvalue)) {
+    p_col <- str_subset(names(x[["_data"]]), "^p\\.value")
+
+    if (length(p_col) == 0) {
+      cli_abort(
+        c(
+          "No p-value column to attach {.arg note_pvalue} to.",
+          i = "This coefficient table has no {.field p.value} column."
         )
       )
     }
+
+    x <- tab_footnote(
+      x,
+      footnote = note_pvalue,
+      locations = cells_column_labels(all_of(tail(p_col, 1)))
+    )
+  }
+
+  if (!is_coef && !is.null(note_vargrp)) {
+    x <- tab_footnote(
+      x,
+      footnote = note_vargrp,
+      locations = cells_body(
+        columns = label,
+        rows = variable %in% label_vargrp
+      )
+    )
   }
 
   if (!is.null(zero_replace)) {
     x <- sub_values(x, pattern = zero_replace, replacement = 0)
   }
 
-  return(x)
+  x
 }

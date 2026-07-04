@@ -2,7 +2,7 @@
 % Please edit documentation in R/opts.R
 \name{set_opts}
 \alias{set_opts}
-\title{Title}
+\title{Build the package options object}
 \usage{
 set_opts(
   .default_font = "trebuchet ms",
@@ -13,23 +13,47 @@ set_opts(
 )
 }
 \arguments{
-\item{.default_font}{arg}
+\item{.default_font}{Font family used for both the text (\code{alpha}) and numeric
+(\code{digit}) font slots unless overridden through \code{font}. Passed through
+\code{\link[=check_fonts]{check_fonts()}}, so an unavailable font falls back gracefully.}
 
-\item{.vars_envir}{arg}
+\item{.vars_envir}{Optional variable classification (as produced by
+\code{\link[=easy_descr]{easy_descr()}}) used to resolve the deferred \code{opts$vars} formulas. When
+\code{NULL} (default), the formulas resolve against the \code{.vars_context} cached by
+\code{\link[=use_vars]{use_vars()}} at evaluation time.}
 
-\item{.assign}{arg}
+\item{.assign}{Logical. If \code{TRUE} (default), the options object is assigned to
+\code{.name} in the global environment; if \code{FALSE}, it is returned.}
 
-\item{.name}{arg}
+\item{.name}{Name under which the options object is stored in, and retrieved
+from, the global environment. Defaults to \code{"opts"}.}
 
-\item{...}{arg}
+\item{...}{Named overrides for any option key. Names are validated against the
+set of valid keys; an unknown name aborts.}
 }
 \value{
-arg
+The options list. With \code{.assign = TRUE} (default) it is also assigned
+to \code{.name} in the global environment.
 }
 \description{
-Title
+Assembles the centralised options list consumed across the package: statistic
+templates, table labels, separators, confidence-interval formatting, acronym
+dictionary, fonts, and colours. Labels and formats follow the locale set by
+\code{\link[=lang_fr]{lang_fr()}} (comma decimal mark selects French wording). The result is either
+assigned to a named object in the global environment (the default) or returned
+for inspection. Keys can be overridden through \code{...}.
 }
 \examples{
-"arg"
+opts <- set_opts(.assign = FALSE)
+opts$sep$ext
 
 }
+\seealso{
+\code{\link[=use_vars]{use_vars()}}, \code{\link[=check_opts]{check_opts()}}, \code{\link[=lang_fr]{lang_fr()}}
+
+Other configuration:
+\code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=lang_fr]{lang_fr()}},
+\code{\link[=use_vars]{use_vars()}}
+}
+\concept{configuration}

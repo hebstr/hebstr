@@ -2,24 +2,41 @@
 % Please edit documentation in R/opts.R
 \name{use_vars}
 \alias{use_vars}
-\title{Title}
+\title{Cache a dataset's variable classification for \code{opts$vars}}
 \usage{
 use_vars(data, .parametric = check_opts(parametric), ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame whose variables are to be classified.}
 
-\item{.parametric}{arg}
+\item{.parametric}{Passed to \code{\link[=easy_descr]{easy_descr()}} to control the
+parametric/non-parametric split. Defaults to the \code{parametric} option.}
 
-\item{...}{arg}
+\item{...}{Passed on to \code{\link[=easy_descr]{easy_descr()}}.}
 }
 \value{
-arg
+\code{data}, unchanged (for use in a pipe). Called for its side effect of
+setting \code{.vars_context} in the global environment.
 }
 \description{
-Title
+Classifies the variables of \code{data} with \code{\link[=easy_descr]{easy_descr()}} and stores the result
+in a \code{.vars_context} object in the global environment. The deferred
+\code{opts$vars} statistic, test, and label formulas built by \code{\link[=set_opts]{set_opts()}} resolve
+against this cached classification, so \code{use_vars()} must run on a dataset
+before those formulas are evaluated. Pipe-friendly: returns \code{data} unchanged.
 }
 \examples{
-"arg"
+set_opts()
+use_vars(mtcars)
+clear_vars()
 
 }
+\seealso{
+\code{\link[=set_opts]{set_opts()}}, \code{\link[=clear_vars]{clear_vars()}}
+
+Other configuration:
+\code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=lang_fr]{lang_fr()}},
+\code{\link[=set_opts]{set_opts()}}
+}
+\concept{configuration}

@@ -44,16 +44,31 @@ lang_fr <- \(reset = FALSE) {
   invisible(NULL)
 }
 
-#' Title
+#' Cache a dataset's variable classification for `opts$vars`
 #'
-#' @param data arg
-#' @param .parametric arg
-#' @param ... arg
+#' Classifies the variables of `data` with [easy_descr()] and stores the result
+#' in a `.vars_context` object in the global environment. The deferred
+#' `opts$vars` statistic, test, and label formulas built by [set_opts()] resolve
+#' against this cached classification, so `use_vars()` must run on a dataset
+#' before those formulas are evaluated. Pipe-friendly: returns `data` unchanged.
 #'
-#' @returns arg
+#' @param data A data frame whose variables are to be classified.
+#' @param .parametric Passed to [easy_descr()] to control the
+#'   parametric/non-parametric split. Defaults to the `parametric` option.
+#' @param ... Passed on to [easy_descr()].
+#'
+#' @returns `data`, unchanged (for use in a pipe). Called for its side effect of
+#'   setting `.vars_context` in the global environment.
 #' @export
 #'
-#' @examples "arg"
+#' @family configuration
+#'
+#' @seealso [set_opts()], [clear_vars()]
+#'
+#' @examples
+#' set_opts()
+#' use_vars(mtcars)
+#' clear_vars()
 #'
 use_vars <- \(data, .parametric = check_opts(parametric), ...) {
   assign(".vars_context", new.env(parent = emptyenv()), envir = globalenv())
@@ -63,32 +78,66 @@ use_vars <- \(data, .parametric = check_opts(parametric), ...) {
   return(data)
 }
 
-#' Title
+#' Remove the cached variable classification
 #'
-#' @param env arg
+#' Removes the `.vars_context` object created by [use_vars()] from the global
+#' environment. No-op when the object is absent.
 #'
-#' @returns arg
+#' @param env Name of the object to remove from the global environment.
+#'   Defaults to `".vars_context"`.
+#'
+#' @returns Called for its side effect (invisible `NULL`).
 #' @export
 #'
-#' @examples "arg"
+#' @family configuration
+#'
+#' @seealso [use_vars()], [set_opts()]
+#'
+#' @examples
+#' set_opts()
+#' use_vars(mtcars)
+#' clear_vars()
 #'
 clear_vars <- \(env = ".vars_context") {
   if (exists(env, envir = globalenv())) rm(list = env, envir = globalenv())
 }
 
 
-#' Title
+#' Build the package options object
 #'
-#' @param .default_font arg
-#' @param .vars_envir arg
-#' @param .assign arg
-#' @param .name arg
-#' @param ... arg
+#' Assembles the centralised options list consumed across the package: statistic
+#' templates, table labels, separators, confidence-interval formatting, acronym
+#' dictionary, fonts, and colours. Labels and formats follow the locale set by
+#' [lang_fr()] (comma decimal mark selects French wording). The result is either
+#' assigned to a named object in the global environment (the default) or returned
+#' for inspection. Keys can be overridden through `...`.
 #'
-#' @returns arg
+#' @param .default_font Font family used for both the text (`alpha`) and numeric
+#'   (`digit`) font slots unless overridden through `font`. Passed through
+#'   [check_fonts()], so an unavailable font falls back gracefully.
+#' @param .vars_envir Optional variable classification (as produced by
+#'   [easy_descr()]) used to resolve the deferred `opts$vars` formulas. When
+#'   `NULL` (default), the formulas resolve against the `.vars_context` cached by
+#'   [use_vars()] at evaluation time.
+#' @param .assign Logical. If `TRUE` (default), the options object is assigned to
+#'   `.name` in the global environment; if `FALSE`, it is returned.
+#' @param .name Name under which the options object is stored in, and retrieved
+#'   from, the global environment. Defaults to `"opts"`.
+#' @param ... Named overrides for any option key. Names are validated against the
+#'   set of valid keys; an unknown name aborts.
+#'
+#' @returns The options list. With `.assign = TRUE` (default) it is also assigned
+#'   to `.name` in the global environment.
 #'
 #' @export
-#' @examples "arg"
+#'
+#' @family configuration
+#'
+#' @seealso [use_vars()], [check_opts()], [lang_fr()]
+#'
+#' @examples
+#' opts <- set_opts(.assign = FALSE)
+#' opts$sep$ext
 #'
 set_opts <- \(
   .default_font = "trebuchet ms",
@@ -222,7 +271,7 @@ set_opts <- \(
       )
   }
 
-  .vars <- \(...) {
+  .vars <- \() {
     cap <- \(x) str_cap(tolower, names(x))
     e <- \() resolve_vars_envir()
 
@@ -245,13 +294,32 @@ set_opts <- \(
     )
   }
 
-  .ci <- \(lim, sep, label, data) {
-    lim <- if (lim == "[") c("[", "]") else c("(", ")")
+  .ci <- \(ci) {
+    lim <- if (ci$lim == "[") c("[", "]") else c("(", ")")
 
     lst(
-      label = glue("{lim[1]}{label}{lim[2]}"),
-      data = glue("{lim[1]}{{{data[1]}}}{sep}{{{data[2]}}}{lim[2]}")
+      label = glue("{lim[1]}{ci$label}{lim[2]}"),
+      data = glue("{lim[1]}{{{ci$data[1]}}}{ci$sep}{{{ci$data[2]}}}{lim[2]}")
     )
+  }
+
+  .qt_stat_wide <- \(qt_stat) {
+    qt_stat |>
+      list_modify(
+        median = set_names(
+          str_remove(qt_stat$median, "\\s.+"),
+          str_remove(names(qt_stat$median), "\\s.+")
+        )
+      ) |>
+      list_c()
+  }
+
+  .font <- \(x) {
+    x <- as.list(x)
+    alpha <- x$alpha %||% x[[1]]
+    digit <- x$digit %||% x[[if (length(x) >= 2) 2 else 1]]
+
+    list(alpha = .fonts(alpha), digit = .fonts(digit))
   }
 
   opts <- .opts_set
@@ -259,30 +327,13 @@ set_opts <- \(
   opts <-
     opts |>
     list_modify(
-      vars = .vars(!!!with(opts, list(parametric, qt_stat, ql_stat))),
-      qt_stat_wide = opts$qt_stat |>
-        list_modify(
-          median = list2(
-            "{str_remove(names(opts$qt_stat$median), '\\\\s.+')}" := str_remove(
-              unname(opts$qt_stat$median),
-              "\\s.+"
-            )
-          ) |>
-            unlist()
-        ) |>
-        list_c(),
-      ci = .ci(!!!opts$ci),
-      font = list(
-        alpha = .fonts(opts$font[[1]]),
-        digit = .fonts(opts$font[[2]])
-      ),
+      vars = .vars(),
+      qt_stat_wide = .qt_stat_wide(opts$qt_stat),
+      ci = .ci(opts$ci),
       !!!dots
-    ) |>
-    inject()
+    )
 
-  if (identical(opts$font[[1]], opts$font[[2]])) {
-    opts$font <- opts$font[[1]]
-  }
+  opts$font <- .font(opts$font)
 
   if (.assign) {
     assign(.name, opts, envir = .GlobalEnv)

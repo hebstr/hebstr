@@ -46,6 +46,26 @@ test_that("theme_gt() aborts on a non-boolean docx", {
   expect_error(theme_gt(.make_gt(), docx = "yes"), "docx")
 })
 
+test_that("theme_gt() applies the alpha font to the table and the digit font to numeric cells", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  set_opts()
+  opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
+  assign("opts", opts, envir = globalenv())
+
+  themed <- theme_gt(gt::gt(data.frame(label = "a", stat = "1.0")))
+
+  table_font <- themed$`_options`$value[[
+    which(themed$`_options`$parameter == "table_font_names")
+  ]]
+  digit_fonts <- unlist(lapply(
+    themed$`_styles`$styles,
+    \(st) st$cell_text$font
+  ))
+
+  expect_identical(table_font[[1]], "AlphaFace")
+  expect_true("DigitFace" %in% digit_fonts)
+})
+
 test_that("theme_bar() returns a theme honoring legend_position", {
   themed <- theme_bar(family = "", legend_position = "bottom")
 

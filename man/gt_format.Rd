@@ -2,7 +2,7 @@
 % Please edit documentation in R/gt_format.R
 \name{gt_format}
 \alias{gt_format}
-\title{Title}
+\title{Finalise a gtsummary table into a styled gt table}
 \usage{
 gt_format(
   x,
@@ -18,33 +18,51 @@ gt_format(
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A \code{gtsummary} table, typically built with
+\code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}} or \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}}, optionally
+pre-formatted with \code{\link[=gtsum_format]{gtsum_format()}}.}
 
-\item{title}{arg}
+\item{title}{Optional table title, interpreted as markdown.}
 
-\item{note_global}{arg}
+\item{note_global}{Optional character string added as a global table
+footnote, alongside the automatic acronym definitions.}
 
-\item{note_pvalue}{arg}
+\item{note_pvalue}{Optional footnote attached to the p-value column.
+Coefficient (regression) tables only.}
 
-\item{label_vargrp}{arg}
+\item{label_vargrp}{Character vector of variable names identifying the row
+group(s) targeted by \code{note_vargrp}. Non-coefficient tables only.}
 
-\item{note_vargrp}{arg}
+\item{note_vargrp}{Optional footnote attached to the label cells of the
+variables named in \code{label_vargrp}. Non-coefficient tables only.}
 
-\item{acro_list}{arg}
+\item{acro_list}{Named list used as the acronym dictionary: names are the
+acronyms to detect, values their definitions. Defaults to the \code{acro}
+option (\code{check_opts(acro)}).}
 
-\item{acro_sep}{arg}
+\item{acro_sep}{Separator inserted between acronym definitions in the
+footnote. Defaults to the \code{sep$ext} option.}
 
-\item{zero_replace}{arg}
+\item{zero_replace}{Regular expression; matching cell values are replaced
+with \code{0}. Set to \code{NULL} to disable. Defaults to \code{"^0\\\\s"}.}
 
-\item{...}{arg}
+\item{...}{Passed on to \code{\link[=theme_gt]{theme_gt()}}.}
 }
 \value{
-arg
+A \code{gt_tbl} object.
 }
 \description{
-Title
+Converts a \code{gtsummary} table into a themed \code{gt} table: applies the package
+\code{gt} theme, an optional markdown title, automatic acronym footnotes drawn
+from a reference dictionary, optional user footnotes (global, p-value column,
+variable group), and an optional zero-value substitution. Acronyms present in
+the table headers, labels, and column names are detected and their
+definitions appended as a footnote, replacing the native \code{gtsummary}
+abbreviations.
 }
 \examples{
-"arg"
+set_opts()
+tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
+gt_format(tbl)
 
 }
