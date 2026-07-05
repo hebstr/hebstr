@@ -10,7 +10,7 @@
 #'
 #' @examples "arg"
 #'
-check_fonts <- \(..., .default = "trebuchet ms", .auto = NULL, .abort = FALSE) {
+check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
   if (!is.null(.auto)) {
     check_dots_empty()
 
@@ -46,6 +46,15 @@ check_fonts <- \(..., .default = "trebuchet ms", .auto = NULL, .abort = FALSE) {
     }
 
     return(TRUE)
+  }
+}
+
+
+.text_font <- \() {
+  if (exists("opts", envir = .GlobalEnv, inherits = FALSE)) {
+    check_opts(font$alpha)
+  } else {
+    check_fonts(.auto = "luciole")
   }
 }
 
@@ -172,7 +181,10 @@ theme_gt <- \(
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param text_color arg
 #' @param title_size arg
 #' @param title_halign arg
@@ -190,7 +202,7 @@ theme_gt <- \(
 #' @examples "arg"
 #'
 theme_bar <- \(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   text_color = "#333333",
   title_size = 9,
   title_halign = 1,
@@ -239,7 +251,10 @@ theme_bar <- \(
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param size arg
 #' @param vjust_y arg
 #' @param title_margin arg
@@ -251,7 +266,7 @@ theme_bar <- \(
 #' @examples "arg"
 #'
 theme_tte <- \(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   size = 8,
   vjust_y = 1,
   title_margin = NULL,
@@ -282,7 +297,10 @@ theme_tte <- \(
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param label_size arg
 #' @param title_size arg
 #' @param title_margin arg
@@ -295,7 +313,7 @@ theme_tte <- \(
 #' @examples "arg"
 #'
 theme_risktable <- \(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   label_size = 7,
   title_size = 7,
   title_margin = 3,
@@ -327,7 +345,10 @@ theme_risktable <- \(
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param ... arg
 #'
 #' @return arg
@@ -335,7 +356,7 @@ theme_risktable <- \(
 #'
 #' @examples "arg"
 #'
-theme_pca <- \(family = check_fonts(.auto = "luciole"), ...) {
+theme_pca <- \(family = .text_font(), ...) {
   theme(
     text = element_text(family = family),
     legend.position = "none",
@@ -358,7 +379,10 @@ theme_pca <- \(family = check_fonts(.auto = "luciole"), ...) {
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param grid arg
 #' @param grid_color arg
 #' @param axis_text_size_y arg
@@ -372,7 +396,7 @@ theme_pca <- \(family = check_fonts(.auto = "luciole"), ...) {
 #' @examples "arg"
 #'
 theme_blank <- \(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   grid = FALSE,
   grid_color = "grey90",
   grid_size = 0.2,
@@ -423,7 +447,10 @@ theme_blank <- \(
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param title_size arg
 #' @param title_margin arg
 #' @param caption_size arg
@@ -440,7 +467,7 @@ theme_blank <- \(
 #' @examples "arg"
 #'
 theme_infreq <- \(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   title_size = 11,
   title_margin = 10,
   caption_size = 9,
@@ -498,7 +525,10 @@ theme_infreq <- \(
 
 #' Title
 #'
-#' @param family arg
+#' @param family Font family for the theme's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param size arg
 #' @param base_color arg
 #' @param axis_margin_x arg
@@ -519,7 +549,7 @@ theme_infreq <- \(
 #' @examples "arg"
 #'
 theme_bubble <- \(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   size = 13,
   base_color = "#333333",
   axis_margin_x = 12,

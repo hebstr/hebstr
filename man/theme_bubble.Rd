@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 theme_bubble(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   size = 13,
   base_color = "#333333",
   axis_margin_x = 12,
@@ -32,7 +32,10 @@ theme_bubble(
 )
 }
 \arguments{
-\item{family}{arg}
+\item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
+called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{size}{arg}
 

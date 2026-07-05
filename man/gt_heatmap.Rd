@@ -12,7 +12,7 @@ gt_heatmap(
   title = NULL,
   width = NULL,
   digit = 1,
-  font_family = check_fonts(.auto = "luciole"),
+  font_family = .text_font(),
   font_size = 10,
   color = TRUE,
   palette = c("indianred2", "skyblue1"),
@@ -35,7 +35,10 @@ gt_heatmap(
 
 \item{digit}{arg}
 
-\item{font_family}{arg}
+\item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
+been called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{font_size}{arg}
 

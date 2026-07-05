@@ -7,7 +7,10 @@
 #' @param title arg
 #' @param width arg
 #' @param digit arg
-#' @param font_family arg
+#' @param font_family Font family for the table's text. When [set_opts()] has
+#'   been called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param font_size arg
 #' @param color arg
 #' @param palette arg
@@ -27,7 +30,7 @@ gt_heatmap <- \(
   title = NULL,
   width = NULL,
   digit = 1,
-  font_family = check_fonts(.auto = "luciole"),
+  font_family = .text_font(),
   font_size = 10,
   color = TRUE,
   palette = c("indianred2", "skyblue1"),

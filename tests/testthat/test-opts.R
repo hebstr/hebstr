@@ -70,7 +70,7 @@ test_that("set_opts() applies French labels when OutDec is a comma", {
     rm(list = "opts", envir = globalenv())
   }
 
-  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_equal(res$labs$header, "Variable")
   expect_equal(res$labs$overall, "Total")
@@ -87,7 +87,7 @@ test_that("set_opts() uses English labels by default", {
     rm(list = "opts", envir = globalenv())
   }
 
-  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_equal(res$labs$header, "Characteristic")
   expect_equal(res$labs$overall, "Overall")
@@ -100,7 +100,7 @@ test_that("set_opts() uses English labels by default", {
 # before restructuring the builder. Fresh builds forced via explicit .default_font.
 
 test_that("set_opts() builds opts$vars as deferred test/stat/label formula lists", {
-  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_named(res$vars, c("test", "stat", "label"))
   expect_length(res$vars$test, 3)
@@ -127,7 +127,7 @@ test_that("opts$vars formulas abort when no vars context is available", {
     rm(list = ".vars_context", envir = globalenv())
   }
 
-  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
   f <- res$vars$test[[1]]
 
   expect_error(eval(rlang::f_lhs(f), environment(f)), "vars_context")
@@ -160,7 +160,7 @@ test_that("opts$vars stays resolvable after clear_vars between two formula evals
 })
 
 test_that("set_opts() strips the IQR suffix in opts$qt_stat_wide", {
-  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_type(res$qt_stat_wide, "character")
   expect_true("Median" %in% names(res$qt_stat_wide))
@@ -170,7 +170,7 @@ test_that("set_opts() strips the IQR suffix in opts$qt_stat_wide", {
 test_that("set_opts() formats opts$ci$data as a bracketed glue template", {
   withr::local_options(OutDec = ".")
 
-  res <- set_opts(.assign = FALSE, .default_font = "trebuchet ms")
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_equal(as.character(res$ci$data), "[{conf.low}; {conf.high}]")
 })

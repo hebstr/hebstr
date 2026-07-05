@@ -12,7 +12,7 @@ ggcount(
   nudge_y = 0.04,
   pct_min = 0.05,
   ylab = "Effectif",
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   grid = TRUE,
   ...
 )
@@ -37,8 +37,10 @@ proportion of the total count. Default \code{0.05}.}
 
 \item{ylab}{Label for the y axis. Default \code{"Effectif"}.}
 
-\item{family}{Font family for the text labels. Defaults to the value of
-\code{check_fonts(.auto = "luciole")}.}
+\item{family}{Font family for the text labels. When \code{\link[=set_opts]{set_opts()}} has been
+called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{grid}{Logical controlling display of the background grid.
 Default \code{TRUE}.}

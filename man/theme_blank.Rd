@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 theme_blank(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   grid = FALSE,
   grid_color = "grey90",
   grid_size = 0.2,
@@ -15,7 +15,10 @@ theme_blank(
 )
 }
 \arguments{
-\item{family}{arg}
+\item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
+called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{grid}{arg}
 

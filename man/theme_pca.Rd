@@ -4,10 +4,13 @@
 \alias{theme_pca}
 \title{Title}
 \usage{
-theme_pca(family = check_fonts(.auto = "luciole"), ...)
+theme_pca(family = .text_font(), ...)
 }
 \arguments{
-\item{family}{arg}
+\item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
+called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{...}{arg}
 }

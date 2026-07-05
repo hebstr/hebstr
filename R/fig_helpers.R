@@ -17,8 +17,10 @@
 #' @param pct_min Minimum count threshold for displaying percentages, as a
 #'   proportion of the total count. Default `0.05`.
 #' @param ylab Label for the y axis. Default `"Effectif"`.
-#' @param family Font family for the text labels. Defaults to the value of
-#'   `check_fonts(.auto = "luciole")`.
+#' @param family Font family for the text labels. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param grid Logical controlling display of the background grid.
 #'   Default `TRUE`.
 #' @param ... Additional arguments forwarded to the text layers (`geom_text`)
@@ -91,7 +93,7 @@ ggcount <- \(
   nudge_y = 0.04,
   pct_min = 0.05,
   ylab = "Effectif",
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   grid = TRUE,
   ...
 ) {

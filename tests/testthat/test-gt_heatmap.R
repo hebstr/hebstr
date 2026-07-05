@@ -37,3 +37,18 @@ test_that("gt_heatmap still returns a table when color is disabled", {
   expect_s3_class(res, "gt_tbl")
   expect_gt(nrow(res$`_styles`), 0)
 })
+
+test_that("gt_heatmap default font_family reads the centralised text font", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+
+  df <- data.frame(cat = c("a", "b", "c"), x = c(1, 2, 3), y = c(2, 4, 6))
+
+  res <- gt_heatmap(df, rowname_col = "cat")
+
+  table_font <- res$`_options`$value[[
+    which(res$`_options`$parameter == "table_font_names")
+  ]]
+
+  expect_identical(table_font[[1]], "PinnedAlpha")
+})

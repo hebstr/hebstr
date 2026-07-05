@@ -8,7 +8,7 @@ easy_view(
   x,
   name = NULL,
   font_size = "0.8rem",
-  font_family = check_fonts(.auto = "luciole"),
+  font_family = .text_font(),
   level_sep = " ; ",
   strip_color = set_opts(.assign = FALSE)$color$cold[1],
   assign = FALSE,
@@ -22,7 +22,10 @@ easy_view(
 
 \item{font_size}{arg}
 
-\item{font_family}{arg}
+\item{font_family}{Font family for the explorer's text. When \code{\link[=set_opts]{set_opts()}} has
+been called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{level_sep}{arg}
 

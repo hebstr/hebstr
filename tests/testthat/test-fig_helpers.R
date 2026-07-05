@@ -15,3 +15,13 @@ test_that("ggcount() builds a bar layer for a valid column", {
 
   expect_equal(sort(built$data[[1]]$count), c(2, 3, 5))
 })
+
+test_that("ggcount() default family reads the centralised text font", {
+  skip_if_not_installed("ggplot2")
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+
+  d <- data.frame(class = rep(c("a", "b", "c"), c(5, 3, 2)))
+
+  expect_identical(ggcount(d, "class")$theme$text$family, "PinnedAlpha")
+})

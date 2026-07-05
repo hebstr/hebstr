@@ -141,3 +141,46 @@ test_that("check_fonts() aborts naming the missing font", {
     "Zzz Not Installed"
   )
 })
+
+test_that("check_fonts() falls back to the OS-agnostic 'sans' family", {
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
+    .package = "systemfonts"
+  )
+
+  expect_identical(check_fonts(.auto = "luciole"), "sans")
+})
+
+test_that(".text_font() reads the centralised text font when opts exists", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+
+  expect_identical(.text_font(), "PinnedAlpha")
+})
+
+test_that(".text_font() falls back to check_fonts(luciole) when opts is absent", {
+  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
+    rm(list = "opts", envir = globalenv())
+  }
+
+  expect_identical(.text_font(), check_fonts(.auto = "luciole"))
+})
+
+test_that(".text_font() resolves to 'sans' when opts absent and Luciole missing", {
+  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
+    rm(list = "opts", envir = globalenv())
+  }
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
+    .package = "systemfonts"
+  )
+
+  expect_identical(.text_font(), "sans")
+})
+
+test_that("theme_*() default family reads opts$font$alpha", {
+  withr::defer(rm(list = "opts", envir = globalenv()))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+
+  expect_identical(theme_bar()$text$family, "PinnedAlpha")
+})

@@ -5,7 +5,7 @@
 \title{Build the package options object}
 \usage{
 set_opts(
-  .default_font = "trebuchet ms",
+  .default_font = "sans",
   .vars_envir = NULL,
   .assign = TRUE,
   .name = "opts",
@@ -15,7 +15,8 @@ set_opts(
 \arguments{
 \item{.default_font}{Font family used for both the text (\code{alpha}) and numeric
 (\code{digit}) font slots unless overridden through \code{font}. Passed through
-\code{\link[=check_fonts]{check_fonts()}}, so an unavailable font falls back gracefully.}
+\code{\link[=check_fonts]{check_fonts()}}, so an unavailable font falls back to the OS-agnostic
+system sans-serif (\code{"sans"}). Defaults to \code{"sans"}.}
 
 \item{.vars_envir}{Optional variable classification (as produced by
 \code{\link[=easy_descr]{easy_descr()}}) used to resolve the deferred \code{opts$vars} formulas. When

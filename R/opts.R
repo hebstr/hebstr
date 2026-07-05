@@ -114,7 +114,8 @@ clear_vars <- \(env = ".vars_context") {
 #'
 #' @param .default_font Font family used for both the text (`alpha`) and numeric
 #'   (`digit`) font slots unless overridden through `font`. Passed through
-#'   [check_fonts()], so an unavailable font falls back gracefully.
+#'   [check_fonts()], so an unavailable font falls back to the OS-agnostic
+#'   system sans-serif (`"sans"`). Defaults to `"sans"`.
 #' @param .vars_envir Optional variable classification (as produced by
 #'   [easy_descr()]) used to resolve the deferred `opts$vars` formulas. When
 #'   `NULL` (default), the formulas resolve against the `.vars_context` cached by
@@ -140,7 +141,7 @@ clear_vars <- \(env = ".vars_context") {
 #' opts$sep$ext
 #'
 set_opts <- \(
-  .default_font = "trebuchet ms",
+  .default_font = "sans",
   .vars_envir = NULL,
   .assign = TRUE,
   .name = "opts",

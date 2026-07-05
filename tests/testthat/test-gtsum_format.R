@@ -134,11 +134,11 @@ test_that("gtsum_format() annotates dichotomous reference levels with show_singl
   set_opts()
 
   df <- data.frame(
-    y = rep(c(0, 1), 30),
+    y = rep(c(0, 1, 1, 0, 1, 0), 10),
     sex = factor(rep(c("f", "m"), 30), levels = c("f", "m")),
-    x = seq_len(60) + rep(c(0, 2), 30)
+    x = seq_len(60)
   )
-  mod <- suppressWarnings(glm(y ~ sex + x, data = df, family = binomial()))
+  mod <- glm(y ~ sex + x, data = df, family = binomial())
   tbl <- suppressWarnings(suppressMessages(
     gtsummary::tbl_regression(mod, exponentiate = TRUE, show_single_row = sex)
   ))

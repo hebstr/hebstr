@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 theme_infreq(
-  family = check_fonts(.auto = "luciole"),
+  family = .text_font(),
   title_size = 11,
   title_margin = 10,
   caption_size = 9,
@@ -18,7 +18,10 @@ theme_infreq(
 )
 }
 \arguments{
-\item{family}{arg}
+\item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
+called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{title_size}{arg}
 
