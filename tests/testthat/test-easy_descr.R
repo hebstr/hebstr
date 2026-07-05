@@ -51,6 +51,25 @@ test_that("easy_descr uses French statistic labels when OutDec is a comma", {
   expect_match(names(res$qt$stat$mean), "Moyenne")
 })
 
+test_that("easy_descr merges custom qt_stat and derives the spanner from the stat labels", {
+  data <- data.frame(age = c(20, 30, 40, 50, 60))
+
+  res <- suppressMessages(easy_descr(
+    data,
+    qt_stat = list(
+      median = c("Median" = "{median}"),
+      range = c("Range" = "{min}-{max}")
+    )
+  ))
+
+  expect_equal(res$qt$stat$median, c("Median" = "{median}"))
+  expect_equal(res$qt$stat$range, c("Range" = "{min}-{max}"))
+  expect_equal(
+    res$qt$spanner,
+    c("Min", "Q1", "Median", "Q3", "Max", "Mean±SD", "Range")
+  )
+})
+
 test_that("easy_descr keeps single-term parametric classification", {
   data <- data.frame(
     mpg = c(1.2, 3.4, 5.6, 7.8),

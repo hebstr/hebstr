@@ -2,3 +2,6 @@
 /demo/
 .claude/
 TODO.md
+
+/.quarto/
+**/*.quarto_ipynb

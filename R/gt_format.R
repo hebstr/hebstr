@@ -68,8 +68,7 @@ gt_format <- \(
     x$table_styling$spanning_header$spanning_header
   )
 
-  body <-
-    x$table_body |>
+  body <- x$table_body |>
     names() |>
     str_subset("label") |>
     map(~ x$table_body[[.x]]) |>
@@ -77,8 +76,7 @@ gt_format <- \(
 
   .acro <- acro_extract(c(style, body), acro_list)
 
-  x <-
-    x$table_styling$abbreviation |>
+  x <- x$table_styling$abbreviation |>
     distinct(abbreviation) |>
     pull() |>
     reduce(remove_abbreviation, .init = x)
@@ -89,8 +87,7 @@ gt_format <- \(
     x <- as_gt(x)
   }
 
-  x <-
-    x |>
+  x <- x |>
     tab_header(title = if (!is.null(title)) md(title)) |>
     theme_gt(...)
 

@@ -260,7 +260,8 @@ fct_other_str <- \(fct, chr, min, sep = ", ") {
 
   chr <- fct_str(chr, sep, cap = FALSE)
 
-  paste(fct, chr, sep = ", ")
+  parts <- c(fct, chr)
+  paste(parts[nzchar(parts)], collapse = ", ")
 }
 
 #' Title
@@ -319,7 +320,7 @@ fct_keep <- \(data, var, min, sep) {
 #' @examples "arg"
 #'
 add_label <- \(x, name, levels, indent = 0) {
-  .before_index <- grep(levels[1], x$table_body$variable)[1]
+  .before_index <- match(levels[1], x$table_body$variable)
 
   x <-
     x |>
@@ -327,12 +328,12 @@ add_label <- \(x, name, levels, indent = 0) {
       ~ . |>
         add_row(label = name, .before = .before_index)
     ) |>
-    modify_column_indent(
+    modify_indent(
       columns = label,
       rows = label == name,
       indent = indent
     ) |>
-    modify_column_indent(
+    modify_indent(
       columns = label,
       rows = variable %in% levels,
       indent = indent + 4
@@ -405,6 +406,6 @@ add_ref_label <- \(data, label = "Reference") {
     x = data,
     symbol = label,
     columns = c(estimate, conf.low, conf.high),
-    rows = reference_row == TRUE
+    rows = reference_row
   )
 }

@@ -273,11 +273,10 @@ p_shortenr <- \(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE) {
   x |>
     rowwise() |>
     mutate(
-      !!column := if_else(!!column < seuil, seuil, round(!!column, digits)),
       !!column := if_else(
-        !!column == seuil,
-        glue(inf, !!column),
-        glue(sup, !!column)
+        !!column < seuil,
+        glue(inf, seuil),
+        glue(sup, round(!!column, digits))
       )
     ) |>
     ungroup()
@@ -357,6 +356,14 @@ logit_lty <- \(
 ) {
   y <- enexpr(y)
   x <- enexpr(x)
+
+  .outcome <- df[[as_string(y)]]
+  if (!is.factor(.outcome) || nlevels(.outcome) != 2) {
+    cli_abort(c(
+      "{.arg y} must be a 2-level factor; the event is taken as the second level.",
+      i = "Convert a 0/1 numeric outcome with {.fun factor} before calling {.fun logit_lty}."
+    ))
+  }
 
   lst(
     data = df |>

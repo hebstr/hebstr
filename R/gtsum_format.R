@@ -49,20 +49,21 @@
 ) {
   is_mvreg <- inherits(x, "tbl_regression")
 
-  .lab_test <-
-    list(beta = "Beta", or = "OR", hr = "HR") |>
+  .lab_test <- list(
+    beta = "Beta",
+    or = "OR",
+    hr = "HR"
+  ) |>
     list_modify(!!!.estim_acro)
 
-  .lab <-
-    list(
-      beta = "regression coefficient",
-      or = "odds ratio",
-      hr = "hazard ratio"
-    ) |>
+  .lab <- list(
+    beta = "regression coefficient",
+    or = "odds ratio",
+    hr = "hazard ratio"
+  ) |>
     list_modify(!!!.estim_label)
 
-  x <-
-    x |>
+  x <- x |>
     modify_table_body(
       ~ . |>
         mutate(
@@ -89,33 +90,31 @@
 
   .coef_label <- unique(x$table_body$adj_coefficients_label)
 
-  x <-
-    x |>
+  x <- x |>
     modify_header(estimate ~ glue("**{.coef_label} {.ci_label}**")) |>
     modify_column_merge(
       pattern = paste("{estimate}", .ci_data),
       rows = !is.na(estimate)
     )
 
-  estim <-
-    lst(
-      acro = unique(x$table_body$coefficients_label),
-      adj_acro = glue("{.adj_acro}{acro}"),
-      label = unique(x$table_body$estim_label),
-      adj_label = glue(.adj_label),
-      str = lst(
-        uv = if (!str_detect(acro, "^[:upper:]+$")) {
-          NULL
-        } else {
-          glue("{acro}{.estim_sep}{label}")
-        },
-        mv = if (str_detect(adj_acro, "\\s+") || .adj_acro == "") {
-          NULL
-        } else {
-          glue("{adj_acro}{.estim_sep}{adj_label}")
-        }
-      )
+  estim <- lst(
+    acro = unique(x$table_body$coefficients_label),
+    adj_acro = glue("{.adj_acro}{acro}"),
+    label = unique(x$table_body$estim_label),
+    adj_label = glue(.adj_label),
+    str = lst(
+      uv = if (!str_detect(acro, "^[:upper:]+$")) {
+        NULL
+      } else {
+        glue("{acro}{.estim_sep}{label}")
+      },
+      mv = if (str_detect(adj_acro, "\\s+") || .adj_acro == "") {
+        NULL
+      } else {
+        glue("{adj_acro}{.estim_sep}{adj_label}")
+      }
     )
+  )
 
   .estim_channel$estim <- list(uv = estim$str$uv, mv = estim$str$mv)
 
@@ -124,15 +123,14 @@
 
 
 .fmt_reg_level <- \(x, .model_mv, .ref_sep, .ref_no) {
-  levels <-
-    model_list_terms_levels(.model_mv) |>
+  levels <- .model_mv |>
+    model_list_terms_levels() |>
     select(variable, reference_level) |>
     distinct()
 
   ref_level <- expr(reference_level %in% c(.ref_no, NA))
 
-  x <-
-    x |>
+  x <- x |>
     modify_table_body(
       ~ . |>
         left_join(levels, by = "variable") |>
@@ -161,8 +159,7 @@
 .fmt_reg_n <- \(x, .stat_n, .label_n) {
   .n_type <- if (.event(x)) "n_event" else "n_obs"
 
-  x <-
-    x |>
+  x <- x |>
     modify_table_body(
       ~ . |>
         mutate(
@@ -352,38 +349,35 @@ gtsum_format <- \(
   check_by <- x$inputs$by
 
   if (length(check_by) > 0) {
-    x <-
-      .fmt_by(
-        x,
-        .check_by = check_by,
-        .label_header = label_header,
-        .label_overall = label_overall,
-        .bold_p = bold_p
-      )
+    x <- .fmt_by(
+      x,
+      .check_by = check_by,
+      .label_header = label_header,
+      .label_overall = label_overall,
+      .bold_p = bold_p
+    )
   } else {
     if (inherits(x, c("tbl_regression", "tbl_uvregression"))) {
-      x <-
-        .fmt_reg(
-          x,
-          .adj_acro = adj_acro,
-          .adj_label = adj_label,
-          .estim_acro = estim_acro,
-          .estim_label = estim_label,
-          .ci = ci,
-          .estim_sep = estim_sep,
-          .model_mv = model_mv,
-          .show_single_row = show_single_row,
-          .ref_sep = ref_sep,
-          .ref_no = ref_no,
-          .stat_n = stat_n,
-          .label_n = label_n,
-          .label_header = label_header,
-          .label_reference = label_reference,
-          .bold_p = bold_p
-        )
+      x <- .fmt_reg(
+        x,
+        .adj_acro = adj_acro,
+        .adj_label = adj_label,
+        .estim_acro = estim_acro,
+        .estim_label = estim_label,
+        .ci = ci,
+        .estim_sep = estim_sep,
+        .model_mv = model_mv,
+        .show_single_row = show_single_row,
+        .ref_sep = ref_sep,
+        .ref_no = ref_no,
+        .stat_n = stat_n,
+        .label_n = label_n,
+        .label_header = label_header,
+        .label_reference = label_reference,
+        .bold_p = bold_p
+      )
     } else {
-      x <-
-        .fmt_uni(x, .label_header = label_header, .label_stat = label_stat)
+      x <- .fmt_uni(x, .label_header = label_header, .label_stat = label_stat)
     }
   }
 

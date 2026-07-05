@@ -76,6 +76,12 @@ test_that("logit_lty defaults to 40 breaks", {
   expect_equal(nrow(res$data), 40)
 })
 
+test_that("logit_lty aborts when the outcome is not a 2-level factor", {
+  df <- data.frame(xv = seq_len(10), yv = rep(c(0, 1), 5))
+
+  expect_error(logit_lty(df, yv, xv), "2-level factor")
+})
+
 test_that("easy_boot returns the bootstrap list without assigning to globalenv", {
   withr::defer(
     if (exists("boot", envir = globalenv(), inherits = FALSE)) {
@@ -172,6 +178,14 @@ test_that("p_shortenr returns an ungrouped tibble", {
 
   expect_false(inherits(res, "rowwise_df"))
   expect_equal(as.character(res$p.value), c("<0.001", "0.5", "0.02"))
+})
+
+test_that("p_shortenr does not prefix < on values above the threshold that round to it", {
+  df <- data.frame(p.value = c(0.0011, 0.0013))
+
+  res <- p_shortenr(df)
+
+  expect_equal(as.character(res$p.value), c("0.001", "0.001"))
 })
 
 test_that("flow_filter collects a lazy dbplyr tbl before computing counts", {

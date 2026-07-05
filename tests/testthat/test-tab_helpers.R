@@ -115,6 +115,15 @@ test_that("fct_other_str forwards sep to the character counts", {
   expect_equal(as.character(res), "Beta (1), gamma (1), x y [2] ; z [1].")
 })
 
+test_that("fct_other_str drops the empty rare-level part instead of leaving a leading separator", {
+  fct <- factor(c("Alpha", "Alpha", "Beta", "Beta"))
+  chr <- c("x y", "z")
+
+  res <- fct_other_str(fct, chr, min = 2)
+
+  expect_equal(as.character(res), "x y [1], z [1].")
+})
+
 test_that("quanti.test.para still runs a t-test with 2 groups", {
   data <- data.frame(
     y = c(1, 3, 2, 8, 9, 7),
@@ -156,6 +165,61 @@ test_that("fct_keep does not error when no level passes min", {
   expect_equal(res$keep, character(0))
   expect_match(res$drop, "a \\[2\\]")
   expect_match(res$drop, "b \\[1\\]")
+})
+
+test_that("add_label inserts the label before the exact variable, not a substring match", {
+  d <- data.frame(
+    age_group = factor(c("x", "y", "x", "y")),
+    age = c(20, 30, 40, 50)
+  )
+  tbl <- gtsummary::tbl_summary(d)
+
+  res <- add_label(tbl, name = "Demographics", levels = "age")
+
+  label_index <- which(res$table_body$label == "Demographics")
+  expect_length(label_index, 1)
+  expect_equal(res$table_body$variable[label_index + 1], "age")
+})
+
+test_that("fct_str counts levels by decreasing frequency and capitalises when asked", {
+  x <- c("a", "a", "b")
+
+  expect_equal(as.character(fct_str(x, sep = "; ")), "A [2]; b [1].")
+  expect_equal(
+    as.character(fct_str(x, sep = "; ", cap = FALSE)),
+    "a [2]; b [1]."
+  )
+})
+
+test_that("all_dichotomous_uv keeps only two-level factor columns", {
+  data <- data.frame(
+    x = factor(c("a", "b", "a", "b")),
+    y = factor(c("a", "b", "c", "a")),
+    z = c(1, 2, 3, 4)
+  )
+
+  expect_equal(all_dichotomous_uv(data), "x")
+  expect_equal(all_dichotomous_uv(data, "x", "z"), "x")
+})
+
+test_that("show_single_row recodes two-level factors to 0/1 and excludes the first column", {
+  data <- data.frame(id = 1:4, sex = factor(c("f", "m", "f", "m")))
+
+  res <- show_single_row(data)
+
+  expect_equal(res$id, 1:4)
+  expect_equal(res$sex, c(0, 1, 0, 1))
+})
+
+test_that("str_na_mv reports the count and share of rows with any missing value", {
+  with_na <- data.frame(a = c(1, NA, 3), b = c("x", "y", NA))
+  without_na <- data.frame(a = c(1, 2, 3), b = c("x", "y", "z"))
+
+  expect_match(
+    as.character(str_na_mv(with_na)),
+    "^3 observations, 2 observations \\(66"
+  )
+  expect_match(as.character(str_na_mv(without_na)), "aucune observation")
 })
 
 test_that("add_note aborts when no targeting argument is provided", {
