@@ -230,3 +230,187 @@ test_that("pca_var_extract strips the supplied pattern from variable names", {
   expect_false("mpg" %in% stripped$coord$column)
   expect_equal(stripped$weight, plain$weight)
 })
+
+
+test_that("p_picking keeps only variables below the p-value threshold", {
+  d <- data.frame(
+    y = 1:12,
+    x1 = c(1.1, 1.9, 3.2, 3.8, 5.1, 5.9, 7.2, 7.8, 9.1, 9.9, 11.2, 11.8),
+    x2 = rep(c(0, 1), 6),
+    x3 = c(5, 5, 5, 4, 6, 5, 5, 6, 4, 5, 5, 5)
+  )
+
+  picked <- p_picking(d, "lm", "y", c("x1", "x2", "x3"), 0.05)
+
+  expect_equal(picked, "x1")
+})
+
+test_that("p_picking drops the response even when it is listed in vars", {
+  d <- data.frame(
+    y = 1:12,
+    x1 = c(1.1, 1.9, 3.2, 3.8, 5.1, 5.9, 7.2, 7.8, 9.1, 9.9, 11.2, 11.8),
+    x2 = rep(c(0, 1), 6)
+  )
+
+  picked <- p_picking(d, "lm", "y", c("y", "x1", "x2"), 0.05)
+
+  expect_equal(picked, "x1")
+})
+
+test_that("p_picking returns an empty character vector when nothing qualifies", {
+  d <- data.frame(
+    y = 1:12,
+    x1 = c(1.1, 1.9, 3.2, 3.8, 5.1, 5.9, 7.2, 7.8, 9.1, 9.9, 11.2, 11.8),
+    x2 = rep(c(0, 1), 6)
+  )
+
+  picked <- p_picking(d, "lm", "y", c("x1", "x2"), 0)
+
+  expect_type(picked, "character")
+  expect_length(picked, 0)
+})
+
+
+test_that("cooksd returns the augmented data, thresholds, outliers and plot", {
+  d <- data.frame(x = 1:15, y = c(11, 2:14, 55))
+
+  res <- cooksd(lm(y ~ x, d))
+
+  expect_named(res, c("data", "limit", "obs", "plot"))
+  expect_false("outliers" %in% names(res))
+  expect_contains(names(res$data), c("id", ".cooksd"))
+  expect_equal(nrow(res$data), 15)
+  expect_s3_class(res$plot, "ggplot")
+})
+
+test_that("cooksd derives its thresholds from the outlier factors and sample size", {
+  d <- data.frame(x = 1:15, y = c(11, 2:14, 55))
+
+  res <- cooksd(lm(y ~ x, d))
+  custom <- cooksd(lm(y ~ x, d), limit_inf_num = 1, limit_sup_num = 100)
+
+  expect_equal(res$limit, c(inf = 4 / 15, sup = 25 / 15))
+  expect_equal(custom$limit, c(inf = 1 / 15, sup = 100 / 15))
+})
+
+test_that("cooksd flags more observations at the inf threshold than at the sup threshold", {
+  d <- data.frame(x = 1:15, y = c(11, 2:14, 55))
+
+  res <- cooksd(lm(y ~ x, d))
+
+  expect_setequal(res$obs$inf$id, c("1", "15"))
+  expect_setequal(res$obs$sup$id, "15")
+  expect_contains(res$obs$inf$id, res$obs$sup$id)
+})
+
+test_that("cooksd reports no outliers on a well-behaved model", {
+  d <- data.frame(x = 1:15, y = 1:15 + rep(c(0.1, -0.1), length.out = 15))
+
+  res <- cooksd(lm(y ~ x, d))
+
+  expect_length(res$obs$inf$id, 0)
+  expect_length(res$obs$sup$id, 0)
+})
+
+
+test_that("easy_replace builds a named vector of HTML-wrapping regex patterns", {
+  res <- easy_replace("age", "sex")
+
+  expect_type(res, "character")
+  expect_length(res, 3)
+  expect_named(
+    res,
+    c("<p>.*(age).*</p>", "<p>.*(sex).*</p>", "(\n*</>)+\n*")
+  )
+  expect_equal(unname(res[1:2]), c("</>", "</>"))
+})
+
+test_that("easy_replace honors a custom replacement token", {
+  res <- easy_replace("age", replace = "[X]")
+
+  expect_named(res, c("<p>.*(age).*</p>", "(\n*[X])+\n*"))
+  expect_equal(unname(res[["<p>.*(age).*</p>"]]), "[X]")
+})
+
+test_that("easy_recode splits named dots into parallel name and label vectors", {
+  res <- easy_recode(c(a = "Label A"), c(b = "Label B", c = "Label C"))
+
+  expect_named(res, c("name", "label"))
+  expect_equal(res$name, c("a", "b", "c"))
+  expect_equal(res$label, c("Label A", "Label B", "Label C"))
+})
+
+test_that("label_p returns a formatter rendering proportions as percentages", {
+  withr::local_options(OutDec = ".")
+  fmt <- label_p()
+
+  expect_type(fmt, "closure")
+  expect_equal(fmt(0.123), "12.3%")
+  expect_equal(fmt(c(0.5, 0.05)), c("50.0%", "5.0%"))
+})
+
+test_that("label_p decimal mark follows a comma OutDec option", {
+  withr::local_options(OutDec = ",")
+
+  expect_equal(label_p()(0.123), "12,3%")
+})
+
+test_that("read_png reads a PNG file into a raster grob", {
+  skip_if_not_installed("png")
+
+  dir <- withr::local_tempdir()
+  png::writePNG(
+    array(0.5, dim = c(4, 4, 3)),
+    target = file.path(dir, "img.png")
+  )
+
+  res <- read_png("img", dir = dir)
+
+  expect_s3_class(res, "rastergrob")
+})
+
+test_that("wb_add_custom returns a workbook carrying the requested sheet", {
+  skip_if_not_installed("openxlsx2")
+
+  d <- data.frame(concept = c("A", "B"), text = c("x", "y"))
+
+  res <- wb_add_custom(openxlsx2::wb_workbook(), sheet = "Custom", data = d)
+
+  expect_s3_class(res, "wbWorkbook")
+  expect_equal(unname(res$get_sheet_names()), "Custom")
+})
+
+test_that("wb_add_custom applies the concept and text font branches", {
+  skip_if_not_installed("openxlsx2")
+
+  d <- data.frame(concept = c("A", "B"), text = c("x", "y"))
+
+  expect_no_error(
+    wb_add_custom(
+      openxlsx2::wb_workbook(),
+      sheet = "Custom",
+      data = d,
+      concept_var = "concept",
+      concept_color = "#FF0000",
+      text_var = "text",
+      text_color = "#00FF00"
+    )
+  )
+})
+
+test_that("logit_lty returns a tidied quantile model and a ggplot", {
+  df <- data.frame(
+    xv = seq_len(200),
+    yv = factor(rep(c("no", "yes"), 100))
+  )
+
+  res <- logit_lty(df, yv, xv, breaks = 4)
+
+  expect_s3_class(res$model, "tbl_df")
+  expect_named(
+    res$model,
+    c("term", "estimate", "conf.low", "conf.high", "p.value")
+  )
+  expect_equal(nrow(res$model), 4)
+  expect_s3_class(res$plot, "ggplot")
+})
