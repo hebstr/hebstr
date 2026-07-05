@@ -7,7 +7,7 @@
 gt_qmd(
   data,
   top_n = NULL,
-  font_family = "luciole",
+  font_family = .text_font(),
   font_size = 15,
   id = "tbl-id",
   ...
@@ -19,7 +19,10 @@ gt_qmd(
 \item{top_n}{If not \code{NULL}, a positive integer passed to \code{\link[gt:gt_preview]{gt::gt_preview()}}
 to display only the first \code{top_n} rows.}
 
-\item{font_family}{Font family name. Defaults to \code{"luciole"}.}
+\item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
+been called, defaults to the centralised text font (\code{opts$font$alpha});
+otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+(\code{"sans"}) when Luciole is unavailable.}
 
 \item{font_size}{Font size in pixels. Defaults to \code{15}.}
 

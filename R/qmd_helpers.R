@@ -6,7 +6,10 @@
 #' @param data A `data.frame` or `gtsummary` object.
 #' @param top_n If not `NULL`, a positive integer passed to [gt::gt_preview()]
 #'   to display only the first `top_n` rows.
-#' @param font_family Font family name. Defaults to `"luciole"`.
+#' @param font_family Font family for the table's text. When [set_opts()] has
+#'   been called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
+#'   (`"sans"`) when Luciole is unavailable.
 #' @param font_size Font size in pixels. Defaults to `15`.
 #' @param id HTML id attribute for the table. Defaults to `"tbl-id"`.
 #' @param ... Additional arguments passed to [gt::tab_options()].
@@ -21,7 +24,7 @@
 gt_qmd <- \(
   data,
   top_n = NULL,
-  font_family = "luciole",
+  font_family = .text_font(),
   font_size = 15,
   id = "tbl-id",
   ...

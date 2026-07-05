@@ -46,6 +46,17 @@ test_that("gt_qmd() applies custom font and size", {
   expect_equal(size, "20px")
 })
 
+test_that("gt_qmd() default font_family reads the centralised text font", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
+
+  result <- gt_qmd(head(mtcars, 3))
+  opts_tbl <- result[["_options"]]
+  font <- opts_tbl[opts_tbl$parameter == "table_font_names", "value"][[1]][[1]]
+
+  expect_identical(font, "PinnedAlpha")
+})
+
 test_that("gt_qmd() errors on invalid data input", {
   expect_error(gt_qmd("not a df"), class = "rlang_error")
   expect_error(gt_qmd(42), class = "rlang_error")

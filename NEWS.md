@@ -11,3 +11,11 @@ Package state no longer touches the user's workspace. Options and the variable c
 ## New features
 
 * `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
+
+## Bug fixes
+
+* `p_shortenr()` decides the `<` prefix on the raw p-value instead of the rounded one, so a value that only rounds up to the threshold is no longer flagged as below it (e.g. `0.0011` prints as `0.001`, not `<0.001`).
+* `logit_lty()` errors early when the outcome is not a two-level factor, instead of silently returning an empty `$data`.
+* `fct_other_str()` no longer emits a leading separator when no level falls below the minimum count.
+* `add_label()` locates the insertion point with an exact name match, fixing a misplaced label when one variable name is a substring of another (e.g. `age` next to `age_group`).
+* `merge_estim_ci(keep = TRUE)` returns the original numeric estimate and confidence-interval columns as documented, instead of their formatted character versions.
