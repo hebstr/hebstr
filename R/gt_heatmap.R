@@ -82,6 +82,7 @@ gt_heatmap <- \(
     data |>
     pivot_longer(cols = where(is.numeric)) |>
     pull(value) |>
+    abs() |>
     max(na.rm = TRUE)
 
   data |>

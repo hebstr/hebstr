@@ -26,7 +26,6 @@ utils::globalVariables(c(
   "n",
   "n_miss",
   "name",
-  "opts",
   "outliers",
   "p",
   "p.value",
@@ -45,7 +44,6 @@ utils::globalVariables(c(
   "type",
   "value",
   "variable",
-  ".vars_context",
   "font",
   "parametric",
   "sep"

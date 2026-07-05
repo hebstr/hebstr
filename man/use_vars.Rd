@@ -16,14 +16,14 @@ parametric/non-parametric split. Defaults to the \code{parametric} option.}
 }
 \value{
 \code{data}, unchanged (for use in a pipe). Called for its side effect of
-setting \code{.vars_context} in the global environment.
+caching the variable classification in the package's internal store.
 }
 \description{
-Classifies the variables of \code{data} with \code{\link[=easy_descr]{easy_descr()}} and stores the result
-in a \code{.vars_context} object in the global environment. The deferred
-\code{opts$vars} statistic, test, and label formulas built by \code{\link[=set_opts]{set_opts()}} resolve
-against this cached classification, so \code{use_vars()} must run on a dataset
-before those formulas are evaluated. Pipe-friendly: returns \code{data} unchanged.
+Classifies the variables of \code{data} with \code{\link[=easy_descr]{easy_descr()}} and caches the result
+in the package's internal store. The deferred \code{opts$vars} statistic, test, and
+label formulas built by \code{\link[=set_opts]{set_opts()}} resolve against this cached
+classification, so \code{use_vars()} must run on a dataset before those formulas are
+evaluated. Pipe-friendly: returns \code{data} unchanged.
 }
 \examples{
 set_opts()
@@ -37,6 +37,7 @@ clear_vars()
 Other configuration:
 \code{\link[=check_opts]{check_opts()}},
 \code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=get_opts]{get_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=set_opts]{set_opts()}}
 }

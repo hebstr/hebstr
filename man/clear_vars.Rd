@@ -4,18 +4,14 @@
 \alias{clear_vars}
 \title{Remove the cached variable classification}
 \usage{
-clear_vars(env = ".vars_context")
-}
-\arguments{
-\item{env}{Name of the object to remove from the global environment.
-Defaults to \code{".vars_context"}.}
+clear_vars()
 }
 \value{
 Called for its side effect (invisible \code{NULL}).
 }
 \description{
-Removes the \code{.vars_context} object created by \code{\link[=use_vars]{use_vars()}} from the global
-environment. No-op when the object is absent.
+Removes the variable classification cached by \code{\link[=use_vars]{use_vars()}} from the package's
+internal store. No-op when the cache is absent.
 }
 \examples{
 set_opts()
@@ -28,6 +24,7 @@ clear_vars()
 
 Other configuration:
 \code{\link[=check_opts]{check_opts()}},
+\code{\link[=get_opts]{get_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=set_opts]{set_opts()}},
 \code{\link[=use_vars]{use_vars()}}

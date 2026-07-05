@@ -35,6 +35,7 @@ withr::with_options(list(OutDec = "."), {
 Other configuration:
 \code{\link[=check_opts]{check_opts()}},
 \code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=get_opts]{get_opts()}},
 \code{\link[=set_opts]{set_opts()}},
 \code{\link[=use_vars]{use_vars()}}
 }

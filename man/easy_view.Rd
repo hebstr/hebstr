@@ -6,19 +6,15 @@
 \usage{
 easy_view(
   x,
-  name = NULL,
   font_size = "0.8rem",
   font_family = .text_font(),
   level_sep = " ; ",
   strip_color = set_opts(.assign = FALSE)$color$cold[1],
-  assign = FALSE,
   ...
 )
 }
 \arguments{
 \item{x}{arg}
-
-\item{name}{arg}
 
 \item{font_size}{arg}
 
@@ -30,8 +26,6 @@ otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 \item{level_sep}{arg}
 
 \item{strip_color}{arg}
-
-\item{assign}{arg}
 
 \item{...}{arg}
 }

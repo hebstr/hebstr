@@ -39,8 +39,8 @@ test_that("gt_heatmap still returns a table when color is disabled", {
 })
 
 test_that("gt_heatmap default font_family reads the centralised text font", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
 
   df <- data.frame(cat = c("a", "b", "c"), x = c(1, 2, 3), y = c(2, 4, 6))
 

@@ -239,3 +239,7 @@
 #' @importFrom withr local_options
 ## usethis namespace: end
 NULL
+
+# Internal package store: holds mutable state (options object, variable
+# classification cache) that must never leak into the user's workspace.
+.hebstr <- new.env(parent = emptyenv())

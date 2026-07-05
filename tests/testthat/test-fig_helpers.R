@@ -16,10 +16,22 @@ test_that("ggcount() builds a bar layer for a valid column", {
   expect_equal(sort(built$data[[1]]$count), c(2, 3, 5))
 })
 
+test_that("ggcount() percentage layer drops levels below pct_min", {
+  skip_if_not_installed("ggplot2")
+
+  d <- data.frame(class = rep(c("a", "b", "rare"), c(50, 45, 2)))
+
+  built <- ggplot2::ggplot_build(ggcount(d, "class"))
+
+  expect_equal(sort(built$data[[2]]$count), c(2, 45, 50))
+  expect_equal(sort(built$data[[3]]$count), c(45, 50))
+  expect_setequal(built$data[[3]]$label, c("51.5%", "46.4%"))
+})
+
 test_that("ggcount() default family reads the centralised text font", {
   skip_if_not_installed("ggplot2")
-  withr::defer(rm(list = "opts", envir = globalenv()))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
 
   d <- data.frame(class = rep(c("a", "b", "c"), c(5, 3, 2)))
 

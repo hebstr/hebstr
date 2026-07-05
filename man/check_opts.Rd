@@ -12,18 +12,19 @@ object, e.g. \code{sep$ext}, \code{acro}, or \code{font$alpha}. The root name (\
 \code{acro}, \code{font}, ...) is validated against the keys of the options object; an
 unknown root aborts.}
 
-\item{.name}{Name under which the options object is stored in the global
-environment, as set by \code{\link[=set_opts]{set_opts()}}. Defaults to \code{"opts"}.}
+\item{.name}{Name under which the options object is stored in the package's
+internal store, as set by \code{\link[=set_opts]{set_opts()}}. Defaults to \code{"opts"}.}
 }
 \value{
 The value stored at the requested key of the options object.
 }
 \description{
 Reader companion to \code{\link[=set_opts]{set_opts()}}: retrieves a value from the centralised
-options object stored in the global environment, validating that the object
-exists and that the requested key is one of its keys. Used as the default for
-arguments across the package (e.g. \code{acro_list = check_opts(acro)}), and
-available for direct inspection of the active options.
+options object stored in the package's internal store, validating that the
+object exists and that the requested key is one of its keys. Used as the
+default for arguments across the package (e.g. \code{acro_list = check_opts(acro)}),
+and available for direct inspection of a single option key. To read the whole
+object, use \code{\link[=get_opts]{get_opts()}}.
 }
 \examples{
 set_opts()
@@ -31,10 +32,11 @@ check_opts(sep$ext)
 
 }
 \seealso{
-\code{\link[=set_opts]{set_opts()}}, \code{\link[=use_vars]{use_vars()}}, \code{\link[=lang_fr]{lang_fr()}}
+\code{\link[=set_opts]{set_opts()}}, \code{\link[=get_opts]{get_opts()}}, \code{\link[=use_vars]{use_vars()}}, \code{\link[=lang_fr]{lang_fr()}}
 
 Other configuration:
 \code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=get_opts]{get_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=set_opts]{set_opts()}},
 \code{\link[=use_vars]{use_vars()}}

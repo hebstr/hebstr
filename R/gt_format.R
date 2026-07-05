@@ -75,7 +75,7 @@ gt_format <- \(
     map(~ x$table_body[[.x]]) |>
     unlist()
 
-  .acro <- acro_extract(c(style, body, names(x)), acro_list)
+  .acro <- acro_extract(c(style, body), acro_list)
 
   x <-
     x$table_styling$abbreviation |>
@@ -144,6 +144,15 @@ gt_format <- \(
   }
 
   if (!is_coef && !is.null(note_vargrp)) {
+    if (is.null(label_vargrp)) {
+      cli_abort(
+        c(
+          "{.arg note_vargrp} needs {.arg label_vargrp} to anchor the footnote.",
+          i = "Name the targeted variable(s) in {.arg label_vargrp}."
+        )
+      )
+    }
+
     x <- tab_footnote(
       x,
       footnote = note_vargrp,

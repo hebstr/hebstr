@@ -1,7 +1,6 @@
 #' Title
 #'
 #' @param x arg
-#' @param name arg
 #' @param font_size arg
 #' @param font_family Font family for the explorer's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
@@ -9,7 +8,6 @@
 #'   (`"sans"`) when Luciole is unavailable.
 #' @param level_sep arg
 #' @param strip_color arg
-#' @param assign arg
 #' @param ... arg
 #'
 #' @return arg
@@ -19,18 +17,12 @@
 #'
 easy_view <- \(
   x,
-  name = NULL,
   font_size = "0.8rem",
   font_family = .text_font(),
   level_sep = " ; ",
   strip_color = set_opts(.assign = FALSE)$color$cold[1],
-  assign = FALSE,
   ...
 ) {
-  if (is.null(name)) {
-    name <- enexpr(x)
-  }
-
   set_cols <- \(y, vars, fn, name) {
     vars <- enexprs(vars)
     fn <- enexpr(fn)
@@ -122,10 +114,6 @@ easy_view <- \(
           ...
         )
     )
-
-  if (assign) {
-    assign(glue("{name}_view"), .view, envir = .GlobalEnv)
-  }
 
   return(.view)
 }

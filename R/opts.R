@@ -46,11 +46,11 @@ lang_fr <- \(reset = FALSE) {
 
 #' Cache a dataset's variable classification for `opts$vars`
 #'
-#' Classifies the variables of `data` with [easy_descr()] and stores the result
-#' in a `.vars_context` object in the global environment. The deferred
-#' `opts$vars` statistic, test, and label formulas built by [set_opts()] resolve
-#' against this cached classification, so `use_vars()` must run on a dataset
-#' before those formulas are evaluated. Pipe-friendly: returns `data` unchanged.
+#' Classifies the variables of `data` with [easy_descr()] and caches the result
+#' in the package's internal store. The deferred `opts$vars` statistic, test, and
+#' label formulas built by [set_opts()] resolve against this cached
+#' classification, so `use_vars()` must run on a dataset before those formulas are
+#' evaluated. Pipe-friendly: returns `data` unchanged.
 #'
 #' @param data A data frame whose variables are to be classified.
 #' @param .parametric Passed to [easy_descr()] to control the
@@ -58,7 +58,7 @@ lang_fr <- \(reset = FALSE) {
 #' @param ... Passed on to [easy_descr()].
 #'
 #' @returns `data`, unchanged (for use in a pipe). Called for its side effect of
-#'   setting `.vars_context` in the global environment.
+#'   caching the variable classification in the package's internal store.
 #' @export
 #'
 #' @family configuration
@@ -71,20 +71,17 @@ lang_fr <- \(reset = FALSE) {
 #' clear_vars()
 #'
 use_vars <- \(data, .parametric = check_opts(parametric), ...) {
-  assign(".vars_context", new.env(parent = emptyenv()), envir = globalenv())
+  .hebstr$.vars_context <- new.env(parent = emptyenv())
 
-  .vars_context$current <- easy_descr(data, .parametric, ...)
+  .hebstr$.vars_context$current <- easy_descr(data, .parametric, ...)
 
   return(data)
 }
 
 #' Remove the cached variable classification
 #'
-#' Removes the `.vars_context` object created by [use_vars()] from the global
-#' environment. No-op when the object is absent.
-#'
-#' @param env Name of the object to remove from the global environment.
-#'   Defaults to `".vars_context"`.
+#' Removes the variable classification cached by [use_vars()] from the package's
+#' internal store. No-op when the cache is absent.
 #'
 #' @returns Called for its side effect (invisible `NULL`).
 #' @export
@@ -98,8 +95,10 @@ use_vars <- \(data, .parametric = check_opts(parametric), ...) {
 #' use_vars(mtcars)
 #' clear_vars()
 #'
-clear_vars <- \(env = ".vars_context") {
-  if (exists(env, envir = globalenv())) rm(list = env, envir = globalenv())
+clear_vars <- \() {
+  if (exists(".vars_context", envir = .hebstr, inherits = FALSE)) {
+    rm(list = ".vars_context", envir = .hebstr)
+  }
 }
 
 
@@ -109,8 +108,9 @@ clear_vars <- \(env = ".vars_context") {
 #' templates, table labels, separators, confidence-interval formatting, acronym
 #' dictionary, fonts, and colours. Labels and formats follow the locale set by
 #' [lang_fr()] (comma decimal mark selects French wording). The result is either
-#' assigned to a named object in the global environment (the default) or returned
-#' for inspection. Keys can be overridden through `...`.
+#' stored under a name in the package's internal store (the default), from where
+#' [check_opts()] and [get_opts()] read it, or returned for inspection. Keys can
+#' be overridden through `...`.
 #'
 #' @param .default_font Font family used for both the text (`alpha`) and numeric
 #'   (`digit`) font slots unless overridden through `font`. Passed through
@@ -120,15 +120,15 @@ clear_vars <- \(env = ".vars_context") {
 #'   [easy_descr()]) used to resolve the deferred `opts$vars` formulas. When
 #'   `NULL` (default), the formulas resolve against the `.vars_context` cached by
 #'   [use_vars()] at evaluation time.
-#' @param .assign Logical. If `TRUE` (default), the options object is assigned to
-#'   `.name` in the global environment; if `FALSE`, it is returned.
+#' @param .assign Logical. If `TRUE` (default), the options object is stored under
+#'   `.name` in the package's internal store; if `FALSE`, it is returned.
 #' @param .name Name under which the options object is stored in, and retrieved
-#'   from, the global environment. Defaults to `"opts"`.
+#'   from, the package's internal store. Defaults to `"opts"`.
 #' @param ... Named overrides for any option key. Names are validated against the
 #'   set of valid keys; an unknown name aborts.
 #'
-#' @returns The options list. With `.assign = TRUE` (default) it is also assigned
-#'   to `.name` in the global environment.
+#' @returns The options list. With `.assign = TRUE` (default) it is also stored
+#'   under `.name` in the package's internal store.
 #'
 #' @export
 #'
@@ -152,9 +152,9 @@ set_opts <- \(
       ...length() == 0L &&
       missing(.default_font) &&
       is.null(.vars_envir) &&
-      exists(.name, envir = .GlobalEnv)
+      exists(.name, envir = .hebstr, inherits = FALSE)
   ) {
-    return(get(.name, envir = .GlobalEnv))
+    return(get(.name, envir = .hebstr, inherits = FALSE))
   }
 
   dots <- lst(...)
@@ -166,10 +166,10 @@ set_opts <- \(
       return(user_vars_envir)
     }
     if (
-      exists(".vars_context", envir = globalenv()) &&
-        !is.null(get(".vars_context", envir = globalenv())$current)
+      exists(".vars_context", envir = .hebstr, inherits = FALSE) &&
+        !is.null(.hebstr$.vars_context$current)
     ) {
-      last_seen_envir <<- get(".vars_context", envir = globalenv())$current
+      last_seen_envir <<- .hebstr$.vars_context$current
       return(last_seen_envir)
     }
     if (!is.null(last_seen_envir)) {
@@ -337,7 +337,7 @@ set_opts <- \(
   opts$font <- .font(opts$font)
 
   if (.assign) {
-    assign(.name, opts, envir = .GlobalEnv)
+    assign(.name, opts, envir = .hebstr)
   } else {
     return(opts)
   }
@@ -347,17 +347,18 @@ set_opts <- \(
 #' Read a validated key from the package options
 #'
 #' Reader companion to [set_opts()]: retrieves a value from the centralised
-#' options object stored in the global environment, validating that the object
-#' exists and that the requested key is one of its keys. Used as the default for
-#' arguments across the package (e.g. `acro_list = check_opts(acro)`), and
-#' available for direct inspection of the active options.
+#' options object stored in the package's internal store, validating that the
+#' object exists and that the requested key is one of its keys. Used as the
+#' default for arguments across the package (e.g. `acro_list = check_opts(acro)`),
+#' and available for direct inspection of a single option key. To read the whole
+#' object, use [get_opts()].
 #'
 #' @param x An option key given as an unquoted expression navigating the options
 #'   object, e.g. `sep$ext`, `acro`, or `font$alpha`. The root name (`sep`,
 #'   `acro`, `font`, ...) is validated against the keys of the options object; an
 #'   unknown root aborts.
-#' @param .name Name under which the options object is stored in the global
-#'   environment, as set by [set_opts()]. Defaults to `"opts"`.
+#' @param .name Name under which the options object is stored in the package's
+#'   internal store, as set by [set_opts()]. Defaults to `"opts"`.
 #'
 #' @returns The value stored at the requested key of the options object.
 #'
@@ -365,23 +366,23 @@ set_opts <- \(
 #'
 #' @family configuration
 #'
-#' @seealso [set_opts()], [use_vars()], [lang_fr()]
+#' @seealso [set_opts()], [get_opts()], [use_vars()], [lang_fr()]
 #'
 #' @examples
 #' set_opts()
 #' check_opts(sep$ext)
 #'
 check_opts <- \(x, .name = "opts") {
-  if (!exists(.name, envir = .GlobalEnv, inherits = FALSE)) {
+  if (!exists(.name, envir = .hebstr, inherits = FALSE)) {
     cli_abort(
       c(
-        "{.strong { .name }} does not exist in the global environment.",
+        "{.strong { .name }} does not exist.",
         i = "Create it with {.fun set_opts}."
       )
     )
   }
 
-  opts <- get(.name, envir = .GlobalEnv, inherits = FALSE)
+  opts <- get(.name, envir = .hebstr, inherits = FALSE)
   key <- enexpr(x)
 
   root <- key
@@ -399,4 +400,41 @@ check_opts <- \(x, .name = "opts") {
   }
 
   eval(key, opts)
+}
+
+
+#' Read the whole package options object
+#'
+#' Reader companion to [set_opts()] returning the complete options object held in
+#' the package's internal store, validating that it exists. Where [check_opts()]
+#' extracts and validates a single key, `get_opts()` restores the console
+#' inspection of the whole object that the internal store keeps out of the user's
+#' workspace.
+#'
+#' @param .name Name under which the options object is stored in the package's
+#'   internal store, as set by [set_opts()]. Defaults to `"opts"`.
+#'
+#' @returns The options list stored under `.name`.
+#'
+#' @export
+#'
+#' @family configuration
+#'
+#' @seealso [set_opts()], [check_opts()], [use_vars()], [lang_fr()]
+#'
+#' @examples
+#' set_opts()
+#' get_opts()
+#'
+get_opts <- \(.name = "opts") {
+  if (!exists(.name, envir = .hebstr, inherits = FALSE)) {
+    cli_abort(
+      c(
+        "{.strong { .name }} does not exist.",
+        i = "Create it with {.fun set_opts}."
+      )
+    )
+  }
+
+  get(.name, envir = .hebstr, inherits = FALSE)
 }

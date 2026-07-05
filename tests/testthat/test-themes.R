@@ -1,7 +1,7 @@
 .make_gt <- \() gt::gt(head(mtcars))
 
 test_that("theme_gt() applies style refinements by default", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   themed <- theme_gt(.make_gt())
@@ -10,7 +10,7 @@ test_that("theme_gt() applies style refinements by default", {
 })
 
 test_that("theme_gt() skips style refinements when options(theme_gt.docx = TRUE)", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(theme_gt.docx = TRUE)
 
@@ -20,7 +20,7 @@ test_that("theme_gt() skips style refinements when options(theme_gt.docx = TRUE)
 })
 
 test_that("theme_gt() docx argument overrides the option", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(theme_gt.docx = TRUE)
 
@@ -30,7 +30,10 @@ test_that("theme_gt() docx argument overrides the option", {
 })
 
 test_that("theme_gt() ignores a global object named docx", {
-  withr::defer(rm(list = c("opts", "docx"), envir = globalenv()))
+  withr::defer({
+    rm(list = "opts", envir = .hebstr)
+    rm(list = "docx", envir = globalenv())
+  })
   set_opts()
   assign("docx", TRUE, envir = globalenv())
 
@@ -40,17 +43,16 @@ test_that("theme_gt() ignores a global object named docx", {
 })
 
 test_that("theme_gt() aborts on a non-boolean docx", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   expect_error(theme_gt(.make_gt(), docx = "yes"), "docx")
 })
 
 test_that("theme_gt() applies the alpha font to the table and the digit font to numeric cells", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
-  opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
-  assign("opts", opts, envir = globalenv())
+  .hebstr$opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
 
   themed <- theme_gt(gt::gt(data.frame(label = "a", stat = "1.0")))
 
@@ -64,6 +66,14 @@ test_that("theme_gt() applies the alpha font to the table and the digit font to 
 
   expect_identical(table_font[[1]], "AlphaFace")
   expect_true("DigitFace" %in% digit_fonts)
+})
+
+test_that("theme_gt() aborts when opts does not exist (deliberately strict)", {
+  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
+    rm(list = "opts", envir = .hebstr)
+  }
+
+  expect_error(theme_gt(.make_gt()), "does not exist")
 })
 
 test_that("theme_bar() returns a theme honoring legend_position", {
@@ -152,23 +162,23 @@ test_that("check_fonts() falls back to the OS-agnostic 'sans' family", {
 })
 
 test_that(".text_font() reads the centralised text font when opts exists", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
 
   expect_identical(.text_font(), "PinnedAlpha")
 })
 
 test_that(".text_font() falls back to check_fonts(luciole) when opts is absent", {
-  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
-    rm(list = "opts", envir = globalenv())
+  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
+    rm(list = "opts", envir = .hebstr)
   }
 
   expect_identical(.text_font(), check_fonts(.auto = "luciole"))
 })
 
 test_that(".text_font() resolves to 'sans' when opts absent and Luciole missing", {
-  if (exists("opts", envir = globalenv(), inherits = FALSE)) {
-    rm(list = "opts", envir = globalenv())
+  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
+    rm(list = "opts", envir = .hebstr)
   }
   local_mocked_bindings(
     system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
@@ -179,8 +189,8 @@ test_that(".text_font() resolves to 'sans' when opts absent and Luciole missing"
 })
 
 test_that("theme_*() default family reads opts$font$alpha", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = globalenv())
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
 
   expect_identical(theme_bar()$text$family, "PinnedAlpha")
 })

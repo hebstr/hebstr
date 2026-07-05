@@ -11,7 +11,7 @@
 }
 
 test_that("gt_format() renders a summary (non-coefficient) table to gt_tbl", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   res <- gt_format(gtsum_format(.make_summary_tbl()))
@@ -20,7 +20,7 @@ test_that("gt_format() renders a summary (non-coefficient) table to gt_tbl", {
 })
 
 test_that("gt_format() attaches note_global as a footnote on a summary table", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   res <- gt_format(
@@ -35,7 +35,7 @@ test_that("gt_format() attaches note_global as a footnote on a summary table", {
 })
 
 test_that("gt_format() attaches note_vargrp to the targeted variable group", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   res <- gt_format(
@@ -50,8 +50,18 @@ test_that("gt_format() attaches note_vargrp to the targeted variable group", {
   expect_true("age" %in% res[["_data"]]$variable[footnotes$rownum])
 })
 
+test_that("gt_format() aborts when note_vargrp is set without label_vargrp", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  expect_error(
+    gt_format(gtsum_format(.make_summary_tbl()), note_vargrp = "orphan"),
+    "label_vargrp"
+  )
+})
+
 test_that("gt_format() appends acronym definitions from acro_list as a footnote", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   df <- data.frame(
@@ -73,7 +83,7 @@ test_that("gt_format() appends acronym definitions from acro_list as a footnote"
 })
 
 test_that("gt_format() sets the table title from `title`", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   res <- gt_format(gtsum_format(.make_summary_tbl()), title = "My Title")
@@ -82,7 +92,7 @@ test_that("gt_format() sets the table title from `title`", {
 })
 
 test_that("gt_format() registers a value substitution when zero_replace is set, none when NULL", {
-  withr::defer(rm(list = "opts", envir = globalenv()))
+  withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   tbl <- .make_summary_tbl()

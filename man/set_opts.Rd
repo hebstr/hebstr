@@ -23,26 +23,27 @@ system sans-serif (\code{"sans"}). Defaults to \code{"sans"}.}
 \code{NULL} (default), the formulas resolve against the \code{.vars_context} cached by
 \code{\link[=use_vars]{use_vars()}} at evaluation time.}
 
-\item{.assign}{Logical. If \code{TRUE} (default), the options object is assigned to
-\code{.name} in the global environment; if \code{FALSE}, it is returned.}
+\item{.assign}{Logical. If \code{TRUE} (default), the options object is stored under
+\code{.name} in the package's internal store; if \code{FALSE}, it is returned.}
 
 \item{.name}{Name under which the options object is stored in, and retrieved
-from, the global environment. Defaults to \code{"opts"}.}
+from, the package's internal store. Defaults to \code{"opts"}.}
 
 \item{...}{Named overrides for any option key. Names are validated against the
 set of valid keys; an unknown name aborts.}
 }
 \value{
-The options list. With \code{.assign = TRUE} (default) it is also assigned
-to \code{.name} in the global environment.
+The options list. With \code{.assign = TRUE} (default) it is also stored
+under \code{.name} in the package's internal store.
 }
 \description{
 Assembles the centralised options list consumed across the package: statistic
 templates, table labels, separators, confidence-interval formatting, acronym
 dictionary, fonts, and colours. Labels and formats follow the locale set by
 \code{\link[=lang_fr]{lang_fr()}} (comma decimal mark selects French wording). The result is either
-assigned to a named object in the global environment (the default) or returned
-for inspection. Keys can be overridden through \code{...}.
+stored under a name in the package's internal store (the default), from where
+\code{\link[=check_opts]{check_opts()}} and \code{\link[=get_opts]{get_opts()}} read it, or returned for inspection. Keys can
+be overridden through \code{...}.
 }
 \examples{
 opts <- set_opts(.assign = FALSE)
@@ -55,6 +56,7 @@ opts$sep$ext
 Other configuration:
 \code{\link[=check_opts]{check_opts()}},
 \code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=get_opts]{get_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=use_vars]{use_vars()}}
 }

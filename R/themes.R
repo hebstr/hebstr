@@ -51,7 +51,7 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 
 
 .text_font <- \() {
-  if (exists("opts", envir = .GlobalEnv, inherits = FALSE)) {
+  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
     check_opts(font$alpha)
   } else {
     check_fonts(.auto = "luciole")
