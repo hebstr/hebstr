@@ -2,24 +2,28 @@
 % Please edit documentation in R/tab_helpers.R
 \name{quanti.test.para}
 \alias{quanti.test.para}
-\title{Title}
+\title{Parametric test for a numeric variable across groups}
 \usage{
 quanti.test.para(data, variable, by, ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame holding \code{variable} and \code{by}.}
 
-\item{variable}{arg}
+\item{variable}{String naming the numeric column to test.}
 
-\item{by}{arg}
+\item{by}{String naming the grouping column.}
 
-\item{...}{arg}
+\item{...}{Unused; accepted for compatibility with the gtsummary custom-test
+interface.}
 }
 \value{
-arg
+A one-row tibble from \code{\link[broom:tidy]{broom::tidy()}} with the test statistics and
+p-value.
 }
 \description{
-Title
+Custom test compatible with the gtsummary \code{add_p()} interface. Runs a
+Student t-test when \code{by} has two levels and a one-way ANOVA otherwise, both
+assuming equal variances.
 }
 \examples{
 "arg"

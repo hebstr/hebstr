@@ -2,22 +2,23 @@
 % Please edit documentation in R/tab_helpers.R
 \name{fct_str}
 \alias{fct_str}
-\title{Title}
+\title{Format factor counts as a single string}
 \usage{
 fct_str(x, sep, cap = TRUE)
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A factor or character vector to tabulate.}
 
-\item{sep}{arg}
+\item{sep}{Separator inserted between the \code{level [n]} entries.}
 
-\item{cap}{arg}
+\item{cap}{Whether to capitalize the first letter of the result.}
 }
 \value{
-arg
+A character string listing each level with its count.
 }
 \description{
-Title
+Counts the levels of \code{x} in decreasing frequency and flattens them into one
+string of \code{level [n]} entries.
 }
 \examples{
 "arg"

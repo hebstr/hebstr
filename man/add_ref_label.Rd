@@ -2,20 +2,22 @@
 % Please edit documentation in R/tab_helpers.R
 \name{add_ref_label}
 \alias{add_ref_label}
-\title{Title}
+\title{Display a reference marker on reference rows}
 \usage{
 add_ref_label(data, label = "Reference")
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A \code{gtsummary} regression table object.}
 
-\item{label}{arg}
+\item{label}{Symbol to display on the reference rows.}
 }
 \value{
-arg
+A \code{gtsummary} table with the reference marker displayed.
 }
 \description{
-Title
+Places a symbol in the estimate and confidence-interval columns of the
+reference rows via \code{\link[gtsummary:modify_missing_symbol]{gtsummary::modify_missing_symbol()}}. The numeric estimate
+column is left unchanged.
 }
 \examples{
 "arg"

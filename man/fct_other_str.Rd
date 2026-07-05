@@ -2,24 +2,26 @@
 % Please edit documentation in R/tab_helpers.R
 \name{fct_other_str}
 \alias{fct_other_str}
-\title{Title}
+\title{Format rare factor levels together with a companion vector}
 \usage{
 fct_other_str(fct, chr, min, sep = ", ")
 }
 \arguments{
-\item{fct}{arg}
+\item{fct}{A factor whose rare levels are listed.}
 
-\item{chr}{arg}
+\item{chr}{A factor or character vector appended via \code{\link[=fct_str]{fct_str()}}.}
 
-\item{min}{arg}
+\item{min}{Frequency threshold; levels of \code{fct} with fewer counts are listed.}
 
-\item{sep}{arg}
+\item{sep}{Separator passed to \code{\link[=fct_str]{fct_str()}} for the \code{chr} tally.}
 }
 \value{
-arg
+A character string combining the rare \code{fct} levels and the \code{chr}
+counts.
 }
 \description{
-Title
+Lists the levels of \code{fct} that fall below \code{min} (excluding \code{"Other"}) as
+\code{level (n)} entries, then appends the \code{\link[=fct_str]{fct_str()}} tally of \code{chr}.
 }
 \examples{
 "arg"

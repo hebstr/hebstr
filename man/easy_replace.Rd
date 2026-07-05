@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_helpers.R
 \name{easy_replace}
 \alias{easy_replace}
-\title{Title}
+\title{Build named regex replacements collapsing HTML paragraphs to a token}
 \usage{
 easy_replace(..., replace = "</>")
 }
@@ -15,7 +15,10 @@ easy_replace(..., replace = "</>")
 A named character vector
 }
 \description{
-Title
+For each input string, produces a regex that matches it inside an HTML
+paragraph and maps it to \code{replace}, then adds a rule collapsing runs of the
+token into a single coloured marker. The result feeds
+\code{\link[stringr:str_replace_all]{stringr::str_replace_all()}} as its \code{pattern}/\code{replacement} mapping.
 }
 \examples{
 "arg"

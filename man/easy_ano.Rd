@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_helpers.R
 \name{easy_ano}
 \alias{easy_ano}
-\title{Title}
+\title{Anonymize columns by hashing or masking}
 \usage{
 easy_ano(
   x,
@@ -14,23 +14,28 @@ easy_ano(
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A data frame to anonymize.}
 
-\item{to_hash}{arg}
+\item{to_hash}{Regex patterns matching, on full column names, the columns to
+hash.}
 
-\item{to_hide}{arg}
+\item{to_hide}{Regex patterns matching the columns to overwrite with
+\code{hide_pattern}.}
 
-\item{hash_trunc}{arg}
+\item{hash_trunc}{Number of trailing hash characters dropped from each hash.}
 
-\item{hash_salt}{arg}
+\item{hash_salt}{Optional salt string prepended to each value before
+hashing.}
 
-\item{hide_pattern}{arg}
+\item{hide_pattern}{Replacement string written into hidden columns.}
 }
 \value{
-arg
+\code{x} with the matched columns hashed and/or masked.
 }
 \description{
-Title
+Hashes selected columns with \code{\link[rlang:hash]{rlang::hash()}} (optionally salted, then
+truncated) and overwrites others with a fixed placeholder. Column selectors
+are regexes matched against full column names.
 }
 \examples{
 "arg"

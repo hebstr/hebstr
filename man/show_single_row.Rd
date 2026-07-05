@@ -2,20 +2,22 @@
 % Please edit documentation in R/tab_helpers.R
 \name{show_single_row}
 \alias{show_single_row}
-\title{Title}
+\title{Recode dichotomous variables to a single 0/1 indicator}
 \usage{
 show_single_row(data, exclude = names(data[, 1]))
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame to recode.}
 
-\item{exclude}{arg}
+\item{exclude}{Column name(s) to leave untouched; defaults to the first
+column.}
 }
 \value{
-arg
+The data frame with its dichotomous columns recoded to 0/1.
 }
 \description{
-Title
+Converts every two-level factor (except those excluded) to a 0/1 numeric
+indicator, so gtsummary can display each on a single row.
 }
 \examples{
 "arg"

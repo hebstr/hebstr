@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_gt}
 \alias{theme_gt}
-\title{Title}
+\title{Standardized GT table theme}
 \usage{
 theme_gt(
   x,
@@ -27,51 +27,59 @@ theme_gt(
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A \code{\link[gt:gt]{gt::gt()}} table object to style.}
 
-\item{width}{arg}
+\item{width}{Table width, in pixels. When \code{NULL}, the table uses its
+natural width.}
 
-\item{alpha}{arg}
+\item{alpha}{Font family for the table text.}
 
-\item{digit}{arg}
+\item{digit}{Font family applied to numeric columns (stats, estimates,
+p-values).}
 
-\item{base}{arg}
+\item{base}{Base color for text and body borders.}
 
-\item{color}{arg}
+\item{color}{Table background color, also used for the row-striping band.}
 
-\item{bg}{arg}
+\item{bg}{Background color for the heading, column labels, striping, and
+footnotes.}
 
-\item{row_padding}{arg}
+\item{row_padding}{Vertical padding of data rows, in pixels.}
 
-\item{title_align}{arg}
+\item{title_align}{Horizontal alignment of the heading (\code{"left"},
+\code{"center"}, or \code{"right"}).}
 
-\item{font_size}{arg}
+\item{font_size}{Base font size, in pixels.}
 
-\item{title_font_size}{arg}
+\item{title_font_size}{Heading title font size, in pixels.}
 
-\item{stat_font_size}{arg}
+\item{stat_font_size}{Font size of stat and estimate cells, in pixels.}
 
-\item{pvalue_font_size}{arg}
+\item{pvalue_font_size}{Font size of p-value cells, in pixels.}
 
-\item{row_strip}{arg}
+\item{row_strip}{Whether to color the striped rows. When \code{FALSE}, striping
+is made transparent.}
 
-\item{footnote_marks}{arg}
+\item{footnote_marks}{Footnote mark style passed to \code{\link[gt:tab_options]{gt::tab_options()}}
+(e.g. \code{"extended"}, \code{"standard"}, \code{"numbers"}).}
 
-\item{footnote_font_size}{arg}
+\item{footnote_font_size}{Footnote font size, in pixels.}
 
-\item{footnote_padding}{arg}
+\item{footnote_padding}{Footnote padding, in pixels.}
 
 \item{docx}{If \code{TRUE}, skip the style refinements (justified title and
 footnotes, digit font, reduced stat and p-value sizes) that render poorly
 in Word output. Defaults to \code{getOption("theme_gt.docx", FALSE)}.}
 
-\item{...}{arg}
+\item{...}{Additional options forwarded to \code{\link[gt:tab_options]{gt::tab_options()}}.}
 }
 \value{
-arg
+A \code{\link[gt:gt]{gt::gt()}} table object (\code{gt_tbl}).
 }
 \description{
-Title
+Applies the package's house style to a \code{\link[gt:gt]{gt::gt()}} table: fonts, borders,
+row striping, heading alignment, and footnote formatting. Numeric columns
+(stats, estimates, p-values) receive a dedicated font and reduced sizes.
 }
 \examples{
 "arg"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_pca}
 \alias{theme_pca}
-\title{Title}
+\title{PCA / ordination plot theme}
 \usage{
 theme_pca(family = .text_font(), ...)
 }
@@ -12,13 +12,14 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{...}{arg}
+\item{...}{Additional theme elements merged in via \verb{\%+replace\%}.}
 }
 \value{
-arg
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Title
+A minimal \code{\link[ggplot2:theme]{ggplot2::theme()}} for principal-component and other ordination
+plots: axis text, titles, and ticks are blanked, leaving a caption text box.
 }
 \examples{
 "arg"

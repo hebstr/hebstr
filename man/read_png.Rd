@@ -2,20 +2,20 @@
 % Please edit documentation in R/easy_helpers.R
 \name{read_png}
 \alias{read_png}
-\title{Title}
+\title{Read a PNG into a raster grob}
 \usage{
 read_png(file, dir = "output")
 }
 \arguments{
-\item{file}{arg}
+\item{file}{PNG file name without extension.}
 
-\item{dir}{arg}
+\item{dir}{Directory containing the file.}
 }
 \value{
-arg
+A \code{\link[grid:rasterGrob]{grid::rasterGrob()}} object.
 }
 \description{
-Title
+Read a PNG into a raster grob
 }
 \examples{
 "arg"

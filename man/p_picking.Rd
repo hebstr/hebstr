@@ -2,26 +2,27 @@
 % Please edit documentation in R/easy_helpers.R
 \name{p_picking}
 \alias{p_picking}
-\title{Title}
+\title{Select variables by univariate p-value threshold}
 \usage{
 p_picking(data, model, y, vars, pv)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame.}
 
-\item{model}{arg}
+\item{model}{A modelling function called via \code{\link[=do.call]{do.call()}} (e.g. \link[stats:glm]{stats::glm}).}
 
-\item{y}{arg}
+\item{y}{The outcome variable name, used in \code{\link[stats:reformulate]{stats::reformulate()}}.}
 
-\item{vars}{arg}
+\item{vars}{Candidate predictor variable names.}
 
-\item{pv}{arg}
+\item{pv}{The p-value threshold for retaining a variable.}
 }
 \value{
-arg
+A character vector of the variable names meeting the threshold.
 }
 \description{
-Title
+Fits \code{model} for each candidate variable against \code{y} and keeps those whose
+univariate p-value is at or below \code{pv}.
 }
 \examples{
 "arg"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_risktable}
 \alias{theme_risktable}
-\title{Title}
+\title{Risk-table theme for survival plots}
 \usage{
 theme_risktable(
   family = .text_font(),
@@ -19,21 +19,24 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{label_size}{arg}
+\item{label_size}{Font size of the y-axis (strata) labels, in points.}
 
-\item{title_size}{arg}
+\item{title_size}{Plot title font size, in points.}
 
-\item{title_margin}{arg}
+\item{title_margin}{Base size, in points, of the title margin (applied as a
+negative top and positive bottom offset).}
 
-\item{plot_margin}{arg}
+\item{plot_margin}{Base size, in points, of the plot margin (applied as a
+positive top and negative bottom offset).}
 
-\item{...}{arg}
+\item{...}{Additional elements passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
 \value{
-arg
+A list of ggplot2 theme components.
 }
 \description{
-Title
+Styles the risk table accompanying a time-to-event plot, layering package
+overrides on top of \code{theme_risktable_default()}.
 }
 \examples{
 "arg"

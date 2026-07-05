@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_blank}
 \alias{theme_blank}
-\title{Title}
+\title{Blank canvas theme}
 \usage{
 theme_blank(
   family = .text_font(),
@@ -20,23 +20,24 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{grid}{arg}
+\item{grid}{Whether to draw major horizontal grid lines and y-axis text.}
 
-\item{grid_color}{arg}
+\item{grid_color}{Color of the grid lines and y-axis text.}
 
-\item{grid_size}{arg}
+\item{grid_size}{Line width of the grid lines.}
 
-\item{axis_text_size_y}{arg}
+\item{axis_text_size_y}{Font size of the y-axis text, in points.}
 
-\item{legend_position}{arg}
+\item{legend_position}{Legend position passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 
-\item{...}{arg}
+\item{...}{Additional theme elements merged in via \verb{\%+replace\%}.}
 }
 \value{
-arg
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Title
+A \code{\link[ggplot2:theme_void]{ggplot2::theme_void()}}-based theme with a white background and textbox
+title and caption, optionally adding horizontal grid lines and y-axis text.
 }
 \examples{
 "arg"

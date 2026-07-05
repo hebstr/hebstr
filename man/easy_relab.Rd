@@ -2,7 +2,7 @@
 % Please edit documentation in R/tab_helpers.R
 \name{easy_relab}
 \alias{easy_relab}
-\title{Title}
+\title{Relabel reference rows in a gtsummary table}
 \usage{
 easy_relab(
   data,
@@ -14,23 +14,27 @@ easy_relab(
 )
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A \code{gtsummary} table object.}
 
-\item{var}{arg}
+\item{var}{Variable name(s) whose label is rewritten.}
 
-\item{new_lab}{arg}
+\item{new_lab}{Glue template for the base label; defaults to the existing
+variable label.}
 
-\item{ref_lab}{arg}
+\item{ref_lab}{Reference marker appended to the label.}
 
-\item{ref_level}{arg}
+\item{ref_level}{Reference level to display; defaults to the table's
+\code{reference_level}.}
 
-\item{tolower_level}{arg}
+\item{tolower_level}{Whether to lowercase \code{ref_level} before display.}
 }
 \value{
-arg
+A \code{gtsummary} table with the reference rows relabeled.
 }
 \description{
-Title
+Rewrites the label of the targeted variables to append the reference marker
+and the reference level, so the reference category is spelled out in the
+row label.
 }
 \examples{
 "arg"

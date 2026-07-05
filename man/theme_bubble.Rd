@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_bubble}
 \alias{theme_bubble}
-\title{Title}
+\title{Bubble-chart theme}
 \usage{
 theme_bubble(
   family = .text_font(),
@@ -37,37 +37,45 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{size}{arg}
+\item{size}{Base text size, in points.}
 
-\item{base_color}{arg}
+\item{base_color}{Default color for text, titles, and borders.}
 
-\item{axis_margin_x}{arg}
+\item{axis_margin_x}{Top margin of the x-axis title, in points.}
 
-\item{axis_margin_y}{arg}
+\item{axis_margin_y}{Right margin of the y-axis title, in points.}
 
-\item{axis_color_x}{arg}
+\item{axis_color_x}{Color(s) of the x-axis text.}
 
-\item{axis_color_y}{arg}
+\item{axis_color_y}{Color(s) of the y-axis text.}
 
-\item{title_color_x}{arg}
+\item{title_color_x}{Color of the x-axis title; defaults to \code{axis_color_x}
+when it is a single color, otherwise \code{base_color}.}
 
-\item{title_color_y}{arg}
+\item{title_color_y}{Color of the y-axis title; defaults to \code{axis_color_y}
+when it is a single color, otherwise \code{base_color}.}
 
-\item{grid_color_x}{arg}
+\item{grid_color_x}{Color of the vertical grid lines; defaults to
+\code{axis_color_x} when it differs from \code{base_color}, otherwise \code{"grey95"}.}
 
-\item{grid_color_y}{arg}
+\item{grid_color_y}{Color of the horizontal grid lines; defaults to
+\code{axis_color_y} when it differs from \code{base_color}, otherwise \code{"grey95"}.}
 
-\item{grid_lighten_x}{arg}
+\item{grid_lighten_x}{Amount to lighten \code{grid_color_x}, from 0 to 1;
+\code{0.85} for a colored grid, \code{0} for the default grey.}
 
-\item{grid_lighten_y}{arg}
+\item{grid_lighten_y}{Amount to lighten \code{grid_color_y}, from 0 to 1;
+\code{0.85} for a colored grid, \code{0} for the default grey.}
 
-\item{...}{arg}
+\item{...}{Additional elements passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
 \value{
-arg
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Title
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} for bubble charts, with markdown axis text and titles
+and per-axis control over text, title, and grid colors. Axis colors may be
+vectors, letting the title and grid colors adapt to a colored axis.
 }
 \examples{
 "arg"

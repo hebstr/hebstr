@@ -4,7 +4,7 @@
 \name{hebstr-package}
 \alias{hebstr}
 \alias{hebstr-package}
-\title{hebstr: Descriptive Statistics, Table Formatting, and Figure Export}
+\title{hebstr: Helpers for Descriptive Statistics, Table and Figure Formatting, and Reporting}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

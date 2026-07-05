@@ -2,24 +2,26 @@
 % Please edit documentation in R/tab_helpers.R
 \name{add_label}
 \alias{add_label}
-\title{Title}
+\title{Insert a grouping header row above a set of variables}
 \usage{
 add_label(x, name, levels, indent = 0)
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A \code{gtsummary} table object.}
 
-\item{name}{arg}
+\item{name}{Label of the inserted header row.}
 
-\item{levels}{arg}
+\item{levels}{Variable names grouped under the header, in table order.}
 
-\item{indent}{arg}
+\item{indent}{Indentation applied to the header row; the grouped rows are
+indented by \code{indent + 4}.}
 }
 \value{
-arg
+A \code{gtsummary} table with the header row inserted and rows indented.
 }
 \description{
-Title
+Adds a header row labeled \code{name} before the first of \code{levels}, then indents
+the header and nests the grouped rows beneath it.
 }
 \examples{
 "arg"

@@ -1,4 +1,9 @@
-#' Title
+#' Build named regex replacements collapsing HTML paragraphs to a token
+#'
+#' For each input string, produces a regex that matches it inside an HTML
+#' paragraph and maps it to `replace`, then adds a rule collapsing runs of the
+#' token into a single coloured marker. The result feeds
+#' [stringr::str_replace_all()] as its `pattern`/`replacement` mapping.
 #'
 #' @param ... A character vector
 #' @param replace Replacement pattern. A character vector.
@@ -25,11 +30,13 @@ easy_replace <- \(..., replace = "</>") {
 }
 
 
-#' Title
+#' Split named arguments into parallel name and label vectors
 #'
-#' @param ... arg
+#' @param ... Named values, where the names supply codes and the values supply
+#'   labels.
 #'
-#' @return arg
+#' @return A list with two character vectors: `name` (the argument names) and
+#'   `label` (the argument values).
 #' @export
 #'
 #' @examples "arg"
@@ -44,17 +51,26 @@ easy_recode <- \(...) {
 }
 
 
-#' Title
+#' Bin a numeric column into categories
 #'
-#' @param x arg
-#' @param var arg
-#' @param incr arg
-#' @param drop arg
-#' @param values arg
-#' @param labels arg
-#' @param ... arg
+#' Adds a categorical version of a numeric column, either from explicit
+#' breakpoints or from equal-width increments.
 #'
-#' @return arg
+#' @param x A data frame.
+#' @param var The numeric column to bin (unquoted).
+#' @param incr Whether to bin into equal-width increments defined by `...`
+#'   (passed to [seq()]). When `FALSE`, `values` supplies the breakpoints.
+#' @param drop Whether to drop the original column and rename the binned column
+#'   to the original name.
+#' @param values Breakpoints for the categories; required when `incr` is
+#'   `FALSE`.
+#' @param labels Labels for the resulting categories; decimal marks are
+#'   localised via `getOption("OutDec")`. `NULL` uses the default interval
+#'   labels.
+#' @param ... Arguments forwarded to [seq()] (e.g. `by`) when `incr` is `TRUE`.
+#'
+#' @return `x` with an added categorical column (`{var}_cat` or `{var}_incr`),
+#'   or with the original column replaced when `drop` is `TRUE`.
 #' @export
 #'
 #' @examples "arg"
@@ -173,14 +189,21 @@ pca_var_extract <- \(x, strip = NULL) {
 }
 
 
-#' Title
+#' Bootstrap a model and summarize coefficients
 #'
-#' @param data arg
-#' @param times arg
-#' @param method arg
-#' @param ... arg
+#' Resamples the data with [rsample::bootstraps()], fits `method` on each
+#' analysis set, and collects tidied coefficients and augmented predictions.
 #'
-#' @return arg
+#' @param data A data frame to resample.
+#' @param times Number of bootstrap resamples.
+#' @param method A modelling function passed to [parsnip::fit()] on each
+#'   resample's analysis set.
+#' @param ... Additional arguments forwarded to `method`.
+#'
+#' @return A named list with `estimate` (a list of `data`, the per-resample
+#'   tidied coefficients, and `int`, their percentile intervals from
+#'   [rsample::int_pctl()]) and `fitted` (the per-resample augmented
+#'   predictions).
 #' @export
 #'
 #' @examples "arg"
@@ -215,15 +238,18 @@ easy_boot <- \(data, times = 1000, method, ...) {
 }
 
 
-#' Title
+#' Select variables by univariate p-value threshold
 #'
-#' @param data arg
-#' @param model arg
-#' @param y arg
-#' @param vars arg
-#' @param pv arg
+#' Fits `model` for each candidate variable against `y` and keeps those whose
+#' univariate p-value is at or below `pv`.
 #'
-#' @return arg
+#' @param data A data frame.
+#' @param model A modelling function called via [do.call()] (e.g. [stats::glm]).
+#' @param y The outcome variable name, used in [stats::reformulate()].
+#' @param vars Candidate predictor variable names.
+#' @param pv The p-value threshold for retaining a variable.
+#'
+#' @return A character vector of the variable names meeting the threshold.
 #' @export
 #'
 #' @examples "arg"
@@ -243,15 +269,19 @@ p_picking <- \(data, model, y, vars, pv) {
 }
 
 
-#' Title
+#' Format a p-value column with a threshold cutoff
 #'
-#' @param x arg
-#' @param column arg
-#' @param digits arg
-#' @param seuil arg
-#' @param table arg
+#' Rewrites a p-value column as text: values below `seuil` become a `<` cutoff
+#' string, and values at or above it are rounded.
 #'
-#' @return arg
+#' @param x A data frame.
+#' @param column The column to format (unquoted; defaults to `p.value`).
+#' @param digits Rounding digits for values at or above `seuil`.
+#' @param seuil Threshold below which values are shown with the `<` prefix.
+#' @param table Whether to use compact table formatting (no spaces); `FALSE`
+#'   adds spacing and an `=` prefix for inline text.
+#'
+#' @return `x` with `column` rewritten as formatted character strings.
 #' @export
 #'
 #' @examples "arg"
@@ -283,14 +313,20 @@ p_shortenr <- \(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE) {
 }
 
 
-#' Title
+#' Keep rows in frequent-enough categories
 #'
-#' @param data arg
-#' @param .var arg
-#' @param .min arg
-#' @param .fun arg
+#' Retains rows whose category reaches a minimum share of the counts, where the
+#' denominator is `.fun` applied to the per-category counts.
 #'
-#' @return arg
+#' @param data A data frame.
+#' @param .var The column name (string) whose category frequencies are
+#'   evaluated.
+#' @param .min Minimum proportion a category must reach to be kept.
+#' @param .fun Function applied to the counts to form the denominator (default
+#'   `"max"`).
+#'
+#' @return `data` filtered to rows in categories meeting the proportion
+#'   threshold.
 #' @export
 #'
 #' @examples "arg"
@@ -313,12 +349,12 @@ pct_min <- \(data, .var, .min, .fun = "max") {
 }
 
 
-#' Title
+#' Read a PNG into a raster grob
 #'
-#' @param file arg
-#' @param dir arg
+#' @param file PNG file name without extension.
+#' @param dir Directory containing the file.
 #'
-#' @return arg
+#' @return A [grid::rasterGrob()] object.
 #' @export
 #'
 #' @examples "arg"
@@ -330,17 +366,26 @@ read_png <- \(file, dir = "output") {
 }
 
 
-#' Title
+#' Logit linearity check for a numeric predictor
 #'
-#' @param df arg
-#' @param y arg
-#' @param x arg
-#' @param breaks arg
-#' @param color arg
-#' @param label_y arg
-#' @param label_x arg
+#' Compares empirical logits of a binary outcome across bins of a numeric
+#' predictor against a linear fit, alongside a logistic model on the
+#' predictor's quartiles.
 #'
-#' @return arg
+#' @param df A data frame.
+#' @param y The outcome, a 2-level factor with the event taken as the second
+#'   level (unquoted). A non-factor or non-binary outcome aborts.
+#' @param x The numeric predictor (unquoted).
+#' @param breaks Number of bins used to compute the empirical logits.
+#' @param color Colour of the fitted line.
+#' @param label_y The y-axis label ([glue::glue()] template).
+#' @param label_x The x-axis label ([glue::glue()] template; defaults to `x`).
+#'
+#' @return A named list with `data` (per-bin mean `x`, event proportion, and
+#'   empirical logit), `model` (a tidied tibble of `term`, `estimate`,
+#'   `conf.low`, `conf.high`, and `p.value` from an exponentiated logistic fit
+#'   on `x` quartiles), and `plot` (a ggplot of empirical logit against mean
+#'   `x` with a linear fit).
 #' @export
 #'
 #' @examples "arg"
@@ -391,16 +436,24 @@ logit_lty <- \(
   )
 }
 
-#' Title
+#' Cook's distance outlier diagnostics
 #'
-#' @param model arg
-#' @param limit_inf_num arg
-#' @param limit_sup_num arg
-#' @param limit_inf_color arg
-#' @param limit_sup_color arg
-#' @param obs_color arg
+#' Augments a model with Cook's distance, flags observations exceeding two
+#' cutoffs (each a numerator divided by the number of observations), and plots
+#' the distances with the cutoff lines.
 #'
-#' @return arg
+#' @param model A fitted model accepted by [broom::augment()].
+#' @param limit_inf_num Numerator of the lower cutoff (cutoff = `limit_inf_num`
+#'   divided by the number of observations).
+#' @param limit_sup_num Numerator of the upper cutoff.
+#' @param limit_inf_color Colour of the lower threshold line.
+#' @param limit_sup_color Colour of the upper threshold line.
+#' @param obs_color Colour of the plotted observation points.
+#'
+#' @return A named list with `data` (the augmented observations with `.cooksd`),
+#'   `limit` (the two cutoff values), `obs` (data frames of observations
+#'   exceeding each cutoff), and `plot` (a ggplot of Cook's distance with the
+#'   threshold lines).
 #' @export
 #'
 #' @examples "arg"
@@ -459,12 +512,17 @@ cooksd <- \(
 }
 
 
-#' Title
+#' Cumulative filter with a row-count flow log
 #'
-#' @param data arg
-#' @param ... arg
+#' Applies filtering expressions one after another and records how many rows
+#' remain after each step, useful for documenting an inclusion flow.
 #'
-#' @return arg
+#' @param data A data frame, or a lazy/SQL table (collected first).
+#' @param ... Filtering expressions applied cumulatively; names label each step
+#'   and are auto-derived from the expression when unnamed.
+#'
+#' @return A named list with `data` (the data filtered by all expressions) and
+#'   `flow` (the remaining count and percentage after each successive filter).
 #' @export
 #'
 #' @examples "arg"
@@ -492,18 +550,22 @@ flow_filter <- \(data, ...) {
 }
 
 
-#' Title
+#' Percentage label formatter
 #'
-#' @param accuracy arg
-#' @param scale arg
-#' @param prefix arg
-#' @param suffix arg
-#' @param big.mark arg
-#' @param decimal.mark arg
-#' @param trim arg
-#' @param ... arg
+#' Wraps [scales::number_format()] with defaults suited to percentages,
+#' respecting the locale's decimal mark.
 #'
-#' @return arg
+#' @param accuracy Rounding accuracy.
+#' @param scale Multiplier applied before formatting (`100` expresses
+#'   proportions as percentages).
+#' @param prefix String prepended to each label.
+#' @param suffix String appended to each label.
+#' @param big.mark Thousands separator.
+#' @param decimal.mark Decimal separator (localised via `getOption("OutDec")`).
+#' @param trim Whether to trim leading whitespace.
+#' @param ... Further arguments forwarded to [scales::number_format()].
+#'
+#' @return A labelling function from [scales::number_format()].
 #' @export
 #'
 #' @examples "arg"
@@ -530,16 +592,23 @@ label_p <- \(
   )
 }
 
-#' Title
+#' Anonymize columns by hashing or masking
 #'
-#' @param x arg
-#' @param to_hash arg
-#' @param to_hide arg
-#' @param hash_trunc arg
-#' @param hash_salt arg
-#' @param hide_pattern arg
+#' Hashes selected columns with [rlang::hash()] (optionally salted, then
+#' truncated) and overwrites others with a fixed placeholder. Column selectors
+#' are regexes matched against full column names.
 #'
-#' @returns arg
+#' @param x A data frame to anonymize.
+#' @param to_hash Regex patterns matching, on full column names, the columns to
+#'   hash.
+#' @param to_hide Regex patterns matching the columns to overwrite with
+#'   `hide_pattern`.
+#' @param hash_trunc Number of trailing hash characters dropped from each hash.
+#' @param hash_salt Optional salt string prepended to each value before
+#'   hashing.
+#' @param hide_pattern Replacement string written into hidden columns.
+#'
+#' @returns `x` with the matched columns hashed and/or masked.
 #' @export
 #'
 #' @examples "arg"
@@ -601,24 +670,28 @@ easy_ano <- \(
   return(.ano_data)
 }
 
-#' Title
+#' Add a styled data table to a workbook worksheet
 #'
-#' @param x arg
-#' @param sheet arg
-#' @param ... arg
-#' @param data arg
-#' @param max_width arg
-#' @param halign arg
-#' @param font_size arg
-#' @param font_color arg
-#' @param concept_var arg
-#' @param concept_color arg
-#' @param text_var arg
-#' @param text_color arg
-#' @param border_color arg
-#' @param border_type arg
+#' Writes a data frame to a new worksheet with header shading, auto-fitted
+#' columns, wrapped and aligned cells, uniform borders, and optional per-column
+#' font colours.
 #'
-#' @returns arg
+#' @param x A workbook object (`wbWorkbook`).
+#' @param sheet Worksheet name.
+#' @param ... Arguments forwarded to [openxlsx2::wb_add_worksheet()].
+#' @param data The data frame written as a table.
+#' @param max_width Maximum auto-fit column width (`openxlsx2.maxWidth`).
+#' @param halign Horizontal cell alignment.
+#' @param font_size Base font size; the header row is one point larger.
+#' @param font_color Font colour for the table body.
+#' @param concept_var Columns recoloured with `concept_color`.
+#' @param concept_color Font colour applied to `concept_var` when non-`NULL`.
+#' @param text_var Columns recoloured with `text_color`.
+#' @param text_color Font colour applied to `text_var` when non-`NULL`.
+#' @param border_color Cell border colour.
+#' @param border_type Border style (e.g. `"thin"`).
+#'
+#' @returns The modified workbook object (`wbWorkbook`).
 #' @export
 #'
 #' @examples "arg"

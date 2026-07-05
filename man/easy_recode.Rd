@@ -2,18 +2,20 @@
 % Please edit documentation in R/easy_helpers.R
 \name{easy_recode}
 \alias{easy_recode}
-\title{Title}
+\title{Split named arguments into parallel name and label vectors}
 \usage{
 easy_recode(...)
 }
 \arguments{
-\item{...}{arg}
+\item{...}{Named values, where the names supply codes and the values supply
+labels.}
 }
 \value{
-arg
+A list with two character vectors: \code{name} (the argument names) and
+\code{label} (the argument values).
 }
 \description{
-Title
+Split named arguments into parallel name and label vectors
 }
 \examples{
 "arg"

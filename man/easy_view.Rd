@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_view.R
 \name{easy_view}
 \alias{easy_view}
-\title{Title}
+\title{Interactive data explorer}
 \usage{
 easy_view(
   x,
@@ -14,26 +14,31 @@ easy_view(
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A data frame to explore.}
 
-\item{font_size}{arg}
+\item{font_size}{CSS font size for the widget's text.}
 
 \item{font_family}{Font family for the explorer's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{level_sep}{arg}
+\item{level_sep}{Separator string joining a variable's factor levels in the
+display.}
 
-\item{strip_color}{arg}
+\item{strip_color}{Background color of the striped rows. Defaults to the first
+cold-palette color from the options.}
 
-\item{...}{arg}
+\item{...}{Additional arguments forwarded to \code{\link[reactable:reactable]{reactable::reactable()}}.}
 }
 \value{
-arg
+A named list with \code{data} (the per-variable summary tibble) and
+\code{output} (the interactive \code{reactable} widget).
 }
 \description{
-Title
+Summarises each variable of a data frame (type, missingness, range, quartiles,
+factor levels) and renders the summary as an interactive \code{\link[reactable:reactable]{reactable::reactable()}}
+widget.
 }
 \examples{
 "arg"

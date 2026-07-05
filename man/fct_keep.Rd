@@ -2,24 +2,26 @@
 % Please edit documentation in R/tab_helpers.R
 \name{fct_keep}
 \alias{fct_keep}
-\title{Title}
+\title{Split, count, and partition a delimited variable by frequency}
 \usage{
 fct_keep(data, var, min, sep)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame holding \code{var}.}
 
-\item{var}{arg}
+\item{var}{Name of the delimited column to split and tally.}
 
-\item{min}{arg}
+\item{min}{Frequency threshold; values with at least \code{min} counts are kept.}
 
-\item{sep}{arg}
+\item{sep}{Separator used to flatten the dropped \code{value [n]} entries.}
 }
 \value{
-arg
+A list with \code{keep} (character vector of frequent values) and \code{drop}
+(a string listing the rare values with their counts).
 }
 \description{
-Title
+Splits \code{var} on commas or \code{"et"}, counts the resulting values, then
+partitions them into frequent values to keep and rare values to drop.
 }
 \examples{
 "arg"

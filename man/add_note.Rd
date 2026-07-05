@@ -2,28 +2,31 @@
 % Please edit documentation in R/tab_helpers.R
 \name{add_note}
 \alias{add_note}
-\title{Title}
+\title{Attach a footnote to targeted rows or a p-value column}
 \usage{
 add_note(data, vars = NULL, levels = NULL, rows = NULL, pvalue_mv = NULL, note)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A \code{gt} or \code{gtsummary} table object.}
 
-\item{vars}{arg}
+\item{vars}{Variable name(s) to footnote on their label rows.}
 
-\item{levels}{arg}
+\item{levels}{Level label(s) to footnote on the matching rows.}
 
-\item{rows}{arg}
+\item{rows}{A data-mask expression selecting the rows to footnote.}
 
-\item{pvalue_mv}{arg}
+\item{pvalue_mv}{Zero-based index of a multivariable p-value column; footnotes
+the \verb{p.value_\{pvalue_mv + 1\}} column label instead of body rows.}
 
-\item{note}{arg}
+\item{note}{Footnote text to display.}
 }
 \value{
-arg
+A \code{gt} table with the footnote added.
 }
 \description{
-Title
+Adds a footnote via \code{\link[gt:tab_footnote]{gt::tab_footnote()}}, targeting either specific label
+rows or a multivariable p-value column. Exactly one of \code{vars}, \code{levels},
+\code{rows}, or \code{pvalue_mv} selects the location.
 }
 \examples{
 "arg"

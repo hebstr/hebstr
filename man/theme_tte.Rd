@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_tte}
 \alias{theme_tte}
-\title{Title}
+\title{Time-to-event (survival) plot theme}
 \usage{
 theme_tte(
   family = .text_font(),
@@ -18,19 +18,20 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{size}{arg}
+\item{size}{Caption font size, in points.}
 
-\item{vjust_y}{arg}
+\item{vjust_y}{Vertical justification of the left y-axis title.}
 
-\item{title_margin}{arg}
+\item{title_margin}{Margin around the caption, from \code{\link[ggplot2:margin]{ggplot2::margin()}}.}
 
-\item{...}{arg}
+\item{...}{Additional elements passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
 \value{
-arg
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Title
+A \code{\link[ggplot2:theme_classic]{ggplot2::theme_classic()}}-based theme for Kaplan-Meier and other
+time-to-event curves, with thin lines and a caption text box.
 }
 \examples{
 "arg"

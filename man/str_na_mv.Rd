@@ -2,18 +2,19 @@
 % Please edit documentation in R/tab_helpers.R
 \name{str_na_mv}
 \alias{str_na_mv}
-\title{Title}
+\title{Missing-data summary sentence}
 \usage{
 str_na_mv(data)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame to summarize.}
 }
 \value{
-arg
+A character string describing the count of rows with missing data.
 }
 \description{
-Title
+Builds a sentence reporting the total number of observations and how many
+contain at least one missing value, with the associated percentage.
 }
 \examples{
 "arg"

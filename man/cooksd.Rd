@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_helpers.R
 \name{cooksd}
 \alias{cooksd}
-\title{Title}
+\title{Cook's distance outlier diagnostics}
 \usage{
 cooksd(
   model,
@@ -14,23 +14,29 @@ cooksd(
 )
 }
 \arguments{
-\item{model}{arg}
+\item{model}{A fitted model accepted by \code{\link[broom:augment]{broom::augment()}}.}
 
-\item{limit_inf_num}{arg}
+\item{limit_inf_num}{Numerator of the lower cutoff (cutoff = \code{limit_inf_num}
+divided by the number of observations).}
 
-\item{limit_sup_num}{arg}
+\item{limit_sup_num}{Numerator of the upper cutoff.}
 
-\item{limit_inf_color}{arg}
+\item{limit_inf_color}{Colour of the lower threshold line.}
 
-\item{limit_sup_color}{arg}
+\item{limit_sup_color}{Colour of the upper threshold line.}
 
-\item{obs_color}{arg}
+\item{obs_color}{Colour of the plotted observation points.}
 }
 \value{
-arg
+A named list with \code{data} (the augmented observations with \code{.cooksd}),
+\code{limit} (the two cutoff values), \code{obs} (data frames of observations
+exceeding each cutoff), and \code{plot} (a ggplot of Cook's distance with the
+threshold lines).
 }
 \description{
-Title
+Augments a model with Cook's distance, flags observations exceeding two
+cutoffs (each a numerator divided by the number of observations), and plots
+the distances with the cutoff lines.
 }
 \examples{
 "arg"

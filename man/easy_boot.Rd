@@ -2,24 +2,29 @@
 % Please edit documentation in R/easy_helpers.R
 \name{easy_boot}
 \alias{easy_boot}
-\title{Title}
+\title{Bootstrap a model and summarize coefficients}
 \usage{
 easy_boot(data, times = 1000, method, ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame to resample.}
 
-\item{times}{arg}
+\item{times}{Number of bootstrap resamples.}
 
-\item{method}{arg}
+\item{method}{A modelling function passed to \code{\link[parsnip:fit]{parsnip::fit()}} on each
+resample's analysis set.}
 
-\item{...}{arg}
+\item{...}{Additional arguments forwarded to \code{method}.}
 }
 \value{
-arg
+A named list with \code{estimate} (a list of \code{data}, the per-resample
+tidied coefficients, and \code{int}, their percentile intervals from
+\code{\link[rsample:int_pctl]{rsample::int_pctl()}}) and \code{fitted} (the per-resample augmented
+predictions).
 }
 \description{
-Title
+Resamples the data with \code{\link[rsample:bootstraps]{rsample::bootstraps()}}, fits \code{method} on each
+analysis set, and collects tidied coefficients and augmented predictions.
 }
 \examples{
 "arg"

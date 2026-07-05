@@ -2,24 +2,29 @@
 % Please edit documentation in R/themes.R
 \name{check_fonts}
 \alias{check_fonts}
-\title{Title}
+\title{Check whether font families are installed}
 \usage{
 check_fonts(..., .default = "sans", .auto = NULL, .abort = FALSE)
 }
 \arguments{
-\item{...}{arg}
+\item{...}{One or more font family names to test for installation.}
 
-\item{.default}{arg}
+\item{.default}{Font family to fall back to when \code{.auto} is not installed.}
 
-\item{.auto}{arg}
+\item{.auto}{A single font family to resolve: returns it when installed,
+otherwise \code{.default}. When supplied, \code{...} must be empty.}
 
-\item{.abort}{arg}
+\item{.abort}{Whether to raise an error listing the missing families instead
+of returning \code{FALSE}.}
 }
 \value{
-arg
+With \code{.auto}, the resolved font family (the requested one or
+\code{.default}). Otherwise \code{TRUE} when every family in \code{...} is installed,
+\code{FALSE} when at least one is missing (unless \code{.abort} is \code{TRUE}).
 }
 \description{
-Title
+Tests one or more font families against the system font list (via
+\code{\link[systemfonts:system_fonts]{systemfonts::system_fonts()}}), matching family names case-insensitively.
 }
 \examples{
 "arg"

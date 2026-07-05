@@ -2,24 +2,28 @@
 % Please edit documentation in R/easy_helpers.R
 \name{pct_min}
 \alias{pct_min}
-\title{Title}
+\title{Keep rows in frequent-enough categories}
 \usage{
 pct_min(data, .var, .min, .fun = "max")
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame.}
 
-\item{.var}{arg}
+\item{.var}{The column name (string) whose category frequencies are
+evaluated.}
 
-\item{.min}{arg}
+\item{.min}{Minimum proportion a category must reach to be kept.}
 
-\item{.fun}{arg}
+\item{.fun}{Function applied to the counts to form the denominator (default
+\code{"max"}).}
 }
 \value{
-arg
+\code{data} filtered to rows in categories meeting the proportion
+threshold.
 }
 \description{
-Title
+Retains rows whose category reaches a minimum share of the counts, where the
+denominator is \code{.fun} applied to the per-category counts.
 }
 \examples{
 "arg"

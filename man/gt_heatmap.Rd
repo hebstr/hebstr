@@ -2,7 +2,7 @@
 % Please edit documentation in R/gt_heatmap.R
 \name{gt_heatmap}
 \alias{gt_heatmap}
-\title{Title}
+\title{Colored heatmap table from a cross-tabulation}
 \usage{
 gt_heatmap(
   data,
@@ -21,40 +21,48 @@ gt_heatmap(
 )
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame of numeric values to display, or two factor columns
+sharing the same levels to cross-tabulate into a contingency table.}
 
-\item{rowname_col}{arg}
+\item{rowname_col}{Column to use for the row (stub) labels, passed to
+\code{\link[gt:gt]{gt::gt()}}.}
 
-\item{groupname_col}{arg}
+\item{groupname_col}{Column to use for the row groups, passed to \code{\link[gt:gt]{gt::gt()}}.}
 
-\item{...}{arg}
+\item{...}{Additional table options forwarded to \code{\link[gt:tab_options]{gt::tab_options()}}.}
 
-\item{title}{arg}
+\item{title}{Table title, rendered as Markdown.}
 
-\item{width}{arg}
+\item{width}{Table width, in pixels.}
 
-\item{digit}{arg}
+\item{digit}{Number of decimal places for the numeric cells.}
 
 \item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{font_size}{arg}
+\item{font_size}{Text size, in pixels.}
 
-\item{color}{arg}
+\item{color}{Whether to color cells with \code{palette}. When \code{FALSE}, cells use a
+neutral grey scale.}
 
-\item{palette}{arg}
+\item{palette}{Length-two vector of colors for the low and high ends of the
+diverging scale; white is the midpoint.}
 
-\item{autocolor_text}{arg}
+\item{autocolor_text}{Whether to pick each cell's text color automatically for
+contrast against its background.}
 
-\item{arrange}{arg}
+\item{arrange}{Whether to sort rows in descending order of their numeric row
+sum.}
 }
 \value{
-arg
+A \code{\link[gt:gt]{gt::gt()}} table object (\code{gt_tbl}).
 }
 \description{
-Title
+Renders a numeric table as a \code{\link[gt:gt]{gt::gt()}} heatmap, coloring cells on a diverging
+scale centered on zero. A pair of factor columns sharing the same levels is
+cross-tabulated into a contingency table before display.
 }
 \examples{
 "arg"

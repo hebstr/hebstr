@@ -1,11 +1,16 @@
-#' Title
+#' Parametric test for a numeric variable across groups
 #'
-#' @param data arg
-#' @param variable arg
-#' @param by arg
-#' @param ... arg
+#' Custom test compatible with the gtsummary `add_p()` interface. Runs a
+#' Student t-test when `by` has two levels and a one-way ANOVA otherwise, both
+#' assuming equal variances.
 #'
-#' @return arg
+#' @param data A data frame holding `variable` and `by`.
+#' @param variable String naming the numeric column to test.
+#' @param by String naming the grouping column.
+#' @param ... Unused; accepted for compatibility with the gtsummary custom-test
+#'   interface.
+#' @return A one-row tibble from [broom::tidy()] with the test statistics and
+#'   p-value.
 #' @export
 #'
 #' @examples "arg"
@@ -22,14 +27,19 @@ quanti.test.para <- \(data, variable, by, ...) {
 }
 
 
-#' Title
+#' Non-parametric test for a numeric variable across groups
 #'
-#' @param data arg
-#' @param variable arg
-#' @param by arg
-#' @param ... arg
+#' Custom test compatible with the gtsummary `add_p()` interface. Runs a
+#' Wilcoxon rank-sum test when `by` has two levels and a Kruskal-Wallis test
+#' otherwise.
 #'
-#' @return arg
+#' @param data A data frame holding `variable` and `by`.
+#' @param variable String naming the numeric column to test.
+#' @param by String naming the grouping column.
+#' @param ... Unused; accepted for compatibility with the gtsummary custom-test
+#'   interface.
+#' @return A one-row tibble from [broom::tidy()] with the test statistics and
+#'   p-value.
 #' @export
 #'
 #' @examples "arg"
@@ -46,14 +56,21 @@ quanti.test.nonpara <- \(data, variable, by, ...) {
 }
 
 
-#' Title
+#' Categorical association test with automatic Fisher fallback
 #'
-#' @param data arg
-#' @param variable arg
-#' @param by arg
-#' @param ... arg
+#' Custom test compatible with the gtsummary `add_p()` interface. Uses a
+#' chi-squared test without continuity correction when all expected counts are
+#' at least 5, applies the continuity correction when the smallest expected
+#' count falls between 2 and 5, and switches to Fisher's exact test when any
+#' expected count drops below 2.
 #'
-#' @return arg
+#' @param data A data frame holding `variable` and `by`.
+#' @param variable String naming the categorical column to test.
+#' @param by String naming the grouping column.
+#' @param ... Unused; accepted for compatibility with the gtsummary custom-test
+#'   interface.
+#' @return A one-row tibble from [broom::tidy()] with the test statistics and
+#'   p-value.
 #' @export
 #'
 #' @examples "arg"
@@ -89,12 +106,14 @@ quali.test <- \(data, variable, by, ...) {
 }
 
 
-#' Title
+#' Names of dichotomous variables
 #'
-#' @param data arg
-#' @param ... arg
+#' Identifies the columns that are factors with exactly two levels.
 #'
-#' @return arg
+#' @param data A data frame to inspect.
+#' @param ... Optional column names to restrict the search to; defaults to all
+#'   columns of `data`.
+#' @return A character vector of the column names with exactly two levels.
 #' @export
 #'
 #' @examples "arg"
@@ -108,16 +127,21 @@ all_dichotomous_uv <- \(data, ...) {
 }
 
 
-#' Title
+#' Relabel reference rows in a gtsummary table
 #'
-#' @param data arg
-#' @param var arg
-#' @param new_lab arg
-#' @param ref_lab arg
-#' @param ref_level arg
-#' @param tolower_level arg
+#' Rewrites the label of the targeted variables to append the reference marker
+#' and the reference level, so the reference category is spelled out in the
+#' row label.
 #'
-#' @return arg
+#' @param data A `gtsummary` table object.
+#' @param var Variable name(s) whose label is rewritten.
+#' @param new_lab Glue template for the base label; defaults to the existing
+#'   variable label.
+#' @param ref_lab Reference marker appended to the label.
+#' @param ref_level Reference level to display; defaults to the table's
+#'   `reference_level`.
+#' @param tolower_level Whether to lowercase `ref_level` before display.
+#' @return A `gtsummary` table with the reference rows relabeled.
 #' @export
 #'
 #' @examples "arg"
@@ -152,16 +176,20 @@ easy_relab <- \(
 }
 
 
-#' Title
+#' Attach a footnote to targeted rows or a p-value column
 #'
-#' @param data arg
-#' @param vars arg
-#' @param levels arg
-#' @param rows arg
-#' @param pvalue_mv arg
-#' @param note arg
+#' Adds a footnote via [gt::tab_footnote()], targeting either specific label
+#' rows or a multivariable p-value column. Exactly one of `vars`, `levels`,
+#' `rows`, or `pvalue_mv` selects the location.
 #'
-#' @return arg
+#' @param data A `gt` or `gtsummary` table object.
+#' @param vars Variable name(s) to footnote on their label rows.
+#' @param levels Level label(s) to footnote on the matching rows.
+#' @param rows A data-mask expression selecting the rows to footnote.
+#' @param pvalue_mv Zero-based index of a multivariable p-value column; footnotes
+#'   the `p.value_{pvalue_mv + 1}` column label instead of body rows.
+#' @param note Footnote text to display.
+#' @return A `gt` table with the footnote added.
 #' @export
 #'
 #' @examples "arg"
@@ -204,13 +232,15 @@ add_note <- \(
 }
 
 
-#' Title
+#' Format factor counts as a single string
 #'
-#' @param x arg
-#' @param cap arg
-#' @param sep arg
+#' Counts the levels of `x` in decreasing frequency and flattens them into one
+#' string of `level [n]` entries.
 #'
-#' @return arg
+#' @param x A factor or character vector to tabulate.
+#' @param sep Separator inserted between the `level [n]` entries.
+#' @param cap Whether to capitalize the first letter of the result.
+#' @return A character string listing each level with its count.
 #' @export
 #'
 #' @examples "arg"
@@ -234,14 +264,17 @@ fct_str <- \(x, sep, cap = TRUE) {
 }
 
 
-#' Title
+#' Format rare factor levels together with a companion vector
 #'
-#' @param fct arg
-#' @param chr arg
-#' @param min arg
-#' @param sep arg
+#' Lists the levels of `fct` that fall below `min` (excluding `"Other"`) as
+#' `level (n)` entries, then appends the [fct_str()] tally of `chr`.
 #'
-#' @return arg
+#' @param fct A factor whose rare levels are listed.
+#' @param chr A factor or character vector appended via [fct_str()].
+#' @param min Frequency threshold; levels of `fct` with fewer counts are listed.
+#' @param sep Separator passed to [fct_str()] for the `chr` tally.
+#' @return A character string combining the rare `fct` levels and the `chr`
+#'   counts.
 #' @export
 #'
 #' @examples "arg"
@@ -264,14 +297,17 @@ fct_other_str <- \(fct, chr, min, sep = ", ") {
   paste(parts[nzchar(parts)], collapse = ", ")
 }
 
-#' Title
+#' Split, count, and partition a delimited variable by frequency
 #'
-#' @param data arg
-#' @param var arg
-#' @param min arg
-#' @param sep arg
+#' Splits `var` on commas or `"et"`, counts the resulting values, then
+#' partitions them into frequent values to keep and rare values to drop.
 #'
-#' @return arg
+#' @param data A data frame holding `var`.
+#' @param var Name of the delimited column to split and tally.
+#' @param min Frequency threshold; values with at least `min` counts are kept.
+#' @param sep Separator used to flatten the dropped `value [n]` entries.
+#' @return A list with `keep` (character vector of frequent values) and `drop`
+#'   (a string listing the rare values with their counts).
 #' @export
 #'
 #' @examples "arg"
@@ -307,14 +343,17 @@ fct_keep <- \(data, var, min, sep) {
 }
 
 
-#' Title
+#' Insert a grouping header row above a set of variables
 #'
-#' @param x arg
-#' @param name arg
-#' @param indent arg
-#' @param levels arg
+#' Adds a header row labeled `name` before the first of `levels`, then indents
+#' the header and nests the grouped rows beneath it.
 #'
-#' @return arg
+#' @param x A `gtsummary` table object.
+#' @param name Label of the inserted header row.
+#' @param levels Variable names grouped under the header, in table order.
+#' @param indent Indentation applied to the header row; the grouped rows are
+#'   indented by `indent + 4`.
+#' @return A `gtsummary` table with the header row inserted and rows indented.
 #' @export
 #'
 #' @examples "arg"
@@ -341,11 +380,13 @@ add_label <- \(x, name, levels, indent = 0) {
 }
 
 
-#' Title
+#' Missing-data summary sentence
 #'
-#' @param data arg
+#' Builds a sentence reporting the total number of observations and how many
+#' contain at least one missing value, with the associated percentage.
 #'
-#' @return arg
+#' @param data A data frame to summarize.
+#' @return A character string describing the count of rows with missing data.
 #' @export
 #'
 #' @examples "arg"
@@ -370,12 +411,15 @@ str_na_mv <- \(data) {
 }
 
 
-#' Title
+#' Recode dichotomous variables to a single 0/1 indicator
 #'
-#' @param data arg
-#' @param exclude arg
+#' Converts every two-level factor (except those excluded) to a 0/1 numeric
+#' indicator, so gtsummary can display each on a single row.
 #'
-#' @return arg
+#' @param data A data frame to recode.
+#' @param exclude Column name(s) to leave untouched; defaults to the first
+#'   column.
+#' @return The data frame with its dichotomous columns recoded to 0/1.
 #' @export
 #'
 #' @examples "arg"
@@ -391,12 +435,15 @@ show_single_row <- \(
 }
 
 
-#' Title
+#' Display a reference marker on reference rows
 #'
-#' @param data arg
-#' @param label arg
+#' Places a symbol in the estimate and confidence-interval columns of the
+#' reference rows via [gtsummary::modify_missing_symbol()]. The numeric estimate
+#' column is left unchanged.
 #'
-#' @returns arg
+#' @param data A `gtsummary` regression table object.
+#' @param label Symbol to display on the reference rows.
+#' @returns A `gtsummary` table with the reference marker displayed.
 #' @export
 #'
 #' @examples "arg"

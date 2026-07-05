@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_helpers.R
 \name{wb_add_custom}
 \alias{wb_add_custom}
-\title{Title}
+\title{Add a styled data table to a workbook worksheet}
 \usage{
 wb_add_custom(
   x,
@@ -22,39 +22,41 @@ wb_add_custom(
 )
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A workbook object (\code{wbWorkbook}).}
 
-\item{sheet}{arg}
+\item{sheet}{Worksheet name.}
 
-\item{...}{arg}
+\item{...}{Arguments forwarded to \code{\link[openxlsx2:wb_add_worksheet]{openxlsx2::wb_add_worksheet()}}.}
 
-\item{data}{arg}
+\item{data}{The data frame written as a table.}
 
-\item{max_width}{arg}
+\item{max_width}{Maximum auto-fit column width (\code{openxlsx2.maxWidth}).}
 
-\item{halign}{arg}
+\item{halign}{Horizontal cell alignment.}
 
-\item{font_size}{arg}
+\item{font_size}{Base font size; the header row is one point larger.}
 
-\item{font_color}{arg}
+\item{font_color}{Font colour for the table body.}
 
-\item{concept_var}{arg}
+\item{concept_var}{Columns recoloured with \code{concept_color}.}
 
-\item{concept_color}{arg}
+\item{concept_color}{Font colour applied to \code{concept_var} when non-\code{NULL}.}
 
-\item{text_var}{arg}
+\item{text_var}{Columns recoloured with \code{text_color}.}
 
-\item{text_color}{arg}
+\item{text_color}{Font colour applied to \code{text_var} when non-\code{NULL}.}
 
-\item{border_color}{arg}
+\item{border_color}{Cell border colour.}
 
-\item{border_type}{arg}
+\item{border_type}{Border style (e.g. \code{"thin"}).}
 }
 \value{
-arg
+The modified workbook object (\code{wbWorkbook}).
 }
 \description{
-Title
+Writes a data frame to a new worksheet with header shading, auto-fitted
+columns, wrapped and aligned cells, uniform borders, and optional per-column
+font colours.
 }
 \examples{
 "arg"

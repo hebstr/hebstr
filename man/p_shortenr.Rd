@@ -2,26 +2,28 @@
 % Please edit documentation in R/easy_helpers.R
 \name{p_shortenr}
 \alias{p_shortenr}
-\title{Title}
+\title{Format a p-value column with a threshold cutoff}
 \usage{
 p_shortenr(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE)
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A data frame.}
 
-\item{column}{arg}
+\item{column}{The column to format (unquoted; defaults to \code{p.value}).}
 
-\item{digits}{arg}
+\item{digits}{Rounding digits for values at or above \code{seuil}.}
 
-\item{seuil}{arg}
+\item{seuil}{Threshold below which values are shown with the \code{<} prefix.}
 
-\item{table}{arg}
+\item{table}{Whether to use compact table formatting (no spaces); \code{FALSE}
+adds spacing and an \code{=} prefix for inline text.}
 }
 \value{
-arg
+\code{x} with \code{column} rewritten as formatted character strings.
 }
 \description{
-Title
+Rewrites a p-value column as text: values below \code{seuil} become a \code{<} cutoff
+string, and values at or above it are rounded.
 }
 \examples{
 "arg"

@@ -2,24 +2,28 @@
 % Please edit documentation in R/tab_helpers.R
 \name{quanti.test.nonpara}
 \alias{quanti.test.nonpara}
-\title{Title}
+\title{Non-parametric test for a numeric variable across groups}
 \usage{
 quanti.test.nonpara(data, variable, by, ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame holding \code{variable} and \code{by}.}
 
-\item{variable}{arg}
+\item{variable}{String naming the numeric column to test.}
 
-\item{by}{arg}
+\item{by}{String naming the grouping column.}
 
-\item{...}{arg}
+\item{...}{Unused; accepted for compatibility with the gtsummary custom-test
+interface.}
 }
 \value{
-arg
+A one-row tibble from \code{\link[broom:tidy]{broom::tidy()}} with the test statistics and
+p-value.
 }
 \description{
-Title
+Custom test compatible with the gtsummary \code{add_p()} interface. Runs a
+Wilcoxon rank-sum test when \code{by} has two levels and a Kruskal-Wallis test
+otherwise.
 }
 \examples{
 "arg"

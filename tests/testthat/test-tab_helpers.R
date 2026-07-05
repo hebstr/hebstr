@@ -244,3 +244,41 @@ test_that("add_note targets only the requested vars", {
 
   expect_equal(nrow(res$`_footnotes`), 2)
 })
+
+.make_ref_tbl <- \() {
+  df <- data.frame(
+    y = rep(c(0, 1), 30),
+    grp = factor(
+      rep(c("low", "mid", "high"), 20),
+      levels = c("low", "mid", "high")
+    )
+  )
+  mod <- glm(y ~ grp, data = df, family = binomial())
+  gtsummary::tbl_regression(mod, exponentiate = TRUE)
+}
+
+test_that("add_ref_label sets the missing symbol on the reference row estimate columns", {
+  tbl <- .make_ref_tbl()
+
+  res <- add_ref_label(tbl)
+
+  expect_s3_class(res, "gtsummary")
+  added <- res$table_styling$fmt_missing[
+    res$table_styling$fmt_missing$symbol == "Reference",
+  ]
+  expect_setequal(added$column, c("estimate", "conf.low", "conf.high"))
+})
+
+test_that("add_ref_label honors a custom reference label", {
+  tbl <- .make_ref_tbl()
+
+  res <- add_ref_label(tbl, label = "Ref.")
+
+  fm <- res$table_styling$fmt_missing
+  expect_true("Ref." %in% fm$symbol)
+  expect_false("Reference" %in% fm$symbol)
+  expect_setequal(
+    fm$column[fm$symbol == "Ref."],
+    c("estimate", "conf.low", "conf.high")
+  )
+})

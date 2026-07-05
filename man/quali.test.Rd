@@ -2,24 +2,30 @@
 % Please edit documentation in R/tab_helpers.R
 \name{quali.test}
 \alias{quali.test}
-\title{Title}
+\title{Categorical association test with automatic Fisher fallback}
 \usage{
 quali.test(data, variable, by, ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame holding \code{variable} and \code{by}.}
 
-\item{variable}{arg}
+\item{variable}{String naming the categorical column to test.}
 
-\item{by}{arg}
+\item{by}{String naming the grouping column.}
 
-\item{...}{arg}
+\item{...}{Unused; accepted for compatibility with the gtsummary custom-test
+interface.}
 }
 \value{
-arg
+A one-row tibble from \code{\link[broom:tidy]{broom::tidy()}} with the test statistics and
+p-value.
 }
 \description{
-Title
+Custom test compatible with the gtsummary \code{add_p()} interface. Uses a
+chi-squared test without continuity correction when all expected counts are
+at least 5, applies the continuity correction when the smallest expected
+count falls between 2 and 5, and switches to Fisher's exact test when any
+expected count drops below 2.
 }
 \examples{
 "arg"

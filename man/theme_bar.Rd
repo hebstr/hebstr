@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_bar}
 \alias{theme_bar}
-\title{Title}
+\title{Standardized bar-chart theme}
 \usage{
 theme_bar(
   family = .text_font(),
@@ -24,31 +24,35 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{text_color}{arg}
+\item{text_color}{Color of the theme's text.}
 
-\item{title_size}{arg}
+\item{title_size}{Plot title font size, in points.}
 
-\item{title_halign}{arg}
+\item{title_halign}{Horizontal alignment of the title text box, from 0
+(left) to 1 (right).}
 
-\item{title_margin}{arg}
+\item{title_margin}{Margin around the title, from \code{\link[ggplot2:margin]{ggplot2::margin()}}.}
 
-\item{caption_size}{arg}
+\item{caption_size}{Caption font size, in points.}
 
-\item{caption_halign}{arg}
+\item{caption_halign}{Horizontal alignment of the caption text box, from 0
+(left) to 1 (right).}
 
-\item{caption_margin}{arg}
+\item{caption_margin}{Margin around the caption, from \code{\link[ggplot2:margin]{ggplot2::margin()}}.}
 
-\item{grid}{arg}
+\item{grid}{Whether to keep the panel background. When \code{FALSE}, the panel
+background and strip text are blanked and axis lines are drawn.}
 
-\item{legend_position}{arg}
+\item{legend_position}{Legend position passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 
-\item{...}{arg}
+\item{...}{Additional theme elements merged in via \verb{\%+replace\%}.}
 }
 \value{
-arg
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Title
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} built on textbox title and caption, tuned for the
+package's bar charts (\code{\link[=ggcount]{ggcount()}}).
 }
 \examples{
 "arg"

@@ -1,11 +1,18 @@
-#' Title
+#' Check whether font families are installed
 #'
-#' @param ... arg
-#' @param .default arg
-#' @param .auto arg
-#' @param .abort arg
+#' Tests one or more font families against the system font list (via
+#' [systemfonts::system_fonts()]), matching family names case-insensitively.
 #'
-#' @return arg
+#' @param ... One or more font family names to test for installation.
+#' @param .default Font family to fall back to when `.auto` is not installed.
+#' @param .auto A single font family to resolve: returns it when installed,
+#'   otherwise `.default`. When supplied, `...` must be empty.
+#' @param .abort Whether to raise an error listing the missing families instead
+#'   of returning `FALSE`.
+#'
+#' @return With `.auto`, the resolved font family (the requested one or
+#'   `.default`). Otherwise `TRUE` when every family in `...` is installed,
+#'   `FALSE` when at least one is missing (unless `.abort` is `TRUE`).
 #' @export
 #'
 #' @examples "arg"
@@ -59,31 +66,41 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 }
 
 
-#' Title
+#' Standardized GT table theme
 #'
-#' @param x arg
-#' @param width arg
-#' @param alpha arg
-#' @param digit arg
-#' @param base arg
-#' @param color arg
-#' @param bg arg
-#' @param row_padding arg
-#' @param title_align arg
-#' @param font_size arg
-#' @param title_font_size arg
-#' @param stat_font_size arg
-#' @param pvalue_font_size arg
-#' @param row_strip arg
-#' @param footnote_marks arg
-#' @param footnote_font_size arg
-#' @param footnote_padding arg
+#' Applies the package's house style to a [gt::gt()] table: fonts, borders,
+#' row striping, heading alignment, and footnote formatting. Numeric columns
+#' (stats, estimates, p-values) receive a dedicated font and reduced sizes.
+#'
+#' @param x A [gt::gt()] table object to style.
+#' @param width Table width, in pixels. When `NULL`, the table uses its
+#'   natural width.
+#' @param alpha Font family for the table text.
+#' @param digit Font family applied to numeric columns (stats, estimates,
+#'   p-values).
+#' @param base Base color for text and body borders.
+#' @param color Table background color, also used for the row-striping band.
+#' @param bg Background color for the heading, column labels, striping, and
+#'   footnotes.
+#' @param row_padding Vertical padding of data rows, in pixels.
+#' @param title_align Horizontal alignment of the heading (`"left"`,
+#'   `"center"`, or `"right"`).
+#' @param font_size Base font size, in pixels.
+#' @param title_font_size Heading title font size, in pixels.
+#' @param stat_font_size Font size of stat and estimate cells, in pixels.
+#' @param pvalue_font_size Font size of p-value cells, in pixels.
+#' @param row_strip Whether to color the striped rows. When `FALSE`, striping
+#'   is made transparent.
+#' @param footnote_marks Footnote mark style passed to [gt::tab_options()]
+#'   (e.g. `"extended"`, `"standard"`, `"numbers"`).
+#' @param footnote_font_size Footnote font size, in pixels.
+#' @param footnote_padding Footnote padding, in pixels.
 #' @param docx If `TRUE`, skip the style refinements (justified title and
 #'   footnotes, digit font, reduced stat and p-value sizes) that render poorly
 #'   in Word output. Defaults to `getOption("theme_gt.docx", FALSE)`.
-#' @param ... arg
+#' @param ... Additional options forwarded to [gt::tab_options()].
 #'
-#' @return arg
+#' @return A [gt::gt()] table object (`gt_tbl`).
 #' @export
 #'
 #' @examples "arg"
@@ -179,24 +196,30 @@ theme_gt <- \(
 }
 
 
-#' Title
+#' Standardized bar-chart theme
+#'
+#' A [ggplot2::theme()] built on textbox title and caption, tuned for the
+#' package's bar charts ([ggcount()]).
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param text_color arg
-#' @param title_size arg
-#' @param title_halign arg
-#' @param title_margin arg
-#' @param caption_size arg
-#' @param caption_halign arg
-#' @param caption_margin arg
-#' @param grid arg
-#' @param legend_position arg
-#' @param ... arg
+#' @param text_color Color of the theme's text.
+#' @param title_size Plot title font size, in points.
+#' @param title_halign Horizontal alignment of the title text box, from 0
+#'   (left) to 1 (right).
+#' @param title_margin Margin around the title, from [ggplot2::margin()].
+#' @param caption_size Caption font size, in points.
+#' @param caption_halign Horizontal alignment of the caption text box, from 0
+#'   (left) to 1 (right).
+#' @param caption_margin Margin around the caption, from [ggplot2::margin()].
+#' @param grid Whether to keep the panel background. When `FALSE`, the panel
+#'   background and strip text are blanked and axis lines are drawn.
+#' @param legend_position Legend position passed to [ggplot2::theme()].
+#' @param ... Additional theme elements merged in via `%+replace%`.
 #'
-#' @return arg
+#' @return A [ggplot2::theme()] object.
 #' @export
 #'
 #' @examples "arg"
@@ -249,18 +272,21 @@ theme_bar <- \(
 }
 
 
-#' Title
+#' Time-to-event (survival) plot theme
+#'
+#' A [ggplot2::theme_classic()]-based theme for Kaplan-Meier and other
+#' time-to-event curves, with thin lines and a caption text box.
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param size arg
-#' @param vjust_y arg
-#' @param title_margin arg
-#' @param ... arg
+#' @param size Caption font size, in points.
+#' @param vjust_y Vertical justification of the left y-axis title.
+#' @param title_margin Margin around the caption, from [ggplot2::margin()].
+#' @param ... Additional elements passed to [ggplot2::theme()].
 #'
-#' @return arg
+#' @return A [ggplot2::theme()] object.
 #' @export
 #'
 #' @examples "arg"
@@ -295,19 +321,24 @@ theme_tte <- \(
 }
 
 
-#' Title
+#' Risk-table theme for survival plots
+#'
+#' Styles the risk table accompanying a time-to-event plot, layering package
+#' overrides on top of `theme_risktable_default()`.
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param label_size arg
-#' @param title_size arg
-#' @param title_margin arg
-#' @param plot_margin arg
-#' @param ... arg
+#' @param label_size Font size of the y-axis (strata) labels, in points.
+#' @param title_size Plot title font size, in points.
+#' @param title_margin Base size, in points, of the title margin (applied as a
+#'   negative top and positive bottom offset).
+#' @param plot_margin Base size, in points, of the plot margin (applied as a
+#'   positive top and negative bottom offset).
+#' @param ... Additional elements passed to [ggplot2::theme()].
 #'
-#' @return arg
+#' @return A list of ggplot2 theme components.
 #' @export
 #'
 #' @examples "arg"
@@ -343,15 +374,18 @@ theme_risktable <- \(
 }
 
 
-#' Title
+#' PCA / ordination plot theme
+#'
+#' A minimal [ggplot2::theme()] for principal-component and other ordination
+#' plots: axis text, titles, and ticks are blanked, leaving a caption text box.
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param ... arg
+#' @param ... Additional theme elements merged in via `%+replace%`.
 #'
-#' @return arg
+#' @return A [ggplot2::theme()] object.
 #' @export
 #'
 #' @examples "arg"
@@ -377,20 +411,23 @@ theme_pca <- \(family = .text_font(), ...) {
 }
 
 
-#' Title
+#' Blank canvas theme
+#'
+#' A [ggplot2::theme_void()]-based theme with a white background and textbox
+#' title and caption, optionally adding horizontal grid lines and y-axis text.
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param grid arg
-#' @param grid_color arg
-#' @param axis_text_size_y arg
-#' @param grid_size arg
-#' @param legend_position arg
-#' @param ... arg
+#' @param grid Whether to draw major horizontal grid lines and y-axis text.
+#' @param grid_color Color of the grid lines and y-axis text.
+#' @param axis_text_size_y Font size of the y-axis text, in points.
+#' @param grid_size Line width of the grid lines.
+#' @param legend_position Legend position passed to [ggplot2::theme()].
+#' @param ... Additional theme elements merged in via `%+replace%`.
 #'
-#' @return arg
+#' @return A [ggplot2::theme()] object.
 #' @export
 #'
 #' @examples "arg"
@@ -445,23 +482,27 @@ theme_blank <- \(
 }
 
 
-#' Title
+#' Ranked-frequency bar theme
+#'
+#' A [ggplot2::theme()] for horizontal ranked-frequency bar charts: a centered
+#' markdown title, right-aligned caption, blanked axis titles, and optional
+#' vertical grid lines.
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param title_size arg
-#' @param title_margin arg
-#' @param caption_size arg
-#' @param caption_margin arg
-#' @param label_size arg
-#' @param label_margin arg
-#' @param grid arg
-#' @param grid_size arg
-#' @param ... arg
+#' @param title_size Plot title font size, in points.
+#' @param title_margin Bottom margin below the title, in points.
+#' @param caption_size Caption font size, in points.
+#' @param caption_margin Top margin above the caption, in points.
+#' @param label_size Font size of the y-axis labels, in points.
+#' @param label_margin Margin around the y-axis labels, from [ggplot2::margin()].
+#' @param grid Whether to draw major vertical grid lines and x-axis text.
+#' @param grid_size Font size of the x-axis text drawn with the grid, in points.
+#' @param ... Additional theme elements merged in via `%+replace%`.
 #'
-#' @return arg
+#' @return A [ggplot2::theme()] object.
 #' @export
 #'
 #' @examples "arg"
@@ -523,27 +564,37 @@ theme_infreq <- \(
 }
 
 
-#' Title
+#' Bubble-chart theme
+#'
+#' A [ggplot2::theme()] for bubble charts, with markdown axis text and titles
+#' and per-axis control over text, title, and grid colors. Axis colors may be
+#' vectors, letting the title and grid colors adapt to a colored axis.
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param size arg
-#' @param base_color arg
-#' @param axis_margin_x arg
-#' @param axis_margin_y arg
-#' @param axis_color_x arg
-#' @param axis_color_y arg
-#' @param title_color_x arg
-#' @param title_color_y arg
-#' @param grid_color_x arg
-#' @param grid_color_y arg
-#' @param grid_lighten_x arg
-#' @param grid_lighten_y arg
-#' @param ... arg
+#' @param size Base text size, in points.
+#' @param base_color Default color for text, titles, and borders.
+#' @param axis_margin_x Top margin of the x-axis title, in points.
+#' @param axis_margin_y Right margin of the y-axis title, in points.
+#' @param axis_color_x Color(s) of the x-axis text.
+#' @param axis_color_y Color(s) of the y-axis text.
+#' @param title_color_x Color of the x-axis title; defaults to `axis_color_x`
+#'   when it is a single color, otherwise `base_color`.
+#' @param title_color_y Color of the y-axis title; defaults to `axis_color_y`
+#'   when it is a single color, otherwise `base_color`.
+#' @param grid_color_x Color of the vertical grid lines; defaults to
+#'   `axis_color_x` when it differs from `base_color`, otherwise `"grey95"`.
+#' @param grid_color_y Color of the horizontal grid lines; defaults to
+#'   `axis_color_y` when it differs from `base_color`, otherwise `"grey95"`.
+#' @param grid_lighten_x Amount to lighten `grid_color_x`, from 0 to 1;
+#'   `0.85` for a colored grid, `0` for the default grey.
+#' @param grid_lighten_y Amount to lighten `grid_color_y`, from 0 to 1;
+#'   `0.85` for a colored grid, `0` for the default grey.
+#' @param ... Additional elements passed to [ggplot2::theme()].
 #'
-#' @return arg
+#' @return A [ggplot2::theme()] object.
 #' @export
 #'
 #' @examples "arg"

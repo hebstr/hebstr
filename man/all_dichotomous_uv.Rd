@@ -2,20 +2,21 @@
 % Please edit documentation in R/tab_helpers.R
 \name{all_dichotomous_uv}
 \alias{all_dichotomous_uv}
-\title{Title}
+\title{Names of dichotomous variables}
 \usage{
 all_dichotomous_uv(data, ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame to inspect.}
 
-\item{...}{arg}
+\item{...}{Optional column names to restrict the search to; defaults to all
+columns of \code{data}.}
 }
 \value{
-arg
+A character vector of the column names with exactly two levels.
 }
 \description{
-Title
+Identifies the columns that are factors with exactly two levels.
 }
 \examples{
 "arg"

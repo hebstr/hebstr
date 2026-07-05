@@ -2,30 +2,37 @@
 % Please edit documentation in R/easy_helpers.R
 \name{easy_cut}
 \alias{easy_cut}
-\title{Title}
+\title{Bin a numeric column into categories}
 \usage{
 easy_cut(x, var, incr = FALSE, drop = FALSE, values = NULL, labels = NULL, ...)
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A data frame.}
 
-\item{var}{arg}
+\item{var}{The numeric column to bin (unquoted).}
 
-\item{incr}{arg}
+\item{incr}{Whether to bin into equal-width increments defined by \code{...}
+(passed to \code{\link[=seq]{seq()}}). When \code{FALSE}, \code{values} supplies the breakpoints.}
 
-\item{drop}{arg}
+\item{drop}{Whether to drop the original column and rename the binned column
+to the original name.}
 
-\item{values}{arg}
+\item{values}{Breakpoints for the categories; required when \code{incr} is
+\code{FALSE}.}
 
-\item{labels}{arg}
+\item{labels}{Labels for the resulting categories; decimal marks are
+localised via \code{getOption("OutDec")}. \code{NULL} uses the default interval
+labels.}
 
-\item{...}{arg}
+\item{...}{Arguments forwarded to \code{\link[=seq]{seq()}} (e.g. \code{by}) when \code{incr} is \code{TRUE}.}
 }
 \value{
-arg
+\code{x} with an added categorical column (\verb{\{var\}_cat} or \verb{\{var\}_incr}),
+or with the original column replaced when \code{drop} is \code{TRUE}.
 }
 \description{
-Title
+Adds a categorical version of a numeric column, either from explicit
+breakpoints or from equal-width increments.
 }
 \examples{
 "arg"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_helpers.R
 \name{label_p}
 \alias{label_p}
-\title{Title}
+\title{Percentage label formatter}
 \usage{
 label_p(
   accuracy = 0.1,
@@ -16,27 +16,29 @@ label_p(
 )
 }
 \arguments{
-\item{accuracy}{arg}
+\item{accuracy}{Rounding accuracy.}
 
-\item{scale}{arg}
+\item{scale}{Multiplier applied before formatting (\code{100} expresses
+proportions as percentages).}
 
-\item{prefix}{arg}
+\item{prefix}{String prepended to each label.}
 
-\item{suffix}{arg}
+\item{suffix}{String appended to each label.}
 
-\item{big.mark}{arg}
+\item{big.mark}{Thousands separator.}
 
-\item{decimal.mark}{arg}
+\item{decimal.mark}{Decimal separator (localised via \code{getOption("OutDec")}).}
 
-\item{trim}{arg}
+\item{trim}{Whether to trim leading whitespace.}
 
-\item{...}{arg}
+\item{...}{Further arguments forwarded to \code{\link[scales:number_format]{scales::number_format()}}.}
 }
 \value{
-arg
+A labelling function from \code{\link[scales:number_format]{scales::number_format()}}.
 }
 \description{
-Title
+Wraps \code{\link[scales:number_format]{scales::number_format()}} with defaults suited to percentages,
+respecting the locale's decimal mark.
 }
 \examples{
 "arg"

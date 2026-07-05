@@ -2,20 +2,23 @@
 % Please edit documentation in R/easy_helpers.R
 \name{flow_filter}
 \alias{flow_filter}
-\title{Title}
+\title{Cumulative filter with a row-count flow log}
 \usage{
 flow_filter(data, ...)
 }
 \arguments{
-\item{data}{arg}
+\item{data}{A data frame, or a lazy/SQL table (collected first).}
 
-\item{...}{arg}
+\item{...}{Filtering expressions applied cumulatively; names label each step
+and are auto-derived from the expression when unnamed.}
 }
 \value{
-arg
+A named list with \code{data} (the data filtered by all expressions) and
+\code{flow} (the remaining count and percentage after each successive filter).
 }
 \description{
-Title
+Applies filtering expressions one after another and records how many rows
+remain after each step, useful for documenting an inclusion flow.
 }
 \examples{
 "arg"

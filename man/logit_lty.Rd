@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_helpers.R
 \name{logit_lty}
 \alias{logit_lty}
-\title{Title}
+\title{Logit linearity check for a numeric predictor}
 \usage{
 logit_lty(
   df,
@@ -15,25 +15,32 @@ logit_lty(
 )
 }
 \arguments{
-\item{df}{arg}
+\item{df}{A data frame.}
 
-\item{y}{arg}
+\item{y}{The outcome, a 2-level factor with the event taken as the second
+level (unquoted). A non-factor or non-binary outcome aborts.}
 
-\item{x}{arg}
+\item{x}{The numeric predictor (unquoted).}
 
-\item{breaks}{arg}
+\item{breaks}{Number of bins used to compute the empirical logits.}
 
-\item{color}{arg}
+\item{color}{Colour of the fitted line.}
 
-\item{label_y}{arg}
+\item{label_y}{The y-axis label (\code{\link[glue:glue]{glue::glue()}} template).}
 
-\item{label_x}{arg}
+\item{label_x}{The x-axis label (\code{\link[glue:glue]{glue::glue()}} template; defaults to \code{x}).}
 }
 \value{
-arg
+A named list with \code{data} (per-bin mean \code{x}, event proportion, and
+empirical logit), \code{model} (a tidied tibble of \code{term}, \code{estimate},
+\code{conf.low}, \code{conf.high}, and \code{p.value} from an exponentiated logistic fit
+on \code{x} quartiles), and \code{plot} (a ggplot of empirical logit against mean
+\code{x} with a linear fit).
 }
 \description{
-Title
+Compares empirical logits of a binary outcome across bins of a numeric
+predictor against a linear fit, alongside a logistic model on the
+predictor's quartiles.
 }
 \examples{
 "arg"

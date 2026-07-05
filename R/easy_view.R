@@ -1,16 +1,23 @@
-#' Title
+#' Interactive data explorer
 #'
-#' @param x arg
-#' @param font_size arg
+#' Summarises each variable of a data frame (type, missingness, range, quartiles,
+#' factor levels) and renders the summary as an interactive [reactable::reactable()]
+#' widget.
+#'
+#' @param x A data frame to explore.
+#' @param font_size CSS font size for the widget's text.
 #' @param font_family Font family for the explorer's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 #'   (`"sans"`) when Luciole is unavailable.
-#' @param level_sep arg
-#' @param strip_color arg
-#' @param ... arg
+#' @param level_sep Separator string joining a variable's factor levels in the
+#'   display.
+#' @param strip_color Background color of the striped rows. Defaults to the first
+#'   cold-palette color from the options.
+#' @param ... Additional arguments forwarded to [reactable::reactable()].
 #'
-#' @return arg
+#' @return A named list with `data` (the per-variable summary tibble) and
+#'   `output` (the interactive `reactable` widget).
 #' @export
 #'
 #' @examples "arg"
@@ -49,7 +56,7 @@ easy_view <- \(
       q1_q2_q3 = set_cols(
         x,
         vars = where(is.numeric),
-        fn = quantile(x[[.]], probs = c(.25, .5, .75), na.rm = TRUE) |>
+        fn = quantile(x[[.]], probs = c(0.25, 0.5, 0.75), na.rm = TRUE) |>
           round(1),
         name = "q1_q2_q3"
       ),

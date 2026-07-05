@@ -2,7 +2,7 @@
 % Please edit documentation in R/themes.R
 \name{theme_infreq}
 \alias{theme_infreq}
-\title{Title}
+\title{Ranked-frequency bar theme}
 \usage{
 theme_infreq(
   family = .text_font(),
@@ -23,29 +23,31 @@ called, defaults to the centralised text font (\code{opts$font$alpha});
 otherwise falls back to Luciole, or the OS-agnostic system sans-serif
 (\code{"sans"}) when Luciole is unavailable.}
 
-\item{title_size}{arg}
+\item{title_size}{Plot title font size, in points.}
 
-\item{title_margin}{arg}
+\item{title_margin}{Bottom margin below the title, in points.}
 
-\item{caption_size}{arg}
+\item{caption_size}{Caption font size, in points.}
 
-\item{caption_margin}{arg}
+\item{caption_margin}{Top margin above the caption, in points.}
 
-\item{label_size}{arg}
+\item{label_size}{Font size of the y-axis labels, in points.}
 
-\item{label_margin}{arg}
+\item{label_margin}{Margin around the y-axis labels, from \code{\link[ggplot2:margin]{ggplot2::margin()}}.}
 
-\item{grid}{arg}
+\item{grid}{Whether to draw major vertical grid lines and x-axis text.}
 
-\item{grid_size}{arg}
+\item{grid_size}{Font size of the x-axis text drawn with the grid, in points.}
 
-\item{...}{arg}
+\item{...}{Additional theme elements merged in via \verb{\%+replace\%}.}
 }
 \value{
-arg
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Title
+A \code{\link[ggplot2:theme]{ggplot2::theme()}} for horizontal ranked-frequency bar charts: a centered
+markdown title, right-aligned caption, blanked axis titles, and optional
+vertical grid lines.
 }
 \examples{
 "arg"
