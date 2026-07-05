@@ -7,10 +7,14 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-Package R perso regroupant des fonctions utilitaires pour l’analyse
-descriptive, la visualisation, le formatage de tableaux et l’export de
-résultats. Utilisé comme dépendance par les projets d’analyse (dont
-`eds_avc`).
+hebstr provides a standardised workflow for descriptive analysis and
+reporting. Variables are classified automatically before descriptive
+statistics are computed, figures are drawn with consistent ‘ggplot2’
+themes, and tables are formatted with ‘gt’ and ‘gtsummary’. A
+singleinterface exports figures and tables to PNG, SVG, and HTML. Output
+switches between English and French based on the session locale, and
+further helpers cover statistical tests, acronym dictionaries, and
+Quarto integration.
 
 ## Installation
 
