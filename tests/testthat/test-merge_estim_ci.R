@@ -62,6 +62,11 @@ test_that("merge_estim_ci() keeps original columns when keep = TRUE", {
   expect_true("estimate" %in% names(result))
   expect_true("conf.low" %in% names(result))
   expect_true("conf.high" %in% names(result))
+
+  expect_type(result$estimate, "double")
+  expect_equal(result$estimate, 1.5)
+  expect_equal(result$conf.low, 1.0)
+  expect_equal(result$conf.high, 2.0)
 })
 
 test_that("merge_estim_ci() uses custom output column name", {

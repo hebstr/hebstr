@@ -74,7 +74,7 @@ easy_out <- \(
     )
 
     cat_line()
-    cli_alert_info("Files saved in {.strong {.path {here::here(dir)}}}")
+    cli_alert_info("Files saved in {.strong {.path {fs::path_abs(dir)}}}")
     cli_ul(files_list)
     cat_line()
 

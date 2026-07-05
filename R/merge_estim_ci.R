@@ -38,14 +38,20 @@ merge_estim_ci <- \(
 
   multi <- if (percent) 100 else 1
 
-  data <- mutate(
+  formatted <- mutate(
     .data = data,
     across(
       !!vars,
       ~ round(. * multi, digit) |> format(nsmall = digit, trim = TRUE)
-    ),
-    "{name}" := str_c(.data[[estim_col]], " ", str_glue(ci_data))
+    )
   )
+
+  merged <- mutate(
+    formatted,
+    "{name}" := str_c(.data[[estim_col]], " ", str_glue(ci_data))
+  )[[name]]
+
+  data <- mutate(data, "{name}" := merged)
 
   if (!keep) {
     data <- select(data, -!!vars)
