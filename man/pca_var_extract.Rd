@@ -2,20 +2,31 @@
 % Please edit documentation in R/easy_helpers.R
 \name{pca_var_extract}
 \alias{pca_var_extract}
-\title{Title}
+\title{Extract PCA variable coordinates, contributions, and weights}
 \usage{
-pca_var_extract(x)
+pca_var_extract(x, strip = NULL)
 }
 \arguments{
-\item{x}{arg}
+\item{x}{A fitted PCA object accepted by \code{\link[broom:tidy]{broom::tidy()}} with
+\code{matrix = "rotation"}, e.g. the result of \code{\link[stats:prcomp]{stats::prcomp()}}.}
+
+\item{strip}{Optional pattern removed from the variable names in the returned
+tables, via \code{\link[stringr:str_remove_all]{stringr::str_remove_all()}} (a regular expression). Useful to
+drop a shared instrument prefix (e.g. \code{"hamd"} for Hamilton scale items)
+before display. \code{NULL} (default) leaves the names unchanged.}
 }
 \value{
-arg
+A named list with elements \code{coord}, \code{contrib}, and \code{weight}.
 }
 \description{
-Title
+From a fitted PCA object, builds a tidy summary of the variable-space results:
+\code{coord} (rotation loadings, one column per component), \code{contrib} (squared,
+column-normalised loadings) and \code{weight} (first-component contributions
+rescaled so the maximum is 1). Variable names can optionally be cleaned for
+display.
 }
 \examples{
-"arg"
+pca <- prcomp(mtcars, scale = TRUE)
+pca_var_extract(pca)$weight
 
 }

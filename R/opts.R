@@ -133,7 +133,7 @@ clear_vars <- \(env = ".vars_context") {
 #'
 #' @family configuration
 #'
-#' @seealso [use_vars()], `check_opts()`, [lang_fr()]
+#' @seealso [use_vars()], [check_opts()], [lang_fr()]
 #'
 #' @examples
 #' opts <- set_opts(.assign = FALSE)
@@ -343,6 +343,33 @@ set_opts <- \(
 }
 
 
+#' Read a validated key from the package options
+#'
+#' Reader companion to [set_opts()]: retrieves a value from the centralised
+#' options object stored in the global environment, validating that the object
+#' exists and that the requested key is one of its keys. Used as the default for
+#' arguments across the package (e.g. `acro_list = check_opts(acro)`), and
+#' available for direct inspection of the active options.
+#'
+#' @param x An option key given as an unquoted expression navigating the options
+#'   object, e.g. `sep$ext`, `acro`, or `font$alpha`. The root name (`sep`,
+#'   `acro`, `font`, ...) is validated against the keys of the options object; an
+#'   unknown root aborts.
+#' @param .name Name under which the options object is stored in the global
+#'   environment, as set by [set_opts()]. Defaults to `"opts"`.
+#'
+#' @returns The value stored at the requested key of the options object.
+#'
+#' @export
+#'
+#' @family configuration
+#'
+#' @seealso [set_opts()], [use_vars()], [lang_fr()]
+#'
+#' @examples
+#' set_opts()
+#' check_opts(sep$ext)
+#'
 check_opts <- \(x, .name = "opts") {
   if (!exists(.name, envir = .GlobalEnv, inherits = FALSE)) {
     cli_abort(

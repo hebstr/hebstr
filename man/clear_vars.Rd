@@ -27,6 +27,7 @@ clear_vars()
 \code{\link[=use_vars]{use_vars()}}, \code{\link[=set_opts]{set_opts()}}
 
 Other configuration:
+\code{\link[=check_opts]{check_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=set_opts]{set_opts()}},
 \code{\link[=use_vars]{use_vars()}}

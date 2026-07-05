@@ -184,3 +184,35 @@ test_that("flow_filter collects a lazy dbplyr tbl before computing counts", {
 
   expect_false(any(grepl("NA", result$flow)))
 })
+
+test_that("pct_min aborts when .var is not a column of data", {
+  df <- data.frame(g = c("a", "a", "b"))
+
+  expect_error(pct_min(df, "absent", 0.5), "is not a column")
+})
+
+test_that("pct_min keeps only levels at or above the relative-frequency threshold", {
+  df <- data.frame(g = c("a", "a", "a", "a", "b"))
+
+  res <- pct_min(df, "g", 0.5)
+
+  expect_equal(nrow(res), 4)
+  expect_setequal(res$g, "a")
+})
+
+test_that("pca_var_extract leaves variable names unchanged by default", {
+  res <- pca_var_extract(prcomp(mtcars, scale = TRUE))
+
+  expect_contains(res$coord$column, c("mpg", "cyl", "disp"))
+})
+
+test_that("pca_var_extract strips the supplied pattern from variable names", {
+  pca <- prcomp(mtcars, scale = TRUE)
+
+  plain <- pca_var_extract(pca)
+  stripped <- pca_var_extract(pca, strip = "mp")
+
+  expect_contains(stripped$coord$column, "g")
+  expect_false("mpg" %in% stripped$coord$column)
+  expect_equal(stripped$weight, plain$weight)
+})

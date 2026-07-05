@@ -125,25 +125,45 @@ easy_cut <- \(
 }
 
 
-#' Title
+#' Extract PCA variable coordinates, contributions, and weights
 #'
-#' @param x arg
+#' From a fitted PCA object, builds a tidy summary of the variable-space results:
+#' `coord` (rotation loadings, one column per component), `contrib` (squared,
+#' column-normalised loadings) and `weight` (first-component contributions
+#' rescaled so the maximum is 1). Variable names can optionally be cleaned for
+#' display.
 #'
-#' @return arg
+#' @param x A fitted PCA object accepted by [broom::tidy()] with
+#'   `matrix = "rotation"`, e.g. the result of [stats::prcomp()].
+#' @param strip Optional pattern removed from the variable names in the returned
+#'   tables, via [stringr::str_remove_all()] (a regular expression). Useful to
+#'   drop a shared instrument prefix (e.g. `"hamd"` for Hamilton scale items)
+#'   before display. `NULL` (default) leaves the names unchanged.
+#'
+#' @returns A named list with elements `coord`, `contrib`, and `weight`.
+#'
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' pca <- prcomp(mtcars, scale = TRUE)
+#' pca_var_extract(pca)$weight
 #'
-pca_var_extract <- \(x) {
+pca_var_extract <- \(x, strip = NULL) {
+  coord <-
+    x |>
+    broom::tidy("rotation") |>
+    tidyr::pivot_wider(
+      names_from = "PC",
+      names_prefix = "PC",
+      values_from = "value"
+    )
+
+  if (!is.null(strip)) {
+    coord <- mutate(coord, column = str_remove_all(column, strip))
+  }
+
   lst(
-    coord = x |>
-      broom::tidy("rotation") |>
-      tidyr::pivot_wider(
-        names_from = "PC",
-        names_prefix = "PC",
-        values_from = "value"
-      ) |>
-      mutate(column = str_remove_all(column, "hamd"), .keep = "all"),
+    coord,
     contrib = coord |>
       mutate(across(matches("PC"), ~ .^2 / sum(.^2))),
     weight = coord["column"] |>
@@ -158,7 +178,6 @@ pca_var_extract <- \(x) {
 #' @param data arg
 #' @param times arg
 #' @param method arg
-#' @param fit arg
 #' @param ... arg
 #'
 #' @return arg
@@ -166,7 +185,7 @@ pca_var_extract <- \(x) {
 #'
 #' @examples "arg"
 #'
-easy_boot <- \(data, times = 1000, method, fit, ...) {
+easy_boot <- \(data, times = 1000, method, ...) {
   .f <- \(.) {
     do.call(method, list(parsnip::fit, rsample::analysis(.), ...))
   }
@@ -278,15 +297,20 @@ p_shortenr <- \(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE) {
 #' @examples "arg"
 #'
 pct_min <- \(data, .var, .min, .fun = "max") {
+  if (!.var %in% names(data)) {
+    col <- .var
+    cli_abort("{.arg .var} ({.val {col}}) is not a column of {.arg data}.")
+  }
+
   .count <-
     data |>
-    count("{.var}" := get(.var)) |>
+    count("{.var}" := .data[[.var]]) |>
     mutate(p = n / do.call(.fun, list(n))) |>
     filter(p >= .min) |>
     pull(.var)
 
   data |>
-    filter(get(.var) %in% .count)
+    filter(.data[[.var]] %in% .count)
 }
 
 

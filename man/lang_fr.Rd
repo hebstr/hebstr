@@ -33,6 +33,7 @@ withr::with_options(list(OutDec = "."), {
 \code{\link[gtsummary:theme_gtsummary_language]{gtsummary::theme_gtsummary_language()}}
 
 Other configuration:
+\code{\link[=check_opts]{check_opts()}},
 \code{\link[=clear_vars]{clear_vars()}},
 \code{\link[=set_opts]{set_opts()}},
 \code{\link[=use_vars]{use_vars()}}

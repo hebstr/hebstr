@@ -49,9 +49,10 @@ opts$sep$ext
 
 }
 \seealso{
-\code{\link[=use_vars]{use_vars()}}, \code{check_opts()}, \code{\link[=lang_fr]{lang_fr()}}
+\code{\link[=use_vars]{use_vars()}}, \code{\link[=check_opts]{check_opts()}}, \code{\link[=lang_fr]{lang_fr()}}
 
 Other configuration:
+\code{\link[=check_opts]{check_opts()}},
 \code{\link[=clear_vars]{clear_vars()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=use_vars]{use_vars()}}

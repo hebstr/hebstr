@@ -4,7 +4,7 @@
 \alias{easy_boot}
 \title{Title}
 \usage{
-easy_boot(data, times = 1000, method, fit, ...)
+easy_boot(data, times = 1000, method, ...)
 }
 \arguments{
 \item{data}{arg}
@@ -12,8 +12,6 @@ easy_boot(data, times = 1000, method, fit, ...)
 \item{times}{arg}
 
 \item{method}{arg}
-
-\item{fit}{arg}
 
 \item{...}{arg}
 }
