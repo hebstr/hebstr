@@ -1,10 +1,17 @@
 Package: hebstr
-Title: Fonctions perso
+Title: Descriptive Statistics, Table Formatting, and Figure Export
 Version: 0.0.0.9000
 Authors@R:
-    person("Henry", "Bostorrhus", , "ju.diez@protonmail.com", role = c("aut", "cre"),
+    person("Henry", "Bostorrhus", , "ju.diez@protonmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0009-0001-3983-5713"))
-Description: Stockage de fonctions perso.
+Description: Provides a standardised workflow for descriptive analysis and
+    reporting. Variables are classified automatically before descriptive
+    statistics are computed, figures are drawn with consistent 'ggplot2'
+    themes, and tables are formatted with 'gt' and 'gtsummary'. A single
+    interface exports figures and tables to PNG, SVG, and HTML. Output
+    switches between English and French based on the session locale, and
+    further helpers cover statistical tests, acronym dictionaries, and
+    'Quarto' integration.
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends:

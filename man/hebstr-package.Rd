@@ -4,11 +4,11 @@
 \name{hebstr-package}
 \alias{hebstr}
 \alias{hebstr-package}
-\title{hebstr: Fonctions perso}
+\title{hebstr: Descriptive Statistics, Table Formatting, and Figure Export}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Stockage de fonctions perso.
+Provides a standardised workflow for descriptive analysis and reporting. Variables are classified automatically before descriptive statistics are computed, figures are drawn with consistent 'ggplot2' themes, and tables are formatted with 'gt' and 'gtsummary'. A single interface exports figures and tables to PNG, SVG, and HTML. Output switches between English and French based on the session locale, and further helpers cover statistical tests, acronym dictionaries, and 'Quarto' integration.
 }
 \seealso{
 Useful links:
@@ -19,11 +19,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID})
+\strong{Maintainer}: Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID}) [copyright holder]
 
 Authors:
 \itemize{
-  \item Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID})
+  \item Henry Bostorrhus \email{ju.diez@protonmail.com} (\href{https://orcid.org/0009-0001-3983-5713}{ORCID}) [copyright holder]
 }
 
 }
