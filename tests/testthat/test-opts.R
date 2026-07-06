@@ -193,7 +193,7 @@ test_that("set_opts() strips the IQR suffix in opts$qt_stat_wide", {
   res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_type(res$qt_stat_wide, "character")
-  expect_true("Median" %in% names(res$qt_stat_wide))
+  expect_contains(names(res$qt_stat_wide), "Median")
   expect_equal(unname(res$qt_stat_wide[["Median"]]), "{median}")
 })
 

@@ -7,7 +7,7 @@ test_that("quanti.test.para returns a tidy ANOVA result with more than 2 groups"
   res <- quanti.test.para(data, "y", "g")
 
   expect_s3_class(res, "data.frame")
-  expect_true("p.value" %in% names(res))
+  expect_contains(names(res), "p.value")
   expect_equal(nrow(res), 1)
   expect_equal(
     res$p.value,
@@ -275,7 +275,7 @@ test_that("add_ref_label honors a custom reference label", {
   res <- add_ref_label(tbl, label = "Ref.")
 
   fm <- res$table_styling$fmt_missing
-  expect_true("Ref." %in% fm$symbol)
+  expect_contains(fm$symbol, "Ref.")
   expect_false("Reference" %in% fm$symbol)
   expect_setequal(
     fm$column[fm$symbol == "Ref."],

@@ -65,7 +65,7 @@ test_that("theme_gt() applies the alpha font to the table and the digit font to 
   ))
 
   expect_identical(table_font[[1]], "AlphaFace")
-  expect_true("DigitFace" %in% digit_fonts)
+  expect_contains(digit_fonts, "DigitFace")
 })
 
 test_that("theme_gt() aborts when opts does not exist (deliberately strict)", {

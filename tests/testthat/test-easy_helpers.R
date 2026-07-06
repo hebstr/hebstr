@@ -29,7 +29,7 @@ test_that("easy_cut in incr mode returns sequential bin indices", {
 
   res <- easy_cut(df, age, incr = TRUE, from = 0, to = 40, by = 10)
 
-  expect_true("age_incr" %in% names(res))
+  expect_contains(names(res), "age_incr")
   expect_equal(res$age_incr, c(1, 2, 3, 4))
 })
 

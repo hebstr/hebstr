@@ -4,7 +4,7 @@ test_that("acro() builds the English dictionary by default", {
   res <- acro()
 
   expect_equal(res$SD, "SD: standard deviation")
-  expect_true("95%CI" %in% names(res))
+  expect_contains(names(res), "95%CI")
 })
 
 test_that("acro() builds the French dictionary when OutDec is a comma", {
@@ -13,7 +13,7 @@ test_that("acro() builds the French dictionary when OutDec is a comma", {
   res <- acro()
 
   expect_equal(res$SD, "SD : écart-type")
-  expect_true("IC95%" %in% names(res))
+  expect_contains(names(res), "IC95%")
 })
 
 test_that("acro() lets a custom entry override a base entry", {

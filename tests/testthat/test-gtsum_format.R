@@ -47,7 +47,7 @@ test_that("gtsum_format() routes a by-group summary through the by-table formatt
   res <- expect_no_warning(gtsum_format(tbl))
 
   expect_s3_class(res, "gtsummary")
-  expect_true(all(c("stat_0", "stat_1", "stat_2") %in% names(res$table_body)))
+  expect_contains(names(res$table_body), c("stat_0", "stat_1", "stat_2"))
   header <- res$table_styling$header
   expect_equal(header$label[header$column == "p.value"], "**p**")
 })
@@ -171,7 +171,7 @@ test_that("gtsum_format() forces vargrp_levels rows to indented levels", {
     res$table_body$row_type[res$table_body$variable == "age"]
   )
   expect_equal(age_row_type, "level")
-  expect_true(12L %in% res$table_styling$indent$n_spaces)
+  expect_contains(res$table_styling$indent$n_spaces, 12L)
 })
 
 test_that("gtsum_format() routes a univariate regression through the n-column formatter", {
@@ -182,7 +182,7 @@ test_that("gtsum_format() routes a univariate regression through the n-column fo
   res <- expect_no_warning(gtsum_format(uv))
 
   expect_s3_class(res, "tbl_uvregression")
-  expect_true("stat_n" %in% names(res$table_body))
+  expect_contains(names(res$table_body), "stat_n")
   header <- res$table_styling$header
   expect_equal(header$label[header$column == "stat_n"], "**Events/Obs**")
 })
@@ -202,10 +202,11 @@ test_that("gt_format() attaches note_pvalue to the p-value column", {
   )
 
   expect_s3_class(res, "gt_tbl")
-  expect_true(any(str_detect(
+  expect_match(
     unlist(res[["_footnotes"]]$footnotes),
-    "Wald test"
-  )))
+    "Wald test",
+    all = FALSE
+  )
 })
 
 test_that("gtsum_format() |> gt_format() renders the estimator footnote", {
@@ -216,10 +217,11 @@ test_that("gtsum_format() |> gt_format() renders the estimator footnote", {
   res <- gt_format(gtsum_format(reg$tbl, model_mv = reg$mod))
 
   expect_s3_class(res, "gt_tbl")
-  expect_true(any(str_detect(
+  expect_match(
     unlist(res[["_footnotes"]]$footnotes),
-    "odds ratio"
-  )))
+    "odds ratio",
+    all = FALSE
+  )
 })
 
 test_that("gt_format() strips the native gtsummary abbreviations", {
@@ -228,10 +230,11 @@ test_that("gt_format() strips the native gtsummary abbreviations", {
 
   reg <- .make_reg_tbl()
 
-  expect_true(any(str_detect(
+  expect_match(
     reg$tbl$table_styling$abbreviation$abbreviation,
-    "Confidence Interval"
-  )))
+    "Confidence Interval",
+    all = FALSE
+  )
 
   res <- gt_format(gtsum_format(reg$tbl, model_mv = reg$mod))
 

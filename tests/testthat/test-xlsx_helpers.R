@@ -1,3 +1,8 @@
+.bold_fonts <- \(wb) {
+  fonts <- wb$styles_mgr$styles$fonts
+  fonts[grepl("<b val=\"1\"/>", fonts, fixed = TRUE)]
+}
+
 test_that("get_xlsx() returns a wbWorkbook object", {
   wb <- get_xlsx(list(a = head(iris, 5)))
   expect_s3_class(wb, "wbWorkbook")
@@ -18,22 +23,25 @@ test_that("get_xlsx() works with a single sheet", {
   expect_equal(unname(wb$get_sheet_names()), "only")
 })
 
-test_that("get_xlsx() accepts the color argument without error", {
-  expect_no_error(
-    get_xlsx(list(iris = head(iris, 5)), color = list(Species = "#FF0000"))
-  )
+test_that("get_xlsx() applies the requested bold font color to the target column", {
+  wb <- get_xlsx(list(iris = head(iris, 5)), color = list(Species = "#FF0000"))
+  expect_match(.bold_fonts(wb), 'rgb="FFFF0000"', all = FALSE, fixed = TRUE)
 })
 
-test_that("get_xlsx() accepts styling arguments without error", {
-  expect_no_error(
-    get_xlsx(
-      list(a = head(iris, 3)),
-      font_size = 10,
-      halign = "left",
-      header_color = "#CCCCCC",
-      border_color = "#000000",
-      max_width = 40
-    )
+test_that("get_xlsx() applies the header fill color under a full styling bundle", {
+  wb <- get_xlsx(
+    list(a = head(iris, 3)),
+    font_size = 10,
+    halign = "left",
+    header_color = "#CCCCCC",
+    border_color = "#000000",
+    max_width = 40
+  )
+  expect_match(
+    wb$styles_mgr$styles$fills,
+    "FFCCCCCC",
+    all = FALSE,
+    fixed = TRUE
   )
 })
 
@@ -51,13 +59,14 @@ test_that("get_xlsx() does not leak the openxlsx2.maxWidth option", {
   expect_equal(getOption("openxlsx2.maxWidth"), 20)
 })
 
-test_that("get_xlsx() accepts color with multiple columns", {
-  expect_no_error(
-    get_xlsx(
-      list(iris = head(iris, 5)),
-      color = list(Sepal.Length = "#FF0000", Sepal.Width = "#0000FF")
-    )
+test_that("get_xlsx() applies a distinct bold color to each named column", {
+  wb <- get_xlsx(
+    list(iris = head(iris, 5)),
+    color = list(Sepal.Length = "#FF0000", Sepal.Width = "#0000FF")
   )
+  fonts <- .bold_fonts(wb)
+  expect_match(fonts, 'rgb="FFFF0000"', all = FALSE, fixed = TRUE)
+  expect_match(fonts, 'rgb="FF0000FF"', all = FALSE, fixed = TRUE)
 })
 
 test_that("get_xlsx() errors on unnamed list", {
@@ -68,16 +77,19 @@ test_that("get_xlsx() errors on partially named list", {
   expect_error(get_xlsx(list(iris = iris, mtcars)), class = "rlang_error")
 })
 
-test_that("get_xlsx() ignores color entries for columns absent from a sheet", {
-  expect_no_error(
-    get_xlsx(
-      list(iris = head(iris, 5), mtcars = head(mtcars, 5)),
-      color = list(
-        Sepal.Length = "#FF0000",
-        Sepal.Width = "#0000FF",
-        mpg = "#FFFF00",
-        disp = "#FA8000"
-      )
+test_that("get_xlsx() applies each color only to sheets that contain the column", {
+  wb <- get_xlsx(
+    list(iris = head(iris, 5), mtcars = head(mtcars, 5)),
+    color = list(
+      Sepal.Length = "#FF0000",
+      Sepal.Width = "#0000FF",
+      mpg = "#FFFF00",
+      disp = "#FA8000"
     )
   )
+  fonts <- .bold_fonts(wb)
+  expect_match(fonts, 'rgb="FFFF0000"', all = FALSE, fixed = TRUE)
+  expect_match(fonts, 'rgb="FF0000FF"', all = FALSE, fixed = TRUE)
+  expect_match(fonts, 'rgb="FFFFFF00"', all = FALSE, fixed = TRUE)
+  expect_match(fonts, 'rgb="FFFA8000"', all = FALSE, fixed = TRUE)
 })

@@ -9,7 +9,7 @@ test_that("merge_estim_ci() merges estimate and CI into a single column", {
 
   result <- merge_estim_ci(df, ci_data = ci_template)
 
-  expect_true("estimate_ci" %in% names(result))
+  expect_contains(names(result), "estimate_ci")
   expect_false("estimate" %in% names(result))
   expect_false("conf.low" %in% names(result))
   expect_false("conf.high" %in% names(result))
@@ -58,10 +58,10 @@ test_that("merge_estim_ci() keeps original columns when keep = TRUE", {
 
   result <- merge_estim_ci(df, ci_data = ci_template, keep = TRUE)
 
-  expect_true("estimate_ci" %in% names(result))
-  expect_true("estimate" %in% names(result))
-  expect_true("conf.low" %in% names(result))
-  expect_true("conf.high" %in% names(result))
+  expect_contains(names(result), "estimate_ci")
+  expect_contains(names(result), "estimate")
+  expect_contains(names(result), "conf.low")
+  expect_contains(names(result), "conf.high")
 
   expect_type(result$estimate, "double")
   expect_equal(result$estimate, 1.5)
@@ -80,7 +80,7 @@ test_that("merge_estim_ci() uses custom output column name", {
 
   result <- merge_estim_ci(df, name = "OR_CI", ci_data = ci_template)
 
-  expect_true("OR_CI" %in% names(result))
+  expect_contains(names(result), "OR_CI")
   expect_false("estimate_ci" %in% names(result))
 })
 
@@ -99,7 +99,7 @@ test_that("merge_estim_ci() works with custom estimate column name", {
     ci_data = ci_template
   )
 
-  expect_true("estimate_ci" %in% names(result))
+  expect_contains(names(result), "estimate_ci")
   expect_match(result$estimate_ci, "2.50")
 })
 
@@ -115,7 +115,7 @@ test_that("merge_estim_ci() preserves other columns in the data", {
 
   result <- merge_estim_ci(df, ci_data = ci_template)
 
-  expect_true("term" %in% names(result))
+  expect_contains(names(result), "term")
   expect_equal(result$term, c("age", "sex"))
 })
 
@@ -166,7 +166,7 @@ test_that("merge_estim_ci() interpolates glue in the output column name", {
     ci_data = "[{conf.low}; {conf.high}]"
   )
 
-  expect_true("OR_ci" %in% names(result))
+  expect_contains(names(result), "OR_ci")
   expect_false("estimate_ci" %in% names(result))
 })
 

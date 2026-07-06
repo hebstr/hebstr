@@ -28,10 +28,11 @@ test_that("gt_format() attaches note_global as a footnote on a summary table", {
     note_global = "global note"
   )
 
-  expect_true(any(str_detect(
+  expect_match(
     unlist(res[["_footnotes"]]$footnotes),
-    "global note"
-  )))
+    "global note",
+    all = FALSE
+  )
 })
 
 test_that("gt_format() attaches note_vargrp to the targeted variable group", {
@@ -46,8 +47,8 @@ test_that("gt_format() attaches note_vargrp to the targeted variable group", {
 
   footnotes <- res[["_footnotes"]]
 
-  expect_true(any(str_detect(unlist(footnotes$footnotes), "vargrp note")))
-  expect_true("age" %in% res[["_data"]]$variable[footnotes$rownum])
+  expect_match(unlist(footnotes$footnotes), "vargrp note", all = FALSE)
+  expect_contains(res[["_data"]]$variable[footnotes$rownum], "age")
 })
 
 test_that("gt_format() aborts when note_vargrp is set without label_vargrp", {
@@ -76,10 +77,11 @@ test_that("gt_format() appends acronym definitions from acro_list as a footnote"
     acro_list = list(BMI = "BMI: body mass index")
   )
 
-  expect_true(any(str_detect(
+  expect_match(
     unlist(res[["_footnotes"]]$footnotes),
-    "body mass index"
-  )))
+    "body mass index",
+    all = FALSE
+  )
 })
 
 test_that("gt_format() sets the table title from `title`", {
