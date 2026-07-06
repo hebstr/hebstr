@@ -1,4 +1,6 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # hebstr
 
 <!-- badges: start -->
@@ -10,8 +12,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 hebstr provides a standardised workflow for descriptive analysis and
 reporting. Variables are classified automatically before descriptive
 statistics are computed, figures are drawn with consistent ‘ggplot2’
-themes, and tables are formatted with ‘gt’ and ‘gtsummary’. A
-singleinterface exports figures and tables to PNG, SVG, and HTML. Output
+themes, and tables are formatted with ‘gt’ and ‘gtsummary’. A single
+interface exports figures and tables to PNG, SVG, and HTML. Output
 switches between English and French based on the session locale, and
 further helpers cover statistical tests, acronym dictionaries, and
 Quarto integration.
@@ -19,6 +21,6 @@ Quarto integration.
 ## Installation
 
 ``` r
-#install.packages("pak")
+# install.packages("pak")
 pak::pak("hebstr/hebstr")
 ```
