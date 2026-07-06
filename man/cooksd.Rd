@@ -39,6 +39,7 @@ cutoffs (each a numerator divided by the number of observations), and plots
 the distances with the cutoff lines.
 }
 \examples{
-"arg"
+res <- cooksd(lm(mpg ~ wt, mtcars))
+res$obs
 
 }

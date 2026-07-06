@@ -17,8 +17,7 @@ theme_blank(
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{grid}{Whether to draw major horizontal grid lines and y-axis text.}
 
@@ -40,6 +39,10 @@ A \code{\link[ggplot2:theme_void]{ggplot2::theme_void()}}-based theme with a whi
 title and caption, optionally adding horizontal grid lines and y-axis text.
 }
 \examples{
-"arg"
+library(ggplot2)
+
+p <- ggplot(penguins, aes(species, fill = species)) +
+  geom_bar() +
+  theme_blank(grid = TRUE)
 
 }

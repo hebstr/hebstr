@@ -15,7 +15,10 @@
 #'   `FALSE` when at least one is missing (unless `.abort` is `TRUE`).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' check_fonts("sans")
+#'
+#' check_fonts(.auto = "luciole")
 #'
 check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
   if (!is.null(.auto)) {
@@ -61,7 +64,7 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
   if (exists("opts", envir = .hebstr, inherits = FALSE)) {
     check_opts(font$alpha)
   } else {
-    check_fonts(.auto = "luciole")
+    "sans"
   }
 }
 
@@ -103,7 +106,11 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 #' @return A [gt::gt()] table object (`gt_tbl`).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' set_opts()
+#'
+#' tbl <- gt::gt(head(penguins)) |>
+#'   theme_gt()
 #'
 theme_gt <- \(
   x,
@@ -203,8 +210,7 @@ theme_gt <- \(
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param text_color Color of the theme's text.
 #' @param title_size Plot title font size, in points.
 #' @param title_halign Horizontal alignment of the title text box, from 0
@@ -222,7 +228,12 @@ theme_gt <- \(
 #' @return A [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' library(ggplot2)
+#'
+#' p <- ggplot(penguins, aes(species)) +
+#'   geom_bar() +
+#'   theme_bar()
 #'
 theme_bar <- \(
   family = .text_font(),
@@ -279,8 +290,7 @@ theme_bar <- \(
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param size Caption font size, in points.
 #' @param vjust_y Vertical justification of the left y-axis title.
 #' @param title_margin Margin around the caption, from [ggplot2::margin()].
@@ -289,7 +299,12 @@ theme_bar <- \(
 #' @return A [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' library(ggplot2)
+#'
+#' p <- ggplot(na.omit(penguins), aes(flipper_len, body_mass, color = species)) +
+#'   geom_line() +
+#'   theme_tte()
 #'
 theme_tte <- \(
   family = .text_font(),
@@ -328,8 +343,7 @@ theme_tte <- \(
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param label_size Font size of the y-axis (strata) labels, in points.
 #' @param title_size Plot title font size, in points.
 #' @param title_margin Base size, in points, of the title margin (applied as a
@@ -341,7 +355,14 @@ theme_tte <- \(
 #' @return A list of ggplot2 theme components.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' \donttest{
+#' library(ggsurvfit)
+#'
+#' survfit2(Surv(time, status) ~ sex, data = df_lung) |>
+#'   ggsurvfit() +
+#'   add_risktable(theme = theme_risktable())
+#' }
 #'
 theme_risktable <- \(
   family = .text_font(),
@@ -381,14 +402,21 @@ theme_risktable <- \(
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param ... Additional theme elements merged in via `%+replace%`.
 #'
 #' @return A [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' library(ggplot2)
+#'
+#' num <- c("bill_len", "bill_dep", "flipper_len", "body_mass")
+#' pca <- prcomp(na.omit(penguins)[num], scale. = TRUE)
+#'
+#' p <- ggplot(as.data.frame(pca$x), aes(PC1, PC2)) +
+#'   geom_point() +
+#'   theme_pca()
 #'
 theme_pca <- \(family = .text_font(), ...) {
   theme(
@@ -418,8 +446,7 @@ theme_pca <- \(family = .text_font(), ...) {
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param grid Whether to draw major horizontal grid lines and y-axis text.
 #' @param grid_color Color of the grid lines and y-axis text.
 #' @param axis_text_size_y Font size of the y-axis text, in points.
@@ -430,7 +457,12 @@ theme_pca <- \(family = .text_font(), ...) {
 #' @return A [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' library(ggplot2)
+#'
+#' p <- ggplot(penguins, aes(species, fill = species)) +
+#'   geom_bar() +
+#'   theme_blank(grid = TRUE)
 #'
 theme_blank <- \(
   family = .text_font(),
@@ -490,8 +522,7 @@ theme_blank <- \(
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param title_size Plot title font size, in points.
 #' @param title_margin Bottom margin below the title, in points.
 #' @param caption_size Caption font size, in points.
@@ -505,7 +536,12 @@ theme_blank <- \(
 #' @return A [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' library(ggplot2)
+#'
+#' p <- ggplot(penguins, aes(y = species)) +
+#'   geom_bar() +
+#'   theme_infreq()
 #'
 theme_infreq <- \(
   family = .text_font(),
@@ -572,8 +608,7 @@ theme_infreq <- \(
 #'
 #' @param family Font family for the theme's text. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param size Base text size, in points.
 #' @param base_color Default color for text, titles, and borders.
 #' @param axis_margin_x Top margin of the x-axis title, in points.
@@ -597,7 +632,12 @@ theme_infreq <- \(
 #' @return A [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' library(ggplot2)
+#'
+#' p <- ggplot(na.omit(penguins), aes(bill_len, body_mass, size = flipper_len)) +
+#'   geom_point(alpha = 0.5) +
+#'   theme_bubble()
 #'
 theme_bubble <- \(
   family = .text_font(),

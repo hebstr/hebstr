@@ -82,6 +82,9 @@ row striping, heading alignment, and footnote formatting. Numeric columns
 (stats, estimates, p-values) receive a dedicated font and reduced sizes.
 }
 \examples{
-"arg"
+set_opts()
+
+tbl <- gt::gt(head(penguins)) |>
+  theme_gt()
 
 }

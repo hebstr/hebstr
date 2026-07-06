@@ -20,6 +20,14 @@ reference rows via \code{\link[gtsummary:modify_missing_symbol]{gtsummary::modif
 column is left unchanged.
 }
 \examples{
-"arg"
+set.seed(1)
+d <- data.frame(
+  y = factor(rep(c("A", "B"), length.out = 60)),
+  grp = factor(rep(c("g1", "g2", "g3"), length.out = 60))
+)
+fit <- glm(y ~ grp, binomial, d)
+tbl <-
+  gtsummary::tbl_regression(fit) |>
+  add_ref_label()
 
 }

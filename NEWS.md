@@ -7,6 +7,8 @@ Package state no longer touches the user's workspace. Options and the variable c
 * `set_opts()` no longer creates an `opts` object in the global environment; it stores the options in the internal package store. Read the whole object with the new `get_opts()`, or a single validated key with `check_opts()`.
 * `easy_view()` loses its `assign` argument (and the `name` argument, which only served to name the assigned widget). It returns the widget; assign it yourself if you need a bound name.
 * `clear_vars()` loses its `env` argument and is now called with no arguments; it always clears the internal cache set by `use_vars()`.
+* The default text and numeric font is now the portable `"sans"` family instead of Luciole, so output no longer depends on a non-standard font being installed. Opt into Luciole with `set_opts(font = "luciole")`.
+* The minimum required R version is now 4.5.0 (was 4.1.0), because examples and helpers rely on the `penguins` dataset shipped with base R since 4.5.0.
 
 ## New features
 

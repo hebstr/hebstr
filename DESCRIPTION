@@ -15,7 +15,7 @@ Description: Provides a standardised workflow for descriptive analysis and
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.5.0)
 Imports:
     broom,
     broom.helpers,

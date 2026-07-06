@@ -20,8 +20,7 @@ easy_view(
 
 \item{font_family}{Font family for the explorer's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{level_sep}{Separator string joining a variable's factor levels in the
 display.}
@@ -41,6 +40,8 @@ factor levels) and renders the summary as an interactive \code{\link[reactable:r
 widget.
 }
 \examples{
-"arg"
+\dontrun{
+easy_view(datasets::penguins)
+}
 
 }

@@ -7,8 +7,8 @@
 str_color(text, color = "red", bg = "#ffffff00")
 }
 \arguments{
-\item{text}{String containing the text to format. Supports interpolation
-with the \code{glue} syntax for dynamic variable insertion.}
+\item{text}{String containing the text to format. Inserted verbatim into the
+HTML output; \code{glue} braces in \code{text} are not interpolated.}
 
 \item{color}{Text color given as a standard CSS name, hexadecimal code, or
 RGB/RGBA value. Defaults to \code{"red"}.}
@@ -26,6 +26,8 @@ content. It combines the color styling with bold emphasis, for use in
 Markdown documents, HTML reports, and interactive web interfaces.
 }
 \examples{
-"arg"
+str_color("Important")
+str_color("Warning", color = "#ffffff", bg = "#cc0000")
+str_color("Highlighted", color = "green", bg = "rgba(0, 128, 0, 0.15)")
 
 }

@@ -34,8 +34,7 @@ theme_bubble(
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{size}{Base text size, in points.}
 
@@ -78,6 +77,10 @@ and per-axis control over text, title, and grid colors. Axis colors may be
 vectors, letting the title and grid colors adapt to a colored axis.
 }
 \examples{
-"arg"
+library(ggplot2)
+
+p <- ggplot(na.omit(penguins), aes(bill_len, body_mass, size = flipper_len)) +
+  geom_point(alpha = 0.5) +
+  theme_bubble()
 
 }

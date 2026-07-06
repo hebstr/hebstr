@@ -19,8 +19,7 @@
 #' @param ylab Label for the y axis. Default `"Effectif"`.
 #' @param family Font family for the text labels. When [set_opts()] has been
 #'   called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param grid Logical controlling display of the background grid.
 #'   Default `TRUE`.
 #' @param ... Additional arguments forwarded to the text layers (`geom_text`)

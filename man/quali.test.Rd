@@ -28,6 +28,9 @@ count falls between 2 and 5, and switches to Fisher's exact test when any
 expected count drops below 2.
 }
 \examples{
-"arg"
+pen <- na.omit(datasets::penguins)
+
+# Balanced cross-table: chi-squared without continuity correction
+quali.test(pen, "sex", "species")
 
 }

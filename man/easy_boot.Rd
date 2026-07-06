@@ -27,6 +27,11 @@ Resamples the data with \code{\link[rsample:bootstraps]{rsample::bootstraps()}},
 analysis set, and collects tidied coefficients and augmented predictions.
 }
 \examples{
-"arg"
+\donttest{
+df <- data.frame(x = seq_len(30), y = seq_len(30) + rnorm(30))
+lm_boot <- \(fit, data) lm(y ~ x, data = data)
+boot <- easy_boot(df, times = 25, method = lm_boot)
+boot$estimate$int
+}
 
 }

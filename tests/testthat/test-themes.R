@@ -196,22 +196,10 @@ test_that(".text_font() reads the centralised text font when opts exists", {
   expect_identical(.text_font(), "PinnedAlpha")
 })
 
-test_that(".text_font() falls back to check_fonts(luciole) when opts is absent", {
+test_that(".text_font() falls back to the portable 'sans' family when opts is absent", {
   if (exists("opts", envir = .hebstr, inherits = FALSE)) {
     rm(list = "opts", envir = .hebstr)
   }
-
-  expect_identical(.text_font(), check_fonts(.auto = "luciole"))
-})
-
-test_that(".text_font() resolves to 'sans' when opts absent and Luciole missing", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
-  local_mocked_bindings(
-    system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
-    .package = "systemfonts"
-  )
 
   expect_identical(.text_font(), "sans")
 })

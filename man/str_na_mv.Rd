@@ -17,6 +17,7 @@ Builds a sentence reporting the total number of observations and how many
 contain at least one missing value, with the associated percentage.
 }
 \examples{
-"arg"
+# `penguins` carries missing values; keep them to summarize
+str_na_mv(datasets::penguins)
 
 }

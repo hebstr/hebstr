@@ -21,6 +21,7 @@ token into a single coloured marker. The result feeds
 \code{\link[stringr:str_replace_all]{stringr::str_replace_all()}} as its \code{pattern}/\code{replacement} mapping.
 }
 \examples{
-"arg"
+easy_replace("hello", "world")
+easy_replace("age", "sex", replace = "[X]")
 
 }

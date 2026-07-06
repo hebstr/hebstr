@@ -18,6 +18,7 @@ A list with two character vectors: \code{name} (the argument names) and
 Split named arguments into parallel name and label vectors
 }
 \examples{
-"arg"
+easy_recode(m = "Male", f = "Female")
+easy_recode(c(a = "Label A"), c(b = "Label B", c = "Label C"))
 
 }

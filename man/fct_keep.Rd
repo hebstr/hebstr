@@ -24,6 +24,11 @@ Splits \code{var} on commas or \code{"et"}, counts the resulting values, then
 partitions them into frequent values to keep and rare values to drop.
 }
 \examples{
-"arg"
+df <- data.frame(
+  drugs = c("aspirin, ibuprofen", "aspirin et codeine", "ibuprofen", "aspirin")
+)
+
+# Keep values seen at least twice, list the rarer ones
+fct_keep(df, "drugs", min = 2, sep = ", ")
 
 }

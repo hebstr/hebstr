@@ -39,8 +39,7 @@ proportion of the total count. Default \code{0.05}.}
 
 \item{family}{Font family for the text labels. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{grid}{Logical controlling display of the background grid.
 Default \code{TRUE}.}

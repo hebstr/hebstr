@@ -229,7 +229,7 @@ set_opts <- \(
         all_categorical() ~ c(0, .label$p)
       ),
       pvalue = list(format = label_style_pvalue(digits = 2), seuil = 0.05),
-      font = list(alpha = "luciole", digit = "luciole"),
+      font = list(alpha = "sans", digit = "sans"),
       color = list(
         base = "#999",
         cold = c("#F0FAFF", "#0099FF"),

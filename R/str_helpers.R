@@ -84,8 +84,8 @@ str_u <- \(...) {
 #' content. It combines the color styling with bold emphasis, for use in
 #' Markdown documents, HTML reports, and interactive web interfaces.
 #'
-#' @param text String containing the text to format. Supports interpolation
-#'   with the `glue` syntax for dynamic variable insertion.
+#' @param text String containing the text to format. Inserted verbatim into the
+#'   HTML output; `glue` braces in `text` are not interpolated.
 #' @param color Text color given as a standard CSS name, hexadecimal code, or
 #'   RGB/RGBA value. Defaults to `"red"`.
 #' @param bg Background color given as a hexadecimal code, CSS name, or RGB/RGBA
@@ -94,7 +94,10 @@ str_u <- \(...) {
 #' @return A string containing the HTML code with the CSS styles applied through
 #'   the `style` attribute and the Markdown syntax for bold emphasis.
 #'
-#' @examples "arg"
+#' @examples
+#' str_color("Important")
+#' str_color("Warning", color = "#ffffff", bg = "#cc0000")
+#' str_color("Highlighted", color = "green", bg = "rgba(0, 128, 0, 0.15)")
 #'
 #' @export
 str_color <- \(text, color = "red", bg = "#ffffff00") {
@@ -126,7 +129,21 @@ str_color <- \(text, color = "red", bg = "#ffffff00") {
 #' @return A string containing the formatted HTML for the figure title with its
 #'   note and acronyms.
 #'
-#' @examples "arg"
+#' @examples
+#' str_fig("Body mass distribution")
+#'
+#' str_fig(
+#'   "Body mass distribution",
+#'   note = "Measured across three islands",
+#'   acro = "BMI: body mass index"
+#' )
+#'
+#' str_fig(
+#'   "Body mass distribution",
+#'   note = "Measured across three islands",
+#'   sub_size = "6",
+#'   qmd = TRUE
+#' )
 #'
 #' @export
 str_fig <- \(
@@ -178,7 +195,19 @@ str_fig <- \(
 #' uses `var_label()`, which must be available (typically through the `labelled`
 #' package).
 #'
-#' @examples "arg"
+#' @examples
+#' df <- datasets::penguins[, c("bill_len", "flipper_len", "body_mass")]
+#' labelled::var_label(df) <- list(
+#'   bill_len = "Bill length",
+#'   flipper_len = "Flipper length",
+#'   body_mass = "Body mass"
+#' )
+#'
+#' # Concatenate two labels
+#' str_label(df, bill_len, flipper_len)
+#'
+#' # Concatenate three labels with a custom final conjunction
+#' str_label(df, bill_len, flipper_len, body_mass, last = "or")
 #'
 #' @export
 str_label <- \(data, ..., last = "and") {

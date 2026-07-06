@@ -15,8 +15,7 @@
 #' @param digit Number of decimal places for the numeric cells.
 #' @param font_family Font family for the table's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param font_size Text size, in pixels.
 #' @param color Whether to color cells with `palette`. When `FALSE`, cells use a
 #'   neutral grey scale.
@@ -30,7 +29,14 @@
 #' @return A [gt::gt()] table object (`gt_tbl`).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' df <- data.frame(
+#'   group = c("a", "b", "c"),
+#'   x = c(1, 2, 3),
+#'   y = c(-2, 0, 4)
+#' )
+#'
+#' hm <- gt_heatmap(df, rowname_col = "group")
 #'
 gt_heatmap <- \(
   data,

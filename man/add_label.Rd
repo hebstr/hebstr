@@ -24,6 +24,9 @@ Adds a header row labeled \code{name} before the first of \code{levels}, then in
 the header and nests the grouped rows beneath it.
 }
 \examples{
-"arg"
+tbl <-
+  na.omit(datasets::penguins) |>
+  gtsummary::tbl_summary(include = c(species, island, sex)) |>
+  add_label(name = "Categorical", levels = c("species", "island"))
 
 }

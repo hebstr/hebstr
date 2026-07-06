@@ -8,8 +8,7 @@
 #' @param font_size CSS font size for the widget's text.
 #' @param font_family Font family for the explorer's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-#'   (`"sans"`) when Luciole is unavailable.
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param level_sep Separator string joining a variable's factor levels in the
 #'   display.
 #' @param strip_color Background color of the striped rows. Defaults to the first
@@ -20,7 +19,10 @@
 #'   `output` (the interactive `reactable` widget).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' \dontrun{
+#' easy_view(datasets::penguins)
+#' }
 #'
 easy_view <- \(
   x,

@@ -39,8 +39,7 @@ sharing the same levels to cross-tabulate into a contingency table.}
 
 \item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{font_size}{Text size, in pixels.}
 
@@ -65,6 +64,12 @@ scale centered on zero. A pair of factor columns sharing the same levels is
 cross-tabulated into a contingency table before display.
 }
 \examples{
-"arg"
+df <- data.frame(
+  group = c("a", "b", "c"),
+  x = c(1, 2, 3),
+  y = c(-2, 0, 4)
+)
+
+hm <- gt_heatmap(df, rowname_col = "group")
 
 }

@@ -13,7 +13,14 @@
 #'   p-value.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' pen <- na.omit(datasets::penguins)
+#'
+#' # Two groups: Student t-test
+#' quanti.test.para(pen, "body_mass", "sex")
+#'
+#' # Three groups: one-way ANOVA
+#' quanti.test.para(pen, "body_mass", "species")
 #'
 quanti.test.para <- \(data, variable, by, ...) {
   .var <- data[[variable]]
@@ -42,7 +49,14 @@ quanti.test.para <- \(data, variable, by, ...) {
 #'   p-value.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' pen <- na.omit(datasets::penguins)
+#'
+#' # Two groups: Wilcoxon rank-sum test
+#' quanti.test.nonpara(pen, "body_mass", "sex")
+#'
+#' # Three groups: Kruskal-Wallis test
+#' quanti.test.nonpara(pen, "body_mass", "species")
 #'
 quanti.test.nonpara <- \(data, variable, by, ...) {
   .var <- data[[variable]]
@@ -73,7 +87,11 @@ quanti.test.nonpara <- \(data, variable, by, ...) {
 #'   p-value.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' pen <- na.omit(datasets::penguins)
+#'
+#' # Balanced cross-table: chi-squared without continuity correction
+#' quali.test(pen, "sex", "species")
 #'
 quali.test <- \(data, variable, by, ...) {
   .var <- data[[variable]]
@@ -116,7 +134,12 @@ quali.test <- \(data, variable, by, ...) {
 #' @return A character vector of the column names with exactly two levels.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' # Only `sex` is a two-level factor
+#' all_dichotomous_uv(datasets::penguins)
+#'
+#' # Restrict the search to named columns
+#' all_dichotomous_uv(datasets::penguins, "sex", "species")
 #'
 all_dichotomous_uv <- \(data, ...) {
   dots <- c(...) %||% names(data)
@@ -143,7 +166,12 @@ all_dichotomous_uv <- \(data, ...) {
 #' @return A `gt` table with the footnote added.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' tbl <-
+#'   na.omit(datasets::penguins) |>
+#'   gtsummary::tbl_summary(include = c(species, bill_len)) |>
+#'   gtsummary::as_gt() |>
+#'   add_note(vars = "species", note = "Counts by species.")
 #'
 add_note <- \(
   data,
@@ -194,7 +222,11 @@ add_note <- \(
 #' @return A character string listing each level with its count.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' fct_str(datasets::penguins$island, sep = ", ")
+#'
+#' # Keep the original casing
+#' fct_str(datasets::penguins$island, sep = " | ", cap = FALSE)
 #'
 fct_str <- \(x, sep, cap = TRUE) {
   str <-
@@ -228,7 +260,13 @@ fct_str <- \(x, sep, cap = TRUE) {
 #'   counts.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' # Species below 100 counts (Chinstrap) listed, then island tally appended
+#' fct_other_str(
+#'   fct = datasets::penguins$species,
+#'   chr = datasets::penguins$island,
+#'   min = 100
+#' )
 #'
 fct_other_str <- \(fct, chr, min, sep = ", ") {
   fct <-
@@ -261,7 +299,13 @@ fct_other_str <- \(fct, chr, min, sep = ", ") {
 #'   (a string listing the rare values with their counts).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' df <- data.frame(
+#'   drugs = c("aspirin, ibuprofen", "aspirin et codeine", "ibuprofen", "aspirin")
+#' )
+#'
+#' # Keep values seen at least twice, list the rarer ones
+#' fct_keep(df, "drugs", min = 2, sep = ", ")
 #'
 fct_keep <- \(data, var, min, sep) {
   tab <-
@@ -307,7 +351,11 @@ fct_keep <- \(data, var, min, sep) {
 #' @return A `gtsummary` table with the header row inserted and rows indented.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' tbl <-
+#'   na.omit(datasets::penguins) |>
+#'   gtsummary::tbl_summary(include = c(species, island, sex)) |>
+#'   add_label(name = "Categorical", levels = c("species", "island"))
 #'
 add_label <- \(x, name, levels, indent = 0) {
   .before_index <- match(levels[1], x$table_body$variable)
@@ -340,7 +388,9 @@ add_label <- \(x, name, levels, indent = 0) {
 #' @return A character string describing the count of rows with missing data.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' # `penguins` carries missing values; keep them to summarize
+#' str_na_mv(datasets::penguins)
 #'
 str_na_mv <- \(data) {
   n_total <- nrow(data)
@@ -373,7 +423,9 @@ str_na_mv <- \(data) {
 #' @return The data frame with its dichotomous columns recoded to 0/1.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' # `sex` (two-level factor) is recoded to a 0/1 indicator
+#' show_single_row(datasets::penguins)
 #'
 show_single_row <- \(
   data,
@@ -397,7 +449,16 @@ show_single_row <- \(
 #' @returns A `gtsummary` table with the reference marker displayed.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' set.seed(1)
+#' d <- data.frame(
+#'   y = factor(rep(c("A", "B"), length.out = 60)),
+#'   grp = factor(rep(c("g1", "g2", "g3"), length.out = 60))
+#' )
+#' fit <- glm(y ~ grp, binomial, d)
+#' tbl <-
+#'   gtsummary::tbl_regression(fit) |>
+#'   add_ref_label()
 #'
 add_ref_label <- \(data, label = "Reference") {
   modify_missing_symbol(

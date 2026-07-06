@@ -59,6 +59,9 @@ columns, wrapped and aligned cells, uniform borders, and optional per-column
 font colours.
 }
 \examples{
-"arg"
+\donttest{
+wb <- openxlsx2::wb_workbook()
+wb <- wb_add_custom(wb, sheet = "cars", data = head(mtcars))
+}
 
 }

@@ -20,6 +20,7 @@ Converts every two-level factor (except those excluded) to a 0/1 numeric
 indicator, so gtsummary can display each on a single row.
 }
 \examples{
-"arg"
+# `sex` (two-level factor) is recoded to a 0/1 indicator
+show_single_row(datasets::penguins)
 
 }

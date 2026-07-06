@@ -19,6 +19,10 @@ A character vector of the column names with exactly two levels.
 Identifies the columns that are factors with exactly two levels.
 }
 \examples{
-"arg"
+# Only `sex` is a two-level factor
+all_dichotomous_uv(datasets::penguins)
+
+# Restrict the search to named columns
+all_dichotomous_uv(datasets::penguins, "sex", "species")
 
 }

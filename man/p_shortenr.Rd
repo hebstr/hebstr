@@ -26,6 +26,8 @@ Rewrites a p-value column as text: values below \code{seuil} become a \code{<} c
 string, and values at or above it are rounded.
 }
 \examples{
-"arg"
+p_values <- data.frame(p.value = c(0.0001, 0.03, 0.5))
+p_shortenr(p_values)
+p_shortenr(p_values, table = FALSE)
 
 }

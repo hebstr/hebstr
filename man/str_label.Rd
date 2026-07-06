@@ -33,6 +33,17 @@ package).
 }
 
 \examples{
-"arg"
+df <- datasets::penguins[, c("bill_len", "flipper_len", "body_mass")]
+labelled::var_label(df) <- list(
+  bill_len = "Bill length",
+  flipper_len = "Flipper length",
+  body_mass = "Body mass"
+)
+
+# Concatenate two labels
+str_label(df, bill_len, flipper_len)
+
+# Concatenate three labels with a custom final conjunction
+str_label(df, bill_len, flipper_len, body_mass, last = "or")
 
 }

@@ -21,8 +21,7 @@ to display only the first \code{top_n} rows.}
 
 \item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{font_size}{Font size in pixels. Defaults to \code{15}.}
 

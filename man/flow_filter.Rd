@@ -21,6 +21,8 @@ Applies filtering expressions one after another and records how many rows
 remain after each step, useful for documenting an inclusion flow.
 }
 \examples{
-"arg"
+penguins <- na.omit(datasets::penguins)
+res <- flow_filter(penguins, bill_len > 40, species == "Adelie")
+res$flow
 
 }

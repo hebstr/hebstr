@@ -24,6 +24,11 @@ Lists the levels of \code{fct} that fall below \code{min} (excluding \code{"Othe
 \code{level (n)} entries, then appends the \code{\link[=fct_str]{fct_str()}} tally of \code{chr}.
 }
 \examples{
-"arg"
+# Species below 100 counts (Chinstrap) listed, then island tally appended
+fct_other_str(
+  fct = datasets::penguins$species,
+  chr = datasets::penguins$island,
+  min = 100
+)
 
 }

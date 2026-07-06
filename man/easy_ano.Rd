@@ -38,6 +38,7 @@ truncated) and overwrites others with a fixed placeholder. Column selectors
 are regexes matched against full column names.
 }
 \examples{
-"arg"
+penguins <- na.omit(datasets::penguins)
+easy_ano(penguins, to_hash = "species", to_hide = "island")
 
 }

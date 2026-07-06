@@ -41,6 +41,8 @@ Wraps \code{\link[scales:number_format]{scales::number_format()}} with defaults 
 respecting the locale's decimal mark.
 }
 \examples{
-"arg"
+fmt <- label_p()
+fmt(c(0.1, 0.256))
+label_p(accuracy = 1)(0.256)
 
 }

@@ -16,8 +16,7 @@ theme_risktable(
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{label_size}{Font size of the y-axis (strata) labels, in points.}
 
@@ -39,6 +38,12 @@ Styles the risk table accompanying a time-to-event plot, layering package
 overrides on top of \code{theme_risktable_default()}.
 }
 \examples{
-"arg"
+\donttest{
+library(ggsurvfit)
+
+survfit2(Surv(time, status) ~ sex, data = df_lung) |>
+  ggsurvfit() +
+  add_risktable(theme = theme_risktable())
+}
 
 }

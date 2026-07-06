@@ -15,8 +15,7 @@ theme_tte(
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{size}{Caption font size, in points.}
 
@@ -34,6 +33,10 @@ A \code{\link[ggplot2:theme_classic]{ggplot2::theme_classic()}}-based theme for 
 time-to-event curves, with thin lines and a caption text box.
 }
 \examples{
-"arg"
+library(ggplot2)
+
+p <- ggplot(na.omit(penguins), aes(flipper_len, body_mass, color = species)) +
+  geom_line() +
+  theme_tte()
 
 }

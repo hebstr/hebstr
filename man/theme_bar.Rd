@@ -21,8 +21,7 @@ theme_bar(
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{text_color}{Color of the theme's text.}
 
@@ -55,6 +54,10 @@ A \code{\link[ggplot2:theme]{ggplot2::theme()}} built on textbox title and capti
 package's bar charts (\code{\link[=ggcount]{ggcount()}}).
 }
 \examples{
-"arg"
+library(ggplot2)
+
+p <- ggplot(penguins, aes(species)) +
+  geom_bar() +
+  theme_bar()
 
 }

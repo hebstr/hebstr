@@ -9,8 +9,7 @@ theme_pca(family = .text_font(), ...)
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{...}{Additional theme elements merged in via \verb{\%+replace\%}.}
 }
@@ -22,6 +21,13 @@ A minimal \code{\link[ggplot2:theme]{ggplot2::theme()}} for principal-component 
 plots: axis text, titles, and ticks are blanked, leaving a caption text box.
 }
 \examples{
-"arg"
+library(ggplot2)
+
+num <- c("bill_len", "bill_dep", "flipper_len", "body_mass")
+pca <- prcomp(na.omit(penguins)[num], scale. = TRUE)
+
+p <- ggplot(as.data.frame(pca$x), aes(PC1, PC2)) +
+  geom_point() +
+  theme_pca()
 
 }

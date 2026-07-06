@@ -25,6 +25,18 @@ Fits \code{model} for each candidate variable against \code{y} and keeps those w
 univariate p-value is at or below \code{pv}.
 }
 \examples{
-"arg"
+set.seed(1)
+d <- data.frame(
+  y = factor(rep(c("A", "B"), length.out = 60)),
+  x = rnorm(60),
+  g = factor(rep(c("g1", "g2", "g3"), length.out = 60))
+)
+p_picking(
+  d,
+  \(formula, data) glm(formula, data, family = binomial),
+  "y",
+  c("x", "g"),
+  pv = 0.5
+)
 
 }

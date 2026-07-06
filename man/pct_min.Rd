@@ -26,6 +26,7 @@ Retains rows whose category reaches a minimum share of the counts, where the
 denominator is \code{.fun} applied to the per-category counts.
 }
 \examples{
-"arg"
+penguins <- na.omit(datasets::penguins)
+pct_min(penguins, "island", 0.5)
 
 }

@@ -20,8 +20,7 @@ theme_infreq(
 \arguments{
 \item{family}{Font family for the theme's text. When \code{\link[=set_opts]{set_opts()}} has been
 called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise falls back to Luciole, or the OS-agnostic system sans-serif
-(\code{"sans"}) when Luciole is unavailable.}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{title_size}{Plot title font size, in points.}
 
@@ -50,6 +49,10 @@ markdown title, right-aligned caption, blanked axis titles, and optional
 vertical grid lines.
 }
 \examples{
-"arg"
+library(ggplot2)
+
+p <- ggplot(penguins, aes(y = species)) +
+  geom_bar() +
+  theme_infreq()
 
 }

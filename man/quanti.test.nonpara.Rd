@@ -26,6 +26,12 @@ Wilcoxon rank-sum test when \code{by} has two levels and a Kruskal-Wallis test
 otherwise.
 }
 \examples{
-"arg"
+pen <- na.omit(datasets::penguins)
+
+# Two groups: Wilcoxon rank-sum test
+quanti.test.nonpara(pen, "body_mass", "sex")
+
+# Three groups: Kruskal-Wallis test
+quanti.test.nonpara(pen, "body_mass", "species")
 
 }

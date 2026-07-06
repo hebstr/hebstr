@@ -21,6 +21,9 @@ Counts the levels of \code{x} in decreasing frequency and flattens them into one
 string of \code{level [n]} entries.
 }
 \examples{
-"arg"
+fct_str(datasets::penguins$island, sep = ", ")
+
+# Keep the original casing
+fct_str(datasets::penguins$island, sep = " | ", cap = FALSE)
 
 }

@@ -26,6 +26,12 @@ Student t-test when \code{by} has two levels and a one-way ANOVA otherwise, both
 assuming equal variances.
 }
 \examples{
-"arg"
+pen <- na.omit(datasets::penguins)
+
+# Two groups: Student t-test
+quanti.test.para(pen, "body_mass", "sex")
+
+# Three groups: one-way ANOVA
+quanti.test.para(pen, "body_mass", "species")
 
 }

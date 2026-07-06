@@ -43,6 +43,11 @@ predictor against a linear fit, alongside a logistic model on the
 predictor's quartiles.
 }
 \examples{
-"arg"
+d <- data.frame(
+  xv = seq_len(120),
+  yv = factor(rep(c("no", "yes"), length.out = 120))
+)
+res <- logit_lty(d, yv, xv, breaks = 6)
+res$model
 
 }

@@ -42,6 +42,19 @@ a subtitle. The formatting adapts to the output context (standard document or
 Quarto Markdown).
 }
 \examples{
-"arg"
+str_fig("Body mass distribution")
+
+str_fig(
+  "Body mass distribution",
+  note = "Measured across three islands",
+  acro = "BMI: body mass index"
+)
+
+str_fig(
+  "Body mass distribution",
+  note = "Measured across three islands",
+  sub_size = "6",
+  qmd = TRUE
+)
 
 }

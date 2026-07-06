@@ -27,6 +27,8 @@ Tests one or more font families against the system font list (via
 \code{\link[systemfonts:system_fonts]{systemfonts::system_fonts()}}), matching family names case-insensitively.
 }
 \examples{
-"arg"
+check_fonts("sans")
+
+check_fonts(.auto = "luciole")
 
 }

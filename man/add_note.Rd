@@ -29,6 +29,10 @@ rows or a multivariable p-value column. Exactly one of \code{vars}, \code{levels
 \code{rows}, or \code{pvalue_mv} selects the location.
 }
 \examples{
-"arg"
+tbl <-
+  na.omit(datasets::penguins) |>
+  gtsummary::tbl_summary(include = c(species, bill_len)) |>
+  gtsummary::as_gt() |>
+  add_note(vars = "species", note = "Counts by species.")
 
 }

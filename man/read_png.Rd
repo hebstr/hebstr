@@ -18,6 +18,10 @@ A \code{\link[grid:rasterGrob]{grid::rasterGrob()}} object.
 Read a PNG into a raster grob
 }
 \examples{
-"arg"
+\donttest{
+dir <- tempdir()
+png::writePNG(array(runif(300), dim = c(10, 10, 3)), file.path(dir, "demo.png"))
+img <- read_png("demo", dir = dir)
+}
 
 }

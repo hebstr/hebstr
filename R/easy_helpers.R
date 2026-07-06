@@ -11,7 +11,9 @@
 #' @return A named character vector
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' easy_replace("hello", "world")
+#' easy_replace("age", "sex", replace = "[X]")
 #'
 easy_replace <- \(..., replace = "</>") {
   col_replace <- cli::col_br_red(replace)
@@ -39,7 +41,9 @@ easy_replace <- \(..., replace = "</>") {
 #'   `label` (the argument values).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' easy_recode(m = "Male", f = "Female")
+#' easy_recode(c(a = "Label A"), c(b = "Label B", c = "Label C"))
 #'
 easy_recode <- \(...) {
   dots <- list(...)
@@ -73,7 +77,10 @@ easy_recode <- \(...) {
 #'   or with the original column replaced when `drop` is `TRUE`.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' penguins <- na.omit(datasets::penguins)
+#' easy_cut(penguins, body_mass, values = c(3500, 4500))
+#' easy_cut(penguins, flipper_len, incr = TRUE, from = 170, to = 240, by = 10)
 #'
 easy_cut <- \(
   x,
@@ -206,7 +213,13 @@ pca_var_extract <- \(x, strip = NULL) {
 #'   predictions).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' \donttest{
+#' df <- data.frame(x = seq_len(30), y = seq_len(30) + rnorm(30))
+#' lm_boot <- \(fit, data) lm(y ~ x, data = data)
+#' boot <- easy_boot(df, times = 25, method = lm_boot)
+#' boot$estimate$int
+#' }
 #'
 easy_boot <- \(data, times = 1000, method, ...) {
   .f <- \(.) {
@@ -252,7 +265,20 @@ easy_boot <- \(data, times = 1000, method, ...) {
 #' @return A character vector of the variable names meeting the threshold.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' set.seed(1)
+#' d <- data.frame(
+#'   y = factor(rep(c("A", "B"), length.out = 60)),
+#'   x = rnorm(60),
+#'   g = factor(rep(c("g1", "g2", "g3"), length.out = 60))
+#' )
+#' p_picking(
+#'   d,
+#'   \(formula, data) glm(formula, data, family = binomial),
+#'   "y",
+#'   c("x", "g"),
+#'   pv = 0.5
+#' )
 #'
 p_picking <- \(data, model, y, vars, pv) {
   fit <- expr(list(reformulate(., y), data = data))
@@ -284,7 +310,10 @@ p_picking <- \(data, model, y, vars, pv) {
 #' @return `x` with `column` rewritten as formatted character strings.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' p_values <- data.frame(p.value = c(0.0001, 0.03, 0.5))
+#' p_shortenr(p_values)
+#' p_shortenr(p_values, table = FALSE)
 #'
 p_shortenr <- \(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE) {
   column <- enexpr(column)
@@ -329,7 +358,9 @@ p_shortenr <- \(x, column = p.value, digits = 3, seuil = 0.001, table = TRUE) {
 #'   threshold.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' penguins <- na.omit(datasets::penguins)
+#' pct_min(penguins, "island", 0.5)
 #'
 pct_min <- \(data, .var, .min, .fun = "max") {
   if (!.var %in% names(data)) {
@@ -357,7 +388,12 @@ pct_min <- \(data, .var, .min, .fun = "max") {
 #' @return A [grid::rasterGrob()] object.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' \donttest{
+#' dir <- tempdir()
+#' png::writePNG(array(runif(300), dim = c(10, 10, 3)), file.path(dir, "demo.png"))
+#' img <- read_png("demo", dir = dir)
+#' }
 #'
 read_png <- \(file, dir = "output") {
   glue("{dir}/{file}.png") |>
@@ -388,7 +424,13 @@ read_png <- \(file, dir = "output") {
 #'   `x` with a linear fit).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' d <- data.frame(
+#'   xv = seq_len(120),
+#'   yv = factor(rep(c("no", "yes"), length.out = 120))
+#' )
+#' res <- logit_lty(d, yv, xv, breaks = 6)
+#' res$model
 #'
 logit_lty <- \(
   df,
@@ -456,7 +498,9 @@ logit_lty <- \(
 #'   threshold lines).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' res <- cooksd(lm(mpg ~ wt, mtcars))
+#' res$obs
 #'
 cooksd <- \(
   model,
@@ -525,7 +569,10 @@ cooksd <- \(
 #'   `flow` (the remaining count and percentage after each successive filter).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' penguins <- na.omit(datasets::penguins)
+#' res <- flow_filter(penguins, bill_len > 40, species == "Adelie")
+#' res$flow
 #'
 flow_filter <- \(data, ...) {
   .exprs <- exprs(...)
@@ -568,7 +615,10 @@ flow_filter <- \(data, ...) {
 #' @return A labelling function from [scales::number_format()].
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' fmt <- label_p()
+#' fmt(c(0.1, 0.256))
+#' label_p(accuracy = 1)(0.256)
 #'
 label_p <- \(
   accuracy = 0.1,
@@ -611,7 +661,9 @@ label_p <- \(
 #' @returns `x` with the matched columns hashed and/or masked.
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' penguins <- na.omit(datasets::penguins)
+#' easy_ano(penguins, to_hash = "species", to_hide = "island")
 #'
 easy_ano <- \(
   x,
@@ -694,7 +746,11 @@ easy_ano <- \(
 #' @returns The modified workbook object (`wbWorkbook`).
 #' @export
 #'
-#' @examples "arg"
+#' @examples
+#' \donttest{
+#' wb <- openxlsx2::wb_workbook()
+#' wb <- wb_add_custom(wb, sheet = "cars", data = head(mtcars))
+#' }
 #'
 wb_add_custom <- \(
   x,

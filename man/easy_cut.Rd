@@ -35,6 +35,8 @@ Adds a categorical version of a numeric column, either from explicit
 breakpoints or from equal-width increments.
 }
 \examples{
-"arg"
+penguins <- na.omit(datasets::penguins)
+easy_cut(penguins, body_mass, values = c(3500, 4500))
+easy_cut(penguins, flipper_len, incr = TRUE, from = 170, to = 240, by = 10)
 
 }
