@@ -127,55 +127,6 @@ all_dichotomous_uv <- \(data, ...) {
 }
 
 
-#' Relabel reference rows in a gtsummary table
-#'
-#' Rewrites the label of the targeted variables to append the reference marker
-#' and the reference level, so the reference category is spelled out in the
-#' row label.
-#'
-#' @param data A `gtsummary` table object.
-#' @param var Variable name(s) whose label is rewritten.
-#' @param new_lab Glue template for the base label; defaults to the existing
-#'   variable label.
-#' @param ref_lab Reference marker appended to the label.
-#' @param ref_level Reference level to display; defaults to the table's
-#'   `reference_level`.
-#' @param tolower_level Whether to lowercase `ref_level` before display.
-#' @return A `gtsummary` table with the reference rows relabeled.
-#' @export
-#'
-#' @examples "arg"
-#'
-easy_relab <- \(
-  data,
-  var,
-  new_lab = "{var_label}",
-  ref_lab = " \u2014 ref",
-  ref_level = data$table_body$reference_level,
-  tolower_level = TRUE
-) {
-  ref_sep <-
-    data$table_body$label |>
-    str_extract(glue("(?<={ref_lab}).\\s*")) |>
-    na.omit() |>
-    unique()
-
-  if (tolower_level) {
-    ref_level <- tolower(ref_level)
-  } else {
-    ref_level
-  }
-
-  str <- "{glue(new_lab)}{ref_lab}{ref_sep}{ref_level}"
-
-  data |>
-    modify_table_body(
-      ~ . |>
-        mutate(label = ifelse(variable %in% var, glue(str), label))
-    )
-}
-
-
 #' Attach a footnote to targeted rows or a p-value column
 #'
 #' Adds a footnote via [gt::tab_footnote()], targeting either specific label
