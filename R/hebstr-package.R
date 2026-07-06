@@ -129,7 +129,6 @@
 #' @importFrom gtsummary style_pvalue
 #' @importFrom gtsummary theme_gtsummary_language
 #' @importFrom here here
-#' @importFrom htmltools capturePlot
 #' @importFrom labelled generate_dictionary
 #' @importFrom labelled label_attribute
 #' @importFrom labelled var_label

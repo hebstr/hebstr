@@ -36,7 +36,7 @@ easy_out <- \(
   sep = "_",
   width = NULL,
   height = NULL,
-  px = 2000,
+  px = 1200,
   quiet = getOption("easy_out.quiet", default = FALSE)
 ) {
   clear_vars()
@@ -158,10 +158,10 @@ easy_out <- \(
 
     cli_progress_step("Creating SVG file")
 
-    capturePlot(
-      expr = x,
+    ggsave(
       filename = to_svg,
-      grDevices::svg,
+      plot = x,
+      device = svglite::svglite,
       width = width,
       height = height
     )

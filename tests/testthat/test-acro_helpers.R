@@ -72,6 +72,13 @@ test_that("acro_extract still matches an acronym bounded by non-word characters"
   )
 })
 
+test_that("acro_extract matches an acronym ending in a non-word character", {
+  acro_list <- list("IC95%" = "intervalle de confiance a 95%")
+
+  expect_equal(acro_extract("colonne IC95% du tableau", acro_list), "IC95%")
+  expect_length(acro_extract("valeur IC95%2 ici", acro_list), 0)
+})
+
 test_that("acro_extract escapes regex metacharacters in dictionary names", {
   acro_list <- list("p.value" = "significance threshold")
 

@@ -26,7 +26,12 @@ test_that("str_color wraps text in a styled bold HTML span", {
 })
 
 test_that("str_fig uses an inline font-size span outside Quarto", {
-  res <- as.character(str_fig("Title", note = "Note", acro = "AC"))
+  res <- as.character(str_fig(
+    "Title",
+    note = "Note",
+    acro = "AC",
+    render = FALSE
+  ))
 
   expect_match(res, "font-size:7.5pt")
   expect_match(res, "Note AC")
@@ -34,10 +39,17 @@ test_that("str_fig uses an inline font-size span outside Quarto", {
 })
 
 test_that("str_fig uses a CSS class span in Quarto mode", {
-  res <- as.character(str_fig("Title", note = "Note", qmd = TRUE))
+  res <- as.character(str_fig("Title", note = "Note", render = TRUE))
 
   expect_match(res, "class='quarto-float-subcaption'")
   expect_no_match(res, "font-size:")
+})
+
+test_that("str_fig defaults to Quarto mode via the str_fig.render option", {
+  withr::local_options(str_fig.render = NULL)
+  res <- as.character(str_fig("Title", note = "Note"))
+
+  expect_match(res, "class='quarto-float-subcaption'")
 })
 
 test_that("str_label accepts bare unquoted variable names (data-masking)", {

@@ -300,7 +300,8 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
 #' @export
 acro_extract <- \(x, acro_list) {
   .acro <- names(acro_list)
-  .pattern <- str_c("\\b", str_escape(.acro), "\\b")
+  # not \b: trailing \b never matches an acronym ending in a non-word char (e.g. IC95%)
+  .pattern <- str_c("(?<!\\w)", str_escape(.acro), "(?!\\w)")
 
   x |>
     map(str_extract, .pattern) |>

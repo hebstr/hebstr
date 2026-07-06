@@ -21,7 +21,7 @@ test_that("easy_out() accepts a ggplot and creates files", {
 
   write_called <- FALSE
   local_mocked_bindings(
-    capturePlot = \(...) "mock_path.svg",
+    ggsave = \(...) "mock_path.svg",
     image_read_svg = \(...) "mock_img",
     image_write = \(...) {
       write_called <<- TRUE
@@ -46,7 +46,7 @@ test_that("easy_out() builds filename with suffix", {
 
   captured_svg <- NULL
   local_mocked_bindings(
-    capturePlot = \(expr, filename, ...) {
+    ggsave = \(filename, ...) {
       captured_svg <<- filename
       "mock_path.svg"
     },
@@ -70,7 +70,7 @@ test_that("easy_out() creates output directory if missing", {
     ggplot2::geom_point()
 
   local_mocked_bindings(
-    capturePlot = \(...) "mock_path.svg",
+    ggsave = \(...) "mock_path.svg",
     image_read_svg = \(...) "mock_img",
     image_write = \(...) invisible(NULL),
     browseURL = \(...) invisible(NULL)
@@ -221,7 +221,7 @@ test_that("easy_out() suffix with custom separator", {
 
   captured_svg <- NULL
   local_mocked_bindings(
-    capturePlot = \(expr, filename, ...) {
+    ggsave = \(filename, ...) {
       captured_svg <<- filename
       "mock_path.svg"
     },
@@ -251,7 +251,7 @@ test_that("easy_out() calls browseURL when quiet is FALSE", {
 
   browse_called <- FALSE
   local_mocked_bindings(
-    capturePlot = \(...) "mock_path.svg",
+    ggsave = \(...) "mock_path.svg",
     image_read_svg = \(...) "mock_img",
     image_write = \(...) invisible(NULL),
     browseURL = \(...) {
@@ -299,7 +299,7 @@ test_that("easy_out() uses option easy_out.dir as default directory", {
     ggplot2::geom_point()
 
   local_mocked_bindings(
-    capturePlot = \(...) "mock_path.svg",
+    ggsave = \(...) "mock_path.svg",
     image_read_svg = \(...) "mock_img",
     image_write = \(...) invisible(NULL),
     browseURL = \(...) invisible(NULL)
@@ -323,7 +323,7 @@ test_that("easy_out() dir argument overrides easy_out.dir option", {
     ggplot2::geom_point()
 
   local_mocked_bindings(
-    capturePlot = \(...) "mock_path.svg",
+    ggsave = \(...) "mock_path.svg",
     image_read_svg = \(...) "mock_img",
     image_write = \(...) invisible(NULL),
     browseURL = \(...) invisible(NULL)

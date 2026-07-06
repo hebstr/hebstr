@@ -9,7 +9,7 @@ str_fig(
   note = "",
   acro = "",
   sub_size = "7.5",
-  qmd = FALSE,
+  render = getOption("str_fig.render", default = TRUE),
   class = "quarto-float-subcaption"
 )
 }
@@ -26,8 +26,8 @@ the note. Defaults to an empty string.}
 \item{sub_size}{Font size for the note and acronyms, in points. Defaults to
 \code{"7.5"}.}
 
-\item{qmd}{Logical value indicating whether the output targets a Quarto
-Markdown document. Defaults to \code{FALSE}.}
+\item{render}{Logical value indicating whether the output targets a Quarto
+Markdown document. Defaults to \code{getOption("str_fig.render", TRUE)}.}
 
 \item{class}{CSS class applied to the note in the Quarto context. Defaults to
 \code{"quarto-float-subcaption"}.}
@@ -54,7 +54,7 @@ str_fig(
   "Body mass distribution",
   note = "Measured across three islands",
   sub_size = "6",
-  qmd = TRUE
+  render = FALSE
 )
 
 }

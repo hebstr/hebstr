@@ -121,8 +121,8 @@ str_color <- \(text, color = "red", bg = "#ffffff00") {
 #'   the note. Defaults to an empty string.
 #' @param sub_size Font size for the note and acronyms, in points. Defaults to
 #'   `"7.5"`.
-#' @param qmd Logical value indicating whether the output targets a Quarto
-#'   Markdown document. Defaults to `FALSE`.
+#' @param render Logical value indicating whether the output targets a Quarto
+#'   Markdown document. Defaults to `getOption("str_fig.render", TRUE)`.
 #' @param class CSS class applied to the note in the Quarto context. Defaults to
 #'   `"quarto-float-subcaption"`.
 #'
@@ -142,7 +142,7 @@ str_color <- \(text, color = "red", bg = "#ffffff00") {
 #'   "Body mass distribution",
 #'   note = "Measured across three islands",
 #'   sub_size = "6",
-#'   qmd = TRUE
+#'   render = FALSE
 #' )
 #'
 #' @export
@@ -151,24 +151,22 @@ str_fig <- \(
   note = "",
   acro = "",
   sub_size = "7.5",
-  qmd = FALSE,
+  render = getOption("str_fig.render", default = TRUE),
   class = "quarto-float-subcaption"
 ) {
   title <- glue(title)
   note <- glue(note)
 
-  if (!qmd) {
-    .str <-
-      glue(
-        "{title}<br>
-         <span style='font-size:{sub_size}pt'>{note} {acro}</span>"
-      )
+  if (!render) {
+    .str <- glue(
+      "{title}<br>
+      <span style='font-size:{sub_size}pt'>{note} {acro}</span>"
+    )
   } else {
-    .str <-
-      glue(
-        "{title}<br>
-         <span class='{class}'>{note} {acro}</span>"
-      )
+    .str <- glue(
+      "{title}<br>
+      <span class='{class}'>{note} {acro}</span>"
+    )
   }
 
   return(.str)

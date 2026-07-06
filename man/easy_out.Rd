@@ -12,7 +12,7 @@ easy_out(
   sep = "_",
   width = NULL,
   height = NULL,
-  px = 2000,
+  px = 1200,
   quiet = getOption("easy_out.quiet", default = FALSE)
 )
 }
