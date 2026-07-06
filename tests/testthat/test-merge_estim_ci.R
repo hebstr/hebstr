@@ -170,6 +170,22 @@ test_that("merge_estim_ci() interpolates glue in the output column name", {
   expect_false("estimate_ci" %in% names(result))
 })
 
+test_that("merge_estim_ci() derives the CI template from options when ci_data is omitted", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  withr::local_options(OutDec = ".")
+  set_opts()
+
+  df <- data.frame(
+    estimate = 1.2,
+    conf.low = 0.5,
+    conf.high = 2.0
+  )
+
+  result <- merge_estim_ci(df)
+
+  expect_equal(result$estimate_ci, "1.20 [0.50; 2.00]")
+})
+
 test_that("merge_estim_ci() formats decimals with the FR locale (OutDec = ',')", {
   withr::local_options(OutDec = ",")
 

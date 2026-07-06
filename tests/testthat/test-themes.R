@@ -68,6 +68,19 @@ test_that("theme_gt() applies the alpha font to the table and the digit font to 
   expect_contains(digit_fonts, "DigitFace")
 })
 
+test_that("theme_gt(row_strip = FALSE) makes the row background transparent", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  themed <- theme_gt(.make_gt(), row_strip = FALSE)
+
+  bg <- themed$`_options`$value[[
+    which(themed$`_options`$parameter == "table_background_color")
+  ]]
+
+  expect_identical(bg, "#ffffff00")
+})
+
 test_that("theme_gt() aborts when opts does not exist (deliberately strict)", {
   if (exists("opts", envir = .hebstr, inherits = FALSE)) {
     rm(list = "opts", envir = .hebstr)
@@ -112,6 +125,21 @@ test_that("theme_infreq() returns a theme", {
 
 test_that("theme_bubble() returns a theme", {
   expect_s3_class(theme_bubble(family = ""), "theme")
+})
+
+test_that("theme_bubble() adapts title and grid colors to a vector axis color", {
+  themed <- theme_bubble(
+    family = "",
+    base_color = "#333333",
+    axis_color_x = c("red", "blue")
+  )
+
+  expect_equal(themed$axis.text.x$colour, c("red", "blue"))
+  expect_equal(themed$axis.title.x$colour, "#333333")
+  expect_equal(
+    themed$panel.grid.major.x$colour,
+    colorspace::lighten(c("red", "blue"), 0.85)
+  )
 })
 
 test_that("theme_risktable() returns a list of theme components", {

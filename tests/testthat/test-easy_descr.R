@@ -70,6 +70,21 @@ test_that("easy_descr merges custom qt_stat and derives the spanner from the sta
   )
 })
 
+test_that("easy_descr merges custom ql_stat into the qualitative stat list", {
+  data <- data.frame(
+    sex = c("m", "f", "m", "f"),
+    grade = c("a", "b", "a", "b")
+  )
+
+  res <- suppressMessages(easy_descr(
+    data,
+    ql_stat = list(pct = c("Percentage" = "{p}"))
+  ))
+
+  expect_equal(res$ql$stat$pct, c("Percentage" = "{p}"))
+  expect_equal(res$ql$stat$n, c("n (%)" = "{n} ({p})"))
+})
+
 test_that("easy_descr keeps single-term parametric classification", {
   data <- data.frame(
     mpg = c(1.2, 3.4, 5.6, 7.8),

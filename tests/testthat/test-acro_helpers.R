@@ -78,3 +78,13 @@ test_that("acro_extract escapes regex metacharacters in dictionary names", {
   expect_length(acro_extract("reported pXvalue here", acro_list), 0)
   expect_equal(acro_extract("reported p.value here", acro_list), "p.value")
 })
+
+test_that("acro_str returns NULL when called without acronyms", {
+  expect_null(acro_str())
+})
+
+test_that("acro_str joins acronyms with a custom collapse and a trailing period", {
+  res <- acro_str("A: alpha", "B: beta", collapse = " | ")
+
+  expect_equal(as.character(res), "A: alpha | B: beta.")
+})

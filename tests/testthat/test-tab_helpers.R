@@ -245,6 +245,34 @@ test_that("add_note targets only the requested vars", {
   expect_equal(nrow(res$`_footnotes`), 2)
 })
 
+test_that("add_note targets the rows matching the requested levels", {
+  g <- gt::gt(data.frame(label = c("Alpha", "Beta", "Gamma")))
+
+  res <- add_note(g, levels = "Beta", note = "test note")
+
+  expect_equal(nrow(res$`_footnotes`), 1)
+  expect_equal(res$`_footnotes`$locname, "data")
+})
+
+test_that("add_note targets rows selected by a data-mask expression", {
+  g <- gt::gt(data.frame(label = c("Alpha", "Beta", "Gamma")))
+
+  res <- add_note(g, rows = label == "Gamma", note = "test note")
+
+  expect_equal(nrow(res$`_footnotes`), 1)
+  expect_equal(res$`_footnotes`$locname, "data")
+})
+
+test_that("add_note footnotes the multivariable p-value column label", {
+  g <- gt::gt(data.frame(label = "Age", p.value_2 = 0.03))
+
+  res <- add_note(g, pvalue_mv = 1, note = "test note")
+
+  expect_equal(nrow(res$`_footnotes`), 1)
+  expect_equal(res$`_footnotes`$locname, "columns_columns")
+  expect_equal(res$`_footnotes`$colname, "p.value_2")
+})
+
 .make_ref_tbl <- \() {
   df <- data.frame(
     y = rep(c(0, 1), 30),

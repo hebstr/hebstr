@@ -38,6 +38,18 @@ test_that("gt_heatmap still returns a table when color is disabled", {
   expect_gt(nrow(res$`_styles`), 0)
 })
 
+test_that("gt_heatmap arranges rows by descending numeric row sum", {
+  df <- data.frame(
+    cat = c("a", "b", "c"),
+    x = c(1, 5, 3),
+    y = c(1, 5, 3)
+  )
+
+  res <- gt_heatmap(df, rowname_col = "cat", arrange = TRUE)
+
+  expect_equal(res$`_data`$cat, c("b", "c", "a"))
+})
+
 test_that("gt_heatmap default font_family reads the centralised text font", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
