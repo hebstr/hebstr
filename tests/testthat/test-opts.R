@@ -13,11 +13,10 @@ test_that("set_opts(.assign = FALSE) returns the options with the default .name"
   expect_contains(names(res), c("parametric", "qt_stat", "font"))
 })
 
-test_that("set_opts() aborts on unknown option names in ...", {
-  expect_error(
-    set_opts(.assign = FALSE, collor = list(base = "#000")),
-    "collor"
-  )
+test_that("set_opts() accepts unknown names in ... as user-defined extensions", {
+  res <- set_opts(.assign = FALSE, note = list(ajust = "adjusted on X"))
+
+  expect_equal(res$note, list(ajust = "adjusted on X"))
 })
 
 test_that("set_opts(.assign = FALSE) applies ... overrides over an existing object", {

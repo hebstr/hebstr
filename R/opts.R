@@ -124,8 +124,9 @@ clear_vars <- \() {
 #'   `.name` in the package's internal store; if `FALSE`, it is returned.
 #' @param .name Name under which the options object is stored in, and retrieved
 #'   from, the package's internal store. Defaults to `"opts"`.
-#' @param ... Named overrides for any option key. Names are validated against the
-#'   set of valid keys; an unknown name aborts.
+#' @param ... Named overrides for existing option keys, or new named entries
+#'   added to the options object. Unknown names are accepted as user-defined
+#'   extensions, readable afterwards via [check_opts()] and [get_opts()].
 #'
 #' @returns The options list. With `.assign = TRUE` (default) it is also stored
 #'   under `.name` in the package's internal store.
@@ -237,17 +238,6 @@ set_opts <- \(
       ),
       palette = c(color$base, color$cold[2])
     )
-
-  valid_opts <- c(names(.opts_set), "vars", "qt_stat_wide")
-  unknown_opts <- setdiff(names(dots), valid_opts)
-  if (length(unknown_opts) > 0) {
-    cli_abort(
-      c(
-        "Invalid option names in {.arg ...}: {.field {unknown_opts}}.",
-        i = "Valid names: {.field {valid_opts}}."
-      )
-    )
-  }
 
   if (getOption("OutDec") == ",") {
     .opts_set <-

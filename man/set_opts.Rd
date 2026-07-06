@@ -29,8 +29,9 @@ system sans-serif (\code{"sans"}). Defaults to \code{"sans"}.}
 \item{.name}{Name under which the options object is stored in, and retrieved
 from, the package's internal store. Defaults to \code{"opts"}.}
 
-\item{...}{Named overrides for any option key. Names are validated against the
-set of valid keys; an unknown name aborts.}
+\item{...}{Named overrides for existing option keys, or new named entries
+added to the options object. Unknown names are accepted as user-defined
+extensions, readable afterwards via \code{\link[=check_opts]{check_opts()}} and \code{\link[=get_opts]{get_opts()}}.}
 }
 \value{
 The options list. With \code{.assign = TRUE} (default) it is also stored
