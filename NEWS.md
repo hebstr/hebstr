@@ -13,6 +13,7 @@ Package state no longer touches the user's workspace. Options and the variable c
 
 ## New features
 
+* `easy_out()` accepts a grid grob (for example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`), exporting it to SVG and PNG through the same pipeline as ggplot objects.
 * `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
 ## Bug fixes

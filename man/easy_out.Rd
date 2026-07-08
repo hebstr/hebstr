@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_out.R
 \name{easy_out}
 \alias{easy_out}
-\title{Save a ggplot or gt table to disk}
+\title{Save a ggplot, gt table, or grid graphic to disk}
 \usage{
 easy_out(
   x,
@@ -17,7 +17,8 @@ easy_out(
 )
 }
 \arguments{
-\item{x}{A ggplot, ggmatrix, gt_tbl, or gtsummary object.}
+\item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, or grid grob object (for
+example a Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}).}
 
 \item{filename}{Output filename (without extension). Defaults to the
 unevaluated expression passed as \code{x}.}
@@ -30,12 +31,15 @@ to \code{getOption("easy_out.dir", "output")}.}
 \item{sep}{Separator between \code{filename} and \code{suffix}.}
 
 \item{width}{Width of the output. For tables: viewport width in pixels
-(default 700). For plots: SVG width in inches (default 7).}
+(default 700). For plots and grid graphics: SVG width in inches
+(default 7).}
 
-\item{height}{Height in inches for SVG output of plots only. \code{NULL}
-(default) uses the nombre d'or: \code{width / 1.618}. Ignored for tables.}
+\item{height}{Height in inches for SVG output of plots and grid graphics
+only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
+for tables.}
 
-\item{px}{Height in pixels for the PNG rasterization of plots.}
+\item{px}{Height in pixels for the PNG rasterization of plots and grid
+graphics.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
@@ -44,8 +48,8 @@ to \code{getOption("easy_out.quiet", FALSE)}.}
 \code{NULL} (invisibly). Called for its side effects.
 }
 \description{
-Export a ggplot, gt, or gtsummary object to PNG (and SVG or HTML
-depending on the object type). Opens the result in a browser unless
+Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
+HTML depending on the object type). Opens the result in a browser unless
 \code{quiet = TRUE}.
 }
 \examples{

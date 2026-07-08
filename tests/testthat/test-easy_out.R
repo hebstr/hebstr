@@ -337,6 +337,43 @@ test_that("easy_out() dir argument overrides easy_out.dir option", {
   expect_false(fs::dir_exists(option_dir))
 })
 
+test_that("easy_out() accepts a grid grob and creates an SVG", {
+  tmp <- withr::local_tempdir()
+  g <- grid::grobTree(grid::rectGrob(), grid::textGrob("x"))
+
+  write_called <- FALSE
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) {
+      write_called <<- TRUE
+      invisible(NULL)
+    },
+    browseURL = \(...) invisible(NULL)
+  )
+
+  expect_no_error(
+    easy_out(g, filename = "test_grob", dir = tmp, quiet = TRUE)
+  )
+
+  expect_true(fs::file_exists(fs::path(tmp, "test_grob", ext = "svg")))
+  expect_true(write_called)
+})
+
+test_that("easy_out() builds grob filename with suffix", {
+  tmp <- withr::local_tempdir()
+  g <- grid::rectGrob()
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(g, filename = "flow", suffix = "v2", dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "flow_v2", ext = "svg")))
+})
+
 test_that("easy_out_map() rejects an unnamed list", {
   skip_if_not_installed("ggplot2")
 

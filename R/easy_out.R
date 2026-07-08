@@ -1,10 +1,11 @@
-#' Save a ggplot or gt table to disk
+#' Save a ggplot, gt table, or grid graphic to disk
 #'
-#' Export a ggplot, gt, or gtsummary object to PNG (and SVG or HTML
-#' depending on the object type). Opens the result in a browser unless
+#' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
+#' HTML depending on the object type). Opens the result in a browser unless
 #' `quiet = TRUE`.
 #'
-#' @param x A ggplot, ggmatrix, gt_tbl, or gtsummary object.
+#' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, or grid grob object (for
+#'   example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`).
 #' @param filename Output filename (without extension). Defaults to the
 #'   unevaluated expression passed as `x`.
 #' @param dir Output directory. Created if it does not exist. Defaults
@@ -12,10 +13,13 @@
 #' @param suffix Optional suffix appended to `filename`.
 #' @param sep Separator between `filename` and `suffix`.
 #' @param width Width of the output. For tables: viewport width in pixels
-#'   (default 700). For plots: SVG width in inches (default 7).
-#' @param height Height in inches for SVG output of plots only. `NULL`
-#'   (default) uses the nombre d'or: `width / 1.618`. Ignored for tables.
-#' @param px Height in pixels for the PNG rasterization of plots.
+#'   (default 700). For plots and grid graphics: SVG width in inches
+#'   (default 7).
+#' @param height Height in inches for SVG output of plots and grid graphics
+#'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
+#'   for tables.
+#' @param px Height in pixels for the PNG rasterization of plots and grid
+#'   graphics.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #'
@@ -51,9 +55,14 @@ easy_out <- \(
   cli_alert_info("Object: {.strong {filename}} {.cls {class(x)}}")
   cat_line()
 
-  if (!(is_ggplot(x) || inherits(x, c("ggmatrix", "gt_tbl", "gtsummary")))) {
+  is_supported <-
+    is_ggplot(x) ||
+    inherits(x, c("ggmatrix", "gt_tbl", "gtsummary")) ||
+    grid::is.grob(x)
+
+  if (!is_supported) {
     cli_abort(c(
-      "{.strong {filename}} must be a gt/gtsummary object or a ggplot object",
+      "{.strong {filename}} must be a gt/gtsummary, ggplot, or grid grob object",
       "i" = "Received object of class: {.cls {class(x)}}"
     ))
   }
@@ -165,6 +174,37 @@ easy_out <- \(
       width = width,
       height = height
     )
+
+    cli_progress_step("Creating PNG file")
+
+    to_svg |>
+      image_read_svg(height = px) |>
+      image_write(to_png, format = "png")
+
+    cli_progress_done()
+
+    cli_output(
+      files = c(to_svg, to_png),
+      browse = to_svg
+    )
+
+    ### GROB -------------------------------------------------------------------------
+  } else if (grid::is.grob(x)) {
+    to_svg <- fs::path(path, ext = "svg")
+
+    if (is.null(width)) {
+      width <- 7
+    }
+    if (is.null(height)) {
+      height <- width / 1.618
+    }
+
+    cli_progress_step("Creating SVG file")
+
+    svglite::svglite(to_svg, width = width, height = height)
+    grid::grid.newpage()
+    grid::grid.draw(x)
+    grDevices::dev.off()
 
     cli_progress_step("Creating PNG file")
 
