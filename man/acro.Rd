@@ -54,12 +54,13 @@ conventions, notably the spacing around separators.
 \section{Predefined acronyms by locale}{
 
 The built-in acronym base covers the essential descriptive statistics
-terms. In English configuration, it includes SD (standard deviation), IQR
+terms and count symbols. In English configuration, it includes n (number of
+events), N (number of observations), SD (standard deviation), IQR
 (interquartile range), Q1 and Q3 (quartiles), and 95\%CI (confidence
-interval). In French configuration, the equivalents cover the standard
-deviation, the interquartile range, the quartiles with French ordinals,
-and the 95\% confidence interval. This standardization supports terminology
-consistency across analytical outputs.
+interval). In French configuration, the equivalents cover the event and
+observation counts, the standard deviation, the interquartile range, the
+quartiles with French ordinals, and the 95\% confidence interval. This
+standardization supports terminology consistency across analytical outputs.
 }
 
 \section{Requirements and dependencies}{

@@ -186,62 +186,59 @@ set_opts <- \(
 
   .fonts <- \(x) check_fonts(.default = .default_font, .auto = x)
 
-  .label <-
-    list(
-      n = label_number(accuracy = .1, decimal.mark = getOption("OutDec")),
-      p = label_percent(
-        accuracy = .1,
-        suffix = "",
-        decimal.mark = getOption("OutDec")
-      )
+  .label <- list(
+    n = label_number(accuracy = 0.1, decimal.mark = getOption("OutDec")),
+    p = label_percent(
+      accuracy = 0.1,
+      suffix = "",
+      decimal.mark = getOption("OutDec")
     )
+  )
 
-  .opts_set <-
-    lst(
-      parametric = nullfile(),
-      qt_stat = list(
-        min = c("Min" = "{min}"),
-        q1 = c("Q1" = "{p25}"),
-        median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
-        q3 = c("Q3" = "{p75}"),
-        max = c("Max" = "{max}"),
-        mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}")
-      ),
-      ql_stat = list(n = c("n (%)" = "{n} ({p})")),
-      labs = list(
-        sex = list(m = "Male", f = "Female"),
-        bin = list(no = "No", yes = "Yes"),
-        missing = "Missing data",
-        header = "Characteristic",
-        reference = "Reference",
-        overall = "Overall",
-        spanner = glue("{c('Univariable', 'Multivariable')} analysis")
-      ),
-      sep = list(int = ": ", ext = "; "),
-      ci = list(
-        lim = "[",
-        sep = "; ",
-        label = "95%CI",
-        data = c("conf.low", "conf.high")
-      ),
-      acro = acro(),
-      digits = list(
-        all_continuous() ~ c(1, .label$n, .label$n),
-        all_categorical() ~ c(0, .label$p)
-      ),
-      pvalue = list(format = label_style_pvalue(digits = 2), seuil = 0.05),
-      font = list(alpha = "sans", digit = "sans"),
-      color = list(
-        base = "#999",
-        cold = c("#F0FAFF", "#0099FF"),
-        warm = c("#FFF5F5", "#FF0000")
-      ),
-      palette = c(color$base, color$cold[2])
-    )
+  .opts_set <- lst(
+    parametric = nullfile(),
+    qt_stat = list(
+      min = c("Min" = "{min}"),
+      q1 = c("Q1" = "{p25}"),
+      median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
+      q3 = c("Q3" = "{p75}"),
+      max = c("Max" = "{max}"),
+      mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}")
+    ),
+    ql_stat = list(n = c("n (%)" = "{n} ({p})")),
+    labs = list(
+      sex = list(m = "Male", f = "Female"),
+      bin = list(no = "No", yes = "Yes"),
+      missing = "Missing data",
+      header = "Characteristic",
+      reference = "Reference",
+      overall = "Overall",
+      spanner = glue("{c('Univariable', 'Multivariable')} analysis")
+    ),
+    sep = list(int = ": ", ext = "; "),
+    ci = list(
+      lim = "[",
+      sep = "; ",
+      label = "95%CI",
+      data = c("conf.low", "conf.high")
+    ),
+    acro = acro(),
+    digits = list(
+      all_continuous() ~ c(1, .label$n, .label$n),
+      all_categorical() ~ c(0, .label$p)
+    ),
+    pvalue = list(format = label_style_pvalue(digits = 2), seuil = 0.05),
+    font = list(alpha = "sans", digit = "sans"),
+    color = list(
+      base = "#999",
+      cold = c("#F0FAFF", "#0099FF"),
+      warm = c("#FFF5F5", "#FF0000")
+    ),
+    palette = c(color$base, color$cold[2])
+  )
 
   if (getOption("OutDec") == ",") {
-    .opts_set <-
-      .opts_set |>
+    .opts_set <- .opts_set |>
       list_modify(
         qt_stat = list(
           median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),

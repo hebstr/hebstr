@@ -29,7 +29,7 @@ technical documentation and analysis reports.
 \section{Formatting mechanism}{
 
 The function uses \code{base::paste()} to concatenate the supplied elements with
-the specified separator, then \code{glue::glue()} to add the final punctuation.
+the specified separator, then \code{stringr::str_glue()} to add the final punctuation.
 The conditional handling of empty strings avoids generating superfluous
 content in automated documents.
 }

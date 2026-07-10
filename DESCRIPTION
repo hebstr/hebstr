@@ -17,6 +17,7 @@ Encoding: UTF-8
 Depends:
     R (>= 4.5.0)
 Imports:
+    aod,
     broom,
     broom.helpers,
     car,

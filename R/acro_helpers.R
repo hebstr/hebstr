@@ -37,12 +37,13 @@
 #'
 #' @section Predefined acronyms by locale:
 #' The built-in acronym base covers the essential descriptive statistics
-#' terms. In English configuration, it includes SD (standard deviation), IQR
+#' terms and count symbols. In English configuration, it includes n (number of
+#' events), N (number of observations), SD (standard deviation), IQR
 #' (interquartile range), Q1 and Q3 (quartiles), and 95%CI (confidence
-#' interval). In French configuration, the equivalents cover the standard
-#' deviation, the interquartile range, the quartiles with French ordinals,
-#' and the 95% confidence interval. This standardization supports terminology
-#' consistency across analytical outputs.
+#' interval). In French configuration, the equivalents cover the event and
+#' observation counts, the standard deviation, the interquartile range, the
+#' quartiles with French ordinals, and the 95% confidence interval. This
+#' standardization supports terminology consistency across analytical outputs.
 #'
 #' @section Requirements and dependencies:
 #' The function requires the `rlang` package for metaprogramming, `glue` for
@@ -147,37 +148,39 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
   .envir <- \(x, y) {
     x <- if (.tolower) tolower(enexpr(x)) else enexpr(x)
 
-    glue("{x}{sep}{y}")
+    str_glue("{x}{sep}{y}")
   }
 
   .fun <- \(...) {
     list(...) |>
       map(eval, env("~" = .envir)) |>
-      set_names(str_extract, glue(".+(?={sep})"))
+      set_names(str_extract, str_glue(".+(?={sep})"))
   }
 
   if (getOption("OutDec") == ".") {
-    sep <- glue("{.sep} ")
+    sep <- str_glue("{.sep} ")
 
-    base <-
-      .fun(
-        SD ~ "standard deviation",
-        IQR ~ "interquartile range",
-        Q1 ~ "1st quartile",
-        Q3 ~ "3rd quartile",
-        `95%CI` ~ "95% confidence interval"
-      )
+    base <- .fun(
+      n ~ "number of events",
+      N ~ "number of observations",
+      SD ~ "standard deviation",
+      IQR ~ "interquartile range",
+      Q1 ~ "1st quartile",
+      Q3 ~ "3rd quartile",
+      `95%CI` ~ "95% confidence interval"
+    )
   } else {
-    sep <- glue(" {.sep} ")
+    sep <- str_glue(" {.sep} ")
 
-    base <-
-      .fun(
-        SD ~ "\u00e9cart-type",
-        IQR ~ "intervalle interquartile",
-        Q1 ~ "1er quartile",
-        Q3 ~ "3e quartile",
-        `IC95%` ~ "intervalle de confiance \u00e0 95%"
-      )
+    base <- .fun(
+      n ~ "nombre d'évènements",
+      N ~ "nombre d'observations",
+      SD ~ "\u00e9cart-type",
+      IQR ~ "intervalle interquartile",
+      Q1 ~ "1er quartile",
+      Q3 ~ "3e quartile",
+      `IC95%` ~ "intervalle de confiance \u00e0 95%"
+    )
   }
 
   .acro <- if (.auto) list_modify(base, !!!.fun(...)) else .fun(...)
@@ -330,7 +333,7 @@ acro_extract <- \(x, acro_list) {
 #'
 #' @section Formatting mechanism:
 #' The function uses `base::paste()` to concatenate the supplied elements with
-#' the specified separator, then `glue::glue()` to add the final punctuation.
+#' the specified separator, then `stringr::str_glue()` to add the final punctuation.
 #' The conditional handling of empty strings avoids generating superfluous
 #' content in automated documents.
 #'
@@ -420,7 +423,7 @@ acro_extract <- \(x, acro_list) {
 acro_str <- \(..., collapse = "; ") {
   acro <- paste(c(...), collapse = collapse)
 
-  if (acro != "") glue("{acro}.") else NULL
+  if (acro != "") str_glue("{acro}.") else NULL
 }
 
 #' Identify and format the acronyms present in variable labels
