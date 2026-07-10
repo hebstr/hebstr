@@ -184,7 +184,20 @@ test_that("gtsum_format() routes a univariate regression through the n-column fo
   expect_s3_class(res, "tbl_uvregression")
   expect_contains(names(res$table_body), "stat_n")
   header <- res$table_styling$header
-  expect_equal(header$label[header$column == "stat_n"], "**Events/Obs**")
+  expect_equal(header$label[header$column == "stat_n"], "**n/N**")
+})
+
+test_that("gtsum_format() routes a multivariable regression through the n-column formatter", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  reg <- .make_reg_tbl()
+  res <- expect_no_warning(gtsum_format(reg$tbl, model_mv = reg$mod))
+
+  expect_s3_class(res, "tbl_regression")
+  expect_contains(names(res$table_body), "stat_n")
+  header <- res$table_styling$header
+  expect_equal(header$label[header$column == "stat_n"], "**n/N**")
 })
 
 test_that("gt_format() aborts informatively on a non-gtsummary input", {

@@ -9,7 +9,7 @@ gtsum_format(
   label_header = check_opts(labs$header),
   label_overall = check_opts(labs$overall),
   label_reference = check_opts(labs$reference),
-  label_n = if (.event(x)) "Events/Obs" else "Obs",
+  label_n = if (.event(x)) "n/N" else "N",
   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
   label_stat = NULL,
   bold_p = 0,
@@ -46,8 +46,8 @@ summaries. Defaults to the \code{labs$overall} option.}
 \item{label_reference}{Label placed on reference rows of regression tables.
 Defaults to the \code{labs$reference} option.}
 
-\item{label_n}{Header for the count column of univariate regressions.
-Defaults to \code{"Events/Obs"} when the model carries events, else \code{"Obs"}.}
+\item{label_n}{Header for the count column of regressions.
+Defaults to \code{"n/N"} when the model carries events, else \code{"N"}.}
 
 \item{stat_n}{Glue template for the count column values. Defaults to
 \code{"{n_event}/{n_obs}"} when events are present, else \code{"{n_obs}"}.}
@@ -101,9 +101,10 @@ Applies the package's header, label, and footnote conventions to a
 \code{gtsummary} table, dispatching on its type: by-group summaries gain an
 overall column and level spanners, univariate summaries get a single-stat
 header, and regression tables get merged estimator/confidence-interval
-columns, reference-level annotations, and (for univariate regressions) an
-observation/event count column. The estimator definitions are recorded for
-\code{\link[=gt_format]{gt_format()}} to render as a footnote. Typically piped into \code{\link[=gt_format]{gt_format()}}.
+columns, reference-level annotations, and (when the table carries an
+observation count) an observation/event count column. The estimator
+definitions are recorded for \code{\link[=gt_format]{gt_format()}} to render as a footnote.
+Typically piped into \code{\link[=gt_format]{gt_format()}}.
 }
 \examples{
 set_opts()

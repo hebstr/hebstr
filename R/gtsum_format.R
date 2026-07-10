@@ -228,7 +228,7 @@
     }
   }
 
-  if (inherits(x, "tbl_uvregression")) {
+  if ("n_obs" %in% names(x$table_body)) {
     x <- .fmt_reg_n(x, .stat_n, .label_n)
   }
 
@@ -261,9 +261,10 @@
 #' `gtsummary` table, dispatching on its type: by-group summaries gain an
 #' overall column and level spanners, univariate summaries get a single-stat
 #' header, and regression tables get merged estimator/confidence-interval
-#' columns, reference-level annotations, and (for univariate regressions) an
-#' observation/event count column. The estimator definitions are recorded for
-#' [gt_format()] to render as a footnote. Typically piped into [gt_format()].
+#' columns, reference-level annotations, and (when the table carries an
+#' observation count) an observation/event count column. The estimator
+#' definitions are recorded for [gt_format()] to render as a footnote.
+#' Typically piped into [gt_format()].
 #'
 #' @param x A `gtsummary` table: [gtsummary::tbl_summary()] (optionally with a
 #'   `by` group or `add_p()`), [gtsummary::tbl_regression()], or
@@ -274,8 +275,8 @@
 #'   summaries. Defaults to the `labs$overall` option.
 #' @param label_reference Label placed on reference rows of regression tables.
 #'   Defaults to the `labs$reference` option.
-#' @param label_n Header for the count column of univariate regressions.
-#'   Defaults to `"Events/Obs"` when the model carries events, else `"Obs"`.
+#' @param label_n Header for the count column of regressions.
+#'   Defaults to `"n/N"` when the model carries events, else `"N"`.
 #' @param stat_n Glue template for the count column values. Defaults to
 #'   `"{n_event}/{n_obs}"` when events are present, else `"{n_obs}"`.
 #' @param label_stat Label for the single statistic column (`stat_0`) of a
@@ -320,7 +321,7 @@ gtsum_format <- \(
   label_header = check_opts(labs$header),
   label_overall = check_opts(labs$overall),
   label_reference = check_opts(labs$reference),
-  label_n = if (.event(x)) "Events/Obs" else "Obs",
+  label_n = if (.event(x)) "n/N" else "N",
   stat_n = if (.event(x)) "{n_event}/{n_obs}" else "{n_obs}",
   label_stat = NULL,
   bold_p = 0,
