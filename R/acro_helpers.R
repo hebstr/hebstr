@@ -162,8 +162,6 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
     sep <- str_glue("{.sep} ")
 
     base <- .fun(
-      n ~ "number of events",
-      N ~ "number of observations",
       `n/N` ~ "number of events/total number of observations",
       SD ~ "standard deviation",
       IQR ~ "interquartile range",
@@ -175,8 +173,6 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
     sep <- str_glue(" {.sep} ")
 
     base <- .fun(
-      n ~ "nombre d'évènements",
-      N ~ "nombre d'observations",
       `n/N` ~ "nombre d'\u00e9v\u00e8nements/nombre total d'observations",
       SD ~ "\u00e9cart-type",
       IQR ~ "intervalle interquartile",
