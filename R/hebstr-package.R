@@ -18,6 +18,7 @@
 #' @importFrom cli cli_rule
 #' @importFrom cli cli_text
 #' @importFrom cli cli_ul
+#' @importFrom cli cli_verbatim
 #' @importFrom cli format_inline
 #' @importFrom colorspace darken
 #' @importFrom colorspace lighten

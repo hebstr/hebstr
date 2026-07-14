@@ -4,6 +4,10 @@ test_that("acro() builds the English dictionary by default", {
   res <- acro()
 
   expect_equal(res$SD, "SD: standard deviation")
+  expect_equal(
+    res[["n/N"]],
+    "n/N: number of events/total number of observations"
+  )
   expect_contains(names(res), "95%CI")
 })
 
@@ -13,6 +17,10 @@ test_that("acro() builds the French dictionary when OutDec is a comma", {
   res <- acro()
 
   expect_equal(res$SD, "SD : écart-type")
+  expect_equal(
+    res[["n/N"]],
+    "n/N : nombre d'évènements/nombre total d'observations"
+  )
   expect_contains(names(res), "IC95%")
 })
 
@@ -84,6 +92,29 @@ test_that("acro_extract escapes regex metacharacters in dictionary names", {
 
   expect_length(acro_extract("reported pXvalue here", acro_list), 0)
   expect_equal(acro_extract("reported p.value here", acro_list), "p.value")
+})
+
+test_that("acro_extract takes a compound acronym whole, not its parts", {
+  acro_list <- list(
+    "n" = "number of events",
+    "N" = "number of observations",
+    "n/N" = "events over observations"
+  )
+
+  expect_equal(acro_extract("column n/N here", acro_list), "n/N")
+})
+
+test_that("acro_extract still matches a part when it stands alone", {
+  acro_list <- list(
+    "n" = "number of events",
+    "N" = "number of observations",
+    "n/N" = "events over observations"
+  )
+
+  expect_setequal(
+    acro_extract(c("column n/N here", "n reported alone"), acro_list),
+    c("n/N", "n")
+  )
 })
 
 test_that("acro_str returns NULL when called without acronyms", {

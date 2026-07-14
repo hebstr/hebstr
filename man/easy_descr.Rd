@@ -57,19 +57,22 @@ This adaptation applies without manual intervention.
 \section{Formatted CLI report}{
 
 The function produces a report through the CLI interface presenting the
-variable classification in a structured, visual form. The report includes the
-total number of variables per category, the list of variables in each group,
-and color coding for readability. This supports rapid inspection of the data
-structure and validation of the automatic classification before statistical
-analysis.
+variable classification as a tibble with one row per variable. The tibble
+reports each variable name, its abbreviated storage type (the \code{labelled}
+dictionary code, with numeric variables shown as \code{num} or \code{bin}, aligned with
+\code{\link[=easy_view]{easy_view()}}) and its operational statistical type (quantitative parametric,
+quantitative non-parametric, qualitative categorical, qualitative binary or
+date). This supports rapid inspection of the data structure and validation of
+the automatic classification before statistical analysis.
 }
 
 \section{Technical requirements and dependencies}{
 
-The function relies on \code{cli} for output formatting, \code{stringr} for string
-manipulation, \code{purrr} for list operations, and \code{glue} for interpolation. The
-helper functions \code{nullfile()}, \code{str_u()}, \code{str_flatten_comma()} and
-\code{list_modify()} must also be available in the execution environment.
+The function relies on \code{cli} for output formatting, \code{labelled} for the
+variable-type dictionary, \code{stringr} for string manipulation, \code{purrr} for list
+operations, and \code{glue} for interpolation. The helper functions \code{nullfile()},
+\code{str_u()} and \code{list_modify()} must also be available in the execution
+environment.
 }
 
 \examples{

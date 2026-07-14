@@ -38,11 +38,12 @@
 #' @section Predefined acronyms by locale:
 #' The built-in acronym base covers the essential descriptive statistics
 #' terms and count symbols. In English configuration, it includes n (number of
-#' events), N (number of observations), SD (standard deviation), IQR
-#' (interquartile range), Q1 and Q3 (quartiles), and 95%CI (confidence
-#' interval). In French configuration, the equivalents cover the event and
-#' observation counts, the standard deviation, the interquartile range, the
-#' quartiles with French ordinals, and the 95% confidence interval. This
+#' events), N (number of observations), n/N (events over total observations),
+#' SD (standard deviation), IQR (interquartile range), Q1 and Q3 (quartiles),
+#' and 95%CI (confidence interval). In French configuration, the equivalents
+#' cover the event and observation counts, their ratio, the standard deviation,
+#' the interquartile range, the quartiles with French ordinals, and the 95%
+#' confidence interval. This
 #' standardization supports terminology consistency across analytical outputs.
 #'
 #' @section Requirements and dependencies:
@@ -163,6 +164,7 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
     base <- .fun(
       n ~ "number of events",
       N ~ "number of observations",
+      `n/N` ~ "number of events/total number of observations",
       SD ~ "standard deviation",
       IQR ~ "interquartile range",
       Q1 ~ "1st quartile",
@@ -175,6 +177,7 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
     base <- .fun(
       n ~ "nombre d'évènements",
       N ~ "nombre d'observations",
+      `n/N` ~ "nombre d'\u00e9v\u00e8nements/nombre total d'observations",
       SD ~ "\u00e9cart-type",
       IQR ~ "intervalle interquartile",
       Q1 ~ "1er quartile",
@@ -303,14 +306,21 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
 #' @export
 acro_extract <- \(x, acro_list) {
   .acro <- names(acro_list)
+  # longest first so alternation takes a compound whole (e.g. "n/N" over "n", "N")
+  .ordered <- .acro[order(nchar(.acro), decreasing = TRUE)]
   # not \b: trailing \b never matches an acronym ending in a non-word char (e.g. IC95%)
-  .pattern <- str_c("(?<!\\w)", str_escape(.acro), "(?!\\w)")
+  .pattern <- str_c(
+    "(?<!\\w)(?:",
+    str_c(str_escape(.ordered), collapse = "|"),
+    ")(?!\\w)"
+  )
 
-  x |>
-    map(str_extract, .pattern) |>
+  .found <- x |>
+    str_extract_all(.pattern) |>
     unlist() |>
-    na.omit() |>
     unique()
+
+  .acro[.acro %in% .found]
 }
 
 #' Format an acronym string with automatic separators and punctuation

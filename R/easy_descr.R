@@ -40,17 +40,20 @@
 #'
 #' @section Formatted CLI report:
 #' The function produces a report through the CLI interface presenting the
-#' variable classification in a structured, visual form. The report includes the
-#' total number of variables per category, the list of variables in each group,
-#' and color coding for readability. This supports rapid inspection of the data
-#' structure and validation of the automatic classification before statistical
-#' analysis.
+#' variable classification as a tibble with one row per variable. The tibble
+#' reports each variable name, its abbreviated storage type (the `labelled`
+#' dictionary code, with numeric variables shown as `num` or `bin`, aligned with
+#' [easy_view()]) and its operational statistical type (quantitative parametric,
+#' quantitative non-parametric, qualitative categorical, qualitative binary or
+#' date). This supports rapid inspection of the data structure and validation of
+#' the automatic classification before statistical analysis.
 #'
 #' @section Technical requirements and dependencies:
-#' The function relies on `cli` for output formatting, `stringr` for string
-#' manipulation, `purrr` for list operations, and `glue` for interpolation. The
-#' helper functions `nullfile()`, `str_u()`, `str_flatten_comma()` and
-#' `list_modify()` must also be available in the execution environment.
+#' The function relies on `cli` for output formatting, `labelled` for the
+#' variable-type dictionary, `stringr` for string manipulation, `purrr` for list
+#' operations, and `glue` for interpolation. The helper functions `nullfile()`,
+#' `str_u()` and `list_modify()` must also be available in the execution
+#' environment.
 #'
 #' @examples
 #' # Default configuration with automatic classification
@@ -99,7 +102,12 @@
 #' @family exploratory analysis functions
 #'
 #' @export
-easy_descr <- \(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL) {
+easy_descr <- \(
+  data,
+  parametric = nullfile(),
+  qt_stat = NULL,
+  ql_stat = NULL
+) {
   cli_h1("easy_descr")
   cli_text("\n\n")
 
@@ -107,35 +115,32 @@ easy_descr <- \(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL) {
 
   str_parametric <- glue("\\b(?:{parametric})\\b")
 
-  qt_vars <-
-    lst(
-      total = data |>
-        keep(~ is.numeric(.) & length(unique(na.omit(.))) != 2) |>
-        names(),
-      parametric = str_subset(total, str_u(str_parametric)),
-      nonparametric = data |>
-        select(all_of(total), -matches(str_parametric)) |>
-        names()
-    )
+  qt_vars <- lst(
+    total = data |>
+      keep(~ is.numeric(.) & length(unique(na.omit(.))) != 2) |>
+      names(),
+    parametric = str_subset(total, str_u(str_parametric)),
+    nonparametric = data |>
+      select(all_of(total), -matches(str_parametric)) |>
+      names()
+  )
 
   if (all(parametric == "all_continuous")) {
     qt_vars$parametric <- qt_vars$total
     qt_vars$nonparametric <- NULL
   }
 
-  .qt_stat <-
-    list(
-      min = c("Min" = "{min}"),
-      q1 = c("Q1" = "{p25}"),
-      median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
-      q3 = c("Q3" = "{p75}"),
-      max = c("Max" = "{max}"),
-      mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}")
-    )
+  .qt_stat <- list(
+    min = c("Min" = "{min}"),
+    q1 = c("Q1" = "{p25}"),
+    median = c("Median (IQR)" = "{median} ({p25}\u2014{p75})"),
+    q3 = c("Q3" = "{p75}"),
+    max = c("Max" = "{max}"),
+    mean = c("Mean\u00b1SD" = "{mean}\u00b1{sd}")
+  )
 
   if (getOption("OutDec") == ",") {
-    .qt_stat <-
-      .qt_stat |>
+    .qt_stat <- .qt_stat |>
       list_modify(
         median = c("M\u00e9diane (IQR)" = "{median} ({p25}\u2014{p75})"),
         mean = c("Moyenne\u00b1SD" = "{mean}\u00b1{sd}")
@@ -146,65 +151,56 @@ easy_descr <- \(data, parametric = nullfile(), qt_stat = NULL, ql_stat = NULL) {
 
   ### QL DATA -----------------------------------------------------------------------------
 
-  ql_vars <-
-    data |>
+  ql_vars <- data |>
     keep(~ !is.numeric(.) & !is.Date(.)) |>
     names()
 
-  ql_stat <-
-    list(n = c("n (%)" = "{n} ({p})")) |>
+  ql_stat <- list(n = c("n (%)" = "{n} ({p})")) |>
     list_modify(!!!ql_stat)
 
   ### BIN DATA ----------------------------------------------------------------------------
 
-  bin_vars <-
-    data |>
+  bin_vars <- data |>
     select(-eval(qt_vars$total), -all_of(ql_vars), -where(is.Date)) |>
     names()
 
   ### DATE DATA ---------------------------------------------------------------------------
 
-  date_vars <-
-    data |>
-    keep(is.Date) |>
-    names()
+  date_vars <- data |> keep(is.Date) |> names()
 
   ### ASSIGN ------------------------------------------------------------------------------
 
-  descr <-
-    lst(
-      qt = lst(vars = qt_vars, stat = qt_stat, spanner = names(list_c(stat))),
-      ql = lst(vars = ql_vars, stat = ql_stat, spanner = names(list_c(stat))),
-      bin = lst(vars = bin_vars, stat = ql_stat, spanner = names(list_c(stat))),
-      date = lst(vars = date_vars)
-    )
+  descr <- lst(
+    qt = lst(vars = qt_vars, stat = qt_stat, spanner = names(list_c(stat))),
+    ql = lst(vars = ql_vars, stat = ql_stat, spanner = names(list_c(stat))),
+    bin = lst(vars = bin_vars, stat = ql_stat, spanner = names(list_c(stat))),
+    date = lst(vars = date_vars)
+  )
 
   ### CLI -------------------------------------------------------------------------------
 
-  cli_qt_total_length <-
-    data |>
-    select(eval(descr$qt$vars$total)) |>
-    length()
-
-  cli_qt_p <- str_flatten_comma(descr$qt$vars$parametric)
-  cli_qt_np <- str_flatten_comma(descr$qt$vars$nonparametric)
-  cli_ql <- str_flatten_comma(descr$ql$vars)
-  cli_bin <- str_flatten_comma(descr$bin$vars)
-  cli_date <- str_flatten_comma(descr$date$vars)
+  cli_descr <- tibble(
+    variable = names(data),
+    type = generate_dictionary(data)$col_type,
+    group = case_when(
+      variable %in% descr$qt$vars$parametric ~ "quanti parametric",
+      variable %in% descr$qt$vars$nonparametric ~ "quanti non-parametric",
+      variable %in% descr$ql$vars ~ "categorical",
+      variable %in% descr$bin$vars ~ "dichotomous",
+      variable %in% descr$date$vars ~ "date"
+    )
+  ) |>
+    mutate(
+      type = case_when(
+        variable %in% descr$bin$vars ~ "bin",
+        variable %in% descr$qt$vars$total ~ "num",
+        .default = type
+      )
+    )
 
   cli_alert_info("{.strong {substitute(data)}}: {length(data)} variables")
   cli_text("\n\n")
-  cli_alert_success("{.strong Quantitative:} {cli_qt_total_length} variables")
-  cli_li(c("Parametric: {cli_qt_p}", "Non-parametric: {cli_qt_np}"))
-  cli_text("\n\n")
-  cli_alert_success("{.strong Qualitative:} {length(descr$ql$vars)} variables")
-  cli_li("{cli_ql}")
-  cli_text("\n\n")
-  cli_alert_success("{.strong Dichotomous:} {length(descr$bin$vars)} variables")
-  cli_li("{cli_bin}")
-  cli_text("\n\n")
-  cli_alert_success("{.strong Date:} {length(descr$date$vars)} variables")
-  cli_li("{cli_date}")
+  cli_verbatim(format(cli_descr, n = Inf))
   cli_text("\n\n")
   cli_rule()
 
