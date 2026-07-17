@@ -81,19 +81,9 @@ gt_format <- \(
     pull() |>
     reduce(remove_abbreviation, .init = x)
 
-  ### THEME --------------------------------------------------------------------
+  ### ESTIMATOR ----------------------------------------------------------------
 
-  if (!inherits(x, "gt_tbl")) {
-    x <- as_gt(x)
-  }
-
-  x <- x |>
-    tab_header(title = if (!is.null(title)) md(title)) |>
-    theme_gt(...)
-
-  ### FOOTNOTES ----------------------------------------------------------------
-
-  is_coef <- any(str_starts(names(x[["_data"]]), "coef"))
+  is_coef <- any(str_starts(names(x$table_body), "coef"))
 
   if (is_coef) {
     if (!exists("estim", envir = .estim_channel, inherits = FALSE)) {
@@ -117,22 +107,58 @@ gt_format <- \(
     .acro_str <- acro_str(acro_list[.acro], collapse = acro_sep)
   }
 
+  p_col <- str_subset(names(x$table_body), "^p\\.value")
+
+  if (is_coef && !is.null(note_pvalue) && length(p_col) == 0) {
+    cli_abort(
+      c(
+        "No p-value column to attach {.arg note_pvalue} to.",
+        i = "This coefficient table has no {.field p.value} column."
+      )
+    )
+  }
+
+  if (!is_coef && !is.null(note_vargrp) && is.null(label_vargrp)) {
+    cli_abort(
+      c(
+        "{.arg note_vargrp} needs {.arg label_vargrp} to anchor the footnote.",
+        i = "Name the targeted variable(s) in {.arg label_vargrp}."
+      )
+    )
+  }
+
+  ### RENDER -------------------------------------------------------------------
+
+  if (getOption("hebstr.docx", default = FALSE)) {
+    return(.fmt_ft(
+      x,
+      title = title,
+      note_global = note_global,
+      note_pvalue = note_pvalue,
+      label_vargrp = label_vargrp,
+      note_vargrp = note_vargrp,
+      acro_note = .acro_str,
+      is_coef = is_coef,
+      zero_replace = zero_replace,
+      ...
+    ))
+  }
+
+  if (!inherits(x, "gt_tbl")) {
+    x <- as_gt(x)
+  }
+
+  x <- x |>
+    tab_header(title = if (!is.null(title)) md(title)) |>
+    theme_gt(...)
+
+  ### FOOTNOTES ----------------------------------------------------------------
+
   if (!is.null(note_global) || !is.null(.acro_str)) {
     x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
   }
 
   if (is_coef && !is.null(note_pvalue)) {
-    p_col <- str_subset(names(x[["_data"]]), "^p\\.value")
-
-    if (length(p_col) == 0) {
-      cli_abort(
-        c(
-          "No p-value column to attach {.arg note_pvalue} to.",
-          i = "This coefficient table has no {.field p.value} column."
-        )
-      )
-    }
-
     x <- tab_footnote(
       x,
       footnote = note_pvalue,
@@ -141,15 +167,6 @@ gt_format <- \(
   }
 
   if (!is_coef && !is.null(note_vargrp)) {
-    if (is.null(label_vargrp)) {
-      cli_abort(
-        c(
-          "{.arg note_vargrp} needs {.arg label_vargrp} to anchor the footnote.",
-          i = "Name the targeted variable(s) in {.arg label_vargrp}."
-        )
-      )
-    }
-
     x <- tab_footnote(
       x,
       footnote = note_vargrp,
@@ -165,4 +182,64 @@ gt_format <- \(
   }
 
   x
+}
+
+
+.fmt_ft <- \(
+  x,
+  title,
+  note_global,
+  note_pvalue,
+  label_vargrp,
+  note_vargrp,
+  acro_note,
+  is_coef,
+  zero_replace,
+  ...
+) {
+  notes <- c(str_c(note_global), acro_note)
+
+  if (length(notes) > 0) {
+    x <- reduce(notes, modify_source_note, .init = x)
+  }
+
+  if (is_coef && !is.null(note_pvalue)) {
+    x <- modify_footnote_header(
+      x,
+      footnote = note_pvalue,
+      columns = tail(str_subset(names(x$table_body), "^p\\.value"), 1)
+    )
+  }
+
+  if (!is_coef && !is.null(note_vargrp)) {
+    x <- modify_footnote_body(
+      x,
+      footnote = note_vargrp,
+      columns = "label",
+      rows = inject(variable %in% !!label_vargrp)
+    )
+  }
+
+  if (!is.null(zero_replace)) {
+    shown <- x$table_styling$header$column[!x$table_styling$header$hide]
+
+    x <- modify_table_body(
+      x,
+      \(.b) {
+        mutate(
+          .b,
+          across(
+            all_of(intersect(shown, names(.b))) & where(is.character),
+            \(.c) if_else(str_detect(.c, zero_replace), "0", .c, missing = .c)
+          )
+        )
+      }
+    )
+  }
+
+  if (!is.null(title)) {
+    x <- modify_caption(x, title)
+  }
+
+  theme_ft(as_flex_table(x), ...)
 }

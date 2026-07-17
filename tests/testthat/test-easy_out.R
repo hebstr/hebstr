@@ -5,6 +5,13 @@ test_that("easy_out() rejects unsupported objects", {
   )
 })
 
+test_that("easy_out() points at hebstr.docx when handed a flextable", {
+  expect_error(
+    easy_out(flextable::flextable(head(mtcars)), quiet = TRUE),
+    "hebstr.docx"
+  )
+})
+
 test_that("easy_out() rejects a vector", {
   expect_error(
     easy_out(1:10, quiet = TRUE),

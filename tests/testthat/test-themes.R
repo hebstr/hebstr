@@ -1,5 +1,7 @@
 .make_gt <- \() gt::gt(head(mtcars))
 
+.make_ft <- \() flextable::flextable(head(mtcars))
+
 test_that("theme_gt() applies style refinements by default", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
@@ -87,6 +89,69 @@ test_that("theme_gt() aborts when opts does not exist (deliberately strict)", {
   }
 
   expect_error(theme_gt(.make_gt()), "does not exist")
+})
+
+test_that("theme_ft() returns a themed flextable", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  themed <- theme_ft(.make_ft())
+
+  expect_s3_class(themed, "flextable")
+})
+
+test_that("theme_ft() applies the alpha font to the table and the digit font to numeric cells", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  .hebstr$opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
+
+  themed <- theme_ft(
+    flextable::flextable(data.frame(label = "a", stat = "1.0"))
+  )
+
+  fonts <- themed$body$styles$text$font.family$data
+
+  expect_identical(unique(fonts[, "label"]), "AlphaFace")
+  expect_identical(unique(fonts[, "stat"]), "DigitFace")
+})
+
+test_that("theme_ft() justifies the footer, which theme_gt(docx = TRUE) has to drop", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  themed <- theme_ft(
+    flextable::add_footer_lines(.make_ft(), "a footnote")
+  )
+
+  expect_contains(
+    as.vector(themed$footer$styles$par$text.align$data),
+    "justify"
+  )
+})
+
+test_that("theme_ft(row_strip = FALSE) drops the striping band color", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  band <- check_opts(color$cold[1])
+  striped <- theme_ft(.make_ft())
+  plain <- theme_ft(.make_ft(), row_strip = FALSE)
+
+  expect_contains(
+    as.vector(striped$body$styles$cell$background.color$data),
+    band
+  )
+  expect_false(
+    band %in% as.vector(plain$body$styles$cell$background.color$data)
+  )
+})
+
+test_that("theme_ft() aborts when opts does not exist (deliberately strict)", {
+  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
+    rm(list = "opts", envir = .hebstr)
+  }
+
+  expect_error(theme_ft(.make_ft()), "does not exist")
 })
 
 test_that("theme_bar() returns a theme honoring legend_position", {

@@ -203,6 +203,130 @@ theme_gt <- \(
 }
 
 
+#' Standardized flextable theme
+#'
+#' Applies the package's house style to a [flextable::flextable()] table, the
+#' Word-facing twin of [theme_gt()]: fonts, borders, row striping, caption
+#' alignment, and footnote formatting. Numeric columns (stats, estimates,
+#' p-values) receive a dedicated font and reduced sizes.
+#'
+#' Sizes are in points, the unit `flextable` writes to OOXML, where [theme_gt()]
+#' takes pixels; the defaults are tuned for Word rather than converted from the
+#' `gt` values. Two refinements of [theme_gt()] have no counterpart here:
+#' caption typography is left to the Word `Table Caption` style, and footnote
+#' marks are the ones [gtsummary::as_flex_table()] assigns at conversion.
+#'
+#' @param x A [flextable::flextable()] table object to style.
+#' @param width Table width, as a fraction of the available page width, from 0
+#'   to 1. When `NULL`, the table keeps its natural width.
+#' @param alpha Font family for the table text.
+#' @param digit Font family applied to numeric columns (stats, estimates,
+#'   p-values).
+#' @param base Base color for text and body borders.
+#' @param color Table background color, also used for the row-striping band.
+#' @param bg Background color for the column labels, striping, and footnotes.
+#' @param row_padding Vertical padding of data rows, in points.
+#' @param title_align Horizontal alignment of the caption (`"left"`,
+#'   `"center"`, `"right"`, or `"justify"`).
+#' @param font_size Base font size, in points.
+#' @param stat_font_size Font size of stat and estimate cells, in points.
+#' @param pvalue_font_size Font size of p-value cells, in points.
+#' @param row_strip Whether to color the striped rows. When `FALSE`, the
+#'   striping band is made transparent.
+#' @param footnote_font_size Footnote font size, in points.
+#' @param footnote_padding Footnote padding, in points.
+#' @param ... Additional properties forwarded to
+#'   [flextable::set_table_properties()].
+#'
+#' @return A [flextable::flextable()] object.
+#' @export
+#'
+#' @examples
+#' set_opts()
+#'
+#' ft <- flextable::flextable(head(penguins)) |>
+#'   theme_ft()
+#'
+theme_ft <- \(
+  x,
+  width = NULL,
+  alpha = check_opts(font$alpha),
+  digit = check_opts(font$digit),
+  base = "#333333",
+  color = check_opts(color$cold[1]),
+  bg = "white",
+  row_padding = 3,
+  title_align = "left",
+  font_size = 10,
+  stat_font_size = font_size - 1,
+  pvalue_font_size = font_size - 2,
+  row_strip = TRUE,
+  footnote_font_size = font_size - 2,
+  footnote_padding = row_padding,
+  ...
+) {
+  .f <- \(str) str_subset(x$col_keys, str)
+
+  if (!row_strip) {
+    color <- "transparent"
+  }
+
+  rule <- fp_border(color = base, width = 1)
+  stripe <- seq(1, nrow(x$body$dataset), by = 2)
+
+  x <- x |>
+    border_remove() |>
+    font(fontname = alpha, part = "all") |>
+    font(fontname = digit, j = .f("stat|estimate|p.value"), part = "body") |>
+    fontsize(size = font_size, part = "all") |>
+    fontsize(size = stat_font_size, j = .f("stat|estimate"), part = "body") |>
+    fontsize(size = pvalue_font_size, j = .f("p.value"), part = "body") |>
+    fontsize(size = footnote_font_size, part = "footer") |>
+    flextable::color(color = base, part = "all") |>
+    flextable::bg(bg = color, part = "body") |>
+    flextable::bg(i = stripe, bg = bg, part = "body") |>
+    flextable::bg(bg = bg, part = "header") |>
+    flextable::bg(bg = bg, part = "footer") |>
+    hline_bottom(border = rule, part = "header") |>
+    hline_top(border = rule, part = "body") |>
+    hline_bottom(border = rule, part = "body") |>
+    padding(
+      padding.top = row_padding,
+      padding.bottom = row_padding,
+      padding.left = 3,
+      padding.right = 3,
+      part = "body"
+    ) |>
+    padding(
+      padding.top = footnote_padding,
+      padding.bottom = footnote_padding,
+      part = "footer"
+    ) |>
+    align(align = "justify", part = "footer")
+
+  if (!is.null(x$caption$value)) {
+    x <- set_caption(
+      x,
+      caption = x$caption$value,
+      fp_p = fp_par(text.align = title_align, padding = 3)
+    )
+  }
+
+  props <- list2(...)
+
+  if (!is.null(width)) {
+    props$layout <- props$layout %||% "autofit"
+    props$width <- width
+  }
+
+  if (length(props) > 0) {
+    x <- inject(set_table_properties(x, !!!props))
+  }
+
+  return(x)
+}
+
+
 #' Standardized bar-chart theme
 #'
 #' A [ggplot2::theme()] built on textbox title and caption, tuned for the

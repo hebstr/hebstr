@@ -10,6 +10,28 @@
   )
 }
 
+.ft_txt <- \(x, part = "footer") {
+  d <- x[[part]]$content$data
+
+  vapply(
+    seq_len(nrow(d)),
+    \(i) {
+      paste0(
+        vapply(
+          seq_len(ncol(d)),
+          \(j) {
+            ch <- d[[i, j]]
+            if (is.null(ch) || !nrow(ch)) "" else paste(ch$txt, collapse = "")
+          },
+          character(1)
+        ),
+        collapse = ""
+      )
+    },
+    character(1)
+  )
+}
+
 test_that("gt_format() renders a summary (non-coefficient) table to gt_tbl", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
@@ -91,6 +113,97 @@ test_that("gt_format() sets the table title from `title`", {
   res <- gt_format(gtsum_format(.make_summary_tbl()), title = "My Title")
 
   expect_equal(as.character(res[["_heading"]]$title), "My Title")
+})
+
+test_that("gt_format() routes to a themed flextable under options(hebstr.docx = TRUE)", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- gt_format(gtsum_format(.make_summary_tbl()))
+
+  expect_s3_class(res, "flextable")
+})
+
+test_that("gt_format() leaves the gt branch untouched when hebstr.docx is unset", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = NULL)
+
+  res <- gt_format(gtsum_format(.make_summary_tbl()))
+
+  expect_s3_class(res, "gt_tbl")
+})
+
+test_that("gt_format() attaches note_global as a footer line under docx", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- gt_format(
+    gtsum_format(.make_summary_tbl()),
+    note_global = "global note"
+  )
+
+  expect_match(.ft_txt(res), "global note", all = FALSE)
+})
+
+test_that("gt_format() attaches note_vargrp and its body marker under docx", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- gt_format(
+    gtsum_format(.make_summary_tbl()),
+    note_vargrp = "vargrp note",
+    label_vargrp = "age"
+  )
+
+  expect_match(.ft_txt(res), "vargrp note", all = FALSE)
+  expect_match(.ft_txt(res, "body"), "^age.", all = FALSE)
+})
+
+test_that("gt_format() appends acronym definitions as a footer line under docx", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  df <- data.frame(
+    grp = c(rep("a", 10), rep("b", 10)),
+    bmi = as.numeric(seq_len(20))
+  )
+  attr(df$bmi, "label") <- "BMI at baseline"
+  tbl <- suppressMessages(gtsummary::tbl_summary(df, by = grp, include = bmi))
+
+  res <- gt_format(
+    gtsum_format(tbl),
+    acro_list = list(BMI = "BMI: body mass index")
+  )
+
+  expect_match(.ft_txt(res), "body mass index", all = FALSE)
+})
+
+test_that("gt_format() sets the table caption from `title` under docx", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- gt_format(gtsum_format(.make_summary_tbl()), title = "My Title")
+
+  expect_match(paste(unlist(res$caption), collapse = " "), "My Title")
+})
+
+test_that("gt_format() applies zero_replace under docx, and leaves cells alone when NULL", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  tbl <- .make_summary_tbl()
+  with_sub <- gt_format(gtsum_format(tbl))
+  without_sub <- gt_format(gtsum_format(tbl), zero_replace = NULL)
+
+  expect_false(any(grepl("0 (0%)", .ft_txt(with_sub, "body"), fixed = TRUE)))
+  expect_true(any(grepl("0 (0%)", .ft_txt(without_sub, "body"), fixed = TRUE)))
 })
 
 test_that("gt_format() registers a value substitution when zero_replace is set, none when NULL", {
