@@ -114,7 +114,7 @@ test_that("gtsum_format() records the estim annotation internally, not in global
   expect_named(.estim_channel$estim, c("uv", "mv"))
 })
 
-test_that("gt_format() aborts informatively on a coefficient table without annotation", {
+test_that("tbl_format() aborts informatively on a coefficient table without annotation", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
@@ -123,7 +123,7 @@ test_that("gt_format() aborts informatively on a coefficient table without annot
 
   rm(list = ls(envir = .estim_channel), envir = .estim_channel)
 
-  expect_error(gt_format(formatted), "gtsum_format")
+  expect_error(tbl_format(formatted), "gtsum_format")
 })
 
 test_that("gtsum_format() does not require model_mv when show_single_row is FALSE", {
@@ -258,16 +258,16 @@ test_that("gtsum_format() leaves an eventless regression table untouched", {
   expect_false(anyNA(res$table_body$estimate[res$table_body$variable == "x"]))
 })
 
-test_that("gt_format() aborts informatively on a non-gtsummary input", {
-  expect_error(gt_format(mtcars), "gtsummary")
+test_that("tbl_format() aborts informatively on a non-gtsummary input", {
+  expect_error(tbl_format(mtcars), "gtsummary")
 })
 
-test_that("gt_format() attaches note_pvalue to the p-value column", {
+test_that("tbl_format() attaches note_pvalue to the p-value column", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   reg <- .make_reg_tbl()
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(reg$tbl, model_mv = reg$mod),
     note_pvalue = "Wald test"
   )
@@ -280,12 +280,12 @@ test_that("gt_format() attaches note_pvalue to the p-value column", {
   )
 })
 
-test_that("gtsum_format() |> gt_format() renders the estimator footnote", {
+test_that("gtsum_format() |> tbl_format() renders the estimator footnote", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   reg <- .make_reg_tbl()
-  res <- gt_format(gtsum_format(reg$tbl, model_mv = reg$mod))
+  res <- tbl_format(gtsum_format(reg$tbl, model_mv = reg$mod))
 
   expect_s3_class(res, "gt_tbl")
   expect_match(
@@ -295,7 +295,7 @@ test_that("gtsum_format() |> gt_format() renders the estimator footnote", {
   )
 })
 
-test_that("gt_format() strips the native gtsummary abbreviations", {
+test_that("tbl_format() strips the native gtsummary abbreviations", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
@@ -307,7 +307,7 @@ test_that("gt_format() strips the native gtsummary abbreviations", {
     all = FALSE
   )
 
-  res <- gt_format(gtsum_format(reg$tbl, model_mv = reg$mod))
+  res <- tbl_format(gtsum_format(reg$tbl, model_mv = reg$mod))
 
   expect_false(any(str_detect(
     unlist(res[["_footnotes"]]$footnotes),

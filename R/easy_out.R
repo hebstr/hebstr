@@ -66,7 +66,7 @@ easy_out <- \(
       "i" = "Received object of class: {.cls {class(x)}}",
       if (inherits(x, "flextable")) {
         c(
-          "i" = "{.fun gt_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output.",
+          "i" = "{.fun tbl_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output.",
           "i" = "Unset the option to get a {.cls gt_tbl} that {.fun easy_out} can export."
         )
       }

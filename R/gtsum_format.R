@@ -276,8 +276,8 @@
 #' header, and regression tables get merged estimator/confidence-interval
 #' columns, reference-level annotations, and (when the table carries an
 #' observation count) an observation/event count column. The estimator
-#' definitions are recorded for [gt_format()] to render as a footnote.
-#' Typically piped into [gt_format()].
+#' definitions are recorded for [tbl_format()] to render as a footnote.
+#' Typically piped into [tbl_format()].
 #'
 #' When a regression table carries an event count, levels with no event are
 #' blanked: their estimate is not identifiable (the coefficient diverges), so
@@ -326,7 +326,7 @@
 #' @param indent Indentation width, in points, applied to level rows. Defaults
 #'   to `4`.
 #'
-#' @returns The formatted `gtsummary` table, ready for [gt_format()].
+#' @returns The formatted `gtsummary` table, ready for [tbl_format()].
 #'
 #' @examples
 #' set_opts()

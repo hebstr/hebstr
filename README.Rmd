@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 hebstr provides a standardised workflow for descriptive analysis and reporting.
-Variables are classified automatically before descriptive statistics are computed, figures are drawn with consistent 'ggplot2' themes, and tables are formatted with 'gt' and 'gtsummary'.
+Variables are classified automatically before descriptive statistics are computed, figures are drawn with consistent 'ggplot2' themes, and tables are formatted with 'gt' and 'gtsummary', with Word output routed through 'flextable'.
 A single interface exports figures and tables to PNG, SVG, and HTML.
 Output switches between English and French based on the session locale, and further helpers cover statistical tests, acronym dictionaries, and Quarto integration.
 

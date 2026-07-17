@@ -100,7 +100,7 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 #' @param footnote_padding Footnote padding, in pixels.
 #' @param docx If `TRUE`, skip the style refinements (justified title and
 #'   footnotes, digit font, reduced stat and p-value sizes) that render poorly
-#'   in Word output. Defaults to `getOption("theme_gt.docx", FALSE)`.
+#'   in Word output. Defaults to `getOption("hebstr.docx", FALSE)`.
 #' @param ... Additional options forwarded to [gt::tab_options()].
 #'
 #' @return A [gt::gt()] table object (`gt_tbl`).
@@ -130,7 +130,7 @@ theme_gt <- \(
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
-  docx = getOption("theme_gt.docx", default = FALSE),
+  docx = getOption("hebstr.docx", default = FALSE),
   ...
 ) {
   if (!is_bool(docx)) {

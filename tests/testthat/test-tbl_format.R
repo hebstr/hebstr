@@ -32,20 +32,20 @@
   )
 }
 
-test_that("gt_format() renders a summary (non-coefficient) table to gt_tbl", {
+test_that("tbl_format() renders a summary (non-coefficient) table to gt_tbl", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
-  res <- gt_format(gtsum_format(.make_summary_tbl()))
+  res <- tbl_format(gtsum_format(.make_summary_tbl()))
 
   expect_s3_class(res, "gt_tbl")
 })
 
-test_that("gt_format() attaches note_global as a footnote on a summary table", {
+test_that("tbl_format() attaches note_global as a footnote on a summary table", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(.make_summary_tbl()),
     note_global = "global note"
   )
@@ -57,11 +57,11 @@ test_that("gt_format() attaches note_global as a footnote on a summary table", {
   )
 })
 
-test_that("gt_format() attaches note_vargrp to the targeted variable group", {
+test_that("tbl_format() attaches note_vargrp to the targeted variable group", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(.make_summary_tbl()),
     note_vargrp = "vargrp note",
     label_vargrp = "age"
@@ -73,17 +73,17 @@ test_that("gt_format() attaches note_vargrp to the targeted variable group", {
   expect_contains(res[["_data"]]$variable[footnotes$rownum], "age")
 })
 
-test_that("gt_format() aborts when note_vargrp is set without label_vargrp", {
+test_that("tbl_format() aborts when note_vargrp is set without label_vargrp", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   expect_error(
-    gt_format(gtsum_format(.make_summary_tbl()), note_vargrp = "orphan"),
+    tbl_format(gtsum_format(.make_summary_tbl()), note_vargrp = "orphan"),
     "label_vargrp"
   )
 })
 
-test_that("gt_format() appends acronym definitions from acro_list as a footnote", {
+test_that("tbl_format() appends acronym definitions from acro_list as a footnote", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
@@ -94,7 +94,7 @@ test_that("gt_format() appends acronym definitions from acro_list as a footnote"
   attr(df$bmi, "label") <- "BMI at baseline"
   tbl <- suppressMessages(gtsummary::tbl_summary(df, by = grp, include = bmi))
 
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(tbl),
     acro_list = list(BMI = "BMI: body mass index")
   )
@@ -106,41 +106,41 @@ test_that("gt_format() appends acronym definitions from acro_list as a footnote"
   )
 })
 
-test_that("gt_format() sets the table title from `title`", {
+test_that("tbl_format() sets the table title from `title`", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
-  res <- gt_format(gtsum_format(.make_summary_tbl()), title = "My Title")
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), title = "My Title")
 
   expect_equal(as.character(res[["_heading"]]$title), "My Title")
 })
 
-test_that("gt_format() routes to a themed flextable under options(hebstr.docx = TRUE)", {
+test_that("tbl_format() routes to a themed flextable under options(hebstr.docx = TRUE)", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = TRUE)
 
-  res <- gt_format(gtsum_format(.make_summary_tbl()))
+  res <- tbl_format(gtsum_format(.make_summary_tbl()))
 
   expect_s3_class(res, "flextable")
 })
 
-test_that("gt_format() leaves the gt branch untouched when hebstr.docx is unset", {
+test_that("tbl_format() leaves the gt branch untouched when hebstr.docx is unset", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = NULL)
 
-  res <- gt_format(gtsum_format(.make_summary_tbl()))
+  res <- tbl_format(gtsum_format(.make_summary_tbl()))
 
   expect_s3_class(res, "gt_tbl")
 })
 
-test_that("gt_format() attaches note_global as a footer line under docx", {
+test_that("tbl_format() attaches note_global as a footer line under docx", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = TRUE)
 
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(.make_summary_tbl()),
     note_global = "global note"
   )
@@ -148,12 +148,12 @@ test_that("gt_format() attaches note_global as a footer line under docx", {
   expect_match(.ft_txt(res), "global note", all = FALSE)
 })
 
-test_that("gt_format() attaches note_vargrp and its body marker under docx", {
+test_that("tbl_format() attaches note_vargrp and its body marker under docx", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = TRUE)
 
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(.make_summary_tbl()),
     note_vargrp = "vargrp note",
     label_vargrp = "age"
@@ -163,7 +163,7 @@ test_that("gt_format() attaches note_vargrp and its body marker under docx", {
   expect_match(.ft_txt(res, "body"), "^age.", all = FALSE)
 })
 
-test_that("gt_format() appends acronym definitions as a footer line under docx", {
+test_that("tbl_format() appends acronym definitions as a footer line under docx", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = TRUE)
@@ -175,7 +175,7 @@ test_that("gt_format() appends acronym definitions as a footer line under docx",
   attr(df$bmi, "label") <- "BMI at baseline"
   tbl <- suppressMessages(gtsummary::tbl_summary(df, by = grp, include = bmi))
 
-  res <- gt_format(
+  res <- tbl_format(
     gtsum_format(tbl),
     acro_list = list(BMI = "BMI: body mass index")
   )
@@ -183,39 +183,65 @@ test_that("gt_format() appends acronym definitions as a footer line under docx",
   expect_match(.ft_txt(res), "body mass index", all = FALSE)
 })
 
-test_that("gt_format() sets the table caption from `title` under docx", {
+test_that("tbl_format() sets the table caption from `title` under docx", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = TRUE)
 
-  res <- gt_format(gtsum_format(.make_summary_tbl()), title = "My Title")
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), title = "My Title")
 
   expect_match(paste(unlist(res$caption), collapse = " "), "My Title")
 })
 
-test_that("gt_format() applies zero_replace under docx, and leaves cells alone when NULL", {
+test_that("tbl_format() applies zero_replace under docx, and leaves cells alone when NULL", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   tbl <- .make_summary_tbl()
-  with_sub <- gt_format(gtsum_format(tbl))
-  without_sub <- gt_format(gtsum_format(tbl), zero_replace = NULL)
+  with_sub <- tbl_format(gtsum_format(tbl))
+  without_sub <- tbl_format(gtsum_format(tbl), zero_replace = NULL)
 
   expect_false(any(grepl("0 (0%)", .ft_txt(with_sub, "body"), fixed = TRUE)))
   expect_true(any(grepl("0 (0%)", .ft_txt(without_sub, "body"), fixed = TRUE)))
 })
 
-test_that("gt_format() registers a value substitution when zero_replace is set, none when NULL", {
+test_that("tbl_format() registers a value substitution when zero_replace is set, none when NULL", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
 
   tbl <- .make_summary_tbl()
-  with_sub <- gt_format(gtsum_format(tbl))
-  without_sub <- gt_format(gtsum_format(tbl), zero_replace = NULL)
+  with_sub <- tbl_format(gtsum_format(tbl))
+  without_sub <- tbl_format(gtsum_format(tbl), zero_replace = NULL)
 
   expect_equal(
     length(with_sub[["_substitutions"]]),
     length(without_sub[["_substitutions"]]) + 1L
   )
+})
+
+### DEPRECATED ALIAS -----------------------------------------------------------
+
+test_that("gt_format() warns once and delegates to tbl_format()", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  tbl <- gtsum_format(.make_summary_tbl())
+
+  expect_snapshot(res <- gt_format(tbl))
+  expect_s3_class(res, "gt_tbl")
+})
+
+test_that("gt_format() forwards its arguments to tbl_format()", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  tbl <- gtsum_format(.make_summary_tbl())
+
+  res <- withr::with_options(
+    list(lifecycle_verbosity = "quiet"),
+    gt_format(tbl, title = "My Title")
+  )
+
+  expect_equal(as.character(res[["_heading"]]$title), "My Title")
 })

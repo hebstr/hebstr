@@ -94,7 +94,7 @@ to render as indented levels. Defaults to \code{""}.}
 to \code{4}.}
 }
 \value{
-The formatted \code{gtsummary} table, ready for \code{\link[=gt_format]{gt_format()}}.
+The formatted \code{gtsummary} table, ready for \code{\link[=tbl_format]{tbl_format()}}.
 }
 \description{
 Applies the package's header, label, and footnote conventions to a
@@ -103,8 +103,8 @@ overall column and level spanners, univariate summaries get a single-stat
 header, and regression tables get merged estimator/confidence-interval
 columns, reference-level annotations, and (when the table carries an
 observation count) an observation/event count column. The estimator
-definitions are recorded for \code{\link[=gt_format]{gt_format()}} to render as a footnote.
-Typically piped into \code{\link[=gt_format]{gt_format()}}.
+definitions are recorded for \code{\link[=tbl_format]{tbl_format()}} to render as a footnote.
+Typically piped into \code{\link[=tbl_format]{tbl_format()}}.
 }
 \details{
 When a regression table carries an event count, levels with no event are

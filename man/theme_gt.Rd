@@ -22,7 +22,7 @@ theme_gt(
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
-  docx = getOption("theme_gt.docx", default = FALSE),
+  docx = getOption("hebstr.docx", default = FALSE),
   ...
 )
 }
@@ -69,7 +69,7 @@ is made transparent.}
 
 \item{docx}{If \code{TRUE}, skip the style refinements (justified title and
 footnotes, digit font, reduced stat and p-value sizes) that render poorly
-in Word output. Defaults to \code{getOption("theme_gt.docx", FALSE)}.}
+in Word output. Defaults to \code{getOption("hebstr.docx", FALSE)}.}
 
 \item{...}{Additional options forwarded to \code{\link[gt:tab_options]{gt::tab_options()}}.}
 }

@@ -1,7 +1,7 @@
-#' Finalise a gtsummary table into a styled gt table
+#' Finalise a gtsummary table into a styled table
 #'
-#' Converts a `gtsummary` table into a themed `gt` table: applies the package
-#' `gt` theme, an optional markdown title, automatic acronym footnotes drawn
+#' Converts a `gtsummary` table into a themed table: applies the package
+#' theme, an optional markdown title, automatic acronym footnotes drawn
 #' from a reference dictionary, optional user footnotes (global, p-value column,
 #' variable group), and an optional zero-value substitution. Acronyms present in
 #' the table headers, labels, and column names are detected and their
@@ -27,18 +27,21 @@
 #'   footnote. Defaults to the `sep$ext` option.
 #' @param zero_replace Regular expression; matching cell values are replaced
 #'   with `0`. Set to `NULL` to disable. Defaults to `"^0\\s"`.
-#' @param ... Passed on to [theme_gt()].
+#' @param ... Passed on to [theme_gt()], or to [theme_ft()] under
+#'   `options(hebstr.docx = TRUE)`.
 #'
-#' @returns A `gt_tbl` object.
+#' @returns A `gt_tbl` object, or a `flextable` object under
+#'   `options(hebstr.docx = TRUE)`. Style verbs applied downstream must handle
+#'   both classes: see [tbl_font_size()] and [tbl_row_color()].
 #'
 #' @examples
 #' set_opts()
 #' tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
-#' gt_format(tbl)
+#' tbl_format(tbl)
 #'
 #' @export
 #'
-gt_format <- \(
+tbl_format <- \(
   x,
   title = NULL,
   note_global = NULL,
@@ -54,7 +57,7 @@ gt_format <- \(
     cli_abort(
       c(
         "{.arg x} must be a {.cls gtsummary} table.",
-        i = "Build it with {.fun gtsummary::tbl_summary}, {.fun gtsummary::tbl_regression} (optionally via {.fun gtsum_format}) before {.fun gt_format}."
+        i = "Build it with {.fun gtsummary::tbl_summary}, {.fun gtsummary::tbl_regression} (optionally via {.fun gtsum_format}) before {.fun tbl_format}."
       )
     )
   }
@@ -90,7 +93,7 @@ gt_format <- \(
       cli_abort(
         c(
           "No estimator annotation is available for this coefficient table.",
-          i = "Run {.fun gtsum_format} on the regression table, then {.fun gt_format}, in the same session."
+          i = "Run {.fun gtsum_format} on the regression table, then {.fun tbl_format}, in the same session."
         )
       )
     }
@@ -242,4 +245,26 @@ gt_format <- \(
   }
 
   theme_ft(as_flex_table(x), ...)
+}
+
+#' Finalise a gtsummary table into a styled gt table
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' Renamed to [tbl_format()]: the function returns a `flextable` under
+#' `options(hebstr.docx = TRUE)`, which the `gt_` prefix contradicts.
+#'
+#' @param ... Passed on to [tbl_format()].
+#'
+#' @returns A `gt_tbl` object, or a `flextable` object under
+#'   `options(hebstr.docx = TRUE)`.
+#'
+#' @keywords internal
+#' @export
+#'
+gt_format <- \(...) {
+  deprecate_soft("0.0.0.9000", "gt_format()", "tbl_format()")
+
+  tbl_format(...)
 }

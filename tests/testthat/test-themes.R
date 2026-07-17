@@ -11,10 +11,10 @@ test_that("theme_gt() applies style refinements by default", {
   expect_gt(nrow(themed$`_styles`), 0)
 })
 
-test_that("theme_gt() skips style refinements when options(theme_gt.docx = TRUE)", {
+test_that("theme_gt() skips style refinements when options(hebstr.docx = TRUE)", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
-  withr::local_options(theme_gt.docx = TRUE)
+  withr::local_options(hebstr.docx = TRUE)
 
   themed <- theme_gt(.make_gt())
 
@@ -24,7 +24,7 @@ test_that("theme_gt() skips style refinements when options(theme_gt.docx = TRUE)
 test_that("theme_gt() docx argument overrides the option", {
   withr::defer(rm(list = "opts", envir = .hebstr))
   set_opts()
-  withr::local_options(theme_gt.docx = TRUE)
+  withr::local_options(hebstr.docx = TRUE)
 
   themed <- theme_gt(.make_gt(), docx = FALSE)
 
