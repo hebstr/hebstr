@@ -177,6 +177,15 @@
 }
 
 
+.fmt_reg_no_event <- \(x) {
+  x |>
+    modify_table_body(
+      ~ . |>
+        mutate(across(c(estimate, ci), \(col) if_else(n_event %in% 0, NA, col)))
+    )
+}
+
+
 .fmt_reg <- \(
   x,
   .adj_acro,
@@ -232,6 +241,10 @@
     x <- .fmt_reg_n(x, .stat_n, .label_n)
   }
 
+  if (.event(x)) {
+    x <- .fmt_reg_no_event(x)
+  }
+
   x |>
     modify_header(label ~ .label_header, p.value ~ "**p**") |>
     add_ref_label(label = .label_reference) |>
@@ -265,6 +278,12 @@
 #' observation count) an observation/event count column. The estimator
 #' definitions are recorded for [gt_format()] to render as a footnote.
 #' Typically piped into [gt_format()].
+#'
+#' When a regression table carries an event count, levels with no event are
+#' blanked: their estimate is not identifiable (the coefficient diverges), so
+#' the fitted value and its confidence interval are dropped rather than
+#' rendered. Tables without an event count, such as linear regressions, are
+#' left untouched.
 #'
 #' @param x A `gtsummary` table: [gtsummary::tbl_summary()] (optionally with a
 #'   `by` group or `add_p()`), [gtsummary::tbl_regression()], or

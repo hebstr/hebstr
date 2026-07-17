@@ -13,6 +13,9 @@ Package state no longer touches the user's workspace. Options and the variable c
 
 ## New features
 
+* `gt_format()` routes Word output through `flextable` instead of `gt`. Under `options(hebstr.docx = TRUE)` it returns a themed `flextable` rather than a `gt_tbl`, because `gt` is HTML-first and its OOXML export flattens backgrounds, row striping, and custom borders. Acronyms, footnotes, and the zero substitution carry over to that branch; the HTML output is unchanged.
+* `theme_ft()` applies the package house style to a `flextable`, as the Word-facing twin of `theme_gt()`. Sizes are in points, not pixels, and the three refinements `theme_gt(docx = TRUE)` had to drop (justified title and footnotes, digit font, reduced stat and p-value sizes) all render in Word through `flextable`.
+* `easy_out()` names `options(hebstr.docx = TRUE)` when handed a `flextable`, instead of reporting an unsupported class with no explanation. Exporting a `flextable` remains out of scope.
 * `easy_out()` accepts a grid grob (for example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`), exporting it to SVG and PNG through the same pipeline as ggplot objects.
 * `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
@@ -26,6 +29,7 @@ Package state no longer touches the user's workspace. Options and the variable c
 * `acro_extract()` matches an acronym that ends in a non-word character (e.g. `IC95%`), which the previous `\b`-bounded pattern could never match.
 * `acro_extract()` returns a compound acronym whole (e.g. `n/N`) instead of separately matching its constituent parts, so a dictionary that holds both the parts (`n`, `N`) and the compound extracts the intended term. Matches within a string are now all returned, not just the first.
 * `gtsum_format()` adds the events/observations column to a multivariable regression, not only to a univariate one: the column now appears whenever the table carries the `n_obs` count, so a `tbl_regression()` and a `tbl_uvregression()` render it alike.
+* `gtsum_format()` blanks the estimate and confidence interval of a regression level carrying no event, on every table reporting an event count (Cox, logistic, Poisson). Such a level has no identifiable estimate (the coefficient diverges), and the fitted value rendered as a spurious `0.00` instead of being dropped.
 
 ## Minor improvements
 

@@ -23,6 +23,24 @@
   )
 }
 
+.make_no_event_tbl <- \() {
+  df <- data.frame(
+    y = rep(c(0, 1), 15),
+    g = factor(rep(c("a", "b", "c"), 10))
+  )
+  df$y[df$g == "c"] <- 0
+
+  suppressWarnings(
+    gtsummary::tbl_uvregression(
+      df,
+      method = glm,
+      y = y,
+      method.args = list(family = binomial()),
+      exponentiate = TRUE
+    )
+  )
+}
+
 .make_summary_df <- \() {
   data.frame(
     grp = rep(c("a", "b"), 10),
@@ -198,6 +216,46 @@ test_that("gtsum_format() routes a multivariable regression through the n-column
   expect_contains(names(res$table_body), "stat_n")
   header <- res$table_styling$header
   expect_equal(header$label[header$column == "stat_n"], "**n/N**")
+})
+
+test_that("gtsum_format() blanks the estimate of a level carrying no event", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  res <- suppressMessages(gtsum_format(.make_no_event_tbl()))
+
+  body <- res$table_body
+  no_event <- body$n_event %in% 0
+
+  expect_true(any(no_event))
+  expect_true(all(is.na(body$estimate[no_event])))
+  expect_true(all(is.na(body$ci[no_event])))
+})
+
+test_that("gtsum_format() keeps the estimate of a level carrying events", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  res <- suppressMessages(gtsum_format(.make_no_event_tbl()))
+
+  body <- res$table_body
+  estimable <- body$n_event > 0 & body$row_type == "level" & !body$reference_row
+
+  expect_true(any(estimable, na.rm = TRUE))
+  expect_false(anyNA(body$estimate[which(estimable)]))
+})
+
+test_that("gtsum_format() leaves an eventless regression table untouched", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  df <- data.frame(y = seq_len(30) + rep(c(0, 2), 15), x = seq_len(30))
+  lm_tbl <- gtsummary::tbl_uvregression(df, method = lm, y = y)
+
+  res <- expect_no_warning(gtsum_format(lm_tbl))
+
+  expect_false("n_event" %in% names(res$table_body))
+  expect_false(anyNA(res$table_body$estimate[res$table_body$variable == "x"]))
 })
 
 test_that("gt_format() aborts informatively on a non-gtsummary input", {

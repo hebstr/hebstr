@@ -24,6 +24,7 @@ utils::globalVariables(c(
   "limit",
   "logit_prop",
   "n",
+  "n_event",
   "n_miss",
   "name",
   "outliers",

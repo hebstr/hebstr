@@ -106,6 +106,13 @@ observation count) an observation/event count column. The estimator
 definitions are recorded for \code{\link[=gt_format]{gt_format()}} to render as a footnote.
 Typically piped into \code{\link[=gt_format]{gt_format()}}.
 }
+\details{
+When a regression table carries an event count, levels with no event are
+blanked: their estimate is not identifiable (the coefficient diverges), so
+the fitted value and its confidence interval are dropped rather than
+rendered. Tables without an event count, such as linear regressions, are
+left untouched.
+}
 \examples{
 set_opts()
 tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
