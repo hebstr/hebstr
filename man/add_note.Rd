@@ -7,7 +7,7 @@
 add_note(data, vars = NULL, levels = NULL, rows = NULL, pvalue_mv = NULL, note)
 }
 \arguments{
-\item{data}{A \code{gt} or \code{gtsummary} table object.}
+\item{data}{A \code{gtsummary} table object, upstream of \code{\link[=tbl_format]{tbl_format()}}.}
 
 \item{vars}{Variable name(s) to footnote on their label rows.}
 
@@ -21,18 +21,24 @@ the \verb{p.value_\{pvalue_mv + 1\}} column label instead of body rows.}
 \item{note}{Footnote text to display.}
 }
 \value{
-A \code{gt} table with the footnote added.
+A \code{gtsummary} table with the footnote added.
 }
 \description{
-Adds a footnote via \code{\link[gt:tab_footnote]{gt::tab_footnote()}}, targeting either specific label
-rows or a multivariable p-value column. Exactly one of \code{vars}, \code{levels},
-\code{rows}, or \code{pvalue_mv} selects the location.
+Adds a footnote to a \code{gtsummary} table, targeting either specific label rows
+or a multivariable p-value column. Exactly one of \code{vars}, \code{levels}, \code{rows},
+or \code{pvalue_mv} selects the location.
+}
+\details{
+Footnotes are declared on the \code{gtsummary} object, upstream of \code{\link[=tbl_format]{tbl_format()}},
+which renders to a \code{gt_tbl} or to a \code{flextable} under
+\code{options(hebstr.docx = TRUE)}. Declaring them upstream keeps a single call
+site across both output formats, and leaves \code{gtsummary} to number the symbols
+in table reading order regardless of the order the notes are declared in.
 }
 \examples{
 tbl <-
   na.omit(datasets::penguins) |>
   gtsummary::tbl_summary(include = c(species, bill_len)) |>
-  gtsummary::as_gt() |>
   add_note(vars = "species", note = "Counts by species.")
 
 }

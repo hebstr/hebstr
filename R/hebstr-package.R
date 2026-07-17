@@ -207,6 +207,7 @@
 #' @importFrom rlang is_scalar_integer
 #' @importFrom rlang is_symbol
 #' @importFrom rlang list2
+#' @importFrom rlang quo_is_null
 #' @importFrom rlang set_names
 #' @importFrom rsample int_pctl
 #' @importFrom scales label_number

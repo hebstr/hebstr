@@ -13,7 +13,9 @@ easy_out(
   width = NULL,
   height = NULL,
   px = 1200,
-  quiet = getOption("easy_out.quiet", default = FALSE)
+  quiet = getOption("easy_out.quiet", default = FALSE),
+  export = getOption("easy_out.export", default = !getOption("hebstr.docx", default =
+    FALSE))
 )
 }
 \arguments{
@@ -43,6 +45,11 @@ graphics.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
+
+\item{export}{If \code{FALSE}, return without writing anything. Defaults to
+\code{getOption("easy_out.export")}, itself defaulting to \code{FALSE} under
+\code{options(hebstr.docx = TRUE)}: a Word run renders tables through
+\code{\link[flextable:flextable]{flextable::flextable()}}, leaving no object to export to HTML or PNG.}
 }
 \value{
 \code{NULL} (invisibly). Called for its side effects.

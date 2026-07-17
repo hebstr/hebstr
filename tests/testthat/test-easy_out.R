@@ -12,6 +12,95 @@ test_that("easy_out() points at hebstr.docx when handed a flextable", {
   )
 })
 
+test_that("easy_out() rejects a non-boolean export", {
+  expect_error(
+    easy_out(mtcars, export = "yes", quiet = TRUE),
+    class = "rlang_error"
+  )
+})
+
+test_that("easy_out() writes nothing when export is FALSE", {
+  skip_if_not_installed("ggplot2")
+
+  tmp <- withr::local_tempdir()
+  dir <- fs::path(tmp, "skipped")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_null(easy_out(p, filename = "test", dir = dir, export = FALSE))
+  expect_false(fs::dir_exists(dir))
+})
+
+test_that("easy_out() leaves the variable context intact when export is FALSE", {
+  skip_if_not_installed("ggplot2")
+
+  set_opts()
+  use_vars(mtcars)
+  withr::defer(clear_vars())
+
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  easy_out(
+    p,
+    filename = "test",
+    dir = withr::local_tempdir(),
+    export = FALSE
+  )
+
+  expect_true(exists(".vars_context", envir = .hebstr, inherits = FALSE))
+})
+
+test_that("easy_out() skips the export under hebstr.docx rather than rejecting a flextable", {
+  tmp <- withr::local_tempdir()
+  dir <- fs::path(tmp, "docx")
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_no_error(
+    easy_out(flextable::flextable(head(mtcars)), filename = "test", dir = dir)
+  )
+  expect_false(fs::dir_exists(dir))
+})
+
+test_that("easy_out() names hebstr.docx and export when a flextable export is forced", {
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_error(
+    easy_out(
+      flextable::flextable(head(mtcars)),
+      quiet = TRUE,
+      export = TRUE
+    ),
+    "hebstr.docx"
+  )
+})
+
+test_that("easy_out.export option overrides the hebstr.docx default", {
+  skip_if_not_installed("ggplot2")
+
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  write_called <- FALSE
+  local_mocked_bindings(
+    ggsave = \(...) "mock_path.svg",
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) {
+      write_called <<- TRUE
+      invisible(NULL)
+    },
+    browseURL = \(...) invisible(NULL)
+  )
+
+  withr::local_options(hebstr.docx = TRUE, easy_out.export = TRUE)
+
+  easy_out(p, filename = "test", dir = tmp, quiet = TRUE)
+
+  expect_true(write_called)
+})
+
 test_that("easy_out() rejects a vector", {
   expect_error(
     easy_out(1:10, quiet = TRUE),

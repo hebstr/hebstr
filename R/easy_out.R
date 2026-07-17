@@ -22,6 +22,10 @@
 #'   graphics.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
+#' @param export If `FALSE`, return without writing anything. Defaults to
+#'   `getOption("easy_out.export")`, itself defaulting to `FALSE` under
+#'   `options(hebstr.docx = TRUE)`: a Word run renders tables through
+#'   [flextable::flextable()], leaving no object to export to HTML or PNG.
 #'
 #' @return `NULL` (invisibly). Called for its side effects.
 #' @export
@@ -41,13 +45,25 @@ easy_out <- \(
   width = NULL,
   height = NULL,
   px = 1200,
-  quiet = getOption("easy_out.quiet", default = FALSE)
+  quiet = getOption("easy_out.quiet", default = FALSE),
+  export = getOption(
+    "easy_out.export",
+    default = !getOption("hebstr.docx", default = FALSE)
+  )
 ) {
-  clear_vars()
-
   if (!is_bool(quiet)) {
     cli_abort("{.arg quiet} must be {.code TRUE} or {.code FALSE}.")
   }
+
+  if (!is_bool(export)) {
+    cli_abort("{.arg export} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (!export) {
+    return(invisible(NULL))
+  }
+
+  clear_vars()
 
   cli_h1("easy_out")
   cat_line()
@@ -66,8 +82,8 @@ easy_out <- \(
       "i" = "Received object of class: {.cls {class(x)}}",
       if (inherits(x, "flextable")) {
         c(
-          "i" = "{.fun tbl_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output.",
-          "i" = "Unset the option to get a {.cls gt_tbl} that {.fun easy_out} can export."
+          "i" = "{.fun tbl_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output. Exporting a {.cls flextable} is out of scope.",
+          "i" = "To export, build the table without {.code hebstr.docx} so {.fun tbl_format} returns a {.cls gt_tbl}. To skip the export instead, leave {.arg export} at its {.code hebstr.docx} default."
         )
       }
     ))

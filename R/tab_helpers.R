@@ -152,25 +152,30 @@ all_dichotomous_uv <- \(data, ...) {
 
 #' Attach a footnote to targeted rows or a p-value column
 #'
-#' Adds a footnote via [gt::tab_footnote()], targeting either specific label
-#' rows or a multivariable p-value column. Exactly one of `vars`, `levels`,
-#' `rows`, or `pvalue_mv` selects the location.
+#' Adds a footnote to a `gtsummary` table, targeting either specific label rows
+#' or a multivariable p-value column. Exactly one of `vars`, `levels`, `rows`,
+#' or `pvalue_mv` selects the location.
 #'
-#' @param data A `gt` or `gtsummary` table object.
+#' Footnotes are declared on the `gtsummary` object, upstream of [tbl_format()],
+#' which renders to a `gt_tbl` or to a `flextable` under
+#' `options(hebstr.docx = TRUE)`. Declaring them upstream keeps a single call
+#' site across both output formats, and leaves `gtsummary` to number the symbols
+#' in table reading order regardless of the order the notes are declared in.
+#'
+#' @param data A `gtsummary` table object, upstream of [tbl_format()].
 #' @param vars Variable name(s) to footnote on their label rows.
 #' @param levels Level label(s) to footnote on the matching rows.
 #' @param rows A data-mask expression selecting the rows to footnote.
 #' @param pvalue_mv Zero-based index of a multivariable p-value column; footnotes
 #'   the `p.value_{pvalue_mv + 1}` column label instead of body rows.
 #' @param note Footnote text to display.
-#' @return A `gt` table with the footnote added.
+#' @return A `gtsummary` table with the footnote added.
 #' @export
 #'
 #' @examples
 #' tbl <-
 #'   na.omit(datasets::penguins) |>
 #'   gtsummary::tbl_summary(include = c(species, bill_len)) |>
-#'   gtsummary::as_gt() |>
 #'   add_note(vars = "species", note = "Counts by species.")
 #'
 add_note <- \(
@@ -181,33 +186,41 @@ add_note <- \(
   pvalue_mv = NULL,
   note
 ) {
-  if (is.null(pvalue_mv)) {
-    rows <- enexpr(rows)
-
-    if (!is.null(vars)) {
-      vars <- expr(variable %in% !!vars & row_type == "label")
-    } else if (!is.null(levels)) {
-      vars <- expr(label %in% !!levels)
-    } else if (!is.null(rows)) {
-      vars <- enexpr(rows)
-    } else {
-      cli_abort(
-        "Provide at least one of {.arg vars}, {.arg levels}, or {.arg rows} to target the footnote to specific rows."
+  if (!inherits(data, "gtsummary")) {
+    cli_abort(
+      c(
+        "{.arg data} must be a {.cls gtsummary} table, not {.obj_type_friendly {data}}.",
+        i = "Call {.fun add_note} before {.fun tbl_format}, which renders the table to its final class."
       )
-    }
-
-    tab_footnote(
-      data = data,
-      footnote = note,
-      locations = cells_body(columns = label, rows = !!vars)
-    )
-  } else {
-    tab_footnote(
-      data = data,
-      footnote = note,
-      locations = cells_column_labels(glue("p.value_{pvalue_mv + 1}"))
     )
   }
+
+  if (!is.null(pvalue_mv)) {
+    return(modify_footnote_header(
+      data,
+      footnote = note,
+      columns = glue("p.value_{pvalue_mv + 1}")
+    ))
+  }
+
+  .rows <- enquo(rows)
+
+  if (!is.null(vars)) {
+    .rows <- expr(variable %in% !!vars & row_type == "label")
+  } else if (!is.null(levels)) {
+    .rows <- expr(label %in% !!levels)
+  } else if (quo_is_null(.rows)) {
+    cli_abort(
+      "Provide at least one of {.arg vars}, {.arg levels}, or {.arg rows} to target the footnote to specific rows."
+    )
+  }
+
+  inject(modify_footnote_body(
+    data,
+    footnote = note,
+    columns = "label",
+    rows = !!.rows
+  ))
 }
 
 

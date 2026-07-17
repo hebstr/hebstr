@@ -222,55 +222,103 @@ test_that("str_na_mv reports the count and share of rows with any missing value"
   expect_match(as.character(str_na_mv(without_na)), "aucune observation")
 })
 
-test_that("add_note aborts when no targeting argument is provided", {
+.make_note_tbl <- \() {
+  gtsummary::tbl_summary(
+    data.frame(
+      age = c(30, 40, 50, 60),
+      sex = factor(c("F", "M", "F", "M"))
+    ),
+    include = c(age, sex)
+  )
+}
+
+.note_labels <- \(x) {
+  rows <- x$table_styling$footnote_body$rows[[1]]
+
+  x$table_body$label[eval_tidy(rows, data = x$table_body)]
+}
+
+test_that("add_note aborts on a table already rendered by tbl_format", {
   g <- gt::gt(data.frame(label = c("Alpha", "Beta", "Gamma")))
 
   expect_error(
-    add_note(g, note = "test note"),
+    add_note(g, vars = "age", note = "test note"),
     class = "rlang_error"
   )
 })
 
-test_that("add_note targets only the requested vars", {
-  g <- gt::gt(
-    data.frame(
-      variable = c("age", "age", "sex"),
-      row_type = c("label", "label", "label"),
-      label = c("Age", "Age", "Sex")
-    )
+test_that("add_note aborts when no targeting argument is provided", {
+  expect_error(
+    add_note(.make_note_tbl(), note = "test note"),
+    class = "rlang_error"
   )
+})
 
-  res <- add_note(g, vars = "age", note = "test note")
+test_that("add_note targets only the label row of the requested vars", {
+  res <- add_note(.make_note_tbl(), vars = "sex", note = "test note")
+  footnote <- res$table_styling$footnote_body
 
-  expect_equal(nrow(res$`_footnotes`), 2)
+  expect_equal(nrow(footnote), 1)
+  expect_equal(footnote$column, "label")
+  expect_equal(footnote$footnote, "test note")
+  expect_equal(.note_labels(res), "sex")
 })
 
 test_that("add_note targets the rows matching the requested levels", {
-  g <- gt::gt(data.frame(label = c("Alpha", "Beta", "Gamma")))
+  res <- add_note(.make_note_tbl(), levels = "F", note = "test note")
 
-  res <- add_note(g, levels = "Beta", note = "test note")
-
-  expect_equal(nrow(res$`_footnotes`), 1)
-  expect_equal(res$`_footnotes`$locname, "data")
+  expect_equal(nrow(res$table_styling$footnote_body), 1)
+  expect_equal(.note_labels(res), "F")
 })
 
 test_that("add_note targets rows selected by a data-mask expression", {
-  g <- gt::gt(data.frame(label = c("Alpha", "Beta", "Gamma")))
+  res <- add_note(
+    .make_note_tbl(),
+    rows = label == "M",
+    note = "test note"
+  )
 
-  res <- add_note(g, rows = label == "Gamma", note = "test note")
+  expect_equal(nrow(res$table_styling$footnote_body), 1)
+  expect_equal(.note_labels(res), "M")
+})
 
-  expect_equal(nrow(res$`_footnotes`), 1)
-  expect_equal(res$`_footnotes`$locname, "data")
+test_that("add_note resolves a rows expression against the caller's environment", {
+  wrapper <- \() {
+    kept <- "F"
+
+    add_note(.make_note_tbl(), rows = label %in% kept, note = "test note")
+  }
+
+  res <- wrapper()
+
+  expect_equal(nrow(res$table_styling$footnote_body), 1)
+  expect_equal(.note_labels(res), "F")
 })
 
 test_that("add_note footnotes the multivariable p-value column label", {
-  g <- gt::gt(data.frame(label = "Age", p.value_2 = 0.03))
+  res <- .make_note_tbl() |>
+    modify_table_body(\(.b) dplyr::mutate(.b, p.value_2 = 0.03)) |>
+    add_note(pvalue_mv = 1, note = "test note")
 
-  res <- add_note(g, pvalue_mv = 1, note = "test note")
+  footnote <- res$table_styling$footnote_header |>
+    dplyr::filter(column == "p.value_2")
 
-  expect_equal(nrow(res$`_footnotes`), 1)
-  expect_equal(res$`_footnotes`$locname, "columns_columns")
-  expect_equal(res$`_footnotes`$colname, "p.value_2")
+  expect_equal(nrow(footnote), 1)
+  expect_equal(footnote$footnote, "test note")
+})
+
+test_that("add_note survives tbl_format on both output formats", {
+  set_opts()
+
+  build <- \() add_note(.make_note_tbl(), vars = "sex", note = "test note")
+
+  withr::with_options(list(hebstr.docx = FALSE), {
+    expect_s3_class(tbl_format(build()), "gt_tbl")
+  })
+
+  withr::with_options(list(hebstr.docx = TRUE), {
+    expect_s3_class(tbl_format(build()), "flextable")
+  })
 })
 
 .make_ref_tbl <- \() {
