@@ -27,6 +27,13 @@
 #'   footnote. Defaults to the `sep$ext` option.
 #' @param zero_replace Regular expression; matching cell values are replaced
 #'   with `0`. Set to `NULL` to disable. Defaults to `"^0\\s"`.
+#' @param collapse_missing Logical scalar. When `TRUE` (the default), the
+#'   automatic missing-value rows are folded into a single `dm` column via
+#'   [col_missing()] and that column is set to `missing_size`. Tables built with
+#'   `gtsummary::tbl_summary(missing = "no")`, or carrying no missing rows, are
+#'   left untouched.
+#' @param missing_size Font size, in pixels, applied to the `dm` column when
+#'   `collapse_missing = TRUE`. Defaults to `11`.
 #' @param ... Passed on to [theme_gt()], or to [theme_ft()] under
 #'   `options(hebstr.docx = TRUE)`.
 #'
@@ -51,6 +58,8 @@ tbl_format <- \(
   acro_list = check_opts(acro),
   acro_sep = check_opts(sep$ext),
   zero_replace = "^0\\s",
+  collapse_missing = TRUE,
+  missing_size = 11,
   ...
 ) {
   if (!inherits(x, "gtsummary")) {
@@ -62,7 +71,19 @@ tbl_format <- \(
     )
   }
 
+  if (!is_bool(collapse_missing)) {
+    cli_abort(
+      "{.arg collapse_missing} must be a single {.code TRUE} or {.code FALSE}."
+    )
+  }
+
   clear_vars()
+
+  if (collapse_missing && any(x$table_body$row_type == "missing")) {
+    x <- col_missing(x)
+  }
+
+  size_dm <- collapse_missing && "dm" %in% names(x$table_body)
 
   ### ACRONYMS ----------------------------------------------------------------
 
@@ -133,7 +154,7 @@ tbl_format <- \(
   ### RENDER -------------------------------------------------------------------
 
   if (getOption("hebstr.docx", default = FALSE)) {
-    return(.fmt_ft(
+    x <- .fmt_ft(
       x,
       title = title,
       note_global = note_global,
@@ -144,7 +165,13 @@ tbl_format <- \(
       is_coef = is_coef,
       zero_replace = zero_replace,
       ...
-    ))
+    )
+
+    if (size_dm) {
+      x <- tbl_font_size(x, columns = dm, size = missing_size)
+    }
+
+    return(x)
   }
 
   if (!inherits(x, "gt_tbl")) {
@@ -154,6 +181,10 @@ tbl_format <- \(
   x <- x |>
     tab_header(title = if (!is.null(title)) md(title)) |>
     theme_gt(...)
+
+  if (size_dm) {
+    x <- tbl_font_size(x, columns = dm, size = missing_size)
+  }
 
   ### FOOTNOTES ----------------------------------------------------------------
 

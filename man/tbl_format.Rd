@@ -14,6 +14,8 @@ tbl_format(
   acro_list = check_opts(acro),
   acro_sep = check_opts(sep$ext),
   zero_replace = "^0\\\\s",
+  collapse_missing = TRUE,
+  missing_size = 11,
   ...
 )
 }
@@ -45,6 +47,15 @@ footnote. Defaults to the \code{sep$ext} option.}
 
 \item{zero_replace}{Regular expression; matching cell values are replaced
 with \code{0}. Set to \code{NULL} to disable. Defaults to \code{"^0\\\\s"}.}
+
+\item{collapse_missing}{Logical scalar. When \code{TRUE} (the default), the
+automatic missing-value rows are folded into a single \code{dm} column via
+\code{\link[=col_missing]{col_missing()}} and that column is set to \code{missing_size}. Tables built with
+\code{gtsummary::tbl_summary(missing = "no")}, or carrying no missing rows, are
+left untouched.}
+
+\item{missing_size}{Font size, in pixels, applied to the \code{dm} column when
+\code{collapse_missing = TRUE}. Defaults to \code{11}.}
 
 \item{...}{Passed on to \code{\link[=theme_gt]{theme_gt()}}, or to \code{\link[=theme_ft]{theme_ft()}} under
 \code{options(hebstr.docx = TRUE)}.}

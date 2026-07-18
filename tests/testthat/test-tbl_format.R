@@ -10,6 +10,18 @@
   )
 }
 
+.make_missing_tbl <- \() {
+  df <- data.frame(
+    grp = c(rep("a", 10), rep("b", 10)),
+    age = c(seq_len(18), NA, NA),
+    sex = factor(c(rep("m", 9), NA, rep(c("m", "f"), 5)))
+  )
+
+  suppressMessages(
+    gtsummary::tbl_summary(df, by = grp, include = c(age, sex))
+  )
+}
+
 .ft_txt <- \(x, part = "footer") {
   d <- x[[part]]$content$data
 
@@ -217,6 +229,77 @@ test_that("tbl_format() registers a value substitution when zero_replace is set,
   expect_equal(
     length(with_sub[["_substitutions"]]),
     length(without_sub[["_substitutions"]]) + 1L
+  )
+})
+
+### COLLAPSE MISSING -----------------------------------------------------------
+
+test_that("tbl_format() folds missing rows into a sized dm column on gt", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  res <- tbl_format(gtsum_format(.make_missing_tbl()), missing_size = 9)
+
+  expect_true("dm" %in% names(res[["_data"]]))
+  expect_false("missing" %in% res[["_data"]]$row_type)
+
+  dm_styles <- res[["_styles"]][res[["_styles"]]$colname %in% "dm", ]
+  expect_gt(nrow(dm_styles), 0)
+  expect_true(all(
+    vapply(
+      dm_styles$styles,
+      \(s) as.character(s$cell_text$size),
+      character(1)
+    ) ==
+      "9px"
+  ))
+})
+
+test_that("tbl_format() sizes the dm column on flextable under docx", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(.make_missing_tbl()), missing_size = 9)
+
+  expect_s3_class(res, "flextable")
+  expect_true("dm" %in% names(res$body$dataset))
+
+  j <- which(names(res$body$dataset) == "dm")
+  expect_equal(
+    unique(as.vector(res$body$styles$text$font.size$data[, j])),
+    9 * 0.75
+  )
+})
+
+test_that("tbl_format(collapse_missing = FALSE) keeps missing rows and adds no dm column", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  res <- tbl_format(
+    gtsum_format(.make_missing_tbl()),
+    collapse_missing = FALSE
+  )
+
+  expect_false("dm" %in% names(res[["_data"]]))
+  expect_true("missing" %in% res[["_data"]]$row_type)
+})
+
+test_that("tbl_format() leaves a missing-free table alone and emits no warning by default", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  res <- expect_no_warning(tbl_format(gtsum_format(.make_summary_tbl())))
+  expect_false("dm" %in% names(res[["_data"]]))
+})
+
+test_that("tbl_format() aborts when collapse_missing is not a logical scalar", {
+  withr::defer(rm(list = "opts", envir = .hebstr))
+  set_opts()
+
+  expect_error(
+    tbl_format(gtsum_format(.make_missing_tbl()), collapse_missing = "ifany"),
+    "collapse_missing"
   )
 })
 

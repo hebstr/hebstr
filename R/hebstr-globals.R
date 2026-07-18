@@ -15,6 +15,7 @@ utils::globalVariables(c(
   "contrib",
   "coord",
   "data",
+  "dm",
   "estimate",
   "f",
   "fill",
