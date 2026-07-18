@@ -199,9 +199,7 @@ easy_out <- \(
 
     cli_progress_step("Creating PNG file")
 
-    to_svg |>
-      image_read_svg(height = px) |>
-      image_write(to_png, format = "png")
+    svg_to_png(to_svg, to_png, px)
 
     cli_progress_done()
 
@@ -230,9 +228,7 @@ easy_out <- \(
 
     cli_progress_step("Creating PNG file")
 
-    to_svg |>
-      image_read_svg(height = px) |>
-      image_write(to_png, format = "png")
+    svg_to_png(to_svg, to_png, px)
 
     cli_progress_done()
 
@@ -294,4 +290,17 @@ easy_out_map <- \(
   }
 
   iwalk(x, map_fun)
+}
+
+svg_to_png <- \(to_svg, to_png, px) {
+  lines <- readLines(to_svg)
+
+  if (!any(grepl("xml:space", lines, fixed = TRUE))) {
+    lines <- sub("<svg ", '<svg xml:space="preserve" ', lines, fixed = TRUE)
+    writeLines(lines, to_svg)
+  }
+
+  to_svg |>
+    image_read_svg(height = px) |>
+    image_write(to_png, format = "png")
 }
