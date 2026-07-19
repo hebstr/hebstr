@@ -13,6 +13,7 @@ easy_out(
   width = NULL,
   height = NULL,
   px = 1200,
+  crop = getOption("easy_out.crop", default = TRUE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !getOption("hebstr.docx", default =
     FALSE))
@@ -34,7 +35,9 @@ to \code{getOption("easy_out.dir", "output")}.}
 
 \item{width}{Width of the output. For tables: viewport width in pixels
 (default 700). For plots and grid graphics: SVG width in inches
-(default 7).}
+(default 7). For a grid grob under \code{crop = TRUE}, \code{width} and \code{height}
+are a canvas budget rather than the size of the exported file, which
+is trimmed back to the drawing it contains.}
 
 \item{height}{Height in inches for SVG output of plots and grid graphics
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
@@ -42,6 +45,13 @@ for tables.}
 
 \item{px}{Height in pixels for the PNG rasterization of plots and grid
 graphics.}
+
+\item{crop}{If \code{TRUE} (the default, read from
+\code{getOption("easy_out.crop")}), trim the SVG canvas of a grid grob to
+the bounding box of the drawing, keeping a small margin. Grob positions
+are relative to the whole page, so a drawing covering a sub-rectangle
+leaves an empty band that no \code{width}/\code{height} value removes. Ignored
+for tables and plots, whose margins come from the theme.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}

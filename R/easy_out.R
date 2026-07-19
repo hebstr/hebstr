@@ -14,12 +14,20 @@
 #' @param sep Separator between `filename` and `suffix`.
 #' @param width Width of the output. For tables: viewport width in pixels
 #'   (default 700). For plots and grid graphics: SVG width in inches
-#'   (default 7).
+#'   (default 7). For a grid grob under `crop = TRUE`, `width` and `height`
+#'   are a canvas budget rather than the size of the exported file, which
+#'   is trimmed back to the drawing it contains.
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
 #'   for tables.
 #' @param px Height in pixels for the PNG rasterization of plots and grid
 #'   graphics.
+#' @param crop If `TRUE` (the default, read from
+#'   `getOption("easy_out.crop")`), trim the SVG canvas of a grid grob to
+#'   the bounding box of the drawing, keeping a small margin. Grob positions
+#'   are relative to the whole page, so a drawing covering a sub-rectangle
+#'   leaves an empty band that no `width`/`height` value removes. Ignored
+#'   for tables and plots, whose margins come from the theme.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. Defaults to
@@ -45,6 +53,7 @@ easy_out <- \(
   width = NULL,
   height = NULL,
   px = 1200,
+  crop = getOption("easy_out.crop", default = TRUE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption(
     "easy_out.export",
@@ -57,6 +66,10 @@ easy_out <- \(
 
   if (!is_bool(export)) {
     cli_abort("{.arg export} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (!is_bool(crop)) {
+    cli_abort("{.arg crop} must be {.code TRUE} or {.code FALSE}.")
   }
 
   if (!export) {
@@ -228,7 +241,7 @@ easy_out <- \(
 
     cli_progress_step("Creating PNG file")
 
-    svg_to_png(to_svg, to_png, px)
+    svg_to_png(to_svg, to_png, px, crop = crop)
 
     cli_progress_done()
 
@@ -292,7 +305,7 @@ easy_out_map <- \(
   iwalk(x, map_fun)
 }
 
-svg_to_png <- \(to_svg, to_png, px) {
+svg_to_png <- \(to_svg, to_png, px, crop = FALSE) {
   lines <- readLines(to_svg)
 
   if (!any(grepl("xml:space", lines, fixed = TRUE))) {
@@ -300,7 +313,179 @@ svg_to_png <- \(to_svg, to_png, px) {
     writeLines(lines, to_svg)
   }
 
+  if (crop) {
+    svg_crop(to_svg)
+  }
+
   to_svg |>
     image_read_svg(height = px) |>
     image_write(to_png, format = "png")
+}
+
+svg_ink_box <- \(to_svg, tol = 0.04) {
+  raster <- fs::file_temp(ext = "png")
+  on.exit(fs::file_delete(raster), add = TRUE)
+
+  to_svg |>
+    image_read_svg() |>
+    image_write(raster, format = "png")
+
+  pixels <- readPNG(raster)
+
+  if (length(dim(pixels)) == 2L) {
+    pixels <- array(pixels, dim = c(dim(pixels), 1L))
+  }
+
+  channels <- dim(pixels)[3]
+  has_alpha <- channels %in% c(2L, 4L)
+  colors <- seq_len(channels - as.integer(has_alpha))
+
+  quantized <- reduce(
+    seq_len(channels),
+    \(acc, i) acc * 256 + round(pixels[,, i] * 255),
+    .init = 0
+  )
+
+  tally <- table(quantized)
+  background <- which(quantized == as.numeric(names(which.max(tally))))[1]
+
+  visible <- if (has_alpha) {
+    pixels[,, channels] > tol
+  } else {
+    array(TRUE, dim = dim(pixels)[1:2])
+  }
+
+  ink <- if (has_alpha && pixels[,, channels][background] <= tol) {
+    visible
+  } else {
+    delta <- reduce(
+      colors,
+      \(acc, i) pmax(acc, abs(pixels[,, i] - pixels[,, i][background])),
+      .init = 0
+    )
+
+    visible & delta > tol
+  }
+
+  height <- dim(ink)[1]
+  width <- dim(ink)[2]
+
+  if (height < 3 || width < 3) {
+    return(NULL)
+  }
+
+  # rsvg leaves a semi-transparent seam on the outermost rows and columns
+  ink[c(1, height), ] <- FALSE
+  ink[, c(1, width)] <- FALSE
+
+  rows <- which(apply(ink, 1, any))
+  cols <- which(apply(ink, 2, any))
+
+  if (length(rows) == 0 || length(cols) == 0) {
+    return(NULL)
+  }
+
+  c(
+    x0 = (min(cols) - 1) / width,
+    x1 = max(cols) / width,
+    y0 = (min(rows) - 1) / height,
+    y1 = max(rows) / height
+  )
+}
+
+svg_crop <- \(to_svg, margin = 0.03) {
+  lines <- readLines(to_svg)
+  header <- grep("<svg[ >]", lines)[1]
+
+  if (is.na(header)) {
+    return(invisible(FALSE))
+  }
+
+  quoted <- "\\s*=\\s*['\"]([^'\"]*)['\"]"
+
+  view_box <-
+    lines[header] |>
+    str_extract(paste0("viewBox", quoted), group = 1) |>
+    str_squish() |>
+    strsplit(" ") |>
+    unlist() |>
+    as.numeric()
+
+  if (length(view_box) != 4 || anyNA(view_box) || any(view_box[3:4] <= 0)) {
+    return(invisible(FALSE))
+  }
+
+  box <- svg_ink_box(to_svg)
+
+  if (is.null(box)) {
+    return(invisible(FALSE))
+  }
+
+  x <- view_box[1] + box[["x0"]] * view_box[3]
+  y <- view_box[2] + box[["y0"]] * view_box[4]
+  w <- (box[["x1"]] - box[["x0"]]) * view_box[3]
+  h <- (box[["y1"]] - box[["y0"]]) * view_box[4]
+
+  pad <- margin * max(w, h)
+
+  x0 <- max(view_box[1], x - pad)
+  y0 <- max(view_box[2], y - pad)
+  x1 <- min(view_box[1] + view_box[3], x + w + pad)
+  y1 <- min(view_box[2] + view_box[4], y + h + pad)
+
+  cropped <- c(x0, y0, x1 - x0, y1 - y0)
+
+  if (isTRUE(all.equal(cropped, view_box, tolerance = 1e-6))) {
+    return(invisible(FALSE))
+  }
+
+  resize <- \(svg, attribute, index) {
+    declared <- str_extract(svg, paste0(attribute, quoted), group = 1)
+    value <- as.numeric(str_extract(declared, "^[0-9.]+"))
+
+    if (is.na(value)) {
+      return(svg)
+    }
+
+    unit <- str_remove(declared, "^[0-9.]+")
+    scaled <- cropped[index] * value / view_box[index]
+
+    str_replace(
+      svg,
+      paste0(attribute, quoted),
+      sprintf("%s='%.2f%s'", attribute, scaled, unit)
+    )
+  }
+
+  lines[header] <-
+    lines[header] |>
+    str_replace(
+      paste0("viewBox", quoted),
+      sprintf(
+        "viewBox='%.2f %.2f %.2f %.2f'",
+        cropped[1],
+        cropped[2],
+        cropped[3],
+        cropped[4]
+      )
+    ) |>
+    resize("width", 3L) |>
+    resize("height", 4L)
+
+  # A full-bleed background rect is sized in percent but anchored at the
+  # origin, which the translated viewBox leaves behind
+  background <- grep("<rect width='100%' height='100%'", lines, fixed = TRUE)[1]
+
+  if (!is.na(background)) {
+    lines[background] <- sub(
+      "<rect ",
+      sprintf("<rect x='%.2f' y='%.2f' ", cropped[1], cropped[2]),
+      lines[background],
+      fixed = TRUE
+    )
+  }
+
+  writeLines(lines, to_svg)
+
+  invisible(TRUE)
 }

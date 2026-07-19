@@ -447,7 +447,7 @@ test_that("easy_out() accepts a grid grob and creates an SVG", {
   )
 
   expect_no_error(
-    easy_out(g, filename = "test_grob", dir = tmp, quiet = TRUE)
+    easy_out(g, filename = "test_grob", dir = tmp, crop = FALSE, quiet = TRUE)
   )
 
   expect_true(fs::file_exists(fs::path(tmp, "test_grob", ext = "svg")))
@@ -464,7 +464,7 @@ test_that("easy_out() injects xml:space=preserve on the grob SVG", {
     browseURL = \(...) invisible(NULL)
   )
 
-  easy_out(g, filename = "test_space", dir = tmp, quiet = TRUE)
+  easy_out(g, filename = "test_space", dir = tmp, crop = FALSE, quiet = TRUE)
 
   svg <- readLines(fs::path(tmp, "test_space", ext = "svg"))
   expect_match(
@@ -484,7 +484,14 @@ test_that("easy_out() builds grob filename with suffix", {
     browseURL = \(...) invisible(NULL)
   )
 
-  easy_out(g, filename = "flow", suffix = "v2", dir = tmp, quiet = TRUE)
+  easy_out(
+    g,
+    filename = "flow",
+    suffix = "v2",
+    dir = tmp,
+    crop = FALSE,
+    quiet = TRUE
+  )
 
   expect_true(fs::file_exists(fs::path(tmp, "flow_v2", ext = "svg")))
 })
@@ -565,4 +572,165 @@ test_that("easy_out_map() forwards ... to easy_out()", {
   expect_equal(captured_args$dir, tmp)
   expect_true(captured_args$quiet)
   expect_equal(captured_args$suffix, "v1")
+})
+
+test_that("easy_out() rejects a non-boolean crop", {
+  expect_error(
+    easy_out(grid::rectGrob(), crop = "yes", quiet = TRUE),
+    class = "rlang_error"
+  )
+})
+
+test_that("svg_crop() trims the canvas to the drawing", {
+  path <- .make_svg(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+  )
+
+  before <- .view_box(path)
+
+  expect_true(svg_crop(path))
+
+  after <- .view_box(path)
+
+  expect_equal(after[3], 0.30 * before[3], tolerance = 0.1)
+  expect_equal(after[4], 0.20 * before[4], tolerance = 0.2)
+  expect_gt(after[1], before[1])
+})
+
+test_that("svg_crop() keeps the drawing inside the cropped canvas", {
+  path <- .make_svg(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+  )
+
+  before <- .view_box(path)
+  svg_crop(path)
+  after <- .view_box(path)
+
+  ink <- c(0.25, 0.55, 0.30, 0.50) * rep(before[3:4], each = 2)
+
+  expect_lte(after[1], ink[1])
+  expect_gte(after[1] + after[3], ink[2])
+  expect_lte(after[2], ink[3])
+  expect_gte(after[2] + after[4], ink[4])
+})
+
+test_that("svg_crop() rewrites the width and height attributes", {
+  path <- .make_svg(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+  )
+
+  svg_crop(path)
+
+  header <- grep("<svg[ >]", readLines(path), value = TRUE)
+  after <- .view_box(path)
+
+  expect_match(header, sprintf("width='%.2fpt'", after[3]), fixed = TRUE)
+  expect_match(header, sprintf("height='%.2fpt'", after[4]), fixed = TRUE)
+})
+
+test_that("svg_crop() crops a transparent canvas on alpha alone", {
+  path <- .make_svg(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2),
+    bg = "transparent"
+  )
+
+  before <- .view_box(path)
+
+  expect_true(svg_crop(path))
+  expect_lt(.view_box(path)[3], before[3])
+})
+
+test_that("svg_crop() leaves a full-bleed canvas untouched", {
+  path <- .make_svg(
+    grid::rectGrob(gp = grid::gpar(fill = "red", col = NA))
+  )
+
+  before <- readLines(path)
+
+  expect_false(svg_crop(path))
+  expect_identical(readLines(path), before)
+})
+
+test_that("svg_crop() leaves an empty canvas untouched", {
+  path <- .make_svg(NULL)
+
+  before <- readLines(path)
+
+  expect_false(svg_crop(path))
+  expect_identical(readLines(path), before)
+})
+
+test_that("svg_crop() leaves an SVG without a viewBox untouched", {
+  path <- withr::local_tempfile(fileext = ".svg")
+  writeLines("<svg width='10pt' height='10pt'></svg>", path)
+
+  expect_false(svg_crop(path))
+  expect_identical(readLines(path), "<svg width='10pt' height='10pt'></svg>")
+})
+
+test_that("easy_out() crops the grob canvas by default", {
+  tmp <- withr::local_tempdir()
+  g <- grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  easy_out(g, filename = "cropped", dir = tmp, width = 9, quiet = TRUE)
+
+  expect_equal(
+    .view_box(fs::path(tmp, "cropped", ext = "svg"))[3],
+    0.30 * 9 * 72,
+    tolerance = 0.1
+  )
+})
+
+test_that("easy_out() leaves the grob canvas whole when crop is FALSE", {
+  tmp <- withr::local_tempdir()
+  g <- grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  easy_out(
+    g,
+    filename = "whole",
+    dir = tmp,
+    width = 9,
+    crop = FALSE,
+    quiet = TRUE
+  )
+
+  expect_equal(.view_box(fs::path(tmp, "whole", ext = "svg"))[3], 9 * 72)
+})
+
+test_that("easy_out() leaves the plot canvas whole", {
+  skip_if_not_installed("ggplot2")
+
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  easy_out(p, filename = "plot", dir = tmp, width = 9, quiet = TRUE)
+
+  expect_equal(.view_box(fs::path(tmp, "plot", ext = "svg"))[3], 9 * 72)
+})
+
+test_that("svg_crop() carries the background rect along with the viewBox", {
+  path <- .make_svg(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+  )
+
+  svg_crop(path)
+
+  raster <- withr::local_tempfile(fileext = ".png")
+  magick::image_write(magick::image_read_svg(path), raster, format = "png")
+
+  pixels <- png::readPNG(raster)
+
+  skip_if_not(dim(pixels)[3] %in% c(2L, 4L), "raster carries no alpha")
+
+  clear <- pixels[,, dim(pixels)[3]] < 0.5
+
+  expect_false(any(apply(clear, 2, all)))
+  expect_false(any(apply(clear, 1, all)))
 })

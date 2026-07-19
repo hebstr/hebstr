@@ -168,3 +168,30 @@
   fonts <- wb$styles_mgr$styles$fonts
   fonts[grepl("<b val=\"1\"/>", fonts, fixed = TRUE)]
 }
+
+### SVG -------------------------------------------------------------------------
+
+.make_svg <- \(grob, bg = "white", width = 9, height = 8) {
+  path <- withr::local_tempfile(fileext = ".svg", .local_envir = parent.frame())
+
+  svglite::svglite(path, width = width, height = height, bg = bg)
+  grid::grid.newpage()
+
+  if (!is.null(grob)) {
+    grid::grid.draw(grob)
+  }
+
+  grDevices::dev.off()
+
+  path
+}
+
+.view_box <- \(path) {
+  path |>
+    readLines() |>
+    grep(pattern = "<svg[ >]", value = TRUE) |>
+    stringr::str_extract("viewBox\\s*=\\s*'([^']*)'", group = 1) |>
+    strsplit(" ") |>
+    unlist() |>
+    as.numeric()
+}
