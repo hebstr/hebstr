@@ -5,3 +5,4 @@ TODO.md
 
 /.quarto/
 **/*.quarto_ipynb
+tests/testthat/_problems/

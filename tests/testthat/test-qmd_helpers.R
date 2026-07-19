@@ -37,6 +37,28 @@ test_that("gt_qmd() respects top_n argument", {
   expect_true(nrow(result[["_data"]]) < nrow(mtcars))
 })
 
+test_that("gt_qmd() sets the html id on the data.frame and gtsummary paths", {
+  .id_of <- \(x) {
+    opts <- x[["_options"]]
+    opts$value[opts$parameter == "table_id"][[1]]
+  }
+
+  tbl <- suppressMessages(gtsummary::tbl_summary(
+    head(mtcars, 4),
+    include = mpg
+  ))
+
+  expect_equal(.id_of(gt_qmd(head(mtcars, 3), id = "tbl-a")), "tbl-a")
+  expect_equal(.id_of(gt_qmd(tbl, id = "tbl-b")), "tbl-b")
+})
+
+test_that("gt_qmd() leaves the id unset on the top_n path", {
+  result <- gt_qmd(mtcars, top_n = 2, id = "tbl-c")
+  opts <- result[["_options"]]
+
+  expect_true(is.na(opts$value[opts$parameter == "table_id"][[1]]))
+})
+
 test_that("gt_qmd() applies custom font and size", {
   result <- gt_qmd(head(iris, 2), font_family = "Arial", font_size = 20)
   opts <- result[["_options"]]
@@ -47,8 +69,7 @@ test_that("gt_qmd() applies custom font and size", {
 })
 
 test_that("gt_qmd() default font_family reads the centralised text font", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
+  local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
   result <- gt_qmd(head(mtcars, 3))
   opts_tbl <- result[["_options"]]

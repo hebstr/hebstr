@@ -14,20 +14,20 @@ theme_bubble(
   axis_color_y = base_color,
   title_color_x = if (length(axis_color_x) == 1) axis_color_x else base_color,
   title_color_y = if (length(axis_color_y) == 1) axis_color_y else base_color,
-  grid_color_x = if (all(axis_color_x != base_color)) {
+  grid_color_x = if (!any(axis_color_x \%in\% base_color)) {
      axis_color_x
  } else {
-    
-    "grey95"
+
+        "grey95"
  },
-  grid_color_y = if (all(axis_color_y != base_color)) {
+  grid_color_y = if (!any(axis_color_y \%in\% base_color)) {
      axis_color_y
  } else {
-    
-    "grey95"
+
+        "grey95"
  },
-  grid_lighten_x = if (all(grid_color_x != "grey95")) 0.85 else 0,
-  grid_lighten_y = if (all(grid_color_y != "grey95")) 0.85 else 0,
+  grid_lighten_x = if (!any(grid_color_x \%in\% "grey95")) 0.85 else 0,
+  grid_lighten_y = if (!any(grid_color_y \%in\% "grey95")) 0.85 else 0,
   ...
 )
 }
@@ -44,9 +44,9 @@ otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{axis_margin_y}{Right margin of the y-axis title, in points.}
 
-\item{axis_color_x}{Color(s) of the x-axis text.}
+\item{axis_color_x}{Color(s) of the x-axis text; \code{NA} is transparent.}
 
-\item{axis_color_y}{Color(s) of the y-axis text.}
+\item{axis_color_y}{Color(s) of the y-axis text; \code{NA} is transparent.}
 
 \item{title_color_x}{Color of the x-axis title; defaults to \code{axis_color_x}
 when it is a single color, otherwise \code{base_color}.}
@@ -61,10 +61,10 @@ when it is a single color, otherwise \code{base_color}.}
 \code{axis_color_y} when it differs from \code{base_color}, otherwise \code{"grey95"}.}
 
 \item{grid_lighten_x}{Amount to lighten \code{grid_color_x}, from 0 to 1;
-\code{0.85} for a colored grid, \code{0} for the default grey.}
+\code{0.85} for any grid color other than the default grey, which takes \code{0}.}
 
 \item{grid_lighten_y}{Amount to lighten \code{grid_color_y}, from 0 to 1;
-\code{0.85} for a colored grid, \code{0} for the default grey.}
+\code{0.85} for any grid color other than the default grey, which takes \code{0}.}
 
 \item{...}{Additional elements passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }

@@ -60,7 +60,7 @@ easy_fct <- \(
 
     x |>
       mutate(
-        !!var := inject(fct_recode(!!var, !!!dots)) |>
+        !!.name := inject(fct_recode(!!var, !!!dots)) |>
           fct_relevel(names(dots))
       )
   } else {

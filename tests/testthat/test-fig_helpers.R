@@ -30,8 +30,7 @@ test_that("ggcount() percentage layer drops levels below pct_min", {
 
 test_that("ggcount() default family reads the centralised text font", {
   skip_if_not_installed("ggplot2")
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
+  local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
   d <- data.frame(class = rep(c("a", "b", "c"), c(5, 3, 2)))
 

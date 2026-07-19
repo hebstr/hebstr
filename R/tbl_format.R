@@ -79,7 +79,7 @@ tbl_format <- \(
 
   clear_vars()
 
-  if (collapse_missing && any(x$table_body$row_type == "missing")) {
+  if (collapse_missing && any(x$table_body$row_type %in% "missing")) {
     x <- col_missing(x)
   }
 

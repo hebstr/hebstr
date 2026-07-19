@@ -1,7 +1,10 @@
 #' Check whether font families are installed
 #'
 #' Tests one or more font families against the system font list (via
-#' [systemfonts::system_fonts()]), matching family names case-insensitively.
+#' [systemfonts::system_fonts()]). Family names match in full, ignoring case: a
+#' name shared with a wider family (`"Liberation"` against `"Liberation Sans"`)
+#' counts as missing, since rendering it falls back to the system default. The
+#' device aliases `"sans"`, `"serif"` and `"mono"` always count as available.
 #'
 #' @param ... One or more font family names to test for installation.
 #' @param .default Font family to fall back to when `.auto` is not installed.
@@ -28,19 +31,12 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
   } else {
     fonts <- unlist(list(...))
 
-    system <- unique(systemfonts::system_fonts()$family)
+    system <- c(
+      unique(systemfonts::system_fonts()$family),
+      c("sans", "serif", "mono")
+    )
 
-    is_installed <- fonts |>
-      map_lgl(
-        \(f) {
-          any(
-            str_detect(
-              system,
-              regex(as.character(glue("\\b{f}\\b")), ignore_case = TRUE)
-            )
-          )
-        }
-      )
+    is_installed <- tolower(fonts) %in% tolower(system)
 
     if (FALSE %in% is_installed) {
       which_font <-
@@ -737,8 +733,8 @@ theme_infreq <- \(
 #' @param base_color Default color for text, titles, and borders.
 #' @param axis_margin_x Top margin of the x-axis title, in points.
 #' @param axis_margin_y Right margin of the y-axis title, in points.
-#' @param axis_color_x Color(s) of the x-axis text.
-#' @param axis_color_y Color(s) of the y-axis text.
+#' @param axis_color_x Color(s) of the x-axis text; `NA` is transparent.
+#' @param axis_color_y Color(s) of the y-axis text; `NA` is transparent.
 #' @param title_color_x Color of the x-axis title; defaults to `axis_color_x`
 #'   when it is a single color, otherwise `base_color`.
 #' @param title_color_y Color of the y-axis title; defaults to `axis_color_y`
@@ -748,9 +744,9 @@ theme_infreq <- \(
 #' @param grid_color_y Color of the horizontal grid lines; defaults to
 #'   `axis_color_y` when it differs from `base_color`, otherwise `"grey95"`.
 #' @param grid_lighten_x Amount to lighten `grid_color_x`, from 0 to 1;
-#'   `0.85` for a colored grid, `0` for the default grey.
+#'   `0.85` for any grid color other than the default grey, which takes `0`.
 #' @param grid_lighten_y Amount to lighten `grid_color_y`, from 0 to 1;
-#'   `0.85` for a colored grid, `0` for the default grey.
+#'   `0.85` for any grid color other than the default grey, which takes `0`.
 #' @param ... Additional elements passed to [ggplot2::theme()].
 #'
 #' @return A [ggplot2::theme()] object.
@@ -773,18 +769,18 @@ theme_bubble <- \(
   axis_color_y = base_color,
   title_color_x = if (length(axis_color_x) == 1) axis_color_x else base_color,
   title_color_y = if (length(axis_color_y) == 1) axis_color_y else base_color,
-  grid_color_x = if (all(axis_color_x != base_color)) {
+  grid_color_x = if (!any(axis_color_x %in% base_color)) {
     axis_color_x
   } else {
     "grey95"
   },
-  grid_color_y = if (all(axis_color_y != base_color)) {
+  grid_color_y = if (!any(axis_color_y %in% base_color)) {
     axis_color_y
   } else {
     "grey95"
   },
-  grid_lighten_x = if (all(grid_color_x != "grey95")) 0.85 else 0,
-  grid_lighten_y = if (all(grid_color_y != "grey95")) 0.85 else 0,
+  grid_lighten_x = if (!any(grid_color_x %in% "grey95")) 0.85 else 0,
+  grid_lighten_y = if (!any(grid_color_y %in% "grey95")) 0.85 else 0,
   ...
 ) {
   theme(

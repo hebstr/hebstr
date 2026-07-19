@@ -27,6 +27,13 @@ Package state no longer touches the user's workspace. Options and the variable c
 
 ## Bug fixes
 
+* `tbl_format()` and `col_missing()` detect the missing rows with `%in%`, so a table whose body carries `NA` row types (for example the header row inserted by `add_label()`) no longer aborts with "missing value where TRUE/FALSE needed" when it holds no missing rows, as with `gtsummary::tbl_summary(missing = "no")`.
+* `get_xlsx()` validates the sheet names with `rlang::is_named()`, so a list carrying an `NA` name raises the "fully named list" error instead of aborting on "missing value where TRUE/FALSE needed".
+* `theme_bubble()` derives its grid colors with `%in%`, so `NA` axis colors (transparent, a valid ggplot2 color) propagate to the grid as a transparent color instead of aborting on "missing value where TRUE/FALSE needed".
+* `check_fonts()` matches family names in full instead of on a word boundary, so a name shared with a wider family (`"Liberation"` against `"Liberation Sans"`) counts as missing rather than installed, since rendering it falls back to the system default. The device aliases `"sans"`, `"serif"` and `"mono"` always count as available.
+* `easy_fct(.name = )` names the output column on the categorical branch as documented, instead of being ignored and silently overwriting the source column.
+* `gt_qmd(id = )` reaches the table built from a `gtsummary` object, which was rendered with the `gt` default id. The argument still has no effect together with `top_n`, which delegates to `gt::gt_preview()`.
+* `auto_exec()` returns `NULL` invisibly as documented, instead of the value of the closing `cli::cli_rule()`.
 * `p_shortenr()` decides the `<` prefix on the raw p-value instead of the rounded one, so a value that only rounds up to the threshold is no longer flagged as below it (e.g. `0.0011` prints as `0.001`, not `<0.001`).
 * `logit_lty()` errors early when the outcome is not a two-level factor, instead of silently returning an empty `$data`.
 * `fct_other_str()` no longer emits a leading separator when no level falls below the minimum count.

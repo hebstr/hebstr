@@ -34,9 +34,8 @@ test_that("easy_out() writes nothing when export is FALSE", {
 test_that("easy_out() leaves the variable context intact when export is FALSE", {
   skip_if_not_installed("ggplot2")
 
-  set_opts()
+  local_opts()
   use_vars(mtcars)
-  withr::defer(clear_vars())
 
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()

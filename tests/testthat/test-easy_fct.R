@@ -81,6 +81,16 @@ test_that(".name creates a new column", {
   expect_s3_class(res$age_grp, "factor")
 })
 
+test_that(".name creates a new column on the character branch", {
+  df <- tibble::tibble(x = c("A", "B", "C"))
+  res <- easy_fct(df, x, "Alpha" = "A", .name = rlang::sym("x_grp"))
+
+  expect_contains(names(res), c("x", "x_grp"))
+  expect_type(res$x, "character")
+  expect_s3_class(res$x_grp, "factor")
+  expect_equal(as.character(res$x_grp), c("Alpha", "B", "C"))
+})
+
 test_that("numeric branch errors when inf/sup missing", {
   df <- tibble::tibble(age = c(10, 50))
 

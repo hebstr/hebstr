@@ -123,7 +123,7 @@
 #' wb <- get_xlsx(list(iris = iris, mtcars = mtcars))
 #' # wb_save(wb, "output.xlsx")
 get_xlsx <- \(sheets, ...) {
-  if (is.null(names(sheets)) || any(names(sheets) == "")) {
+  if (!is_named(sheets)) {
     cli::cli_abort("{.arg sheets} must be a fully named list.")
   }
 

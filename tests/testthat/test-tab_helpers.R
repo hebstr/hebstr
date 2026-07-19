@@ -222,21 +222,6 @@ test_that("str_na_mv reports the count and share of rows with any missing value"
   expect_match(as.character(str_na_mv(without_na)), "aucune observation")
 })
 
-.make_note_tbl <- \() {
-  gtsummary::tbl_summary(
-    data.frame(
-      age = c(30, 40, 50, 60),
-      sex = factor(c("F", "M", "F", "M"))
-    ),
-    include = c(age, sex)
-  )
-}
-
-.note_labels <- \(x) {
-  rows <- x$table_styling$footnote_body$rows[[1]]
-
-  x$table_body$label[eval_tidy(rows, data = x$table_body)]
-}
 
 test_that("add_note aborts on a table already rendered by tbl_format", {
   g <- gt::gt(data.frame(label = c("Alpha", "Beta", "Gamma")))
@@ -308,7 +293,7 @@ test_that("add_note footnotes the multivariable p-value column label", {
 })
 
 test_that("add_note survives tbl_format on both output formats", {
-  set_opts()
+  local_opts()
 
   build <- \() add_note(.make_note_tbl(), vars = "sex", note = "test note")
 
@@ -321,17 +306,6 @@ test_that("add_note survives tbl_format on both output formats", {
   })
 })
 
-.make_ref_tbl <- \() {
-  df <- data.frame(
-    y = rep(c(0, 1), 30),
-    grp = factor(
-      rep(c("low", "mid", "high"), 20),
-      levels = c("low", "mid", "high")
-    )
-  )
-  mod <- glm(y ~ grp, data = df, family = binomial())
-  gtsummary::tbl_regression(mod, exponentiate = TRUE)
-}
 
 test_that("add_ref_label sets the missing symbol on the reference row estimate columns", {
   tbl <- .make_ref_tbl()

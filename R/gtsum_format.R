@@ -287,7 +287,10 @@
 #'
 #' @param x A `gtsummary` table: [gtsummary::tbl_summary()] (optionally with a
 #'   `by` group or `add_p()`), [gtsummary::tbl_regression()], or
-#'   [gtsummary::tbl_uvregression()].
+#'   [gtsummary::tbl_uvregression()]. On a regression table, apply it before any
+#'   verb that inserts rows ([add_label()], [gtsummary::add_glance_table()]):
+#'   the inserted row carries `NA` in the estimator columns, which aborts the
+#'   regression path on `"All values passed in ... must be strings"`.
 #' @param label_header Header label for the characteristic (`label`) column.
 #'   Defaults to the `labs$header` option. `NULL` leaves it blank.
 #' @param label_overall Label for the overall column added to by-group

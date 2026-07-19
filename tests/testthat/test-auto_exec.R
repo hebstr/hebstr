@@ -28,6 +28,20 @@ test_that("auto_exec() errors when only non-.R files exist", {
   )
 })
 
+test_that("auto_exec() returns NULL invisibly on both output regimes", {
+  dir <- withr::local_tempdir()
+  writeLines("test_auto_exec_ret <- TRUE", file.path(dir, "script.R"))
+  withr::defer(rm(test_auto_exec_ret, envir = globalenv()))
+
+  quiet <- withVisible(auto_exec(dir = dir, quiet = TRUE))
+  loud <- suppressMessages(withVisible(auto_exec(dir = dir)))
+
+  expect_null(quiet$value)
+  expect_false(quiet$visible)
+  expect_null(loud$value)
+  expect_false(loud$visible)
+})
+
 test_that("auto_exec() suppresses output when quiet = TRUE", {
   dir <- withr::local_tempdir()
   writeLines("test_auto_exec_quiet <- TRUE", file.path(dir, "script.R"))

@@ -20,8 +20,7 @@ test_that("set_opts() accepts unknown names in ... as user-defined extensions", 
 })
 
 test_that("set_opts(.assign = FALSE) applies ... overrides over an existing object", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(sentinel = TRUE), envir = .hebstr)
+  local_hebstr("opts", list(sentinel = TRUE))
 
   res <- set_opts(.assign = FALSE, sep = list(int = " >> "))
 
@@ -31,8 +30,7 @@ test_that("set_opts(.assign = FALSE) applies ... overrides over an existing obje
 })
 
 test_that("set_opts(.assign = FALSE) recomputes when .default_font is supplied", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(sentinel = TRUE), envir = .hebstr)
+  local_hebstr("opts", list(sentinel = TRUE))
 
   res <- set_opts(.assign = FALSE, .default_font = "arial")
 
@@ -41,8 +39,7 @@ test_that("set_opts(.assign = FALSE) recomputes when .default_font is supplied",
 })
 
 test_that("set_opts(.assign = FALSE) returns the existing object when no override is supplied", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(sentinel = TRUE), envir = .hebstr)
+  local_hebstr("opts", list(sentinel = TRUE))
 
   res <- set_opts(.assign = FALSE)
 
@@ -65,9 +62,7 @@ test_that("set_opts() normalizes a scalar font override to a named alpha/digit l
 
 test_that("set_opts() applies French labels when OutDec is a comma", {
   withr::local_options(OutDec = ",")
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
   res <- set_opts(.assign = FALSE, .default_font = "sans")
 
@@ -82,9 +77,7 @@ test_that("set_opts() applies French labels when OutDec is a comma", {
 
 test_that("set_opts() uses English labels by default", {
   withr::local_options(OutDec = ".")
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
   res <- set_opts(.assign = FALSE, .default_font = "sans")
 
@@ -122,9 +115,8 @@ test_that("opts$vars formulas resolve against an explicit .vars_envir", {
 })
 
 test_that("opts$vars formulas abort when no vars context is available", {
-  if (exists(".vars_context", envir = .hebstr, inherits = FALSE)) {
-    rm(list = ".vars_context", envir = .hebstr)
-  }
+  local_vars_context()
+  rm_vars_context()
 
   res <- set_opts(.assign = FALSE, .default_font = "sans")
   f <- res$vars$test[[1]]
@@ -134,11 +126,7 @@ test_that("opts$vars formulas abort when no vars context is available", {
 
 test_that("opts$vars stays resolvable after clear_vars between two formula evals", {
   gl <- .hebstr
-  withr::defer(
-    if (exists(".vars_context", envir = gl, inherits = FALSE)) {
-      rm(list = ".vars_context", envir = gl)
-    }
-  )
+  local_vars_context()
   fake <- list(
     qt = list(
       vars = list(parametric = "mpg", nonparametric = "wt"),
@@ -159,11 +147,8 @@ test_that("opts$vars stays resolvable after clear_vars between two formula evals
 })
 
 test_that("use_vars() caches the classification in the internal store", {
-  set_opts()
-  withr::defer({
-    clear_vars()
-    rm(list = "opts", envir = .hebstr)
-  })
+  local_opts()
+  local_vars_context()
 
   out <- use_vars(mtcars)
 
@@ -173,6 +158,7 @@ test_that("use_vars() caches the classification in the internal store", {
 })
 
 test_that("clear_vars() removes the cache from the internal store", {
+  local_vars_context()
   .hebstr$.vars_context <- new.env(parent = emptyenv())
 
   clear_vars()
@@ -181,9 +167,8 @@ test_that("clear_vars() removes the cache from the internal store", {
 })
 
 test_that("clear_vars() is a no-op when no cache is present", {
-  if (exists(".vars_context", envir = .hebstr, inherits = FALSE)) {
-    rm(list = ".vars_context", envir = .hebstr)
-  }
+  local_vars_context()
+  rm_vars_context()
 
   expect_no_error(clear_vars())
 })
@@ -205,39 +190,33 @@ test_that("set_opts() formats opts$ci$data as a bracketed glue template", {
 })
 
 test_that("check_opts() resolves keys of the global opts object", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(sep = list(int = ": ", ext = "; ")), envir = .hebstr)
+  local_hebstr("opts", list(sep = list(int = ": ", ext = "; ")))
 
   expect_equal(check_opts(sep$int), ": ")
 })
 
 test_that("check_opts() aborts on an absent key instead of falling through to scope", {
-  withr::defer(rm(list = c("opts", "phantom_key"), envir = .hebstr))
-  assign("opts", list(parametric = "x"), envir = .hebstr)
-  assign("phantom_key", "leaked", envir = .hebstr)
+  local_hebstr("opts", list(parametric = "x"))
+  local_hebstr("phantom_key", "leaked")
 
   expect_error(check_opts(phantom_key), "phantom_key")
 })
 
 test_that("check_opts() aborts on an absent root key of a nested expression", {
-  withr::defer(rm(list = c("opts", "color"), envir = .hebstr))
-  assign("opts", list(parametric = "x"), envir = .hebstr)
-  assign("color", list(cold = c("#FFF", "#000")), envir = .hebstr)
+  local_hebstr("opts", list(parametric = "x"))
+  local_hebstr("color", list(cold = c("#FFF", "#000")))
 
   expect_error(check_opts(color$cold[1]), "color")
 })
 
 test_that("check_opts() aborts when the opts object does not exist", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
   expect_error(check_opts(font), "does not exist")
 })
 
 test_that("get_opts() returns the whole options object from the internal store", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(sep = list(int = ": "), font = "x"), envir = .hebstr)
+  local_hebstr("opts", list(sep = list(int = ": "), font = "x"))
 
   res <- get_opts()
 
@@ -246,16 +225,13 @@ test_that("get_opts() returns the whole options object from the internal store",
 })
 
 test_that("get_opts() reads a custom .name from the internal store", {
-  withr::defer(rm(list = "profile_opts", envir = .hebstr))
-  assign("profile_opts", list(sentinel = TRUE), envir = .hebstr)
+  local_hebstr("profile_opts", list(sentinel = TRUE))
 
   expect_true(get_opts(.name = "profile_opts")$sentinel)
 })
 
 test_that("get_opts() aborts when the options object does not exist", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
   expect_error(get_opts(), "does not exist")
 })

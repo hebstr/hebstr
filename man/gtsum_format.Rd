@@ -35,7 +35,10 @@ gtsum_format(
 \arguments{
 \item{x}{A \code{gtsummary} table: \code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}} (optionally with a
 \code{by} group or \code{add_p()}), \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}}, or
-\code{\link[gtsummary:tbl_uvregression]{gtsummary::tbl_uvregression()}}.}
+\code{\link[gtsummary:tbl_uvregression]{gtsummary::tbl_uvregression()}}. On a regression table, apply it before any
+verb that inserts rows (\code{\link[=add_label]{add_label()}}, \code{\link[gtsummary:add_glance_table]{gtsummary::add_glance_table()}}):
+the inserted row carries \code{NA} in the estimator columns, which aborts the
+regression path on \code{"All values passed in ... must be strings"}.}
 
 \item{label_header}{Header label for the characteristic (\code{label}) column.
 Defaults to the \code{labs$header} option. \code{NULL} leaves it blank.}

@@ -1,57 +1,5 @@
-.make_reg_tbl <- \() {
-  df <- data.frame(
-    y = rep(c(0, 1), 15),
-    x = seq_len(30) + rep(c(0, 2), 15)
-  )
-  mod <- glm(y ~ x, data = df, family = binomial())
-
-  list(tbl = gtsummary::tbl_regression(mod, exponentiate = TRUE), mod = mod)
-}
-
-.make_uvreg_tbl <- \() {
-  df <- data.frame(
-    y = rep(c(0, 1), 15),
-    x = seq_len(30) + rep(c(0, 2), 15),
-    z = seq_len(30) - rep(c(0, 1), 15)
-  )
-  gtsummary::tbl_uvregression(
-    df,
-    method = glm,
-    y = y,
-    method.args = list(family = binomial()),
-    exponentiate = TRUE
-  )
-}
-
-.make_no_event_tbl <- \() {
-  df <- data.frame(
-    y = rep(c(0, 1), 15),
-    g = factor(rep(c("a", "b", "c"), 10))
-  )
-  df$y[df$g == "c"] <- 0
-
-  suppressWarnings(
-    gtsummary::tbl_uvregression(
-      df,
-      method = glm,
-      y = y,
-      method.args = list(family = binomial()),
-      exponentiate = TRUE
-    )
-  )
-}
-
-.make_summary_df <- \() {
-  data.frame(
-    grp = rep(c("a", "b"), 10),
-    age = c(1:10, 5:14),
-    sex = factor(rep(c("m", "f"), 10))
-  )
-}
-
 test_that("gtsum_format() routes a by-group summary through the by-table formatter", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   tbl <- suppressMessages(
     gtsummary::tbl_summary(
@@ -71,8 +19,7 @@ test_that("gtsum_format() routes a by-group summary through the by-table formatt
 })
 
 test_that("gtsum_format() routes a univariate summary through the uni formatter", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   tbl <- suppressMessages(
     gtsummary::tbl_summary(
@@ -90,8 +37,7 @@ test_that("gtsum_format() routes a univariate summary through the uni formatter"
 })
 
 test_that("gtsum_format() returns its result visibly", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
 
@@ -99,8 +45,7 @@ test_that("gtsum_format() returns its result visibly", {
 })
 
 test_that("gtsum_format() records the estim annotation internally, not in globalenv", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   if (exists(".estim", envir = globalenv(), inherits = FALSE)) {
     rm(list = ".estim", envir = globalenv())
@@ -115,8 +60,7 @@ test_that("gtsum_format() records the estim annotation internally, not in global
 })
 
 test_that("tbl_format() aborts informatively on a coefficient table without annotation", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
   formatted <- gtsum_format(reg$tbl, model_mv = reg$mod)
@@ -127,8 +71,7 @@ test_that("tbl_format() aborts informatively on a coefficient table without anno
 })
 
 test_that("gtsum_format() does not require model_mv when show_single_row is FALSE", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
 
@@ -136,8 +79,7 @@ test_that("gtsum_format() does not require model_mv when show_single_row is FALS
 })
 
 test_that("gtsum_format() aborts when show_single_row is TRUE without model_mv", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
 
@@ -148,8 +90,7 @@ test_that("gtsum_format() aborts when show_single_row is TRUE without model_mv",
 })
 
 test_that("gtsum_format() annotates dichotomous reference levels with show_single_row", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   df <- data.frame(
     y = rep(c(0, 1, 1, 0, 1, 0), 10),
@@ -176,8 +117,7 @@ test_that("gtsum_format() annotates dichotomous reference levels with show_singl
 })
 
 test_that("gtsum_format() forces vargrp_levels rows to indented levels", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   tbl <- suppressMessages(
     gtsummary::tbl_summary(.make_summary_df(), include = c(age, sex))
@@ -193,8 +133,7 @@ test_that("gtsum_format() forces vargrp_levels rows to indented levels", {
 })
 
 test_that("gtsum_format() routes a univariate regression through the n-column formatter", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   uv <- suppressMessages(.make_uvreg_tbl())
   res <- expect_no_warning(gtsum_format(uv))
@@ -206,8 +145,7 @@ test_that("gtsum_format() routes a univariate regression through the n-column fo
 })
 
 test_that("gtsum_format() routes a multivariable regression through the n-column formatter", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
   res <- expect_no_warning(gtsum_format(reg$tbl, model_mv = reg$mod))
@@ -219,8 +157,7 @@ test_that("gtsum_format() routes a multivariable regression through the n-column
 })
 
 test_that("gtsum_format() blanks the estimate of a level carrying no event", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- suppressMessages(gtsum_format(.make_no_event_tbl()))
 
@@ -233,8 +170,7 @@ test_that("gtsum_format() blanks the estimate of a level carrying no event", {
 })
 
 test_that("gtsum_format() keeps the estimate of a level carrying events", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- suppressMessages(gtsum_format(.make_no_event_tbl()))
 
@@ -246,8 +182,7 @@ test_that("gtsum_format() keeps the estimate of a level carrying events", {
 })
 
 test_that("gtsum_format() leaves an eventless regression table untouched", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   df <- data.frame(y = seq_len(30) + rep(c(0, 2), 15), x = seq_len(30))
   lm_tbl <- gtsummary::tbl_uvregression(df, method = lm, y = y)
@@ -263,8 +198,7 @@ test_that("tbl_format() aborts informatively on a non-gtsummary input", {
 })
 
 test_that("tbl_format() attaches note_pvalue to the p-value column", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
   res <- tbl_format(
@@ -281,8 +215,7 @@ test_that("tbl_format() attaches note_pvalue to the p-value column", {
 })
 
 test_that("gtsum_format() |> tbl_format() renders the estimator footnote", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
   res <- tbl_format(gtsum_format(reg$tbl, model_mv = reg$mod))
@@ -296,8 +229,7 @@ test_that("gtsum_format() |> tbl_format() renders the estimator footnote", {
 })
 
 test_that("tbl_format() strips the native gtsummary abbreviations", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   reg <- .make_reg_tbl()
 

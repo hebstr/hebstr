@@ -74,5 +74,9 @@ auto_exec <- \(
     }
   )
 
-  if (!quiet) cli_rule()
+  if (!quiet) {
+    cli_rule()
+  }
+
+  invisible(NULL)
 }

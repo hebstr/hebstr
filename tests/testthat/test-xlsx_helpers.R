@@ -1,8 +1,3 @@
-.bold_fonts <- \(wb) {
-  fonts <- wb$styles_mgr$styles$fonts
-  fonts[grepl("<b val=\"1\"/>", fonts, fixed = TRUE)]
-}
-
 test_that("get_xlsx() returns a wbWorkbook object", {
   wb <- get_xlsx(list(a = head(iris, 5)))
   expect_s3_class(wb, "wbWorkbook")
@@ -75,6 +70,13 @@ test_that("get_xlsx() errors on unnamed list", {
 
 test_that("get_xlsx() errors on partially named list", {
   expect_error(get_xlsx(list(iris = iris, mtcars)), class = "rlang_error")
+})
+
+test_that("get_xlsx() errors on a list carrying an NA name", {
+  sheets <- list(iris, mtcars)
+  names(sheets) <- c("iris", NA)
+
+  expect_error(get_xlsx(sheets), class = "rlang_error")
 })
 
 test_that("get_xlsx() applies each color only to sheets that contain the column", {

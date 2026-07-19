@@ -171,9 +171,8 @@ test_that("merge_estim_ci() interpolates glue in the output column name", {
 })
 
 test_that("merge_estim_ci() derives the CI template from options when ci_data is omitted", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
   withr::local_options(OutDec = ".")
-  set_opts()
+  local_opts()
 
   df <- data.frame(
     estimate = 1.2,

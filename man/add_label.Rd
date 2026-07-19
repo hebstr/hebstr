@@ -23,6 +23,11 @@ A \code{gtsummary} table with the header row inserted and rows indented.
 Adds a header row labeled \code{name} before the first of \code{levels}, then indents
 the header and nests the grouped rows beneath it.
 }
+\details{
+The inserted row carries \code{NA} in every column but \code{label},
+including \code{variable} and \code{row_type}. Row predicates applied downstream must
+tolerate it: prefer \code{row_type \%in\% "label"} over \code{row_type == "label"}.
+}
 \examples{
 tbl <-
   na.omit(datasets::penguins) |>

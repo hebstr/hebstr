@@ -1,6 +1,5 @@
 test_that("easy_view() propagates the centralised text font into the widget", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
+  local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
   view <- easy_view(head(mtcars))
 
@@ -8,9 +7,7 @@ test_that("easy_view() propagates the centralised text font into the widget", {
 })
 
 test_that("easy_view() renders standalone when opts is absent", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
   expect_no_error(easy_view(head(mtcars)))
 })

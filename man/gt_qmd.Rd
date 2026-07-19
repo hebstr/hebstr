@@ -17,7 +17,8 @@ gt_qmd(
 \item{data}{A \code{data.frame} or \code{gtsummary} object.}
 
 \item{top_n}{If not \code{NULL}, a positive integer passed to \code{\link[gt:gt_preview]{gt::gt_preview()}}
-to display only the first \code{top_n} rows.}
+to display only the first \code{top_n} rows. Ignored on a \code{gtsummary} input,
+which is converted whole.}
 
 \item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
@@ -25,7 +26,9 @@ otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{font_size}{Font size in pixels. Defaults to \code{15}.}
 
-\item{id}{HTML id attribute for the table. Defaults to \code{"tbl-id"}.}
+\item{id}{HTML id attribute for the table. Defaults to \code{"tbl-id"}. Has no
+effect on the \code{top_n} preview of a data frame: \code{\link[gt:gt_preview]{gt::gt_preview()}} builds
+the table itself and exposes no id argument.}
 
 \item{...}{Additional arguments passed to \code{\link[gt:tab_options]{gt::tab_options()}}.}
 }

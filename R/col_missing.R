@@ -60,7 +60,7 @@ col_missing <- \(
     return(x)
   }
 
-  if (!any(x$table_body$row_type == "missing")) {
+  if (!any(x$table_body$row_type %in% "missing")) {
     cli_warn(
       c(
         "No missing rows to collapse.",

@@ -1,52 +1,5 @@
-.make_summary_tbl <- \() {
-  df <- data.frame(
-    grp = c(rep("a", 10), rep("b", 10)),
-    age = seq_len(20),
-    sex = factor(c(rep("m", 10), rep(c("m", "f"), 5)))
-  )
-
-  suppressMessages(
-    gtsummary::tbl_summary(df, by = grp, include = c(age, sex))
-  )
-}
-
-.make_missing_tbl <- \() {
-  df <- data.frame(
-    grp = c(rep("a", 10), rep("b", 10)),
-    age = c(seq_len(18), NA, NA),
-    sex = factor(c(rep("m", 9), NA, rep(c("m", "f"), 5)))
-  )
-
-  suppressMessages(
-    gtsummary::tbl_summary(df, by = grp, include = c(age, sex))
-  )
-}
-
-.ft_txt <- \(x, part = "footer") {
-  d <- x[[part]]$content$data
-
-  vapply(
-    seq_len(nrow(d)),
-    \(i) {
-      paste0(
-        vapply(
-          seq_len(ncol(d)),
-          \(j) {
-            ch <- d[[i, j]]
-            if (is.null(ch) || !nrow(ch)) "" else paste(ch$txt, collapse = "")
-          },
-          character(1)
-        ),
-        collapse = ""
-      )
-    },
-    character(1)
-  )
-}
-
 test_that("tbl_format() renders a summary (non-coefficient) table to gt_tbl", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- tbl_format(gtsum_format(.make_summary_tbl()))
 
@@ -54,8 +7,7 @@ test_that("tbl_format() renders a summary (non-coefficient) table to gt_tbl", {
 })
 
 test_that("tbl_format() attaches note_global as a footnote on a summary table", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- tbl_format(
     gtsum_format(.make_summary_tbl()),
@@ -70,8 +22,7 @@ test_that("tbl_format() attaches note_global as a footnote on a summary table", 
 })
 
 test_that("tbl_format() attaches note_vargrp to the targeted variable group", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- tbl_format(
     gtsum_format(.make_summary_tbl()),
@@ -86,8 +37,7 @@ test_that("tbl_format() attaches note_vargrp to the targeted variable group", {
 })
 
 test_that("tbl_format() aborts when note_vargrp is set without label_vargrp", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   expect_error(
     tbl_format(gtsum_format(.make_summary_tbl()), note_vargrp = "orphan"),
@@ -96,8 +46,7 @@ test_that("tbl_format() aborts when note_vargrp is set without label_vargrp", {
 })
 
 test_that("tbl_format() appends acronym definitions from acro_list as a footnote", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   df <- data.frame(
     grp = c(rep("a", 10), rep("b", 10)),
@@ -119,8 +68,7 @@ test_that("tbl_format() appends acronym definitions from acro_list as a footnote
 })
 
 test_that("tbl_format() sets the table title from `title`", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- tbl_format(gtsum_format(.make_summary_tbl()), title = "My Title")
 
@@ -128,8 +76,7 @@ test_that("tbl_format() sets the table title from `title`", {
 })
 
 test_that("tbl_format() routes to a themed flextable under options(hebstr.docx = TRUE)", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   res <- tbl_format(gtsum_format(.make_summary_tbl()))
@@ -138,8 +85,7 @@ test_that("tbl_format() routes to a themed flextable under options(hebstr.docx =
 })
 
 test_that("tbl_format() leaves the gt branch untouched when hebstr.docx is unset", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = NULL)
 
   res <- tbl_format(gtsum_format(.make_summary_tbl()))
@@ -148,8 +94,7 @@ test_that("tbl_format() leaves the gt branch untouched when hebstr.docx is unset
 })
 
 test_that("tbl_format() attaches note_global as a footer line under docx", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   res <- tbl_format(
@@ -161,8 +106,7 @@ test_that("tbl_format() attaches note_global as a footer line under docx", {
 })
 
 test_that("tbl_format() attaches note_vargrp and its body marker under docx", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   res <- tbl_format(
@@ -176,8 +120,7 @@ test_that("tbl_format() attaches note_vargrp and its body marker under docx", {
 })
 
 test_that("tbl_format() appends acronym definitions as a footer line under docx", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   df <- data.frame(
@@ -196,8 +139,7 @@ test_that("tbl_format() appends acronym definitions as a footer line under docx"
 })
 
 test_that("tbl_format() sets the table caption from `title` under docx", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   res <- tbl_format(gtsum_format(.make_summary_tbl()), title = "My Title")
@@ -206,8 +148,7 @@ test_that("tbl_format() sets the table caption from `title` under docx", {
 })
 
 test_that("tbl_format() applies zero_replace under docx, and leaves cells alone when NULL", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   tbl <- .make_summary_tbl()
@@ -219,8 +160,7 @@ test_that("tbl_format() applies zero_replace under docx, and leaves cells alone 
 })
 
 test_that("tbl_format() registers a value substitution when zero_replace is set, none when NULL", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   tbl <- .make_summary_tbl()
   with_sub <- tbl_format(gtsum_format(tbl))
@@ -235,8 +175,7 @@ test_that("tbl_format() registers a value substitution when zero_replace is set,
 ### COLLAPSE MISSING -----------------------------------------------------------
 
 test_that("tbl_format() folds missing rows into a sized dm column on gt", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- tbl_format(gtsum_format(.make_missing_tbl()), missing_size = 9)
 
@@ -256,8 +195,7 @@ test_that("tbl_format() folds missing rows into a sized dm column on gt", {
 })
 
 test_that("tbl_format() sizes the dm column on flextable under docx", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
   res <- tbl_format(gtsum_format(.make_missing_tbl()), missing_size = 9)
@@ -273,8 +211,7 @@ test_that("tbl_format() sizes the dm column on flextable under docx", {
 })
 
 test_that("tbl_format(collapse_missing = FALSE) keeps missing rows and adds no dm column", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- tbl_format(
     gtsum_format(.make_missing_tbl()),
@@ -286,16 +223,43 @@ test_that("tbl_format(collapse_missing = FALSE) keeps missing rows and adds no d
 })
 
 test_that("tbl_format() leaves a missing-free table alone and emits no warning by default", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   res <- expect_no_warning(tbl_format(gtsum_format(.make_summary_tbl())))
   expect_false("dm" %in% names(res[["_data"]]))
 })
 
+test_that("tbl_format() honours tbl_summary(missing = 'no') when rows carry NA row types", {
+  local_opts()
+
+  df <- data.frame(
+    grp = c(rep("a", 10), rep("b", 10)),
+    age = c(seq_len(18), NA, NA),
+    sex = factor(c(rep("m", 9), NA, rep(c("m", "f"), 5)))
+  )
+
+  tbl <-
+    suppressMessages(
+      gtsummary::tbl_summary(
+        df,
+        by = grp,
+        include = c(age, sex),
+        missing = "no"
+      )
+    ) |>
+    gtsum_format() |>
+    add_label(name = "Group", levels = c("age", "sex"))
+
+  expect_true(anyNA(tbl$table_body$row_type))
+  expect_false("missing" %in% tbl$table_body$row_type)
+
+  res <- expect_no_warning(tbl_format(tbl))
+
+  expect_false("dm" %in% names(res[["_data"]]))
+})
+
 test_that("tbl_format() aborts when collapse_missing is not a logical scalar", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   expect_error(
     tbl_format(gtsum_format(.make_missing_tbl()), collapse_missing = "ifany"),
@@ -306,8 +270,7 @@ test_that("tbl_format() aborts when collapse_missing is not a logical scalar", {
 ### DEPRECATED ALIAS -----------------------------------------------------------
 
 test_that("gt_format() warns once and delegates to tbl_format()", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   tbl <- gtsum_format(.make_summary_tbl())
 
@@ -316,8 +279,7 @@ test_that("gt_format() warns once and delegates to tbl_format()", {
 })
 
 test_that("gt_format() forwards its arguments to tbl_format()", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   tbl <- gtsum_format(.make_summary_tbl())
 

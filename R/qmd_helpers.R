@@ -5,12 +5,15 @@
 #'
 #' @param data A `data.frame` or `gtsummary` object.
 #' @param top_n If not `NULL`, a positive integer passed to [gt::gt_preview()]
-#'   to display only the first `top_n` rows.
+#'   to display only the first `top_n` rows. Ignored on a `gtsummary` input,
+#'   which is converted whole.
 #' @param font_family Font family for the table's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param font_size Font size in pixels. Defaults to `15`.
-#' @param id HTML id attribute for the table. Defaults to `"tbl-id"`.
+#' @param id HTML id attribute for the table. Defaults to `"tbl-id"`. Has no
+#'   effect on the `top_n` preview of a data frame: [gt::gt_preview()] builds
+#'   the table itself and exposes no id argument.
 #' @param ... Additional arguments passed to [gt::tab_options()].
 #'
 #' @returns A [gt::gt] object.
@@ -42,7 +45,7 @@ gt_qmd <- \(
   }
 
   data <- if (inherits(data, "gtsummary")) {
-    as_gt(data)
+    as_gt(data, id = id)
   } else if (is.null(top_n)) {
     gt(data, id = id)
   } else {

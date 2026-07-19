@@ -24,7 +24,10 @@ With \code{.auto}, the resolved font family (the requested one or
 }
 \description{
 Tests one or more font families against the system font list (via
-\code{\link[systemfonts:system_fonts]{systemfonts::system_fonts()}}), matching family names case-insensitively.
+\code{\link[systemfonts:system_fonts]{systemfonts::system_fonts()}}). Family names match in full, ignoring case: a
+name shared with a wider family (\code{"Liberation"} against \code{"Liberation Sans"})
+counts as missing, since rendering it falls back to the system default. The
+device aliases \code{"sans"}, \code{"serif"} and \code{"mono"} always count as available.
 }
 \examples{
 check_fonts("sans")

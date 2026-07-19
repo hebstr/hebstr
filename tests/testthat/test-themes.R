@@ -1,59 +1,46 @@
-.make_gt <- \() gt::gt(head(mtcars))
-
-.make_ft <- \() flextable::flextable(head(mtcars))
-
 test_that("theme_gt() applies style refinements by default", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
-  themed <- theme_gt(.make_gt())
+  themed <- theme_gt(.make_gt_mtcars())
 
   expect_gt(nrow(themed$`_styles`), 0)
 })
 
 test_that("theme_gt() skips style refinements when options(hebstr.docx = TRUE)", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
-  themed <- theme_gt(.make_gt())
+  themed <- theme_gt(.make_gt_mtcars())
 
   expect_equal(nrow(themed$`_styles`), 0)
 })
 
 test_that("theme_gt() docx argument overrides the option", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   withr::local_options(hebstr.docx = TRUE)
 
-  themed <- theme_gt(.make_gt(), docx = FALSE)
+  themed <- theme_gt(.make_gt_mtcars(), docx = FALSE)
 
   expect_gt(nrow(themed$`_styles`), 0)
 })
 
 test_that("theme_gt() ignores a global object named docx", {
-  withr::defer({
-    rm(list = "opts", envir = .hebstr)
-    rm(list = "docx", envir = globalenv())
-  })
-  set_opts()
-  assign("docx", TRUE, envir = globalenv())
+  local_opts()
+  rlang::local_bindings(docx = TRUE, .env = globalenv())
 
-  themed <- theme_gt(.make_gt())
+  themed <- theme_gt(.make_gt_mtcars())
 
   expect_gt(nrow(themed$`_styles`), 0)
 })
 
 test_that("theme_gt() aborts on a non-boolean docx", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
-  expect_error(theme_gt(.make_gt(), docx = "yes"), "docx")
+  expect_error(theme_gt(.make_gt_mtcars(), docx = "yes"), "docx")
 })
 
 test_that("theme_gt() applies the alpha font to the table and the digit font to numeric cells", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   .hebstr$opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
 
   themed <- theme_gt(gt::gt(data.frame(label = "a", stat = "1.0")))
@@ -71,10 +58,9 @@ test_that("theme_gt() applies the alpha font to the table and the digit font to 
 })
 
 test_that("theme_gt(row_strip = FALSE) makes the row background transparent", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
-  themed <- theme_gt(.make_gt(), row_strip = FALSE)
+  themed <- theme_gt(.make_gt_mtcars(), row_strip = FALSE)
 
   bg <- themed$`_options`$value[[
     which(themed$`_options`$parameter == "table_background_color")
@@ -84,25 +70,21 @@ test_that("theme_gt(row_strip = FALSE) makes the row background transparent", {
 })
 
 test_that("theme_gt() aborts when opts does not exist (deliberately strict)", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
-  expect_error(theme_gt(.make_gt()), "does not exist")
+  expect_error(theme_gt(.make_gt_mtcars()), "does not exist")
 })
 
 test_that("theme_ft() returns a themed flextable", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
-  themed <- theme_ft(.make_ft())
+  themed <- theme_ft(.make_ft_mtcars())
 
   expect_s3_class(themed, "flextable")
 })
 
 test_that("theme_ft() applies the alpha font to the table and the digit font to numeric cells", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
   .hebstr$opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
 
   themed <- theme_ft(
@@ -116,11 +98,10 @@ test_that("theme_ft() applies the alpha font to the table and the digit font to 
 })
 
 test_that("theme_ft() justifies the footer, which theme_gt(docx = TRUE) has to drop", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   themed <- theme_ft(
-    flextable::add_footer_lines(.make_ft(), "a footnote")
+    flextable::add_footer_lines(.make_ft_mtcars(), "a footnote")
   )
 
   expect_contains(
@@ -130,12 +111,11 @@ test_that("theme_ft() justifies the footer, which theme_gt(docx = TRUE) has to d
 })
 
 test_that("theme_ft(row_strip = FALSE) drops the striping band color", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  set_opts()
+  local_opts()
 
   band <- check_opts(color$cold[1])
-  striped <- theme_ft(.make_ft())
-  plain <- theme_ft(.make_ft(), row_strip = FALSE)
+  striped <- theme_ft(.make_ft_mtcars())
+  plain <- theme_ft(.make_ft_mtcars(), row_strip = FALSE)
 
   expect_contains(
     as.vector(striped$body$styles$cell$background.color$data),
@@ -147,11 +127,9 @@ test_that("theme_ft(row_strip = FALSE) drops the striping band color", {
 })
 
 test_that("theme_ft() aborts when opts does not exist (deliberately strict)", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
-  expect_error(theme_ft(.make_ft()), "does not exist")
+  expect_error(theme_ft(.make_ft_mtcars()), "does not exist")
 })
 
 test_that("theme_bar() returns a theme honoring legend_position", {
@@ -207,6 +185,16 @@ test_that("theme_bubble() adapts title and grid colors to a vector axis color", 
   )
 })
 
+test_that("theme_bubble() accepts a transparent axis color", {
+  themed <- theme_bubble(family = "", axis_color_x = NA)
+
+  expect_s3_class(themed, "theme")
+  expect_equal(
+    themed$panel.grid.major.x$colour,
+    colorspace::lighten(NA, 0.85)
+  )
+})
+
 test_that("theme_risktable() returns a list of theme components", {
   themed <- theme_risktable(family = "")
 
@@ -233,6 +221,28 @@ test_that("check_fonts() does not report an uninstalled font via substring match
   expect_false(check_fonts("Fake Sans Xtrabold"))
 })
 
+test_that("check_fonts() does not report an uninstalled font via word match", {
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = c("Fake Grotesk", "Fake Display")),
+    .package = "systemfonts"
+  )
+
+  expect_false(check_fonts("Fake"))
+  expect_false(check_fonts("Grotesk"))
+  expect_true(check_fonts("Fake Grotesk"))
+})
+
+test_that("check_fonts() reports the device font aliases as available", {
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
+    .package = "systemfonts"
+  )
+
+  expect_true(check_fonts("sans"))
+  expect_true(check_fonts("serif", "mono"))
+  expect_identical(check_fonts(.auto = "serif"), "serif")
+})
+
 test_that("check_fonts() aborts naming the missing font", {
   local_mocked_bindings(
     system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
@@ -255,23 +265,19 @@ test_that("check_fonts() falls back to the OS-agnostic 'sans' family", {
 })
 
 test_that(".text_font() reads the centralised text font when opts exists", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
+  local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
   expect_identical(.text_font(), "PinnedAlpha")
 })
 
 test_that(".text_font() falls back to the portable 'sans' family when opts is absent", {
-  if (exists("opts", envir = .hebstr, inherits = FALSE)) {
-    rm(list = "opts", envir = .hebstr)
-  }
+  local_hebstr("opts")
 
   expect_identical(.text_font(), "sans")
 })
 
 test_that("theme_*() default family reads opts$font$alpha", {
-  withr::defer(rm(list = "opts", envir = .hebstr))
-  assign("opts", list(font = list(alpha = "PinnedAlpha")), envir = .hebstr)
+  local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
   expect_identical(theme_bar()$text$family, "PinnedAlpha")
 })

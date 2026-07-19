@@ -356,6 +356,10 @@ fct_keep <- \(data, var, min, sep) {
 #' Adds a header row labeled `name` before the first of `levels`, then indents
 #' the header and nests the grouped rows beneath it.
 #'
+#' @details The inserted row carries `NA` in every column but `label`,
+#'   including `variable` and `row_type`. Row predicates applied downstream must
+#'   tolerate it: prefer `row_type %in% "label"` over `row_type == "label"`.
+#'
 #' @param x A `gtsummary` table object.
 #' @param name Label of the inserted header row.
 #' @param levels Variable names grouped under the header, in table order.

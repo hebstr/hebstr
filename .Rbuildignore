@@ -12,3 +12,4 @@
 ^\.claude$
 ^README\.html$
 ^output$
+^tests/testthat/_problems$
