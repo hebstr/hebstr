@@ -34,8 +34,16 @@
 #'   left untouched.
 #' @param missing_size Font size, in pixels, applied to the `dm` column when
 #'   `collapse_missing = TRUE`. Defaults to `11`.
+#' @param width Table width, in pixels. On the Word branch it is converted to
+#'   the fraction of `page_width` that [flextable::set_table_properties()]
+#'   expects, capped at `1`. When `NULL` (the default), the table keeps its
+#'   natural width.
+#' @param page_width Usable page width, in inches, used to convert `width` on
+#'   the Word branch. Defaults to `6.5`, the width of a US Letter page with
+#'   one-inch margins.
 #' @param ... Passed on to [theme_gt()], or to [theme_ft()] under
-#'   `options(hebstr.docx = TRUE)`.
+#'   `options(hebstr.docx = TRUE)`. Set the table width through `width` rather
+#'   than here: the two themes take it in different units.
 #'
 #' @returns A `gt_tbl` object, or a `flextable` object under
 #'   `options(hebstr.docx = TRUE)`. Style verbs applied downstream must handle
@@ -60,6 +68,8 @@ tbl_format <- \(
   zero_replace = "^0\\s",
   collapse_missing = TRUE,
   missing_size = 11,
+  width = NULL,
+  page_width = 6.5,
   ...
 ) {
   if (!inherits(x, "gtsummary")) {
@@ -76,6 +86,9 @@ tbl_format <- \(
       "{.arg collapse_missing} must be a single {.code TRUE} or {.code FALSE}."
     )
   }
+
+  .check_size(width, "width", allow_null = TRUE)
+  .check_size(page_width, "page_width", allow_null = FALSE)
 
   clear_vars()
 
@@ -164,6 +177,7 @@ tbl_format <- \(
       acro_note = .acro_str,
       is_coef = is_coef,
       zero_replace = zero_replace,
+      width = .page_fraction(width, page_width),
       ...
     )
 
@@ -180,7 +194,7 @@ tbl_format <- \(
 
   x <- x |>
     tab_header(title = if (!is.null(title)) md(title)) |>
-    theme_gt(...)
+    theme_gt(width = width, ...)
 
   if (size_dm) {
     x <- tbl_font_size(x, columns = dm, size = missing_size)
@@ -229,6 +243,7 @@ tbl_format <- \(
   acro_note,
   is_coef,
   zero_replace,
+  width,
   ...
 ) {
   notes <- c(str_c(note_global), acro_note)
@@ -275,7 +290,33 @@ tbl_format <- \(
     x <- modify_caption(x, title)
   }
 
-  theme_ft(as_flex_table(x), ...)
+  theme_ft(as_flex_table(x), width = width, ...)
+}
+
+.px_per_in <- 96
+
+.check_size <- \(value, arg, allow_null) {
+  if (allow_null && is.null(value)) {
+    return(invisible(NULL))
+  }
+
+  if (!is_scalar_double(value) && !is_scalar_integer(value)) {
+    cli_abort("{.arg {arg}} must be a single positive number.")
+  }
+
+  if (is.na(value) || value <= 0) {
+    cli_abort("{.arg {arg}} must be a single positive number.")
+  }
+
+  invisible(NULL)
+}
+
+.page_fraction <- \(width, page_width) {
+  if (is.null(width)) {
+    return(NULL)
+  }
+
+  min(width / (page_width * .px_per_in), 1)
 }
 
 #' Finalise a gtsummary table into a styled gt table

@@ -290,3 +290,65 @@ test_that("gt_format() forwards its arguments to tbl_format()", {
 
   expect_equal(as.character(res[["_heading"]]$title), "My Title")
 })
+
+test_that("tbl_format(width = ) sizes the gt table in pixels", {
+  local_opts()
+  withr::local_options(hebstr.docx = NULL)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), width = 500)
+
+  expect_equal(
+    res[["_options"]]$value[[which(
+      res[["_options"]]$parameter == "table_width"
+    )]],
+    "500px"
+  )
+})
+
+test_that("tbl_format(width = ) converts pixels to a page fraction under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), width = 500)
+
+  expect_s3_class(res, "flextable")
+  expect_equal(res$properties$width, 500 / (6.5 * 96))
+})
+
+test_that("tbl_format(width = ) caps the docx page fraction at 1", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), width = 5000)
+
+  expect_equal(res$properties$width, 1)
+})
+
+test_that("tbl_format(page_width = ) sets the reference page width in inches", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(
+    gtsum_format(.make_summary_tbl()),
+    width = 500,
+    page_width = 8
+  )
+
+  expect_equal(res$properties$width, 500 / (8 * 96))
+})
+
+test_that("tbl_format(width = ) rejects a non-positive or non-scalar width", {
+  local_opts()
+
+  tbl <- gtsum_format(.make_summary_tbl())
+
+  expect_error(tbl_format(tbl, width = -1), "must be a single positive number")
+  expect_error(
+    tbl_format(tbl, width = c(1, 2)),
+    "must be a single positive number"
+  )
+  expect_error(
+    tbl_format(tbl, width = 500, page_width = 0),
+    "must be a single positive number"
+  )
+})
