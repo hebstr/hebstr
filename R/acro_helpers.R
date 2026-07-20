@@ -40,10 +40,11 @@
 #' terms and count symbols. In English configuration, it includes n (number of
 #' events), N (number of observations), n/N (events over total observations),
 #' SD (standard deviation), IQR (interquartile range), Q1 and Q3 (quartiles),
-#' and 95%CI (confidence interval). In French configuration, the equivalents
-#' cover the event and observation counts, their ratio, the standard deviation,
-#' the interquartile range, the quartiles with French ordinals, and the 95%
-#' confidence interval. This
+#' 95%CI (confidence interval), and MD (missing data by group). In French
+#' configuration, the equivalents cover the event and observation counts, their
+#' ratio, the standard deviation, the interquartile range, the quartiles with
+#' French ordinals, the 95% confidence interval, and DM (missing data by
+#' group). This
 #' standardization supports terminology consistency across analytical outputs.
 #'
 #' @section Requirements and dependencies:
@@ -167,7 +168,8 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
       IQR ~ "interquartile range",
       Q1 ~ "1st quartile",
       Q3 ~ "3rd quartile",
-      `95%CI` ~ "95% confidence interval"
+      `95%CI` ~ "95% confidence interval",
+      MD ~ "missing data by group"
     )
   } else {
     sep <- str_glue(" {.sep} ")
@@ -178,7 +180,8 @@ acro <- \(..., .sep = ":", .auto = TRUE, .tolower = FALSE) {
       IQR ~ "intervalle interquartile",
       Q1 ~ "1er quartile",
       Q3 ~ "3e quartile",
-      `IC95%` ~ "intervalle de confiance \u00e0 95%"
+      `IC95%` ~ "intervalle de confiance \u00e0 95%",
+      DM ~ "donn\u00e9es manquantes par groupe"
     )
   }
 

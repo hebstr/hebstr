@@ -4,7 +4,13 @@
 \alias{col_missing}
 \title{Collapse the missing-value rows into a single column}
 \usage{
-col_missing(x, prefix = "", empty = "0", header = "**DM**", align = "center")
+col_missing(
+  x,
+  prefix = "",
+  empty = "0",
+  header = str_glue("**{check_opts(labs$col_missing)}**"),
+  align = "center"
+)
 }
 \arguments{
 \item{x}{A \code{gtsummary} table, typically built with
@@ -16,7 +22,8 @@ col_missing(x, prefix = "", empty = "0", header = "**DM**", align = "center")
 \item{empty}{Replacement for a missing per-group count. Defaults to \code{"0"}.}
 
 \item{header}{Column header for the \code{dm} column, interpreted as markdown.
-Defaults to \code{"**DM**"}.}
+Defaults to the \code{labs$col_missing} option wrapped in bold (\code{MD} in English,
+\code{DM} in French).}
 
 \item{align}{Column alignment for the \code{dm} column. Defaults to \code{"center"}.}
 }
@@ -39,6 +46,8 @@ returned unchanged with a warning, so the manual call and the
 likewise returned unchanged with a warning.
 }
 \examples{
+set_opts()
+
 df <- data.frame(
   grp = c(rep("a", 10), rep("b", 10)),
   age = c(seq_len(18), NA, NA)

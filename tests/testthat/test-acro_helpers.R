@@ -9,6 +9,7 @@ test_that("acro() builds the English dictionary by default", {
     "n/N: number of events/total number of observations"
   )
   expect_contains(names(res), "95%CI")
+  expect_equal(res$MD, "MD: missing data by group")
 })
 
 test_that("acro() builds the French dictionary when OutDec is a comma", {
@@ -22,6 +23,7 @@ test_that("acro() builds the French dictionary when OutDec is a comma", {
     "n/N : nombre d'évènements/nombre total d'observations"
   )
   expect_contains(names(res), "IC95%")
+  expect_equal(res$DM, "DM : données manquantes par groupe")
 })
 
 test_that("acro() lets a custom entry override a base entry", {

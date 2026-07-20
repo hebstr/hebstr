@@ -1,4 +1,6 @@
 test_that("col_missing() adds a dm column carrying the joined missing counts", {
+  local_opts()
+
   res <- col_missing(.make_missing_tbl())
 
   body <- res$table_body
@@ -15,22 +17,40 @@ test_that("col_missing() adds a dm column carrying the joined missing counts", {
 })
 
 test_that("col_missing() sets the dm column header and alignment", {
+  local_opts()
+
+  res <- col_missing(.make_missing_tbl())
+
+  header <- res$table_styling$header |>
+    dplyr::filter(column == "dm")
+
+  expect_equal(header$label, "**MD**")
+  expect_equal(header$align, "center")
+})
+
+test_that("col_missing() localises the default header to French under a comma OutDec", {
+  withr::local_options(OutDec = ",")
+  local_opts()
+
   res <- col_missing(.make_missing_tbl())
 
   header <- res$table_styling$header |>
     dplyr::filter(column == "dm")
 
   expect_equal(header$label, "**DM**")
-  expect_equal(header$align, "center")
 })
 
 test_that("col_missing() drops the missing rows from the table body", {
+  local_opts()
+
   res <- col_missing(.make_missing_tbl())
 
   expect_false(any(res$table_body$row_type == "missing"))
 })
 
 test_that("col_missing() honours a custom prefix, empty, and header", {
+  local_opts()
+
   res <- col_missing(
     .make_missing_tbl(),
     prefix = "n =",
@@ -50,6 +70,8 @@ test_that("col_missing() honours a custom prefix, empty, and header", {
 })
 
 test_that("col_missing() warns on a missing-free table carrying NA row types", {
+  local_opts()
+
   tbl <- add_label(
     .make_complete_tbl(),
     name = "Group",
@@ -62,6 +84,8 @@ test_that("col_missing() warns on a missing-free table carrying NA row types", {
 })
 
 test_that("col_missing() collapses missing rows in a table that also carries NA row types", {
+  local_opts()
+
   tbl <- add_label(
     .make_missing_tbl(),
     name = "Group",
@@ -86,6 +110,8 @@ test_that("col_missing() collapses missing rows in a table that also carries NA 
 })
 
 test_that("col_missing() is idempotent: a second call warns and leaves the table unchanged", {
+  local_opts()
+
   once <- col_missing(.make_missing_tbl())
 
   expect_warning(twice <- col_missing(once), "dm")
@@ -93,6 +119,8 @@ test_that("col_missing() is idempotent: a second call warns and leaves the table
 })
 
 test_that("col_missing() warns and returns the table unchanged when no missing rows exist", {
+  local_opts()
+
   tbl <- .make_complete_tbl()
 
   expect_warning(res <- col_missing(tbl), "No missing rows to collapse")

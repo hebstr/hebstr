@@ -209,7 +209,8 @@ set_opts <- \(
     labs = list(
       sex = list(m = "Male", f = "Female"),
       bin = list(no = "No", yes = "Yes"),
-      missing = "Missing data",
+      row_missing = "Missing data",
+      col_missing = "MD",
       header = "Characteristic",
       reference = "Reference",
       overall = "Overall",
@@ -247,7 +248,8 @@ set_opts <- \(
         labs = list(
           sex = list(m = "Hommes", f = "Femmes"),
           bin = list(no = "Non", yes = "Oui"),
-          missing = "Donn\u00e9e manquante",
+          row_missing = "Donn\u00e9e manquante",
+          col_missing = "DM",
           header = "Variable",
           reference = "R\u00e9f\u00e9rence",
           overall = "Total",

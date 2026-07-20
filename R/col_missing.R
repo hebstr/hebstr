@@ -17,7 +17,8 @@
 #'   `"n ="`). Defaults to `""`.
 #' @param empty Replacement for a missing per-group count. Defaults to `"0"`.
 #' @param header Column header for the `dm` column, interpreted as markdown.
-#'   Defaults to `"**DM**"`.
+#'   Defaults to the `labs$col_missing` option wrapped in bold (`MD` in English,
+#'   `DM` in French).
 #' @param align Column alignment for the `dm` column. Defaults to `"center"`.
 #'
 #' @returns The `gtsummary` table with the missing rows collapsed into a `dm`
@@ -25,6 +26,8 @@
 #'   exists or no missing rows are present.
 #'
 #' @examples
+#' set_opts()
+#'
 #' df <- data.frame(
 #'   grp = c(rep("a", 10), rep("b", 10)),
 #'   age = c(seq_len(18), NA, NA)
@@ -38,7 +41,7 @@ col_missing <- \(
   x,
   prefix = "",
   empty = "0",
-  header = "**DM**",
+  header = str_glue("**{check_opts(labs$col_missing)}**"),
   align = "center"
 ) {
   if (!inherits(x, "gtsummary")) {
