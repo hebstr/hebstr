@@ -1,7 +1,7 @@
 [[repos]]
 repo = "local"
 hooks = [
-  { id = "prose-lint", name = "prose lint (.md/.qmd)", entry = "prose-lint", language = "system", files = '\.(md|qmd)$' },
+  { id = "prose-lint", name = "prose lint (.md/.qmd)", entry = "prose-lint", language = "system", files = '\.(md|qmd)$', exclude = '^(LICENSE\.md|tests/testthat/_snaps/)' },
 ]
 
 [[repos]]
