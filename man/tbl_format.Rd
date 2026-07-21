@@ -16,7 +16,7 @@ tbl_format(
   zero_replace = "^0\\\\s",
   collapse_missing = TRUE,
   missing_size = 11,
-  width = NULL,
+  width = 700,
   page_width = 6.5,
   ...
 )
@@ -59,10 +59,10 @@ left untouched.}
 \item{missing_size}{Font size, in pixels, applied to the \code{dm} column when
 \code{collapse_missing = TRUE}. Defaults to \code{11}.}
 
-\item{width}{Table width, in pixels. On the Word branch it is converted to
-the fraction of \code{page_width} that \code{\link[flextable:set_table_properties]{flextable::set_table_properties()}}
-expects, capped at \code{1}. When \code{NULL} (the default), the table keeps its
-natural width.}
+\item{width}{Table width, in pixels. Defaults to \code{700}. On the Word branch it
+is converted to the fraction of \code{page_width} that
+\code{\link[flextable:set_table_properties]{flextable::set_table_properties()}} expects, capped at \code{1}. Set to \code{NULL} to
+let the table keep its natural width.}
 
 \item{page_width}{Usable page width, in inches, used to convert \code{width} on
 the Word branch. Defaults to \code{6.5}, the width of a US Letter page with

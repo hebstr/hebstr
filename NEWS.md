@@ -12,6 +12,7 @@ Options and the variable classification cache now live in an internal package st
 - `tbl_format()` takes the table width through its own `width` argument, in pixels on both output branches, instead of forwarding it through `...`.
   Forwarded, `width` reached `theme_gt()` in pixels and `theme_ft()` as a fraction of the page, so no single call site could serve both formats: a pixel value aborted the Word branch on `flextable::set_table_properties()` with "width is > 1".
   The Word branch now converts the pixel width to a fraction of `page_width` (default `6.5` inches, a US Letter page with one-inch margins), capped at `1`.
+  `width` defaults to `700` pixels; pass `NULL` to keep the table's natural width.
   Code passing a fraction for the Word branch must switch to pixels.
 - `set_opts()` no longer creates an `opts` object in the global environment; it stores the options in the internal package store.
   Read the whole object with the new `get_opts()`, or a single validated key with `check_opts()`.

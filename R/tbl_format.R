@@ -34,10 +34,10 @@
 #'   left untouched.
 #' @param missing_size Font size, in pixels, applied to the `dm` column when
 #'   `collapse_missing = TRUE`. Defaults to `11`.
-#' @param width Table width, in pixels. On the Word branch it is converted to
-#'   the fraction of `page_width` that [flextable::set_table_properties()]
-#'   expects, capped at `1`. When `NULL` (the default), the table keeps its
-#'   natural width.
+#' @param width Table width, in pixels. Defaults to `700`. On the Word branch it
+#'   is converted to the fraction of `page_width` that
+#'   [flextable::set_table_properties()] expects, capped at `1`. Set to `NULL` to
+#'   let the table keep its natural width.
 #' @param page_width Usable page width, in inches, used to convert `width` on
 #'   the Word branch. Defaults to `6.5`, the width of a US Letter page with
 #'   one-inch margins.
@@ -68,7 +68,7 @@ tbl_format <- \(
   zero_replace = "^0\\s",
   collapse_missing = TRUE,
   missing_size = 11,
-  width = NULL,
+  width = 700,
   page_width = 6.5,
   ...
 ) {
