@@ -157,12 +157,18 @@
 #'       skips coloring.
 #'   }
 #'
-#' @return An `openxlsx2` Workbook object.
+#' @return An `openxlsx2` Workbook object. Write it to disk with [easy_out()].
+#'
+#' @seealso [easy_out()], which saves the workbook as an XLSX file.
 #' @export
 #'
 #' @examples
 #' wb <- get_xlsx(list(iris = iris, mtcars = mtcars))
-#' # wb_save(wb, "output.xlsx")
+#'
+#' \dontrun{
+#' easy_out(wb, filename = "tables")
+#' }
+#'
 get_xlsx <- \(sheets, ...) {
   if (!is_named(sheets)) {
     cli::cli_abort("{.arg sheets} must be a fully named list.")

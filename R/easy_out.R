@@ -1,11 +1,12 @@
-#' Save a ggplot, gt table, or grid graphic to disk
+#' Save a ggplot, gt table, grid graphic, or workbook to disk
 #'
 #' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
-#' HTML depending on the object type). Opens the result in a browser unless
-#' `quiet = TRUE`.
+#' HTML depending on the object type), or an `openxlsx2` workbook to XLSX.
+#' Opens the result in a browser unless `quiet = TRUE`.
 #'
-#' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, or grid grob object (for
-#'   example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`).
+#' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
+#'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), or wbWorkbook
+#'   object, such as the one [get_xlsx()] returns.
 #' @param filename Output filename (without extension). Defaults to the
 #'   unevaluated expression passed as `x`.
 #' @param dir Output directory. Created if it does not exist. Defaults
@@ -19,7 +20,7 @@
 #'   is trimmed back to the drawing it contains.
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
-#'   for tables.
+#'   for tables and workbooks.
 #' @param px Height in pixels for the PNG rasterization of plots and grid
 #'   graphics.
 #' @param crop If `TRUE` (the default, read from
@@ -27,13 +28,16 @@
 #'   the bounding box of the drawing, keeping a small margin. Grob positions
 #'   are relative to the whole page, so a drawing covering a sub-rectangle
 #'   leaves an empty band that no `width`/`height` value removes. Ignored
-#'   for tables and plots, whose margins come from the theme.
+#'   for tables and plots, whose margins come from the theme, and for
+#'   workbooks.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. Defaults to
 #'   `getOption("easy_out.export")`, itself defaulting to `FALSE` under
 #'   `options(hebstr.docx = TRUE)`: a Word run renders tables through
 #'   [flextable::flextable()], leaving no object to export to HTML or PNG.
+#'   The guard is read from the session option alone, so a workbook exported
+#'   during a Word run needs an explicit `export = TRUE`.
 #'
 #' @return `NULL` (invisibly). Called for its side effects.
 #' @export
@@ -42,6 +46,7 @@
 #' \dontrun{
 #' easy_out(my_plot)
 #' easy_out(my_table, suffix = "v2", quiet = TRUE)
+#' easy_out(get_xlsx(list(iris = iris)), filename = "tables")
 #' }
 #'
 easy_out <- \(
@@ -86,12 +91,12 @@ easy_out <- \(
 
   is_supported <-
     is_ggplot(x) ||
-    inherits(x, c("ggmatrix", "gt_tbl", "gtsummary")) ||
+    inherits(x, c("ggmatrix", "gt_tbl", "gtsummary", "wbWorkbook")) ||
     grid::is.grob(x)
 
   if (!is_supported) {
     cli_abort(c(
-      "{.strong {filename}} must be a gt/gtsummary, ggplot, or grid grob object",
+      "{.strong {filename}} must be a gt/gtsummary, ggplot, grid grob, or workbook object",
       "i" = "Received object of class: {.cls {class(x)}}",
       if (inherits(x, "flextable")) {
         c(
@@ -249,6 +254,21 @@ easy_out <- \(
       files = c(to_svg, to_png),
       browse = to_svg
     )
+
+    ### XLSX -------------------------------------------------------------------------
+  } else if (inherits(x, "wbWorkbook")) {
+    to_xlsx <- fs::path(path, ext = "xlsx")
+
+    cli_progress_step("Creating XLSX file")
+
+    wb_save(x, file = to_xlsx)
+
+    cli_progress_done()
+
+    cli_output(
+      files = to_xlsx,
+      browse = to_xlsx
+    )
   }
 
   invisible(NULL)
@@ -259,7 +279,7 @@ easy_out <- \(
 #' Iterate over a named list and call [easy_out()] on each element, appending
 #' the list name to the filename.
 #'
-#' @param x A named list of ggplot, ggmatrix, gt_tbl, or gtsummary objects.
+#' @param x A named list of objects [easy_out()] accepts.
 #' @param filename Base filename. Defaults to the unevaluated expression
 #'   passed as `x`.
 #' @param sep Separator between `filename` and the list element name.

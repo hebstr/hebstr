@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_out.R
 \name{easy_out}
 \alias{easy_out}
-\title{Save a ggplot, gt table, or grid graphic to disk}
+\title{Save a ggplot, gt table, grid graphic, or workbook to disk}
 \usage{
 easy_out(
   x,
@@ -20,8 +20,9 @@ easy_out(
 )
 }
 \arguments{
-\item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, or grid grob object (for
-example a Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}).}
+\item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
+Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), or wbWorkbook
+object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.}
 
 \item{filename}{Output filename (without extension). Defaults to the
 unevaluated expression passed as \code{x}.}
@@ -41,7 +42,7 @@ is trimmed back to the drawing it contains.}
 
 \item{height}{Height in inches for SVG output of plots and grid graphics
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
-for tables.}
+for tables and workbooks.}
 
 \item{px}{Height in pixels for the PNG rasterization of plots and grid
 graphics.}
@@ -51,7 +52,8 @@ graphics.}
 the bounding box of the drawing, keeping a small margin. Grob positions
 are relative to the whole page, so a drawing covering a sub-rectangle
 leaves an empty band that no \code{width}/\code{height} value removes. Ignored
-for tables and plots, whose margins come from the theme.}
+for tables and plots, whose margins come from the theme, and for
+workbooks.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
@@ -59,20 +61,23 @@ to \code{getOption("easy_out.quiet", FALSE)}.}
 \item{export}{If \code{FALSE}, return without writing anything. Defaults to
 \code{getOption("easy_out.export")}, itself defaulting to \code{FALSE} under
 \code{options(hebstr.docx = TRUE)}: a Word run renders tables through
-\code{\link[flextable:flextable]{flextable::flextable()}}, leaving no object to export to HTML or PNG.}
+\code{\link[flextable:flextable]{flextable::flextable()}}, leaving no object to export to HTML or PNG.
+The guard is read from the session option alone, so a workbook exported
+during a Word run needs an explicit \code{export = TRUE}.}
 }
 \value{
 \code{NULL} (invisibly). Called for its side effects.
 }
 \description{
 Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
-HTML depending on the object type). Opens the result in a browser unless
-\code{quiet = TRUE}.
+HTML depending on the object type), or an \code{openxlsx2} workbook to XLSX.
+Opens the result in a browser unless \code{quiet = TRUE}.
 }
 \examples{
 \dontrun{
 easy_out(my_plot)
 easy_out(my_table, suffix = "v2", quiet = TRUE)
+easy_out(get_xlsx(list(iris = iris)), filename = "tables")
 }
 
 }

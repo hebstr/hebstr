@@ -734,3 +734,56 @@ test_that("svg_crop() carries the background rect along with the viewBox", {
   expect_false(any(apply(clear, 2, all)))
   expect_false(any(apply(clear, 1, all)))
 })
+
+test_that("easy_out() writes a workbook to a readable xlsx file", {
+  tmp <- withr::local_tempdir()
+  wb <- get_xlsx(list(iris = head(iris, 3)))
+
+  easy_out(wb, filename = "book", dir = tmp, quiet = TRUE)
+
+  path <- fs::path(tmp, "book", ext = "xlsx")
+
+  expect_true(fs::file_exists(path))
+  expect_equal(nrow(openxlsx2::read_xlsx(path)), 3L)
+})
+
+test_that("easy_out() creates the output directory for a workbook", {
+  tmp <- withr::local_tempdir()
+  dir <- fs::path(tmp, "new_folder")
+
+  easy_out(
+    get_xlsx(list(a = head(iris, 3))),
+    filename = "book",
+    dir = dir,
+    quiet = TRUE
+  )
+
+  expect_true(fs::dir_exists(dir))
+})
+
+test_that("easy_out() appends the suffix to a workbook filename", {
+  tmp <- withr::local_tempdir()
+
+  easy_out(
+    get_xlsx(list(a = head(iris, 3))),
+    filename = "book",
+    suffix = "v2",
+    dir = tmp,
+    quiet = TRUE
+  )
+
+  expect_true(fs::file_exists(fs::path(tmp, "book_v2", ext = "xlsx")))
+})
+
+test_that("easy_out() holds the session guard for a workbook", {
+  tmp <- withr::local_tempdir()
+  wb <- get_xlsx(list(a = head(iris, 3)))
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  easy_out(wb, filename = "skipped", dir = tmp, quiet = TRUE)
+  expect_false(fs::file_exists(fs::path(tmp, "skipped", ext = "xlsx")))
+
+  easy_out(wb, filename = "forced", dir = tmp, quiet = TRUE, export = TRUE)
+  expect_true(fs::file_exists(fs::path(tmp, "forced", ext = "xlsx")))
+})

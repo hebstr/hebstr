@@ -39,6 +39,8 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `easy_out()` writes an `openxlsx2` workbook to XLSX, so the object `get_xlsx()` returns reaches disk through the package's export verb rather than a qualified `openxlsx2::wb_save()` call, with the output directory created and the `dir`/`filename`/`suffix` conventions applied.
+  The `export` guard keeps reading the session option alone, so a workbook exported during a Word run (`options(hebstr.docx = TRUE)`) needs an explicit `export = TRUE`, as any other object does.
 - `tbl_format()` routes Word output through `flextable` instead of `gt`.
   Under `options(hebstr.docx = TRUE)` it returns a themed `flextable` rather than a `gt_tbl`, because `gt` is HTML-first and its OOXML export flattens backgrounds, row striping, and custom borders.
   Acronyms, footnotes, and the zero substitution carry over to that branch; the HTML output is unchanged.

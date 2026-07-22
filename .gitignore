@@ -2,6 +2,7 @@
 /demo/
 .claude/
 /dev/
+/output/
 
 /.quarto/
 **/*.quarto_ipynb

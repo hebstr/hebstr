@@ -7,7 +7,7 @@
 easy_out_map(x, filename = NULL, sep = "_", ...)
 }
 \arguments{
-\item{x}{A named list of ggplot, ggmatrix, gt_tbl, or gtsummary objects.}
+\item{x}{A named list of objects \code{\link[=easy_out]{easy_out()}} accepts.}
 
 \item{filename}{Base filename. Defaults to the unevaluated expression
 passed as \code{x}.}

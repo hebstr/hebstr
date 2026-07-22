@@ -29,7 +29,7 @@ skips coloring.
 }}
 }
 \value{
-An \code{openxlsx2} Workbook object.
+An \code{openxlsx2} Workbook object. Write it to disk with \code{\link[=easy_out]{easy_out()}}.
 }
 \description{
 Takes a named list of data frames and produces an \code{openxlsx2} workbook with
@@ -37,5 +37,12 @@ one formatted sheet per element.
 }
 \examples{
 wb <- get_xlsx(list(iris = iris, mtcars = mtcars))
-# wb_save(wb, "output.xlsx")
+
+\dontrun{
+easy_out(wb, filename = "tables")
+}
+
+}
+\seealso{
+\code{\link[=easy_out]{easy_out()}}, which saves the workbook as an XLSX file.
 }

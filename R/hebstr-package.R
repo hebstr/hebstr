@@ -169,6 +169,7 @@
 #' @importFrom openxlsx2 wb_color
 #' @importFrom openxlsx2 wb_dims
 #' @importFrom openxlsx2 wb_get_cell_style
+#' @importFrom openxlsx2 wb_save
 #' @importFrom openxlsx2 wb_set_cell_style
 #' @importFrom openxlsx2 wb_set_col_widths
 #' @importFrom openxlsx2 wb_workbook
