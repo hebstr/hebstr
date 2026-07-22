@@ -1,7 +1,7 @@
 /docs
 /demo/
 .claude/
-TODO.md
+/dev/
 
 /.quarto/
 **/*.quarto_ipynb

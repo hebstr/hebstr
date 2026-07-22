@@ -6,7 +6,8 @@
 ^demo$
 ^\.vscode$
 ^air\.toml$
-^TODO\.md$
+^prek\.toml$
+^dev$
 ^\.claude$
 ^README\.html$
 ^output$
