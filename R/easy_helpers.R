@@ -26,7 +26,7 @@ easy_replace <- \(..., replace = "</>") {
         unlist()
     )
 
-  replace_list <- list2("(\n*{replace})+\n*" := col_replace)
+  replace_list <- list2("(\n*{str_escape(replace)})+\n*" := col_replace)
 
   unlist(append(str_list, replace_list))
 }

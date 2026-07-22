@@ -328,8 +328,17 @@ test_that("easy_replace builds a named vector of HTML-wrapping regex patterns", 
 test_that("easy_replace honors a custom replacement token", {
   res <- easy_replace("age", replace = "[X]")
 
-  expect_named(res, c("<p>.*(age).*</p>", "(\n*[X])+\n*"))
+  expect_named(res, c("<p>.*(age).*</p>", "(\n*\\[X\\])+\n*"))
   expect_equal(unname(res[["<p>.*(age).*</p>"]]), "[X]")
+})
+
+test_that("easy_replace collapses a run of a regex-special token into one marker", {
+  txt <- "<p>my age here</p>\n<p>my age again</p>\nplain X token"
+
+  res <- stringr::str_replace_all(txt, easy_replace("age", replace = "[X]"))
+
+  expect_equal(stringr::str_count(res, stringr::fixed("[X]")), 1L)
+  expect_match(res, "plain X token", fixed = TRUE)
 })
 
 test_that("easy_recode splits named dots into parallel name and label vectors", {
