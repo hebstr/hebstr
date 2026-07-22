@@ -356,8 +356,6 @@ test_that("label_p decimal mark follows a comma OutDec option", {
 })
 
 test_that("read_png reads a PNG file into a raster grob", {
-  skip_if_not_installed("png")
-
   dir <- withr::local_tempdir()
   png::writePNG(
     array(0.5, dim = c(4, 4, 3)),
@@ -370,8 +368,6 @@ test_that("read_png reads a PNG file into a raster grob", {
 })
 
 test_that("wb_add_custom returns a workbook carrying the requested sheet", {
-  skip_if_not_installed("openxlsx2")
-
   d <- data.frame(concept = c("A", "B"), text = c("x", "y"))
 
   res <- wb_add_custom(openxlsx2::wb_workbook(), sheet = "Custom", data = d)
@@ -381,8 +377,6 @@ test_that("wb_add_custom returns a workbook carrying the requested sheet", {
 })
 
 test_that("wb_add_custom applies the concept and text font branches", {
-  skip_if_not_installed("openxlsx2")
-
   d <- data.frame(concept = c("A", "B"), text = c("x", "y"))
 
   expect_no_error(

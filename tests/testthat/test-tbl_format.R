@@ -269,8 +269,9 @@ test_that("tbl_format() aborts when collapse_missing is not a logical scalar", {
 
 ### DEPRECATED ALIAS -----------------------------------------------------------
 
-test_that("gt_format() warns once and delegates to tbl_format()", {
+test_that("gt_format() warns of its deprecation and delegates to tbl_format()", {
   local_opts()
+  withr::local_options(lifecycle_verbosity = "warning")
 
   tbl <- gtsum_format(.make_summary_tbl())
 

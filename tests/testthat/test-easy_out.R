@@ -20,8 +20,6 @@ test_that("easy_out() rejects a non-boolean export", {
 })
 
 test_that("easy_out() writes nothing when export is FALSE", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   dir <- fs::path(tmp, "skipped")
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
@@ -32,8 +30,6 @@ test_that("easy_out() writes nothing when export is FALSE", {
 })
 
 test_that("easy_out() leaves the variable context intact when export is FALSE", {
-  skip_if_not_installed("ggplot2")
-
   local_opts()
   use_vars(mtcars)
 
@@ -76,8 +72,6 @@ test_that("easy_out() names hebstr.docx and export when a flextable export is fo
 })
 
 test_that("easy_out.export option overrides the hebstr.docx default", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
@@ -108,8 +102,6 @@ test_that("easy_out() rejects a vector", {
 })
 
 test_that("easy_out() accepts a ggplot and creates files", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
@@ -133,8 +125,6 @@ test_that("easy_out() accepts a ggplot and creates files", {
 })
 
 test_that("easy_out() builds filename with suffix", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
@@ -156,8 +146,6 @@ test_that("easy_out() builds filename with suffix", {
 })
 
 test_that("easy_out() creates output directory if missing", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   output_dir <- fs::path(tmp, "new_folder")
 
@@ -177,8 +165,6 @@ test_that("easy_out() creates output directory if missing", {
 })
 
 test_that("easy_out() accepts a gt_tbl and calls gtsave/webshot", {
-  skip_if_not_installed("gt")
-
   tmp <- withr::local_tempdir()
 
   gt_obj <- gt::gt(head(mtcars, 3))
@@ -205,8 +191,6 @@ test_that("easy_out() accepts a gt_tbl and calls gtsave/webshot", {
 })
 
 test_that("easy_out() applies default width to gt when no table_width is set", {
-  skip_if_not_installed("gt")
-
   tmp <- withr::local_tempdir()
   gt_obj <- gt::gt(head(mtcars, 3))
 
@@ -236,8 +220,6 @@ test_that("easy_out() applies default width to gt when no table_width is set", {
 })
 
 test_that("easy_out() uses user-supplied width when gt has no table_width", {
-  skip_if_not_installed("gt")
-
   tmp <- withr::local_tempdir()
   gt_obj <- gt::gt(head(mtcars, 3))
 
@@ -257,8 +239,6 @@ test_that("easy_out() uses user-supplied width when gt has no table_width", {
 })
 
 test_that("easy_out() uses gt table_width when set", {
-  skip_if_not_installed("gt")
-
   tmp <- withr::local_tempdir()
   gt_obj <- gt::gt(head(mtcars, 3)) |>
     gt::tab_options(table.width = gt::px(400))
@@ -279,8 +259,6 @@ test_that("easy_out() uses gt table_width when set", {
 })
 
 test_that("easy_out() ignores a percentage table_width and falls back to default px", {
-  skip_if_not_installed("gt")
-
   tmp <- withr::local_tempdir()
   gt_obj <- gt::gt(head(mtcars, 3)) |>
     gt::tab_options(table.width = gt::pct(80))
@@ -308,8 +286,6 @@ test_that("easy_out() rejects a character string", {
 })
 
 test_that("easy_out() suffix with custom separator", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
@@ -338,8 +314,6 @@ test_that("easy_out() suffix with custom separator", {
 })
 
 test_that("easy_out() calls browseURL when quiet is FALSE", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
@@ -361,9 +335,6 @@ test_that("easy_out() calls browseURL when quiet is FALSE", {
 })
 
 test_that("easy_out() accepts a gtsummary object and calls as_gt", {
-  skip_if_not_installed("gt")
-  skip_if_not_installed("gtsummary")
-
   tmp <- withr::local_tempdir()
 
   gtsum_obj <- gtsummary::tbl_summary(head(mtcars, 5), include = mpg)
@@ -385,8 +356,6 @@ test_that("easy_out() accepts a gtsummary object and calls as_gt", {
 })
 
 test_that("easy_out() uses option easy_out.dir as default directory", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   custom_dir <- fs::path(tmp, "custom_output")
 
@@ -408,8 +377,6 @@ test_that("easy_out() uses option easy_out.dir as default directory", {
 })
 
 test_that("easy_out() dir argument overrides easy_out.dir option", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   option_dir <- fs::path(tmp, "from_option")
   arg_dir <- fs::path(tmp, "from_arg")
@@ -497,8 +464,6 @@ test_that("easy_out() builds grob filename with suffix", {
 })
 
 test_that("easy_out_map() rejects an unnamed list", {
-  skip_if_not_installed("ggplot2")
-
   plots <- list(
     ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
       ggplot2::geom_point()
@@ -525,8 +490,6 @@ test_that("easy_out_map() rejects a vector", {
 })
 
 test_that("easy_out_map() iterates over a list of ggplots", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
 
   plots <- list(
@@ -549,8 +512,6 @@ test_that("easy_out_map() iterates over a list of ggplots", {
 })
 
 test_that("easy_out_map() forwards ... to easy_out()", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
 
   plots <- list(
@@ -702,8 +663,6 @@ test_that("easy_out() leaves the grob canvas whole when crop is FALSE", {
 })
 
 test_that("easy_out() leaves the plot canvas whole", {
-  skip_if_not_installed("ggplot2")
-
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()

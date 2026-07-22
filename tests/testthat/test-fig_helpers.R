@@ -1,14 +1,10 @@
 test_that("ggcount() aborts when var is not a column of data", {
-  skip_if_not_installed("ggplot2")
-
   d <- data.frame(class = rep(c("a", "b", "c"), c(5, 3, 2)))
 
   expect_error(ggcount(d, "nonexistent"), "var")
 })
 
 test_that("ggcount() builds a bar layer for a valid column", {
-  skip_if_not_installed("ggplot2")
-
   d <- data.frame(class = rep(c("a", "b", "c"), c(5, 3, 2)))
 
   built <- ggplot2::ggplot_build(ggcount(d, "class"))
@@ -17,8 +13,6 @@ test_that("ggcount() builds a bar layer for a valid column", {
 })
 
 test_that("ggcount() percentage layer drops levels below pct_min", {
-  skip_if_not_installed("ggplot2")
-
   d <- data.frame(class = rep(c("a", "b", "rare"), c(50, 45, 2)))
 
   built <- ggplot2::ggplot_build(ggcount(d, "class"))
@@ -29,7 +23,6 @@ test_that("ggcount() percentage layer drops levels below pct_min", {
 })
 
 test_that("ggcount() default family reads the centralised text font", {
-  skip_if_not_installed("ggplot2")
   local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
   d <- data.frame(class = rep(c("a", "b", "c"), c(5, 3, 2)))

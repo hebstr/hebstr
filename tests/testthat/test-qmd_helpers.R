@@ -16,14 +16,18 @@ test_that("glue_qmd() evaluates in the caller's environment", {
   expect_equal(wrapper(), glue::as_glue("result: 42"))
 })
 
-test_that("glue_qmd() errors on non-character input", {
-  expect_error(glue_qmd(123), class = "rlang_error")
-  expect_error(glue_qmd(NULL), class = "rlang_error")
-  expect_error(glue_qmd(TRUE), class = "rlang_error")
+test_that("glue_qmd() reports the class and length of a non-character input", {
+  expect_error(glue_qmd(123), "<numeric> of length 1", class = "rlang_error")
+  expect_error(glue_qmd(NULL), "<NULL> of length 0", class = "rlang_error")
+  expect_error(glue_qmd(TRUE), "<logical> of length 1", class = "rlang_error")
 })
 
-test_that("glue_qmd() errors on multi-element character vector", {
-  expect_error(glue_qmd(c("a", "b")), class = "rlang_error")
+test_that("glue_qmd() reports the length of a multi-element character vector", {
+  expect_error(
+    glue_qmd(c("a", "b")),
+    "<character> of length 2",
+    class = "rlang_error"
+  )
 })
 
 test_that("gt_qmd() returns a gt object from a data.frame", {
@@ -78,20 +82,43 @@ test_that("gt_qmd() default font_family reads the centralised text font", {
   expect_identical(font, "PinnedAlpha")
 })
 
-test_that("gt_qmd() errors on invalid data input", {
-  expect_error(gt_qmd("not a df"), class = "rlang_error")
-  expect_error(gt_qmd(42), class = "rlang_error")
-  expect_error(gt_qmd(list(a = 1)), class = "rlang_error")
+test_that("gt_qmd() reports the class of an invalid data input", {
+  expect_error(
+    gt_qmd("not a df"),
+    "Object of class <character> supplied",
+    class = "rlang_error"
+  )
+  expect_error(
+    gt_qmd(42),
+    "Object of class <numeric> supplied",
+    class = "rlang_error"
+  )
+  expect_error(
+    gt_qmd(list(a = 1)),
+    "Object of class <list> supplied",
+    class = "rlang_error"
+  )
 })
 
-test_that("gt_qmd() errors on invalid top_n", {
-  expect_error(gt_qmd(mtcars, top_n = -1), class = "rlang_error")
-  expect_error(gt_qmd(mtcars, top_n = "a"), class = "rlang_error")
-  expect_error(gt_qmd(mtcars, top_n = c(1, 2)), class = "rlang_error")
+test_that("gt_qmd() names top_n as the offending argument", {
+  expect_error(
+    gt_qmd(mtcars, top_n = -1),
+    "`top_n` must be a single positive numeric",
+    class = "rlang_error"
+  )
+  expect_error(
+    gt_qmd(mtcars, top_n = "a"),
+    "`top_n` must be a single positive numeric",
+    class = "rlang_error"
+  )
+  expect_error(
+    gt_qmd(mtcars, top_n = c(1, 2)),
+    "`top_n` must be a single positive numeric",
+    class = "rlang_error"
+  )
 })
 
 test_that("gt_qmd() works with gtsummary objects", {
-  skip_if_not_installed("gtsummary")
   tbl_sum <- gtsummary::trial[1:10, ] |> gtsummary::tbl_summary(include = age)
   result <- gt_qmd(tbl_sum)
   expect_s3_class(result, "gt_tbl")
@@ -111,16 +138,25 @@ test_that("include_code_file() uses custom lang", {
   expect_match(result, "include='query.sql'")
 })
 
-test_that("include_code_file() errors on invalid src", {
-  expect_error(include_code_file(123), class = "rlang_error")
-  expect_error(include_code_file(NULL), class = "rlang_error")
-  expect_error(include_code_file(c("a", "b")), class = "rlang_error")
+test_that("include_code_file() names src as the offending argument", {
+  expect_error(include_code_file(123), "`src` must be", class = "rlang_error")
+  expect_error(include_code_file(NULL), "`src` must be", class = "rlang_error")
+  expect_error(
+    include_code_file(c("a", "b")),
+    "`src` must be",
+    class = "rlang_error"
+  )
 })
 
-test_that("include_code_file() errors on invalid lang", {
-  expect_error(include_code_file("script.R", lang = 1), class = "rlang_error")
+test_that("include_code_file() names lang, not src, when only lang is invalid", {
+  expect_error(
+    include_code_file("script.R", lang = 1),
+    "`lang` must be",
+    class = "rlang_error"
+  )
   expect_error(
     include_code_file("script.R", lang = NULL),
+    "`lang` must be",
     class = "rlang_error"
   )
 })

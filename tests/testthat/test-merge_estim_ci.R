@@ -16,6 +16,8 @@ test_that("merge_estim_ci() merges estimate and CI into a single column", {
 })
 
 test_that("merge_estim_ci() formats values with 2 decimal places", {
+  withr::local_options(OutDec = ".")
+
   df <- data.frame(
     estimate = 1.1,
     conf.low = 0.5,
@@ -26,12 +28,12 @@ test_that("merge_estim_ci() formats values with 2 decimal places", {
 
   result <- merge_estim_ci(df, ci_data = ci_template)
 
-  expect_match(result$estimate_ci, "1.10")
-  expect_match(result$estimate_ci, "0.50")
-  expect_match(result$estimate_ci, "2.00")
+  expect_equal(result$estimate_ci, "1.10 [0.50; 2.00]")
 })
 
 test_that("merge_estim_ci() multiplies by 100 when percent = TRUE", {
+  withr::local_options(OutDec = ".")
+
   df <- data.frame(
     estimate = 0.25,
     conf.low = 0.10,
@@ -42,9 +44,7 @@ test_that("merge_estim_ci() multiplies by 100 when percent = TRUE", {
 
   result <- merge_estim_ci(df, ci_data = ci_template, percent = TRUE)
 
-  expect_match(result$estimate_ci, "25.00")
-  expect_match(result$estimate_ci, "10.00")
-  expect_match(result$estimate_ci, "40.00")
+  expect_equal(result$estimate_ci, "25.00 [10.00; 40.00]")
 })
 
 test_that("merge_estim_ci() keeps original columns when keep = TRUE", {
@@ -85,6 +85,8 @@ test_that("merge_estim_ci() uses custom output column name", {
 })
 
 test_that("merge_estim_ci() works with custom estimate column name", {
+  withr::local_options(OutDec = ".")
+
   df <- data.frame(
     OR = 2.5,
     conf.low = 1.2,
@@ -100,7 +102,7 @@ test_that("merge_estim_ci() works with custom estimate column name", {
   )
 
   expect_contains(names(result), "estimate_ci")
-  expect_match(result$estimate_ci, "2.50")
+  expect_equal(result$estimate_ci, "2.50 [1.20; 5.10]")
 })
 
 test_that("merge_estim_ci() preserves other columns in the data", {

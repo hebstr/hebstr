@@ -1,4 +1,4 @@
-# gt_format() warns once and delegates to tbl_format()
+# gt_format() warns of its deprecation and delegates to tbl_format()
 
     Code
       res <- gt_format(tbl)
