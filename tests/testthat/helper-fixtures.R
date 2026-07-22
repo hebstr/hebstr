@@ -164,22 +164,38 @@
   x$table_body$label[eval_tidy(rows, data = x$table_body)]
 }
 
-.bold_fonts <- \(wb) {
-  fonts <- wb$styles_mgr$styles$fonts
-  fonts[grepl("<b val=\"1\"/>", fonts, fixed = TRUE)]
-}
-
-.cell_borders <- \(wb, dims, sheet = 1L) {
+.cell_xf <- \(wb, dims, sheet = 1L) {
   styles <- wb$styles_mgr$styles
   xfs <- vapply(
     openxlsx2::wb_get_cell_style(wb, sheet = sheet, dims = dims),
     \(id) if (nzchar(id)) styles$cellXfs[[as.integer(id) + 1L]] else "",
     character(1)
   )
-  ids <- as.integer(gsub('.*borderId="(\\d+)".*', "\\1", xfs))
 
   # wb_get_cell_style() answers in the workbook's own cell order, not in dims order
-  set_names(ifelse(is.na(ids), "", styles$borders[ids + 1L]), names(xfs))[dims]
+  xfs[dims]
+}
+
+.cell_style_ref <- \(wb, dims, sheet, id_attr, registry) {
+  xfs <- .cell_xf(wb, dims, sheet)
+  ids <- as.integer(gsub(paste0('.*', id_attr, '="(\\d+)".*'), "\\1", xfs))
+
+  set_names(
+    ifelse(is.na(ids), "", wb$styles_mgr$styles[[registry]][ids + 1L]),
+    names(xfs)
+  )
+}
+
+.cell_borders <- \(wb, dims, sheet = 1L) {
+  .cell_style_ref(wb, dims, sheet, "borderId", "borders")
+}
+
+.cell_fonts <- \(wb, dims, sheet = 1L) {
+  .cell_style_ref(wb, dims, sheet, "fontId", "fonts")
+}
+
+.cell_fills <- \(wb, dims, sheet = 1L) {
+  .cell_style_ref(wb, dims, sheet, "fillId", "fills")
 }
 
 ### SVG -------------------------------------------------------------------------

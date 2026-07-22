@@ -12,7 +12,11 @@
 ) {
   withr::local_options(openxlsx2.maxWidth = max_width)
 
-  color <- color[names(color) %in% names(data)]
+  # wb_dims(select = "data") collapses onto the header row on a zero-row frame,
+  # so every data-scoped style has to be gated or it repaints the header
+  has_data <- nrow(data) > 0L
+
+  color <- if (has_data) color[names(color) %in% names(data)]
 
   params <- list(
     dims = list(
@@ -29,6 +33,18 @@
       header = wb_color(header_color)
     )
   )
+
+  add_data_font <- \(wb) {
+    if (!has_data) {
+      return(wb)
+    }
+
+    wb_add_font(
+      wb = wb,
+      dims = params$dims$data,
+      size = font_size
+    )
+  }
 
   add_color <- \(wb, vars, color) {
     wb_add_font(
@@ -55,7 +71,7 @@
       ) |>
       wb_set_cell_style(
         dims = wb_dims(x = data, cols = col, select = "data"),
-        style = proto(if (nrow(data)) 2L else 1L)
+        style = proto(if (has_data) 2L else 1L)
       )
   }
 
@@ -73,10 +89,7 @@
       size = font_size + 1,
       bold = TRUE
     ) |>
-    wb_add_font(
-      dims = params$dims$data,
-      size = font_size
-    ) |>
+    add_data_font() |>
     wb_add_fill(
       dims = params$dims$cols,
       color = params$colors$header
@@ -153,6 +166,12 @@
 get_xlsx <- \(sheets, ...) {
   if (!is_named(sheets)) {
     cli::cli_abort("{.arg sheets} must be a fully named list.")
+  }
+
+  color <- list(...)$color
+
+  if (length(color) && !is_named(color)) {
+    cli::cli_abort("{.arg color} must be a fully named list.")
   }
 
   reduce2(

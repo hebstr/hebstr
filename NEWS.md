@@ -69,6 +69,10 @@ Options and the variable classification cache now live in an internal package st
 
 - `tbl_format()` and `col_missing()` detect the missing rows with `%in%`, so a table whose body carries `NA` row types (for example the header row inserted by `add_label()`) no longer aborts with "missing value where TRUE/FALSE needed" when it holds no missing rows, as with `gtsummary::tbl_summary(missing = "no")`.
 - `get_xlsx()` validates the sheet names with `rlang::is_named()`, so a list carrying an `NA` name raises the "fully named list" error instead of aborting on "missing value where TRUE/FALSE needed".
+- `get_xlsx()` validates the `color` names the same way, so an unnamed or partially named list raises the "fully named list" error instead of being silently dropped by the per-sheet column filter.
+  A name matching no column stays a no-op, that filter being what lets one palette serve sheets holding different columns.
+- `get_xlsx()` keeps the header styling of a zero-row sheet.
+  On an empty data frame `openxlsx2::wb_dims(select = "data")` collapses onto the header row, so the data font overwrote the header font and a `color =` highlight landed on the header instead of the data cells.
 - `theme_bubble()` derives its grid colors with `%in%`, so `NA` axis colors (transparent, a valid ggplot2 color) propagate to the grid as a transparent color instead of aborting on "missing value where TRUE/FALSE needed".
 - `check_fonts()` matches family names in full instead of on a word boundary, so a name shared with a wider family (`"Liberation"` against `"Liberation Sans"`) counts as missing rather than installed, since rendering it falls back to the system default.
   The device aliases `"sans"`, `"serif"` and `"mono"` always count as available.

@@ -20,7 +20,11 @@ test_that("get_xlsx() works with a single sheet", {
 
 test_that("get_xlsx() applies the requested bold font color to the target column", {
   wb <- get_xlsx(list(iris = head(iris, 5)), color = list(Species = "#FF0000"))
-  expect_match(.bold_fonts(wb), 'rgb="FFFF0000"', all = FALSE, fixed = TRUE)
+  fonts <- .cell_fonts(wb, c("E2", "A2"))
+
+  expect_match(fonts[["E2"]], 'rgb="FFFF0000"', fixed = TRUE)
+  expect_match(fonts[["E2"]], '<b val="1"/>', fixed = TRUE)
+  expect_no_match(fonts[["A2"]], '<b val="1"/>', fixed = TRUE)
 })
 
 test_that("get_xlsx() applies the header fill color under a full styling bundle", {
@@ -32,12 +36,10 @@ test_that("get_xlsx() applies the header fill color under a full styling bundle"
     border_color = "#000000",
     max_width = 40
   )
-  expect_match(
-    wb$styles_mgr$styles$fills,
-    "FFCCCCCC",
-    all = FALSE,
-    fixed = TRUE
-  )
+  expect_match(.cell_fills(wb, "A1")[["A1"]], "FFCCCCCC", fixed = TRUE)
+  expect_match(.cell_fonts(wb, "A1")[["A1"]], '<sz val="11"/>', fixed = TRUE)
+  expect_match(.cell_fonts(wb, "A2")[["A2"]], '<sz val="10"/>', fixed = TRUE)
+  expect_match(.cell_xf(wb, "A2")[["A2"]], 'horizontal="left"', fixed = TRUE)
 })
 
 test_that("get_xlsx() preserves row count and column names", {
@@ -54,14 +56,24 @@ test_that("get_xlsx() does not leak the openxlsx2.maxWidth option", {
   expect_equal(getOption("openxlsx2.maxWidth"), 20)
 })
 
+test_that("get_xlsx() caps the auto column width at max_width", {
+  data <- data.frame(wide = strrep("a", 80), narrow = 1)
+  attrs <- get_xlsx(list(s = data), max_width = 25)$worksheets[[1]]$cols_attr
+
+  expect_match(attrs[[1]], 'width="25"', fixed = TRUE)
+  expect_no_match(attrs[[2]], 'width="25"', fixed = TRUE)
+})
+
 test_that("get_xlsx() applies a distinct bold color to each named column", {
   wb <- get_xlsx(
     list(iris = head(iris, 5)),
     color = list(Sepal.Length = "#FF0000", Sepal.Width = "#0000FF")
   )
-  fonts <- .bold_fonts(wb)
-  expect_match(fonts, 'rgb="FFFF0000"', all = FALSE, fixed = TRUE)
-  expect_match(fonts, 'rgb="FF0000FF"', all = FALSE, fixed = TRUE)
+  fonts <- .cell_fonts(wb, c("A2", "B2", "C2"))
+
+  expect_match(fonts[["A2"]], 'rgb="FFFF0000"', fixed = TRUE)
+  expect_match(fonts[["B2"]], 'rgb="FF0000FF"', fixed = TRUE)
+  expect_no_match(fonts[["C2"]], '<b val="1"/>', fixed = TRUE)
 })
 
 test_that("get_xlsx() borders every cell of the sheet identically", {
@@ -91,7 +103,7 @@ test_that("get_xlsx() borders follow border_color and border_type", {
 test_that("get_xlsx() leaves cells outside the table unstyled", {
   wb <- get_xlsx(list(iris = head(iris, 3)))
 
-  expect_equal(unname(.cell_borders(wb, c("A5", "F1"))), c("", ""))
+  expect_equal(unname(.cell_xf(wb, c("A5", "F1"))), c("", ""))
 })
 
 test_that("get_xlsx() bounds each sheet's border on its own column count", {
@@ -114,10 +126,26 @@ test_that("get_xlsx() styles a zero-row sheet without spilling below the header"
   wb <- suppressWarnings(get_xlsx(list(iris = iris[0, ])))
 
   borders <- unique(.cell_borders(wb, c("A1", "E1")))
+  header <- .cell_fonts(wb, c("A1", "E1"))
 
   expect_length(borders, 1L)
   expect_match(borders, "FF999999", fixed = TRUE)
   expect_equal(unname(.cell_borders(wb, "A2")), "")
+
+  expect_match(header, '<b val="1"/>', fixed = TRUE)
+  expect_match(header, '<sz val="9"/>', fixed = TRUE)
+})
+
+test_that("get_xlsx() keeps the highlight color off a zero-row sheet's header", {
+  wb <- suppressWarnings(
+    get_xlsx(list(iris = iris[0, ]), color = list(Species = "#FF0000"))
+  )
+
+  expect_no_match(
+    .cell_fonts(wb, "E1")[["E1"]],
+    'rgb="FFFF0000"',
+    fixed = TRUE
+  )
 })
 
 test_that("get_xlsx() preserves the number format of every column", {
@@ -152,6 +180,23 @@ test_that("get_xlsx() errors on a list carrying an NA name", {
   expect_error(get_xlsx(sheets), class = "rlang_error")
 })
 
+test_that("get_xlsx() errors on an unnamed color list", {
+  expect_error(
+    get_xlsx(list(iris = head(iris, 3)), color = list("#FF0000")),
+    "`color` must be a fully named list"
+  )
+})
+
+test_that("get_xlsx() errors on a partially named color list", {
+  expect_error(
+    get_xlsx(
+      list(iris = head(iris, 3)),
+      color = list(Species = "#FF0000", "#0000FF")
+    ),
+    "`color` must be a fully named list"
+  )
+})
+
 test_that("get_xlsx() applies each color only to sheets that contain the column", {
   wb <- get_xlsx(
     list(iris = head(iris, 5), mtcars = head(mtcars, 5)),
@@ -162,9 +207,14 @@ test_that("get_xlsx() applies each color only to sheets that contain the column"
       disp = "#FA8000"
     )
   )
-  fonts <- .bold_fonts(wb)
-  expect_match(fonts, 'rgb="FFFF0000"', all = FALSE, fixed = TRUE)
-  expect_match(fonts, 'rgb="FF0000FF"', all = FALSE, fixed = TRUE)
-  expect_match(fonts, 'rgb="FFFFFF00"', all = FALSE, fixed = TRUE)
-  expect_match(fonts, 'rgb="FFFA8000"', all = FALSE, fixed = TRUE)
+  on_iris <- .cell_fonts(wb, c("A2", "B2", "C2"), sheet = "iris")
+  on_mtcars <- .cell_fonts(wb, c("A2", "B2", "C2"), sheet = "mtcars")
+
+  expect_match(on_iris[["A2"]], 'rgb="FFFF0000"', fixed = TRUE)
+  expect_match(on_iris[["B2"]], 'rgb="FF0000FF"', fixed = TRUE)
+  expect_no_match(on_iris[["C2"]], '<b val="1"/>', fixed = TRUE)
+
+  expect_match(on_mtcars[["A2"]], 'rgb="FFFFFF00"', fixed = TRUE)
+  expect_no_match(on_mtcars[["B2"]], '<b val="1"/>', fixed = TRUE)
+  expect_match(on_mtcars[["C2"]], 'rgb="FFFA8000"', fixed = TRUE)
 })
