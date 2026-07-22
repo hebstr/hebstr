@@ -18,7 +18,11 @@
     dims = list(
       full = wb_dims(x = data),
       data = wb_dims(x = data, select = "data"),
-      cols = wb_dims(x = data, select = "col_names")
+      cols = wb_dims(x = data, select = "col_names"),
+      proto = wb_dims(
+        rows = seq_len(min(nrow(data) + 1L, 2L)),
+        cols = seq_len(ncol(data))
+      )
     ),
     colors = list(
       border = wb_color(border_color),
@@ -34,6 +38,25 @@
       size = font_size,
       bold = TRUE
     )
+  }
+
+  # openxlsx2 scales quadratically on a wide border range, so the border is
+  # resolved on the two prototype rows then broadcast; a cell style carries the
+  # column's number format, hence one prototype per column and not one per sheet
+  spread_style <- \(wb, col) {
+    proto <- \(row) {
+      wb_get_cell_style(wb, dims = wb_dims(rows = row, cols = col))
+    }
+
+    wb |>
+      wb_set_cell_style(
+        dims = wb_dims(x = data, cols = col, select = "col_names"),
+        style = proto(1L)
+      ) |>
+      wb_set_cell_style(
+        dims = wb_dims(x = data, cols = col, select = "data"),
+        style = proto(if (nrow(data)) 2L else 1L)
+      )
   }
 
   wb_add_worksheet(
@@ -69,7 +92,7 @@
       wrap_text = TRUE
     ) |>
     wb_add_border(
-      dims = params$dims$full,
+      dims = params$dims$proto,
       top_color = params$colors$border,
       top_border = border_type,
       bottom_color = params$colors$border,
@@ -82,6 +105,11 @@
       inner_hgrid = border_type,
       inner_vcolor = params$colors$border,
       inner_vgrid = border_type
+    ) |>
+    reduce(
+      .x = seq_len(ncol(data)),
+      .f = spread_style,
+      .init = _
     ) |>
     reduce2(
       .x = names(color),

@@ -169,6 +169,19 @@
   fonts[grepl("<b val=\"1\"/>", fonts, fixed = TRUE)]
 }
 
+.cell_borders <- \(wb, dims, sheet = 1L) {
+  styles <- wb$styles_mgr$styles
+  xfs <- vapply(
+    openxlsx2::wb_get_cell_style(wb, sheet = sheet, dims = dims),
+    \(id) if (nzchar(id)) styles$cellXfs[[as.integer(id) + 1L]] else "",
+    character(1)
+  )
+  ids <- as.integer(gsub('.*borderId="(\\d+)".*', "\\1", xfs))
+
+  # wb_get_cell_style() answers in the workbook's own cell order, not in dims order
+  set_names(ifelse(is.na(ids), "", styles$borders[ids + 1L]), names(xfs))[dims]
+}
+
 ### SVG -------------------------------------------------------------------------
 
 .make_svg <- \(grob, bg = "white", width = 9, height = 8) {

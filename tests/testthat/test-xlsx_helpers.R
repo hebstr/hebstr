@@ -64,6 +64,79 @@ test_that("get_xlsx() applies a distinct bold color to each named column", {
   expect_match(fonts, 'rgb="FF0000FF"', all = FALSE, fixed = TRUE)
 })
 
+test_that("get_xlsx() borders every cell of the sheet identically", {
+  wb <- get_xlsx(list(iris = head(iris, 6)))
+  borders <- .cell_borders(
+    wb,
+    c("A1", "C1", "E1", "A2", "C4", "E4", "A7", "C7", "E7")
+  )
+
+  expect_length(unique(borders), 1L)
+  expect_match(unique(borders), "FF999999", fixed = TRUE)
+})
+
+test_that("get_xlsx() borders follow border_color and border_type", {
+  wb <- get_xlsx(
+    list(iris = head(iris, 4)),
+    border_color = "#000000",
+    border_type = "medium"
+  )
+  borders <- unique(.cell_borders(wb, c("A1", "C3", "E5")))
+
+  expect_length(borders, 1L)
+  expect_match(borders, "FF000000", fixed = TRUE)
+  expect_match(borders, 'style="medium"', fixed = TRUE)
+})
+
+test_that("get_xlsx() leaves cells outside the table unstyled", {
+  wb <- get_xlsx(list(iris = head(iris, 3)))
+
+  expect_equal(unname(.cell_borders(wb, c("A5", "F1"))), c("", ""))
+})
+
+test_that("get_xlsx() bounds each sheet's border on its own column count", {
+  wb <- get_xlsx(list(narrow = head(iris, 2)[, 1:2], wide = head(iris, 2)))
+
+  expect_equal(unname(.cell_borders(wb, "E1", sheet = "narrow")), "")
+  expect_match(
+    .cell_borders(wb, "B1", sheet = "narrow"),
+    "FF999999",
+    fixed = TRUE
+  )
+  expect_match(
+    .cell_borders(wb, "E1", sheet = "wide"),
+    "FF999999",
+    fixed = TRUE
+  )
+})
+
+test_that("get_xlsx() styles a zero-row sheet without spilling below the header", {
+  wb <- suppressWarnings(get_xlsx(list(iris = iris[0, ])))
+
+  borders <- unique(.cell_borders(wb, c("A1", "E1")))
+
+  expect_length(borders, 1L)
+  expect_match(borders, "FF999999", fixed = TRUE)
+  expect_equal(unname(.cell_borders(wb, "A2")), "")
+})
+
+test_that("get_xlsx() preserves the number format of every column", {
+  dates <- as.Date("2024-01-01") + 0:2
+  roundtrip <- \(data) {
+    file <- withr::local_tempfile(fileext = ".xlsx")
+    openxlsx2::wb_save(get_xlsx(list(s = data)), file)
+    openxlsx2::read_xlsx(file)
+  }
+
+  first <- roundtrip(data.frame(when = dates, n = 1:3))
+  last <- roundtrip(data.frame(n = 1:3, when = dates))
+
+  expect_equal(first$when, dates)
+  expect_equal(first$n, c(1, 2, 3))
+  expect_equal(last$when, dates)
+  expect_equal(last$n, c(1, 2, 3))
+})
+
 test_that("get_xlsx() errors on unnamed list", {
   expect_error(get_xlsx(list(iris, mtcars)), class = "rlang_error")
 })

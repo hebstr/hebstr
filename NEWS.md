@@ -100,3 +100,6 @@ Options and the variable classification cache now live in an internal package st
 - `easy_descr()` prints its variable classification as a single per-variable tibble (name, storage type, statistical group) instead of grouped variable lists, with storage-type codes aligned on those of `easy_view()`.
 - `easy_out()` renders plot SVG with the `svglite` device instead of `grDevices::svg` (via `htmltools::capturePlot`), producing cleaner, more portable SVG and dropping the `htmltools` and `grDevices` dependencies.
 - `easy_out()` lowers its default raster resolution `px` from 2000 to 1200, producing smaller PNG files by default; pass `px = 2000` to restore the previous resolution.
+- `get_xlsx()` builds large sheets in near-linear time instead of quadratic (17,200 rows by 5 columns: 0.6 second instead of 16).
+  Every cell of a column carries the same border and the same number format, so the border is now resolved on the first two rows and the resolved style broadcast down each column, rather than passed to `openxlsx2::wb_add_border()` over the whole range.
+  The resulting styles are unchanged, cell for cell.
