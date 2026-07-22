@@ -67,3 +67,12 @@ local_estim_channel <- \(.env = parent.frame()) {
 
   invisible(NULL)
 }
+
+rm_estim_channel <- \() {
+  rm(
+    list = ls(envir = .estim_channel, all.names = TRUE),
+    envir = .estim_channel
+  )
+
+  invisible(NULL)
+}

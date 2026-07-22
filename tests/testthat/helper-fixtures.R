@@ -2,9 +2,9 @@
 
 .make_summary_df <- \() {
   data.frame(
-    grp = rep(c("a", "b"), 10),
+    grp = c(rep("a", 10), rep("b", 10)),
     age = c(1:10, 5:14),
-    sex = factor(rep(c("m", "f"), 10))
+    sex = factor(c(rep("m", 6), rep("f", 4), rep("m", 4), rep("f", 6)))
   )
 }
 

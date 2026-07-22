@@ -65,7 +65,7 @@ test_that("tbl_format() aborts informatively on a coefficient table without anno
   reg <- .make_reg_tbl()
   formatted <- gtsum_format(reg$tbl, model_mv = reg$mod)
 
-  rm(list = ls(envir = .estim_channel), envir = .estim_channel)
+  rm_estim_channel()
 
   expect_error(tbl_format(formatted), "gtsum_format")
 })

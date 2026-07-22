@@ -553,9 +553,29 @@ test_that("svg_crop() trims the canvas to the drawing", {
 
   after <- .view_box(path)
 
-  expect_equal(after[3], 0.30 * before[3], tolerance = 0.1)
-  expect_equal(after[4], 0.20 * before[4], tolerance = 0.2)
-  expect_gt(after[1], before[1])
+  pad <- 2 * 0.03 * 0.30 * before[3]
+
+  expect_equal(after[3], 0.30 * before[3] + pad, tolerance = 0.02)
+  expect_equal(after[4], 0.20 * before[4] + pad, tolerance = 0.03)
+  expect_equal(after[1], 0.25 * before[3] - pad / 2, tolerance = 0.02)
+})
+
+test_that("svg_crop() pads the cropped canvas by margin on all four sides", {
+  grob <- grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+  tight <- .make_svg(grob)
+  padded <- .make_svg(grob)
+
+  svg_crop(tight, margin = 0)
+  svg_crop(padded, margin = 0.05)
+
+  a <- .view_box(tight)
+  b <- .view_box(padded)
+  pad <- 0.05 * max(a[3], a[4])
+
+  expect_equal(b[1], a[1] - pad)
+  expect_equal(b[2], a[2] - pad)
+  expect_equal(b[3], a[3] + 2 * pad)
+  expect_equal(b[4], a[4] + 2 * pad)
 })
 
 test_that("svg_crop() keeps the drawing inside the cropped canvas", {
@@ -639,8 +659,8 @@ test_that("easy_out() crops the grob canvas by default", {
 
   expect_equal(
     .view_box(fs::path(tmp, "cropped", ext = "svg"))[3],
-    0.30 * 9 * 72,
-    tolerance = 0.1
+    0.30 * 9 * 72 * (1 + 2 * 0.03),
+    tolerance = 0.02
   )
 })
 

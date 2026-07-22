@@ -6,13 +6,13 @@ test_that("col_missing() adds a dm column carrying the joined missing counts", {
   body <- res$table_body
 
   expect_true("dm" %in% names(body))
-  expect_match(
+  expect_equal(
     body$dm[body$variable == "age" & body$row_type == "label"],
-    "0/2"
+    " 0/2"
   )
-  expect_match(
+  expect_equal(
     body$dm[body$variable == "sex" & body$row_type == "label"],
-    "1/0"
+    " 1/0"
   )
 })
 
@@ -59,9 +59,9 @@ test_that("col_missing() honours a custom prefix, empty, and header", {
 
   body <- res$table_body
 
-  expect_match(
+  expect_equal(
     body$dm[body$variable == "age" & body$row_type == "label"],
-    "^n ="
+    "n = 0/2"
   )
   expect_equal(
     res$table_styling$header$label[res$table_styling$header$column == "dm"],
@@ -97,13 +97,13 @@ test_that("col_missing() collapses missing rows in a table that also carries NA 
 
   body <- col_missing(tbl)$table_body
 
-  expect_match(
+  expect_equal(
     body$dm[body$variable %in% "age" & body$row_type %in% "label"],
-    "0/2"
+    " 0/2"
   )
-  expect_match(
+  expect_equal(
     body$dm[body$variable %in% "sex" & body$row_type %in% "label"],
-    "1/0"
+    " 1/0"
   )
   expect_true(is.na(body$dm[is.na(body$row_type)]))
   expect_false("missing" %in% body$row_type)

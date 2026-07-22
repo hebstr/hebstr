@@ -159,17 +159,19 @@ test_that("tbl_format() applies zero_replace under docx, and leaves cells alone 
   expect_true(any(grepl("0 (0%)", .ft_txt(without_sub, "body"), fixed = TRUE)))
 })
 
-test_that("tbl_format() registers a value substitution when zero_replace is set, none when NULL", {
+test_that("tbl_format() applies zero_replace on gt, and leaves cells alone when NULL", {
   local_opts()
 
   tbl <- .make_summary_tbl()
-  with_sub <- tbl_format(gtsum_format(tbl))
-  without_sub <- tbl_format(gtsum_format(tbl), zero_replace = NULL)
+  with_sub <- gt::as_raw_html(tbl_format(gtsum_format(tbl)))
+  without_sub <- gt::as_raw_html(tbl_format(
+    gtsum_format(tbl),
+    zero_replace = NULL
+  ))
 
-  expect_equal(
-    length(with_sub[["_substitutions"]]),
-    length(without_sub[["_substitutions"]]) + 1L
-  )
+  expect_no_match(with_sub, "0 (0%)", fixed = TRUE)
+  expect_match(without_sub, "0 (0%)", fixed = TRUE)
+  expect_match(with_sub, "10 (100%)", fixed = TRUE)
 })
 
 ### COLLAPSE MISSING -----------------------------------------------------------

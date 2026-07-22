@@ -1,7 +1,7 @@
 test_that("easy_view() propagates the centralised text font into the widget", {
   local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
-  view <- easy_view(head(mtcars))
+  view <- easy_view(head(mtcars), strip_color = "#fff")
 
   expect_true(any(grepl("PinnedAlpha", unlist(view), fixed = TRUE)))
 })

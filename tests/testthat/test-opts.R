@@ -7,7 +7,7 @@ test_that("set_opts(.assign = FALSE) returns the options with a custom .name", {
 })
 
 test_that("set_opts(.assign = FALSE) returns the options with the default .name", {
-  res <- set_opts(.assign = FALSE)
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_type(res, "list")
   expect_contains(names(res), c("parametric", "qt_stat", "font"))
@@ -47,7 +47,7 @@ test_that("set_opts(.assign = FALSE) returns the existing object when no overrid
 })
 
 test_that("set_opts() keeps font as a named alpha/digit list when both are equal", {
-  res <- set_opts(.assign = FALSE)
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
 
   expect_type(res$font, "list")
   expect_named(res$font, c("alpha", "digit"))
@@ -137,7 +137,7 @@ test_that("opts$vars stays resolvable after clear_vars between two formula evals
   assign(".vars_context", new.env(parent = emptyenv()), envir = gl)
   gl$.vars_context$current <- fake
 
-  res <- set_opts(.assign = FALSE)
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
   f1 <- res$vars$test[[1]]
   f2 <- res$vars$test[[2]]
 
