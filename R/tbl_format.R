@@ -11,7 +11,10 @@
 #' @param x A `gtsummary` table, typically built with
 #'   [gtsummary::tbl_summary()] or [gtsummary::tbl_regression()], optionally
 #'   pre-formatted with [gtsum_format()].
-#' @param title Optional table title, interpreted as markdown.
+#' @param title Optional table title, interpreted as markdown. On the Word
+#'   branch it becomes the `flextable` caption, which the Quarto `docx` pipeline
+#'   drops: caption a table rendered from Quarto through the chunk's `tbl-cap`
+#'   option, which serves both formats and carries the cross-references.
 #' @param note_global Optional character string added as a global table
 #'   footnote, alongside the automatic acronym definitions.
 #' @param note_pvalue Optional footnote attached to the p-value column.
@@ -292,7 +295,52 @@ tbl_format <- \(
     x <- modify_caption(x, title)
   }
 
-  theme_ft(as_flex_table(x), width = width, ...)
+  theme_ft(.ft_render(.ft_breaks(x)), width = width, ...)
+}
+
+.mark_clash <- "'big\\.mark' and 'decimal\\.mark'"
+
+.ft_render <- \(x) {
+  withCallingHandlers(
+    as_flex_table(x),
+    # flextable renders footnote symbols through its own `big.mark`, a comma
+    # that base R flags as ambiguous under a French `OutDec`
+    warning = \(w) {
+      if (str_detect(conditionMessage(w), .mark_clash)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+}
+
+.br <- "<br\\s*/?>"
+
+.bold_all <- "^\\*\\*[^*]*\\*\\*$"
+
+.line_break <- \(label) {
+  if_else(
+    str_detect(label, .bold_all),
+    # a header wrapped in one pair of markers loses its bold once split, so each
+    # line carries its own pair
+    str_replace_all(label, .br, "**\n**"),
+    str_replace_all(label, .br, "\n")
+  )
+}
+
+.ft_breaks <- \(x) {
+  x$table_styling$header <- mutate(
+    x$table_styling$header,
+    label = .line_break(label)
+  )
+
+  if (!is.null(x$table_styling$spanning_header)) {
+    x$table_styling$spanning_header <- mutate(
+      x$table_styling$spanning_header,
+      spanning_header = .line_break(spanning_header)
+    )
+  }
+
+  x
 }
 
 .px_per_in <- 96

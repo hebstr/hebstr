@@ -171,6 +171,9 @@
           .after = all_of(.n_type)
         )
     ) |>
+    # `tbl_uvregression()` registers a numeric formatter on its own `stat_n`,
+    # which aborts `as_flex_table()` once the column holds the glued text
+    modify_table_styling(columns = "stat_n", fmt_fun = as.character) |>
     modify_header(stat_n = glue("**{.label_n}**"))
 
   x

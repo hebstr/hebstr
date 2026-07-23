@@ -356,6 +356,62 @@ test_that("tbl_format(width = ) rejects a non-positive or non-scalar width", {
   )
 })
 
+test_that("tbl_format() renders a coefficient table to a flextable under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(suppressMessages(.make_uvreg_tbl())))
+
+  expect_s3_class(res, "flextable")
+  expect_contains(res$body$dataset$stat_n, "15/30")
+})
+
+test_that("tbl_format() renders the <br> of gtsummary headers as a line break under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()))
+  labels <- .ft_txt(res, part = "header")
+
+  expect_false(any(stringr::str_detect(labels, stringr::fixed("<br>"))))
+  expect_true(any(stringr::str_detect(labels, stringr::fixed("\n"))))
+  expect_false(any(stringr::str_detect(labels, stringr::fixed("**"))))
+})
+
+test_that("tbl_format() keeps the <br> of gtsummary headers on the gt branch", {
+  local_opts()
+  withr::local_options(hebstr.docx = NULL)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()))
+  labels <- res[["_boxhead"]]$column_label |> unlist()
+
+  expect_true(any(stringr::str_detect(labels, stringr::fixed("<br>"))))
+})
+
+test_that("tbl_format() renders a docx footnote symbol without the flextable big.mark warning", {
+  withr::local_options(hebstr.docx = TRUE, OutDec = ",")
+  local_opts()
+
+  expect_no_warning(
+    tbl_format(
+      gtsum_format(.make_summary_tbl()),
+      label_vargrp = "age",
+      note_vargrp = "vargrp note"
+    )
+  )
+})
+
+test_that("tbl_format() keeps the gtsummary row indentation under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()))
+  lead <- res$body$styles$pars$padding.left$data[, 1]
+  rows <- res$body$dataset$label
+
+  expect_gt(lead[rows == "m"], lead[rows == "sex"])
+})
+
 test_that("tbl_format() keeps note_global and the acronym note as separate footnotes", {
   local_opts()
 

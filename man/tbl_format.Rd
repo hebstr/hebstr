@@ -26,7 +26,10 @@ tbl_format(
 \code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}} or \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}}, optionally
 pre-formatted with \code{\link[=gtsum_format]{gtsum_format()}}.}
 
-\item{title}{Optional table title, interpreted as markdown.}
+\item{title}{Optional table title, interpreted as markdown. On the Word
+branch it becomes the \code{flextable} caption, which the Quarto \code{docx} pipeline
+drops: caption a table rendered from Quarto through the chunk's \code{tbl-cap}
+option, which serves both formats and carries the cross-references.}
 
 \item{note_global}{Optional character string added as a global table
 footnote, alongside the automatic acronym definitions.}

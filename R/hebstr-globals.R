@@ -38,6 +38,7 @@ utils::globalVariables(c(
   "reference_level",
   "reference_row",
   "row_type",
+  "spanning_header",
   "splits",
   "stat",
   "str",

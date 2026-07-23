@@ -99,6 +99,13 @@ Options and the variable classification cache now live in an internal package st
   The expression was captured without its environment and evaluated against the package namespace, whose scope chain ends at the global environment: a global variable resolved and a local one failed, reported as `rows` not evaluating to a logical vector rather than as an object not found.
 - `easy_out(export = FALSE)` returns without clearing the variable context cached by `use_vars()`, as its documented "return without writing anything" implies.
   Under `options(hebstr.docx = TRUE)`, where the export is skipped by default, every call silently invalidated that cache while doing nothing else.
+- `tbl_format()` renders the line break of a by-group header as a line break on the Word branch, where the `<br>` that `gtsum_format()` writes for the HTML branch used to print as literal text (`Total<br>(N=344)`).
+  Each line keeps its own pair of bold markers, `flextable` reading markdown only from a pair wrapping the whole header.
+- `tbl_format()` renders a univariate regression to Word instead of aborting on "non-numeric argument to binary operator".
+  `gtsum_format()` rewrites the `stat_n` column that `tbl_uvregression()` creates as glued text, leaving behind the numeric formatter registered on it, which `flextable` applied where `gt` ignored it.
+- `theme_ft()` keeps the row indentation of a `gtsummary` table, which `gtsummary` encodes as a left padding on the label column and the uniform horizontal padding of the theme flattened.
+  Levels are indented under their variable again on the Word branch.
+- `tbl_format()` no longer relays the "'big.mark' and 'decimal.mark' are both ','" warning that `flextable` triggers under a French locale when it numbers a footnote symbol.
 - `tbl_format()` renders `note_global` and the acronym definitions as two footnotes on the gt branch, as it already did on the Word branch, instead of running them together into one paragraph.
 - `str_na_mv()` agrees its closing noun in the singular ("une donnée manquante").
 

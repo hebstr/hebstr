@@ -289,8 +289,6 @@ theme_ft <- \(
     padding(
       padding.top = row_padding,
       padding.bottom = row_padding,
-      padding.left = 3,
-      padding.right = 3,
       part = "body"
     ) |>
     padding(
