@@ -401,6 +401,16 @@ test_that("tbl_format() renders a docx footnote symbol without the flextable big
   )
 })
 
+test_that("tbl_format() leaves the adjusted estimator out of a univariate footnote", {
+  local_opts()
+
+  res <- tbl_format(gtsum_format(suppressMessages(.make_uvreg_tbl())))
+  notes <- unlist(res[["_footnotes"]]$footnotes)
+
+  expect_match(notes, "odds ratio", all = FALSE)
+  expect_false(any(stringr::str_detect(notes, "adjusted")))
+})
+
 test_that("tbl_format() keeps the gtsummary row indentation under docx", {
   local_opts()
   withr::local_options(hebstr.docx = TRUE)

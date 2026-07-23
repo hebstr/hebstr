@@ -246,3 +246,22 @@ test_that("tbl_format() strips the native gtsummary abbreviations", {
     "Confidence Interval"
   )))
 })
+
+test_that("gtsum_format() localises the estimator definition on the decimal mark", {
+  local_opts()
+
+  df <- data.frame(y = seq_len(30) + rep(c(0, 2), 15), x = seq_len(30))
+  tbl <- gtsummary::tbl_regression(lm(y ~ x, data = df))
+
+  en <- withr::with_options(
+    list(OutDec = "."),
+    unlist(tbl_format(gtsum_format(tbl))[["_footnotes"]]$footnotes)
+  )
+  fr <- withr::with_options(
+    list(OutDec = ","),
+    unlist(tbl_format(gtsum_format(tbl))[["_footnotes"]]$footnotes)
+  )
+
+  expect_match(en, "regression coefficient", all = FALSE)
+  expect_match(fr, "coefficient de régression", all = FALSE)
+})

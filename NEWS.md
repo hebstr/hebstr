@@ -105,7 +105,10 @@ Options and the variable classification cache now live in an internal package st
   `gtsum_format()` rewrites the `stat_n` column that `tbl_uvregression()` creates as glued text, leaving behind the numeric formatter registered on it, which `flextable` applied where `gt` ignored it.
 - `theme_ft()` keeps the row indentation of a `gtsummary` table, which `gtsummary` encodes as a left padding on the label column and the uniform horizontal padding of the theme flattened.
   Levels are indented under their variable again on the Word branch.
+- `gtsum_format()` records the adjusted estimator definition for multivariable tables only, so the footnote of a univariate regression no longer defines an `aBeta` or `aOR` acronym the table never displays.
 - `tbl_format()` no longer relays the "'big.mark' and 'decimal.mark' are both ','" warning that `flextable` triggers under a French locale when it numbers a footnote symbol.
+- `gtsum_format()` localises the `beta` estimator definition on the decimal mark, like its `adj_label` companion, so a French table reads `aBeta : coefficient de régression ajusté` instead of mixing the French template with an English definition.
+  `or` and `hr` keep their English wording, the terms in use in French biomedical writing; override them through `estim_label` if needed.
 - `tbl_format()` renders `note_global` and the acronym definitions as two footnotes on the gt branch, as it already did on the Word branch, instead of running them together into one paragraph.
 - `str_na_mv()` agrees its closing noun in the singular ("une donnée manquante").
 

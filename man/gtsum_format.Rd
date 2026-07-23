@@ -71,7 +71,9 @@ Defaults to a bilingual template keyed on \code{getOption("OutDec")}.}
 (\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults.}
 
 \item{estim_label}{Named list overriding the default estimator definitions
-(\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults.}
+(\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults, whose \code{beta}
+entry is bilingual and keyed on \code{getOption("OutDec")}, like \code{adj_label}.
+A partial list overrides the named entries only.}
 
 \item{ci}{Confidence-interval specification (\code{label} and \code{data} pattern).
 Defaults to the \code{ci} option.}

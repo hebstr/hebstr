@@ -57,7 +57,11 @@
     list_modify(!!!.estim_acro)
 
   .lab <- list(
-    beta = "regression coefficient",
+    beta = if (getOption("OutDec") == ".") {
+      "regression coefficient"
+    } else {
+      "coefficient de r\u00e9gression"
+    },
     or = "odds ratio",
     hr = "hazard ratio"
   ) |>
@@ -108,7 +112,7 @@
       } else {
         glue("{acro}{.estim_sep}{label}")
       },
-      mv = if (str_detect(adj_acro, "\\s+") || .adj_acro == "") {
+      mv = if (!is_mvreg || str_detect(adj_acro, "\\s+") || .adj_acro == "") {
         NULL
       } else {
         glue("{adj_acro}{.estim_sep}{adj_label}")
@@ -315,7 +319,9 @@
 #' @param estim_acro Named list overriding the default estimator acronyms
 #'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults.
 #' @param estim_label Named list overriding the default estimator definitions
-#'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults.
+#'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults, whose `beta`
+#'   entry is bilingual and keyed on `getOption("OutDec")`, like `adj_label`.
+#'   A partial list overrides the named entries only.
 #' @param ci Confidence-interval specification (`label` and `data` pattern).
 #'   Defaults to the `ci` option.
 #' @param model_mv The fitted multivariable model, used to read factor
