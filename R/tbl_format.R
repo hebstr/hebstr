@@ -202,8 +202,10 @@ tbl_format <- \(
 
   ### FOOTNOTES ----------------------------------------------------------------
 
-  if (!is.null(note_global) || !is.null(.acro_str)) {
-    x <- tab_footnote(x, footnote = c(str_c(note_global), .acro_str))
+  notes <- c(str_c(note_global), .acro_str)
+
+  if (length(notes) > 0) {
+    x <- reduce(notes, tab_footnote, .init = x)
   }
 
   if (is_coef && !is.null(note_pvalue)) {

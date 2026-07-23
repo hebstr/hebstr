@@ -355,3 +355,29 @@ test_that("tbl_format(width = ) rejects a non-positive or non-scalar width", {
     "must be a single positive number"
   )
 })
+
+test_that("tbl_format() keeps note_global and the acronym note as separate footnotes", {
+  local_opts()
+
+  df <- data.frame(
+    grp = c(rep("a", 10), rep("b", 10)),
+    bmi = as.numeric(seq_len(20))
+  )
+  attr(df$bmi, "label") <- "BMI at baseline"
+  tbl <- suppressMessages(gtsummary::tbl_summary(df, by = grp, include = bmi))
+
+  res <- tbl_format(
+    gtsum_format(tbl),
+    note_global = "global note",
+    acro_list = list(BMI = "BMI: body mass index")
+  )
+
+  html <- gt::as_raw_html(res)
+
+  expect_length(
+    unlist(stringr::str_extract_all(html, 'class="gt_footnote"')),
+    2
+  )
+  expect_match(html, "global note", fixed = TRUE)
+  expect_match(html, "body mass index", fixed = TRUE)
+})
