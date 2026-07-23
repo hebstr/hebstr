@@ -602,7 +602,7 @@ test_that("svg_crop() rewrites the width and height attributes", {
 
   svg_crop(path)
 
-  header <- grep("<svg[ >]", readLines(path), value = TRUE)
+  header <- grepv("<svg[ >]", readLines(path))
   after <- .view_box(path)
 
   expect_match(header, sprintf("width='%.2fpt'", after[3]), fixed = TRUE)

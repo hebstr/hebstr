@@ -218,7 +218,7 @@
 .view_box <- \(path) {
   path |>
     readLines() |>
-    grep(pattern = "<svg[ >]", value = TRUE) |>
+    grepv(pattern = "<svg[ >]") |>
     stringr::str_extract("viewBox\\s*=\\s*'([^']*)'", group = 1) |>
     strsplit(" ") |>
     unlist() |>

@@ -17,7 +17,7 @@ tbl_format(
   collapse_missing = TRUE,
   missing_size = 11,
   width = 700,
-  page_width = 6.5,
+  page_width = check_opts(page_width),
   ...
 )
 }
@@ -67,9 +67,12 @@ is converted to the fraction of \code{page_width} that
 \code{\link[flextable:set_table_properties]{flextable::set_table_properties()}} expects, capped at \code{1}. Set to \code{NULL} to
 let the table keep its natural width.}
 
-\item{page_width}{Usable page width, in inches, used to convert \code{width} on
-the Word branch. Defaults to \code{6.5}, the width of a US Letter page with
-one-inch margins.}
+\item{page_width}{Usable text width, in inches, used to convert \code{width} on
+the Word branch. Defaults to the \code{page_width} option (\code{6.5}, a US Letter
+page with one-inch margins). It is a property of the rendered document
+rather than of the table: set it once through \code{\link[=set_opts]{set_opts()}} to match the
+\code{reference-doc} in use, deriving it from that template with
+\code{\link[=docx_page_width]{docx_page_width()}}.}
 
 \item{...}{Passed on to \code{\link[=theme_gt]{theme_gt()}}, or to \code{\link[=theme_ft]{theme_ft()}} under
 \code{options(hebstr.docx = TRUE)}. Set the table width through \code{width} rather

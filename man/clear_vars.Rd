@@ -24,6 +24,7 @@ clear_vars()
 
 Other configuration:
 \code{\link[=check_opts]{check_opts()}},
+\code{\link[=docx_page_width]{docx_page_width()}},
 \code{\link[=get_opts]{get_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=set_opts]{set_opts()}},

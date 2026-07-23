@@ -41,9 +41,12 @@
 #'   is converted to the fraction of `page_width` that
 #'   [flextable::set_table_properties()] expects, capped at `1`. Set to `NULL` to
 #'   let the table keep its natural width.
-#' @param page_width Usable page width, in inches, used to convert `width` on
-#'   the Word branch. Defaults to `6.5`, the width of a US Letter page with
-#'   one-inch margins.
+#' @param page_width Usable text width, in inches, used to convert `width` on
+#'   the Word branch. Defaults to the `page_width` option (`6.5`, a US Letter
+#'   page with one-inch margins). It is a property of the rendered document
+#'   rather than of the table: set it once through [set_opts()] to match the
+#'   `reference-doc` in use, deriving it from that template with
+#'   [docx_page_width()].
 #' @param ... Passed on to [theme_gt()], or to [theme_ft()] under
 #'   `options(hebstr.docx = TRUE)`. Set the table width through `width` rather
 #'   than here: the two themes take it in different units.
@@ -72,7 +75,7 @@ tbl_format <- \(
   collapse_missing = TRUE,
   missing_size = 11,
   width = 700,
-  page_width = 6.5,
+  page_width = check_opts(page_width),
   ...
 ) {
   if (!inherits(x, "gtsummary")) {

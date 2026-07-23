@@ -106,7 +106,7 @@ clear_vars <- \() {
 #'
 #' Assembles the centralised options list consumed across the package: statistic
 #' templates, table labels, separators, confidence-interval formatting, acronym
-#' dictionary, fonts, and colours. Labels and formats follow the locale set by
+#' dictionary, page width, fonts, and colours. Labels and formats follow the locale set by
 #' [lang_fr()] (comma decimal mark selects French wording). The result is either
 #' stored under a name in the package's internal store (the default), from where
 #' [check_opts()] and [get_opts()] read it, or returned for inspection. Keys can
@@ -229,6 +229,7 @@ set_opts <- \(
       all_categorical() ~ c(0, .label$p)
     ),
     pvalue = list(format = label_style_pvalue(digits = 2), seuil = 0.05),
+    page_width = 6.5,
     font = list(alpha = "sans", digit = "sans"),
     color = list(
       base = "#999",
@@ -426,4 +427,58 @@ get_opts <- \(.name = "opts") {
   }
 
   get(.name, envir = .hebstr, inherits = FALSE)
+}
+
+
+#' Measure the usable text width of a Word template
+#'
+#' Reads the section geometry of a `.docx` or `.dotx` file and returns the width
+#' available to its body text, in inches: the page width less its left and right
+#' margins. Landscape templates are measured on their long edge.
+#'
+#' The Word branch of [tbl_format()] converts its pixel `width` into the
+#' fraction of that text width which [flextable::set_table_properties()]
+#' expects, reading the reference from the `page_width` option. Deriving the
+#' option from the template keeps the two in step, where a copied number drifts
+#' the day the template's margins change:
+#'
+#' ```r
+#' set_opts(page_width = docx_page_width(here::here("_extensions/org/ext/template.dotx")))
+#' ```
+#'
+#' A document mixing sections of different geometries is reported on its first
+#' one.
+#'
+#' @param path Path to the `.docx` or `.dotx` template, typically the
+#'   `reference-doc` of the Word format in use.
+#'
+#' @returns The usable text width, in inches.
+#'
+#' @export
+#'
+#' @family configuration
+#'
+#' @seealso [set_opts()], [tbl_format()]
+#'
+#' @examples
+#' # the default Word template of the officer package
+#' docx_page_width(system.file("template/template.docx", package = "officer"))
+#'
+docx_page_width <- \(path) {
+  if (!file.exists(path)) {
+    cli_abort(
+      c(
+        "{.arg path} does not exist: {.file {path}}.",
+        i = "Pass the {.field reference-doc} of the Word format in use."
+      )
+    )
+  }
+
+  geometry <- docx_dim(read_docx(path))
+
+  unname(
+    geometry$page[["width"]] -
+      geometry$margins[["left"]] -
+      geometry$margins[["right"]]
+  )
 }

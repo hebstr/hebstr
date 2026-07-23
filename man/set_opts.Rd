@@ -40,7 +40,7 @@ under \code{.name} in the package's internal store.
 \description{
 Assembles the centralised options list consumed across the package: statistic
 templates, table labels, separators, confidence-interval formatting, acronym
-dictionary, fonts, and colours. Labels and formats follow the locale set by
+dictionary, page width, fonts, and colours. Labels and formats follow the locale set by
 \code{\link[=lang_fr]{lang_fr()}} (comma decimal mark selects French wording). The result is either
 stored under a name in the package's internal store (the default), from where
 \code{\link[=check_opts]{check_opts()}} and \code{\link[=get_opts]{get_opts()}} read it, or returned for inspection. Keys can
@@ -57,6 +57,7 @@ opts$sep$ext
 Other configuration:
 \code{\link[=check_opts]{check_opts()}},
 \code{\link[=clear_vars]{clear_vars()}},
+\code{\link[=docx_page_width]{docx_page_width()}},
 \code{\link[=get_opts]{get_opts()}},
 \code{\link[=lang_fr]{lang_fr()}},
 \code{\link[=use_vars]{use_vars()}}

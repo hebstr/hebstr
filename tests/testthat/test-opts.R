@@ -312,3 +312,47 @@ test_that("lang_fr(reset = TRUE) calls reset_gtsummary_theme", {
 
   expect_true(reset_called)
 })
+
+test_that("set_opts() carries a page_width in inches", {
+  res <- set_opts(.assign = FALSE, .default_font = "sans")
+
+  expect_equal(res$page_width, 6.5)
+})
+
+test_that("docx_page_width() measures the usable text width of a template", {
+  path <- withr::local_tempfile(fileext = ".docx")
+
+  officer::read_docx() |>
+    officer::body_set_default_section(
+      officer::prop_section(
+        page_size = officer::page_size(width = 8.5, height = 11),
+        page_margins = officer::page_mar(left = 1, right = 1)
+      )
+    ) |>
+    print(target = path)
+
+  expect_equal(docx_page_width(path), 6.5)
+})
+
+test_that("docx_page_width() measures a landscape template on its long edge", {
+  path <- withr::local_tempfile(fileext = ".docx")
+
+  officer::read_docx() |>
+    officer::body_set_default_section(
+      officer::prop_section(
+        page_size = officer::page_size(
+          width = 8.5,
+          height = 11,
+          orient = "landscape"
+        ),
+        page_margins = officer::page_mar(left = 1, right = 1)
+      )
+    ) |>
+    print(target = path)
+
+  expect_equal(docx_page_width(path), 9)
+})
+
+test_that("docx_page_width() aborts on a path that does not exist", {
+  expect_error(docx_page_width("no-such-template.dotx"), "does not exist")
+})

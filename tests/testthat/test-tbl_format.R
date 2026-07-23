@@ -447,3 +447,25 @@ test_that("tbl_format() keeps note_global and the acronym note as separate footn
   expect_match(html, "global note", fixed = TRUE)
   expect_match(html, "body mass index", fixed = TRUE)
 })
+
+test_that("tbl_format() reads page_width from the options", {
+  withr::local_options(hebstr.docx = TRUE)
+  local_opts(page_width = 8)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), width = 500)
+
+  expect_equal(res$properties$width, 500 / (8 * 96))
+})
+
+test_that("tbl_format(page_width = ) overrides the option", {
+  withr::local_options(hebstr.docx = TRUE)
+  local_opts(page_width = 8)
+
+  res <- tbl_format(
+    gtsum_format(.make_summary_tbl()),
+    width = 500,
+    page_width = 6.5
+  )
+
+  expect_equal(res$properties$width, 500 / (6.5 * 96))
+})
