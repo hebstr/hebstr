@@ -424,7 +424,7 @@ str_na_mv <- \(data) {
     )
 
   glue(
-    "{n_total} observations, {na$obs} contenant a minima une donn\u00e9es manquante"
+    "{n_total} observations, {na$obs} contenant a minima une donn\u00e9e manquante"
   )
 }
 

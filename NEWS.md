@@ -99,6 +99,7 @@ Options and the variable classification cache now live in an internal package st
   The expression was captured without its environment and evaluated against the package namespace, whose scope chain ends at the global environment: a global variable resolved and a local one failed, reported as `rows` not evaluating to a logical vector rather than as an object not found.
 - `easy_out(export = FALSE)` returns without clearing the variable context cached by `use_vars()`, as its documented "return without writing anything" implies.
   Under `options(hebstr.docx = TRUE)`, where the export is skipped by default, every call silently invalidated that cache while doing nothing else.
+- `str_na_mv()` agrees its closing noun in the singular ("une donnée manquante").
 
 ## Minor improvements
 
