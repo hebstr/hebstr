@@ -28,6 +28,16 @@ local_hebstr <- \(name, value, .env = parent.frame()) {
   invisible(NULL)
 }
 
+# A server handle is a resource, not a value: once stopped there is nothing to
+# put back, so the invariant is "no server before, no server after" rather than
+# the restore that .local_binding() gives the other .hebstr bindings.
+local_server <- \(.env = parent.frame()) {
+  browse_stop()
+  withr::defer(browse_stop(), envir = .env)
+
+  invisible(NULL)
+}
+
 local_opts <- \(..., .env = parent.frame()) {
   local_hebstr("opts", .env = .env)
   local_vars_context(.env = .env)

@@ -314,6 +314,8 @@ test_that("easy_out() suffix with custom separator", {
 })
 
 test_that("easy_out() calls browseURL when quiet is FALSE", {
+  withr::local_options(easy_out.serve = FALSE)
+
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
@@ -765,4 +767,222 @@ test_that("easy_out() holds the session guard for a workbook", {
 
   easy_out(wb, filename = "forced", dir = tmp, quiet = TRUE, export = TRUE)
   expect_true(fs::file_exists(fs::path(tmp, "forced", ext = "xlsx")))
+})
+
+test_that("browse_url() hands back the file path outside a remote session", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  target <- fs::path(tmp, "report", ext = "html")
+
+  withr::local_options(easy_out.serve = FALSE)
+
+  expect_identical(browse_url(target, tmp), target)
+  expect_null(.hebstr$.server)
+})
+
+test_that("browse_url() serves the output directory in a remote session", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  target <- fs::path(tmp, "report", ext = "html")
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  expect_match(
+    browse_url(target, tmp),
+    "^http://localhost:[0-9]+/report\\.html$"
+  )
+  expect_identical(.hebstr$.server$dir, fs::path_abs(tmp))
+})
+
+test_that("browse_url() percent-encodes the file name", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  target <- fs::path(tmp, "my report", ext = "html")
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  expect_match(browse_url(target, tmp), "/my%20report\\.html$")
+})
+
+test_that("browse_url() points at a URL the browser can fetch", {
+  skip_if_not(capabilities("libcurl"))
+
+  local_server()
+  tmp <- withr::local_tempdir()
+  target <- fs::path(tmp, "report", ext = "html")
+  writeLines("<p>served</p>", target)
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  url <- browse_url(target, tmp)
+
+  expect_match(curlGetHeaders(url)[1], "200 OK")
+  expect_identical(readLines(url, warn = FALSE), "<p>served</p>")
+})
+
+test_that("browse_url() reuses a single server across calls", {
+  local_server()
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  first <- browse_url(fs::path(tmp, "a", ext = "html"), tmp)
+  handle <- .hebstr$.server$handle
+  second <- browse_url(fs::path(tmp, "b", ext = "html"), tmp)
+
+  expect_identical(.hebstr$.server$handle, handle)
+  expect_identical(
+    sub("/[^/]+$", "", first),
+    sub("/[^/]+$", "", second)
+  )
+})
+
+test_that("browse_url() restarts the server when the directory changes", {
+  local_server()
+  first_dir <- withr::local_tempdir()
+  second_dir <- withr::local_tempdir()
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  browse_url(fs::path(first_dir, "a", ext = "html"), first_dir)
+  handle <- .hebstr$.server$handle
+
+  browse_url(fs::path(second_dir, "b", ext = "html"), second_dir)
+
+  expect_false(identical(.hebstr$.server$handle, handle))
+  expect_false(handle$isRunning())
+  expect_identical(.hebstr$.server$dir, fs::path_abs(second_dir))
+})
+
+test_that("browse_url() falls back to the file path when the server cannot start", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  target <- fs::path(tmp, "report", ext = "html")
+
+  blocker <- suppressMessages(httpuv::runStaticServer(
+    dir = tmp,
+    host = "127.0.0.1",
+    port = NULL,
+    background = TRUE,
+    browse = FALSE
+  ))
+  withr::defer(httpuv::stopServer(blocker))
+
+  withr::local_options(
+    easy_out.serve = TRUE,
+    easy_out.port = blocker$getPort()
+  )
+
+  expect_identical(suppressMessages(browse_url(target, tmp)), target)
+  expect_null(.hebstr$.server)
+})
+
+test_that("browse_remote() reads SSH_CONNECTION when the option is unset", {
+  withr::local_options(easy_out.serve = NULL)
+
+  withr::with_envvar(
+    c(SSH_CONNECTION = "10.0.0.1 54321 10.0.0.2 22"),
+    expect_true(browse_remote())
+  )
+
+  withr::with_envvar(
+    c(SSH_CONNECTION = ""),
+    expect_false(browse_remote())
+  )
+})
+
+test_that("browse_remote() rejects a non-boolean easy_out.serve", {
+  withr::local_envvar(SSH_CONNECTION = "")
+
+  withr::local_options(easy_out.serve = "yes")
+  expect_error(
+    browse_remote(),
+    class = "rlang_error",
+    regexp = "easy_out.serve"
+  )
+
+  withr::local_options(easy_out.serve = NA)
+  expect_error(
+    browse_remote(),
+    class = "rlang_error",
+    regexp = "easy_out.serve"
+  )
+})
+
+test_that("browse_remote() lets the option override the environment", {
+  withr::local_envvar(SSH_CONNECTION = "10.0.0.1 54321 10.0.0.2 22")
+
+  withr::local_options(easy_out.serve = FALSE)
+  expect_false(browse_remote())
+})
+
+test_that("easy_out() opens a served URL in a remote session", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  wb <- get_xlsx(list(a = head(iris, 3)))
+
+  opened <- NULL
+  local_mocked_bindings(
+    browseURL = \(url, ...) {
+      opened <<- url
+      invisible(NULL)
+    }
+  )
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  easy_out(wb, filename = "book", dir = tmp, quiet = FALSE)
+
+  expect_match(opened, "^http://localhost:[0-9]+/book\\.xlsx$")
+})
+
+test_that("easy_out() opens the file path outside a remote session", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  wb <- get_xlsx(list(a = head(iris, 3)))
+
+  opened <- NULL
+  local_mocked_bindings(
+    browseURL = \(url, ...) {
+      opened <<- url
+      invisible(NULL)
+    }
+  )
+
+  withr::local_options(easy_out.serve = FALSE)
+
+  easy_out(wb, filename = "book", dir = tmp, quiet = FALSE)
+
+  expect_identical(opened, fs::path(tmp, "book", ext = "xlsx"))
+  expect_null(.hebstr$.server)
+})
+
+test_that("local_server() clears a server left by an earlier call", {
+  withr::defer(browse_stop())
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  browse_url(fs::path(tmp, "a", ext = "html"), tmp)
+  expect_false(is.null(.hebstr$.server))
+
+  local_server()
+
+  expect_null(.hebstr$.server)
+})
+
+test_that("local_server() leaves no handle behind on exit", {
+  withr::defer(browse_stop())
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  browse_url(fs::path(tmp, "a", ext = "html"), tmp)
+
+  local({
+    local_server()
+    browse_url(fs::path(tmp, "b", ext = "html"), tmp)
+  })
+
+  expect_null(.hebstr$.server)
 })

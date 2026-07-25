@@ -39,6 +39,18 @@
 #'   The guard is read from the session option alone, so a workbook exported
 #'   during a Word run needs an explicit `export = TRUE`.
 #'
+#' @details
+#' In a remote session, the exported file lives on the server while the
+#' browser runs on the local machine, so a file path cannot be opened.
+#' `easy_out()` then serves `dir` over HTTP on the loopback interface and
+#' opens `http://localhost:<port>/<file>`, which the IDE forwards.
+#' The choice is read from `getOption("easy_out.serve")`: `NULL` (the
+#' default) detects a remote session through `SSH_CONNECTION`, while `TRUE`
+#' or `FALSE` forces the HTTP or the file-path route. The server is started
+#' once per session and per `dir`; its port comes from
+#' `getOption("easy_out.port")`, a free one when unset. Should it fail to
+#' start, the file path is opened instead.
+#'
 #' @return `NULL` (invisibly). Called for its side effects.
 #' @export
 #'
@@ -130,7 +142,7 @@ easy_out <- \(
     cli_rule()
 
     if (!quiet) {
-      browseURL(browse)
+      browseURL(browse_url(browse, dir))
 
       test <- format_inline(
         "{.arg quiet = TRUE} or {.code options(easy_out.quiet = TRUE)}"
@@ -323,6 +335,99 @@ easy_out_map <- \(
   }
 
   iwalk(x, map_fun)
+}
+
+browse_url <- \(browse, dir) {
+  if (!browse_remote()) {
+    return(browse)
+  }
+
+  port <- browse_server(dir)
+
+  if (is.null(port)) {
+    return(browse)
+  }
+
+  rel <- fs::path_rel(fs::path_abs(browse), start = fs::path_abs(dir))
+
+  sprintf("http://localhost:%s/%s", port, URLencode(rel))
+}
+
+browse_remote <- \() {
+  serve <- getOption("easy_out.serve", default = NULL)
+
+  if (!is.null(serve) && !is_bool(serve)) {
+    cli_abort(
+      "{.code easy_out.serve} must be {.code TRUE}, {.code FALSE}, or {.code NULL}."
+    )
+  }
+
+  if (is_bool(serve)) {
+    return(serve)
+  }
+
+  nzchar(Sys.getenv("SSH_CONNECTION"))
+}
+
+browse_server <- \(dir) {
+  dir <- fs::path_abs(dir)
+  server <- .hebstr$.server
+  alive <- !is.null(server) && server$handle$isRunning()
+
+  if (alive && identical(server$dir, dir)) {
+    return(server$handle$getPort())
+  }
+
+  if (alive) {
+    httpuv::stopServer(server$handle)
+  }
+
+  .hebstr$.server <- NULL
+
+  handle <- tryCatch(
+    suppressMessages(httpuv::runStaticServer(
+      dir = dir,
+      host = "127.0.0.1",
+      port = getOption("easy_out.port", default = NULL),
+      background = TRUE,
+      browse = FALSE
+    )),
+    error = \(cnd) {
+      cli_inform(
+        message = c(
+          "!" = "Could not serve {.path {dir}} over HTTP, opening the file path instead.",
+          "i" = conditionMessage(cnd),
+          "i" = cli::col_grey(
+            "A browser running outside this machine cannot reach a file path."
+          )
+        ),
+        .frequency = "once",
+        .frequency_id = "easy_out_serve_fallback"
+      )
+
+      NULL
+    }
+  )
+
+  if (is.null(handle)) {
+    return(NULL)
+  }
+
+  .hebstr$.server <- list(dir = dir, handle = handle)
+
+  handle$getPort()
+}
+
+browse_stop <- \() {
+  server <- .hebstr$.server
+
+  if (!is.null(server) && server$handle$isRunning()) {
+    httpuv::stopServer(server$handle)
+  }
+
+  .hebstr$.server <- NULL
+
+  invisible(NULL)
 }
 
 svg_to_png <- \(to_svg, to_png, px, crop = FALSE) {

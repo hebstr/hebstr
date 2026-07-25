@@ -61,6 +61,11 @@ Options and the variable classification cache now live in an internal package st
   Grob positions are relative to the whole page, so a flowchart covering a sub-rectangle leaves an empty band that no `width`/`height` value removes, both being scaled by the same amount.
   The trim rewrites the SVG `width`, `height`, and `viewBox` on the measured bounding box, a lossless vector operation that leaves text sizes, boxes, and internal spacing untouched; `width` and `height` therefore become a canvas budget rather than the size of the exported file.
   Plots are left alone, their margins coming from the theme.
+- `easy_out()` opens its output in the local browser from a remote session.
+  The exported file lives on the server while the browser runs on the local machine, so `browseURL()` on a file path could not reach it; the output directory is now served over HTTP on the loopback interface and the URL `http://localhost:<port>/<file>` is opened instead, which the IDE forwards.
+  The route is read from `getOption("easy_out.serve")`: `NULL` (the default) detects a remote session through `SSH_CONNECTION`, `TRUE` or `FALSE` force the HTTP or the file-path route, leaving a local session on its former behaviour, and any other value aborts.
+  One server is started per session and per `dir`, on a free port unless `getOption("easy_out.port")` pins one; should it fail to start, the file path is opened as before.
+  The server is released when the namespace is unloaded, so reloading the package does not strand the port.
 - `col_missing()` folds the automatic `gtsummary` missing-value rows into a single `dm` column on the label row, joining the per-group counts with `/`, then drops the missing rows.
   It is idempotent and returns the table unchanged when there is nothing to collapse, so it composes safely with the `tbl_format(collapse_missing = )` switch.
   The column header defaults to the language-dependent `labs$col_missing` option (`MD` in English, `DM` in French) and so requires `set_opts()`; `acro()` carries the matching entry, so `tbl_format()` expands the acronym in a footnote on its own.

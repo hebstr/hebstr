@@ -268,11 +268,20 @@
 #' @importFrom utils browseURL
 #' @importFrom utils install.packages
 #' @importFrom utils tail
+#' @importFrom utils URLencode
 #' @importFrom webshot2 webshot
 #' @importFrom withr local_options
 ## usethis namespace: end
 NULL
 
 # Internal package store: holds mutable state (options object, variable
-# classification cache) that must never leak into the user's workspace.
+# classification cache, output HTTP server) that must never leak into the
+# user's workspace.
 .hebstr <- new.env(parent = emptyenv())
+
+# The store holds a listening socket, which survives the namespace it was
+# opened from: without this, unloading or reloading the package strands the
+# port with no handle left to close it.
+.onUnload <- \(libpath) {
+  browse_stop()
+}

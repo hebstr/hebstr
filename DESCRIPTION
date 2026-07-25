@@ -36,6 +36,7 @@ Imports:
     gt,
     gtsummary,
     here,
+    httpuv (>= 1.6.12),
     labelled,
     lifecycle,
     lubridate,

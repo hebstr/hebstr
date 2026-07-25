@@ -73,6 +73,18 @@ Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 HTML depending on the object type), or an \code{openxlsx2} workbook to XLSX.
 Opens the result in a browser unless \code{quiet = TRUE}.
 }
+\details{
+In a remote session, the exported file lives on the server while the
+browser runs on the local machine, so a file path cannot be opened.
+\code{easy_out()} then serves \code{dir} over HTTP on the loopback interface and
+opens \verb{http://localhost:<port>/<file>}, which the IDE forwards.
+The choice is read from \code{getOption("easy_out.serve")}: \code{NULL} (the
+default) detects a remote session through \code{SSH_CONNECTION}, while \code{TRUE}
+or \code{FALSE} forces the HTTP or the file-path route. The server is started
+once per session and per \code{dir}; its port comes from
+\code{getOption("easy_out.port")}, a free one when unset. Should it fail to
+start, the file path is opened instead.
+}
 \examples{
 \dontrun{
 easy_out(my_plot)
