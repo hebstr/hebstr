@@ -64,7 +64,7 @@ Options and the variable classification cache now live in an internal package st
 - `easy_out()` opens its output in the local browser from a remote session.
   The exported file lives on the server while the browser runs on the local machine, so `browseURL()` on a file path could not reach it; the output directory is now served over HTTP on the loopback interface and the URL `http://localhost:<port>/<file>` is opened instead, which the IDE forwards.
   The route is read from `getOption("easy_out.serve")`: `NULL` (the default) detects a remote session through `SSH_CONNECTION`, `TRUE` or `FALSE` force the HTTP or the file-path route, leaving a local session on its former behaviour, and any other value aborts.
-  One server is started per session and per `dir`, on a free port unless `getOption("easy_out.port")` pins one; should it fail to start, the file path is opened as before.
+  One server is started per session, restarted whenever `dir` or the requested port changes, on a free port unless `getOption("easy_out.port")` pins one; should it fail to start, the file path is opened as before.
   The server is released when the namespace is unloaded, so reloading the package does not strand the port.
 - `col_missing()` folds the automatic `gtsummary` missing-value rows into a single `dm` column on the label row, joining the per-group counts with `/`, then drops the missing rows.
   It is idempotent and returns the table unchanged when there is nothing to collapse, so it composes safely with the `tbl_format(collapse_missing = )` switch.
@@ -74,6 +74,18 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `easy_out(width = )` overrides the width a table carries from `tbl_format()`, applying it to the table and to the capture viewport alike.
+  The argument was defaulted to `700` before the object's own `table.width` was read, which destroyed the "no value supplied" signal and made every explicit `width` inert on the standard pipeline, `tbl_format()` always baking a width in.
+  Left `NULL`, a table declaring its own width still keeps it.
+- `easy_out()` restarts its HTTP server when `getOption("easy_out.port")` changes, the singleton having been keyed on the output directory alone.
+  A port set after the first export was ignored for the rest of the session, which is the value Positron's port forwarding needs and no public verb could reset.
+- `easy_out()` percent-encodes the reserved characters of the served URL, path segment by path segment.
+  A file whose name held a `#` or a `?` produced a URL the browser truncated at the fragment or the query, so a remote session opened a 404 on a file that was on disk; the other reserved characters (`&`, `+`, `;`) reached the server unescaped.
+- `easy_out()` points a rejected `flextable` at `export = FALSE` when `hebstr.docx` is unset, rather than at the `export` default, which is `TRUE` in that state and reproduces the same error.
+- `easy_out()` closes the SVG device when a grid grob fails to draw.
+  The device was closed on the success path alone, so an error raised by `grid::grid.draw()` (a malformed `gpar`, an undefined viewport in a `boxGrob()` tree) left it current for the rest of the session and every later plot went silently into the half-written SVG.
+- `svg_ink_box()` lets the rasterization error through instead of masking it.
+  Its exit handler deleted a temporary file that `fs::file_temp()` never creates, so a failure before the raster was written surfaced as `[ENOENT] Failed to remove ...` in place of the real diagnostic.
 - `tbl_format()` and `col_missing()` detect the missing rows with `%in%`, so a table whose body carries `NA` row types (for example the header row inserted by `add_label()`) no longer aborts with "missing value where TRUE/FALSE needed" when it holds no missing rows, as with `gtsummary::tbl_summary(missing = "no")`.
 - `get_xlsx()` validates the sheet names with `rlang::is_named()`, so a list carrying an `NA` name raises the "fully named list" error instead of aborting on "missing value where TRUE/FALSE needed".
 - `get_xlsx()` validates the `color` names the same way, so an unnamed or partially named list raises the "fully named list" error instead of being silently dropped by the per-sheet column filter.
@@ -119,6 +131,8 @@ Options and the variable classification cache now live in an internal package st
 
 ## Minor improvements
 
+- `easy_out(crop = TRUE)` finds the modal background of the raster through `tabulate()` rather than `table()`, which coerced every pixel to character.
+  About 35 times faster on the ink-box measurement, roughly eight tenths of a second off every cropped grob export.
 - `docx_page_width()` reads the section geometry of a `.docx` or `.dotx` template and returns the width its body text can use, in inches, landscape included.
   Feeding it to `set_opts(page_width = )` derives the reference from the `reference-doc` in use instead of copying a number that drifts the day its margins change.
 - `set_opts()` carries a `page_width` key, in inches, which `tbl_format(page_width = )` now defaults to.

@@ -12,10 +12,20 @@ test_that("easy_out() points at hebstr.docx when handed a flextable", {
   )
 })
 
+test_that("easy_out() names export = FALSE when hebstr.docx is unset", {
+  expect_error(
+    easy_out(flextable::flextable(head(mtcars)), quiet = TRUE),
+    "export = FALSE",
+    fixed = TRUE
+  )
+})
+
 test_that("easy_out() rejects a non-boolean export", {
   expect_error(
     easy_out(mtcars, export = "yes", quiet = TRUE),
-    class = "rlang_error"
+    class = "rlang_error",
+    regexp = "`export` must be",
+    fixed = TRUE
   )
 })
 
@@ -71,6 +81,20 @@ test_that("easy_out() names hebstr.docx and export when a flextable export is fo
   )
 })
 
+test_that("easy_out() names the export default under a Word run", {
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_error(
+    easy_out(
+      flextable::flextable(head(mtcars)),
+      quiet = TRUE,
+      export = TRUE
+    ),
+    "leave `export` at its `hebstr.docx` default",
+    fixed = TRUE
+  )
+})
+
 test_that("easy_out.export option overrides the hebstr.docx default", {
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
@@ -122,6 +146,30 @@ test_that("easy_out() accepts a ggplot and creates files", {
   )
 
   expect_true(write_called)
+})
+
+test_that("easy_out() routes a ggmatrix through the plot branch", {
+  skip_if_not_installed("GGally")
+
+  tmp <- withr::local_tempdir()
+  m <- GGally::ggpairs(mtcars[, c("mpg", "hp")])
+
+  captured_plot <- NULL
+  local_mocked_bindings(
+    ggsave = \(filename, plot, ...) {
+      captured_plot <<- plot
+      writeLines("<svg ></svg>", filename)
+    },
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  expect_no_error(
+    easy_out(m, filename = "pairs", dir = tmp, quiet = TRUE)
+  )
+
+  expect_s3_class(captured_plot, "ggmatrix")
 })
 
 test_that("easy_out() builds filename with suffix", {
@@ -216,7 +264,7 @@ test_that("easy_out() applies default width to gt when no table_width is set", {
     dplyr::filter(parameter == "table_width") |>
     dplyr::pull(value) |>
     unlist()
-  expect_match(applied_width, "700")
+  expect_identical(applied_width, "700px")
 })
 
 test_that("easy_out() uses user-supplied width when gt has no table_width", {
@@ -256,6 +304,36 @@ test_that("easy_out() uses gt table_width when set", {
   easy_out(gt_obj, filename = "test_w", dir = tmp, quiet = TRUE)
 
   expect_equal(captured_vwidth, 400 * 1.1)
+})
+
+test_that("easy_out() lets an explicit width override the gt table_width", {
+  tmp <- withr::local_tempdir()
+  gt_obj <- gt::gt(head(mtcars, 3)) |>
+    gt::tab_options(table.width = gt::px(400))
+
+  captured_vwidth <- NULL
+  captured_gt <- NULL
+  local_mocked_bindings(
+    gtsave = \(data, filename, ...) {
+      captured_gt <<- data
+      writeLines("<html></html>", filename)
+    },
+    webshot = \(url, file, vwidth, ...) {
+      captured_vwidth <<- vwidth
+      invisible(NULL)
+    },
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(gt_obj, filename = "test_w", dir = tmp, width = 900, quiet = TRUE)
+
+  expect_equal(captured_vwidth, 900 * 1.1)
+
+  applied_width <- captured_gt[["_options"]] |>
+    dplyr::filter(parameter == "table_width") |>
+    dplyr::pull(value) |>
+    unlist()
+  expect_identical(applied_width, "900px")
 })
 
 test_that("easy_out() ignores a percentage table_width and falls back to default px", {
@@ -334,6 +412,29 @@ test_that("easy_out() calls browseURL when quiet is FALSE", {
   easy_out(p, filename = "test_browse", dir = tmp, quiet = FALSE)
 
   expect_true(browse_called)
+})
+
+test_that("easy_out() holds browseURL back when quiet is TRUE", {
+  withr::local_options(easy_out.serve = FALSE)
+
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  browse_called <- FALSE
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) {
+      browse_called <<- TRUE
+      invisible(NULL)
+    }
+  )
+
+  easy_out(p, filename = "test_quiet", dir = tmp, quiet = TRUE)
+
+  expect_false(browse_called)
 })
 
 test_that("easy_out() accepts a gtsummary object and calls as_gt", {
@@ -465,6 +566,19 @@ test_that("easy_out() builds grob filename with suffix", {
   expect_true(fs::file_exists(fs::path(tmp, "flow_v2", ext = "svg")))
 })
 
+test_that("easy_out() closes the SVG device when the grob fails to draw", {
+  tmp <- withr::local_tempdir()
+  g <- grid::rectGrob(gp = grid::gpar(fill = "not_a_colour"))
+
+  before <- grDevices::dev.cur()
+
+  expect_error(
+    easy_out(g, filename = "boom", dir = tmp, crop = FALSE, quiet = TRUE)
+  )
+
+  expect_identical(grDevices::dev.cur(), before)
+})
+
 test_that("easy_out_map() rejects an unnamed list", {
   plots <- list(
     ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
@@ -540,8 +654,18 @@ test_that("easy_out_map() forwards ... to easy_out()", {
 test_that("easy_out() rejects a non-boolean crop", {
   expect_error(
     easy_out(grid::rectGrob(), crop = "yes", quiet = TRUE),
-    class = "rlang_error"
+    class = "rlang_error",
+    regexp = "`crop` must be",
+    fixed = TRUE
   )
+})
+
+test_that("svg_ink_box() lets the rasterization error through", {
+  path <- .make_svg(grid::rectGrob())
+
+  local_mocked_bindings(image_read_svg = \(...) cli_abort("rsvg failed"))
+
+  expect_error(svg_ink_box(path), "rsvg failed")
 })
 
 test_that("svg_crop() trims the canvas to the drawing", {
@@ -804,6 +928,16 @@ test_that("browse_url() percent-encodes the file name", {
   expect_match(browse_url(target, tmp), "/my%20report\\.html$")
 })
 
+test_that("browse_url() percent-encodes the reserved characters", {
+  local_server()
+  tmp <- withr::local_tempdir()
+  target <- fs::path(tmp, "a#b&c", ext = "html")
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  expect_match(browse_url(target, tmp), "/a%23b%26c\\.html$")
+})
+
 test_that("browse_url() points at a URL the browser can fetch", {
   skip_if_not(capabilities("libcurl"))
 
@@ -852,6 +986,35 @@ test_that("browse_url() restarts the server when the directory changes", {
   expect_false(identical(.hebstr$.server$handle, handle))
   expect_false(handle$isRunning())
   expect_identical(.hebstr$.server$dir, fs::path_abs(second_dir))
+})
+
+test_that("browse_url() restarts the server when the port option changes", {
+  local_server()
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  browse_url(fs::path(tmp, "a", ext = "html"), tmp)
+  handle <- .hebstr$.server$handle
+
+  probe <- suppressMessages(httpuv::runStaticServer(
+    dir = tmp,
+    host = "127.0.0.1",
+    port = NULL,
+    background = TRUE,
+    browse = FALSE
+  ))
+  wanted <- probe$getPort()
+  httpuv::stopServer(probe)
+
+  withr::local_options(easy_out.port = wanted)
+
+  url <- browse_url(fs::path(tmp, "b", ext = "html"), tmp)
+
+  expect_false(identical(.hebstr$.server$handle, handle))
+  expect_false(handle$isRunning())
+  expect_equal(.hebstr$.server$handle$getPort(), wanted)
+  expect_match(url, paste0("^http://localhost:", wanted, "/"))
 })
 
 test_that("browse_url() falls back to the file path when the server cannot start", {

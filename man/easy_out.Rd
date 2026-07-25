@@ -34,8 +34,10 @@ to \code{getOption("easy_out.dir", "output")}.}
 
 \item{sep}{Separator between \code{filename} and \code{suffix}.}
 
-\item{width}{Width of the output. For tables: viewport width in pixels
-(default 700). For plots and grid graphics: SVG width in inches
+\item{width}{Width of the output. For tables: table width in pixels,
+overriding the width the object carries from \code{\link[=tbl_format]{tbl_format()}}. When left
+\code{NULL}, a table declaring its own width keeps it, and one declaring none
+gets 700. For plots and grid graphics: SVG width in inches
 (default 7). For a grid grob under \code{crop = TRUE}, \code{width} and \code{height}
 are a canvas budget rather than the size of the exported file, which
 is trimmed back to the drawing it contains.}
@@ -80,10 +82,10 @@ browser runs on the local machine, so a file path cannot be opened.
 opens \verb{http://localhost:<port>/<file>}, which the IDE forwards.
 The choice is read from \code{getOption("easy_out.serve")}: \code{NULL} (the
 default) detects a remote session through \code{SSH_CONNECTION}, while \code{TRUE}
-or \code{FALSE} forces the HTTP or the file-path route. The server is started
-once per session and per \code{dir}; its port comes from
-\code{getOption("easy_out.port")}, a free one when unset. Should it fail to
-start, the file path is opened instead.
+or \code{FALSE} forces the HTTP or the file-path route. Its port comes from
+\code{getOption("easy_out.port")}, a free one when unset. The server is started
+once per session, and restarted whenever \code{dir} or the requested port
+changes. Should it fail to start, the file path is opened instead.
 }
 \examples{
 \dontrun{

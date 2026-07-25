@@ -13,8 +13,10 @@
 #'   to `getOption("easy_out.dir", "output")`.
 #' @param suffix Optional suffix appended to `filename`.
 #' @param sep Separator between `filename` and `suffix`.
-#' @param width Width of the output. For tables: viewport width in pixels
-#'   (default 700). For plots and grid graphics: SVG width in inches
+#' @param width Width of the output. For tables: table width in pixels,
+#'   overriding the width the object carries from [tbl_format()]. When left
+#'   `NULL`, a table declaring its own width keeps it, and one declaring none
+#'   gets 700. For plots and grid graphics: SVG width in inches
 #'   (default 7). For a grid grob under `crop = TRUE`, `width` and `height`
 #'   are a canvas budget rather than the size of the exported file, which
 #'   is trimmed back to the drawing it contains.
@@ -46,10 +48,10 @@
 #' opens `http://localhost:<port>/<file>`, which the IDE forwards.
 #' The choice is read from `getOption("easy_out.serve")`: `NULL` (the
 #' default) detects a remote session through `SSH_CONNECTION`, while `TRUE`
-#' or `FALSE` forces the HTTP or the file-path route. The server is started
-#' once per session and per `dir`; its port comes from
-#' `getOption("easy_out.port")`, a free one when unset. Should it fail to
-#' start, the file path is opened instead.
+#' or `FALSE` forces the HTTP or the file-path route. Its port comes from
+#' `getOption("easy_out.port")`, a free one when unset. The server is started
+#' once per session, and restarted whenever `dir` or the requested port
+#' changes. Should it fail to start, the file path is opened instead.
 #'
 #' @return `NULL` (invisibly). Called for its side effects.
 #' @export
@@ -113,7 +115,12 @@ easy_out <- \(
       if (inherits(x, "flextable")) {
         c(
           "i" = "{.fun tbl_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output. Exporting a {.cls flextable} is out of scope.",
-          "i" = "To export, build the table without {.code hebstr.docx} so {.fun tbl_format} returns a {.cls gt_tbl}. To skip the export instead, leave {.arg export} at its {.code hebstr.docx} default."
+          "i" = "To export, build the table without {.code hebstr.docx} so {.fun tbl_format} returns a {.cls gt_tbl}.",
+          "i" = if (getOption("hebstr.docx", default = FALSE)) {
+            "To skip the export instead, leave {.arg export} at its {.code hebstr.docx} default."
+          } else {
+            "To skip the export instead, pass {.code export = FALSE}."
+          }
         )
       }
     ))
@@ -167,10 +174,6 @@ easy_out <- \(
       x <- as_gt(x)
     }
 
-    if (is.null(width)) {
-      width <- 700
-    }
-
     gt_width <-
       x[["_options"]] |>
       filter(parameter == "table_width") |>
@@ -178,9 +181,13 @@ easy_out <- \(
       str_extract("^(\\d+)px$", group = 1) |>
       as.numeric()
 
-    if (length(gt_width) > 0 && !is.na(gt_width)) {
-      width <- gt_width
-    } else {
+    declared <- length(gt_width) > 0 && !is.na(gt_width)
+
+    if (is.null(width)) {
+      width <- if (declared) gt_width else 700
+    }
+
+    if (!declared || width != gt_width) {
       x <- x |> tab_options(table.width = px(width))
     }
 
@@ -252,9 +259,13 @@ easy_out <- \(
     cli_progress_step("Creating SVG file")
 
     svglite::svglite(to_svg, width = width, height = height)
-    grid::grid.newpage()
-    grid::grid.draw(x)
-    grDevices::dev.off()
+
+    local({
+      # closing a device mid-unwind warns "Killing locked device", noise here
+      on.exit(suppressWarnings(grDevices::dev.off()), add = TRUE)
+      grid::grid.newpage()
+      grid::grid.draw(x)
+    })
 
     cli_progress_step("Creating PNG file")
 
@@ -348,9 +359,14 @@ browse_url <- \(browse, dir) {
     return(browse)
   }
 
-  rel <- fs::path_rel(fs::path_abs(browse), start = fs::path_abs(dir))
+  rel <-
+    fs::path_rel(fs::path_abs(browse), start = fs::path_abs(dir)) |>
+    strsplit("/", fixed = TRUE) |>
+    unlist() |>
+    map_chr(URLencode, reserved = TRUE) |>
+    paste(collapse = "/")
 
-  sprintf("http://localhost:%s/%s", port, URLencode(rel))
+  sprintf("http://localhost:%s/%s", port, rel)
 }
 
 browse_remote <- \() {
@@ -371,10 +387,16 @@ browse_remote <- \() {
 
 browse_server <- \(dir) {
   dir <- fs::path_abs(dir)
+  port <- getOption("easy_out.port", default = NULL)
   server <- .hebstr$.server
   alive <- !is.null(server) && server$handle$isRunning()
 
-  if (alive && identical(server$dir, dir)) {
+  kept <-
+    alive &&
+    identical(server$dir, dir) &&
+    (is.null(port) || isTRUE(server$handle$getPort() == port))
+
+  if (kept) {
     return(server$handle$getPort())
   }
 
@@ -388,7 +410,7 @@ browse_server <- \(dir) {
     suppressMessages(httpuv::runStaticServer(
       dir = dir,
       host = "127.0.0.1",
-      port = getOption("easy_out.port", default = NULL),
+      port = port,
       background = TRUE,
       browse = FALSE
     )),
@@ -449,7 +471,7 @@ svg_to_png <- \(to_svg, to_png, px, crop = FALSE) {
 
 svg_ink_box <- \(to_svg, tol = 0.04) {
   raster <- fs::file_temp(ext = "png")
-  on.exit(fs::file_delete(raster), add = TRUE)
+  on.exit(unlink(raster), add = TRUE)
 
   to_svg |>
     image_read_svg() |>
@@ -471,8 +493,9 @@ svg_ink_box <- \(to_svg, tol = 0.04) {
     .init = 0
   )
 
-  tally <- table(quantized)
-  background <- which(quantized == as.numeric(names(which.max(tally))))[1]
+  values <- unique(as.vector(quantized))
+  modal <- values[which.max(tabulate(match(quantized, values)))]
+  background <- which(quantized == modal)[1]
 
   visible <- if (has_alpha) {
     pixels[,, channels] > tol

@@ -64,6 +64,7 @@ Imports:
     withr
 Suggests:
     dbplyr,
+    GGally,
     knitr,
     quarto,
     rmarkdown,
