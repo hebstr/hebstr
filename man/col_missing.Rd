@@ -17,7 +17,8 @@ col_missing(
 \code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}}.}
 
 \item{prefix}{Character string prepended to each collapsed count (e.g.
-\code{"n ="}). Defaults to \code{""}.}
+\code{"n ="}), separated from it by a space. Defaults to \code{""}, which leaves the
+count on its own.}
 
 \item{empty}{Replacement for a missing per-group count. Defaults to \code{"0"}.}
 

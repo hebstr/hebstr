@@ -70,7 +70,7 @@ test_that("tbl_format() aborts informatively on a coefficient table without anno
   expect_error(tbl_format(formatted), "gtsum_format")
 })
 
-test_that("gtsum_format() does not require model_mv when show_single_row is FALSE", {
+test_that("gtsum_format() does not require model_mv when show_single_row is absent", {
   local_opts()
 
   reg <- .make_reg_tbl()
@@ -78,19 +78,43 @@ test_that("gtsum_format() does not require model_mv when show_single_row is FALS
   expect_s3_class(gtsum_format(reg$tbl), "gtsummary")
 })
 
-test_that("gtsum_format() aborts when show_single_row is TRUE without model_mv", {
+test_that("gtsum_format() deprecates show_single_row", {
+  local_opts()
+
+  reg <- .make_reg_tbl()
+
+  expect_warning(
+    gtsum_format(reg$tbl, model_mv = reg$mod, show_single_row = TRUE),
+    class = "lifecycle_warning_deprecated",
+    regexp = "show_single_row"
+  )
+})
+
+test_that("gtsum_format() leaves show_single_row unmentioned when it is absent", {
+  local_opts()
+
+  reg <- .make_reg_tbl()
+
+  expect_no_condition(
+    gtsum_format(reg$tbl),
+    class = "lifecycle_warning_deprecated"
+  )
+})
+
+test_that("gtsum_format() aborts when show_single_row is supplied without model_mv", {
   local_opts()
 
   reg <- .make_reg_tbl()
 
   expect_error(
-    gtsum_format(reg$tbl, show_single_row = TRUE),
+    suppressWarnings(gtsum_format(reg$tbl, show_single_row = TRUE)),
     "show_single_row"
   )
 })
 
 test_that("gtsum_format() annotates dichotomous reference levels with show_single_row", {
   local_opts()
+  withr::local_options(lifecycle_verbosity = "quiet")
 
   df <- data.frame(
     y = rep(c(0, 1, 1, 0, 1, 0), 10),

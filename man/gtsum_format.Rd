@@ -24,7 +24,7 @@ gtsum_format(
   estim_label = NULL,
   ci = check_opts(ci),
   model_mv = NULL,
-  show_single_row = FALSE,
+  show_single_row = deprecated(),
   ref_sep = check_opts(sep$int),
   ref_no = "",
   estim_sep = check_opts(sep$int),
@@ -79,15 +79,23 @@ A partial list overrides the named entries only.}
 Defaults to the \code{ci} option.}
 
 \item{model_mv}{The fitted multivariable model, used to read factor
-reference levels. Required when \code{show_single_row} is \code{TRUE}.}
+reference levels. Required when \code{show_single_row} is \code{TRUE}, and deprecated
+alongside it.}
 
-\item{show_single_row}{Whether to annotate dichotomous variables with their
-reference level, read from \code{model_mv}. Defaults to \code{FALSE}.}
+\item{show_single_row}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+Annotated dichotomous variables with their reference level, read from
+\code{model_mv}. The annotation keys on \code{var_type == "dichotomous"}, which
+\code{broom.helpers} sets on every two-level factor whether or not its levels
+are folded onto a single row, so it mislabels any table built without
+\verb{gtsummary::tbl_regression(show_single_row = <var>)} upstream.}
 
 \item{ref_sep}{Separator inserted before the reference-level value in the
-annotation. Defaults to the \code{sep$int} option.}
+annotation. Defaults to the \code{sep$int} option. Deprecated alongside
+\code{show_single_row}, its only consumer.}
 
-\item{ref_no}{Placeholder for an absent reference level. Defaults to \code{""}.}
+\item{ref_no}{Placeholder for an absent reference level. Defaults to \code{""}.
+Deprecated alongside \code{show_single_row}, its only consumer.}
 
 \item{estim_sep}{Separator between acronym and definition in the estimator
 footnote. Defaults to the \code{sep$int} option.}

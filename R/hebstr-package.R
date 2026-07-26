@@ -154,6 +154,7 @@
 #' @importFrom labelled var_label
 #' @importFrom lifecycle deprecate_soft
 #' @importFrom lifecycle deprecated
+#' @importFrom lifecycle is_present
 #' @importFrom lubridate is.Date
 #' @importFrom magick image_read_svg
 #' @importFrom magick image_write

@@ -16,11 +16,11 @@ column.}
 The data frame with its dichotomous columns recoded to 0/1.
 }
 \description{
-Converts every two-level factor (except those excluded) to a 0/1 numeric
-indicator, so gtsummary can display each on a single row.
-}
-\examples{
-# `sex` (two-level factor) is recoded to a 0/1 indicator
-show_single_row(datasets::penguins)
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
+Converted every two-level factor (except those excluded) to a 0/1 numeric
+indicator, so \code{gtsummary} would display each on a single row. Recoding the
+data to steer the display loses the factor levels the table then has to
+label, and \code{gtsummary} folds the row on request without it.
 }
+\keyword{internal}

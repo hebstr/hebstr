@@ -37,6 +37,17 @@ Options and the variable classification cache now live in an internal package st
   Declared upstream, `gtsummary` numbers the footnotes in table reading order whatever order they are declared in.
   Move each `add_note()` call above `tbl_format()` in the pipe.
 
+## Deprecated
+
+- `show_single_row()` is deprecated and warns when called.
+  It recoded every two-level factor to a 0/1 indicator so `gtsummary` would render each on a single row, but recoding the data to steer the display discards the factor levels the table then has to label.
+  Fold the row from the table instead, through the `show_single_row` argument of `gtsummary::tbl_summary()` or `gtsummary::tbl_regression()`, which keeps the factor.
+- `gtsum_format(show_single_row = )` is deprecated and warns when supplied.
+  It annotated dichotomous variables with their reference level, but keyed the annotation on `var_type == "dichotomous"`, which `broom.helpers` sets on every two-level factor whether or not its levels are folded onto a single row.
+  On a table built without `gtsummary::tbl_regression(show_single_row = <var>)` upstream, it therefore labelled the heading row `NA — ref : <level>` and annotated each level in turn.
+  Fold the row with `gtsummary::tbl_regression(show_single_row = <var>)`; the reference level then reads from the `label_reference` marker every regression table already carries.
+  `model_mv`, `ref_sep` and `ref_no` serve this argument alone and go with it at removal.
+
 ## New features
 
 - `easy_out()` writes an `openxlsx2` workbook to XLSX, so the object `get_xlsx()` returns reaches disk through the package's export verb rather than a qualified `openxlsx2::wb_save()` call, with the output directory created and the `dir`/`filename`/`suffix` conventions applied.
@@ -74,6 +85,14 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `col_missing()` no longer leaves a leading space in each `dm` cell under its default empty `prefix`.
+  The template separated prefix from counts unconditionally, so a cell read `" 0/2"` instead of `"0/2"`.
+  HTML collapses leading whitespace, so this surfaced in Word.
+  A non-empty `prefix` keeps its separating space, `"n ="` still rendering `"n = 0/2"`.
+- `add_ref_label()` localises its default `label`, which was the hardcoded English literal `"Reference"`.
+  It now reads the `labs$reference` option, so a French session renders `Référence`.
+  The canonical path was already correct, `gtsum_format()` passing the localised label down, so only a direct call was affected, which is what the function's own example shows.
+  The default builds the options object without assigning it, so the call still works when `set_opts()` has never run.
 - `easy_out(width = )` overrides the width a table carries from `tbl_format()`, applying it to the table and to the capture viewport alike.
   The argument was defaulted to `700` before the object's own `table.width` was read, which destroyed the "no value supplied" signal and made every explicit `width` inert on the standard pipeline, `tbl_format()` always baking a width in.
   Left `NULL`, a table declaring its own width still keeps it.

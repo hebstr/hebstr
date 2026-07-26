@@ -6,7 +6,8 @@
 #' [stringr::str_replace_all()] as its `pattern`/`replacement` mapping.
 #'
 #' @param ... A character vector
-#' @param replace Replacement pattern. A character vector.
+#' @param replace The literal token each match is replaced with, inserted as is
+#'   and escaped before it enters the collapsing rule. A character vector.
 #'
 #' @return A named character vector
 #' @export

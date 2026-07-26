@@ -4,12 +4,13 @@
 \alias{add_ref_label}
 \title{Display a reference marker on reference rows}
 \usage{
-add_ref_label(data, label = "Reference")
+add_ref_label(data, label = set_opts(.assign = FALSE)$labs$reference)
 }
 \arguments{
 \item{data}{A \code{gtsummary} regression table object.}
 
-\item{label}{Symbol to display on the reference rows.}
+\item{label}{Symbol to display on the reference rows. Defaults to the
+\code{labs$reference} option, localised on \code{getOption("OutDec")}.}
 }
 \value{
 A \code{gtsummary} table with the reference marker displayed.

@@ -325,12 +325,20 @@
 #' @param ci Confidence-interval specification (`label` and `data` pattern).
 #'   Defaults to the `ci` option.
 #' @param model_mv The fitted multivariable model, used to read factor
-#'   reference levels. Required when `show_single_row` is `TRUE`.
-#' @param show_single_row Whether to annotate dichotomous variables with their
-#'   reference level, read from `model_mv`. Defaults to `FALSE`.
+#'   reference levels. Required when `show_single_row` is `TRUE`, and deprecated
+#'   alongside it.
+#' @param show_single_row `r lifecycle::badge("deprecated")`
+#'
+#'   Annotated dichotomous variables with their reference level, read from
+#'   `model_mv`. The annotation keys on `var_type == "dichotomous"`, which
+#'   `broom.helpers` sets on every two-level factor whether or not its levels
+#'   are folded onto a single row, so it mislabels any table built without
+#'   `gtsummary::tbl_regression(show_single_row = <var>)` upstream.
 #' @param ref_sep Separator inserted before the reference-level value in the
-#'   annotation. Defaults to the `sep$int` option.
+#'   annotation. Defaults to the `sep$int` option. Deprecated alongside
+#'   `show_single_row`, its only consumer.
 #' @param ref_no Placeholder for an absent reference level. Defaults to `""`.
+#'   Deprecated alongside `show_single_row`, its only consumer.
 #' @param estim_sep Separator between acronym and definition in the estimator
 #'   footnote. Defaults to the `sep$int` option.
 #' @param vargrp_levels Character vector of variable names whose rows are forced
@@ -366,13 +374,26 @@ gtsum_format <- \(
   estim_label = NULL,
   ci = check_opts(ci),
   model_mv = NULL,
-  show_single_row = FALSE,
+  show_single_row = deprecated(),
   ref_sep = check_opts(sep$int),
   ref_no = "",
   estim_sep = check_opts(sep$int),
   vargrp_levels = "",
   indent = 4
 ) {
+  if (is_present(show_single_row)) {
+    deprecate_soft(
+      "0.0.0.9000",
+      "gtsum_format(show_single_row)",
+      details = c(
+        i = "Fold a dichotomous variable onto one row with `gtsummary::tbl_regression(show_single_row = <var>)`.",
+        i = "Its reference level then reads from the `label_reference` marker, which every regression table already carries."
+      )
+    )
+  } else {
+    show_single_row <- FALSE
+  }
+
   clear_vars()
 
   label_header <- if (!is.null(label_header)) glue("**{label_header}**") else ""

@@ -203,12 +203,24 @@ test_that("all_dichotomous_uv keeps only two-level factor columns", {
 })
 
 test_that("show_single_row recodes two-level factors to 0/1 and excludes the first column", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+
   data <- data.frame(id = 1:4, sex = factor(c("f", "m", "f", "m")))
 
   res <- show_single_row(data)
 
   expect_equal(res$id, 1:4)
   expect_equal(res$sex, c(0, 1, 0, 1))
+})
+
+test_that("show_single_row is deprecated", {
+  data <- data.frame(id = 1:4, sex = factor(c("f", "m", "f", "m")))
+
+  expect_warning(
+    show_single_row(data),
+    class = "lifecycle_warning_deprecated",
+    regexp = "show_single_row"
+  )
 })
 
 test_that("str_na_mv reports the count and share of rows with any missing value", {
@@ -308,6 +320,8 @@ test_that("add_note survives tbl_format on both output formats", {
 
 
 test_that("add_ref_label sets the missing symbol on the reference row estimate columns", {
+  local_opts()
+
   tbl <- .make_ref_tbl()
 
   res <- add_ref_label(tbl)
@@ -317,6 +331,32 @@ test_that("add_ref_label sets the missing symbol on the reference row estimate c
     res$table_styling$fmt_missing$symbol == "Reference",
   ]
   expect_setequal(added$column, c("estimate", "conf.low", "conf.high"))
+})
+
+test_that("add_ref_label localises its default label in English", {
+  withr::local_options(OutDec = ".")
+  local_opts()
+
+  res <- add_ref_label(.make_ref_tbl())
+
+  expect_contains(res$table_styling$fmt_missing$symbol, "Reference")
+})
+
+test_that("add_ref_label localises its default label in French", {
+  withr::local_options(OutDec = ",")
+  local_opts()
+
+  res <- add_ref_label(.make_ref_tbl())
+
+  expect_contains(res$table_styling$fmt_missing$symbol, "Référence")
+})
+
+test_that("add_ref_label defaults without set_opts having been called", {
+  local_hebstr("opts")
+
+  res <- add_ref_label(.make_ref_tbl())
+
+  expect_contains(res$table_styling$fmt_missing$symbol, "Reference")
 })
 
 test_that("add_ref_label honors a custom reference label", {

@@ -8,11 +8,11 @@ test_that("col_missing() adds a dm column carrying the joined missing counts", {
   expect_true("dm" %in% names(body))
   expect_equal(
     body$dm[body$variable == "age" & body$row_type == "label"],
-    " 0/2"
+    "0/2"
   )
   expect_equal(
     body$dm[body$variable == "sex" & body$row_type == "label"],
-    " 1/0"
+    "1/0"
   )
 })
 
@@ -99,11 +99,11 @@ test_that("col_missing() collapses missing rows in a table that also carries NA 
 
   expect_equal(
     body$dm[body$variable %in% "age" & body$row_type %in% "label"],
-    " 0/2"
+    "0/2"
   )
   expect_equal(
     body$dm[body$variable %in% "sex" & body$row_type %in% "label"],
-    " 1/0"
+    "1/0"
   )
   expect_true(is.na(body$dm[is.na(body$row_type)]))
   expect_false("missing" %in% body$row_type)

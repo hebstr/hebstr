@@ -9,7 +9,8 @@ easy_replace(..., replace = "</>")
 \arguments{
 \item{...}{A character vector}
 
-\item{replace}{Replacement pattern. A character vector.}
+\item{replace}{The literal token each match is replaced with, inserted as is
+and escaped before it enters the collapsing rule. A character vector.}
 }
 \value{
 A named character vector

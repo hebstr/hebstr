@@ -14,7 +14,8 @@
 #' @param x A `gtsummary` table, typically built with
 #'   [gtsummary::tbl_summary()].
 #' @param prefix Character string prepended to each collapsed count (e.g.
-#'   `"n ="`). Defaults to `""`.
+#'   `"n ="`), separated from it by a space. Defaults to `""`, which leaves the
+#'   count on its own.
 #' @param empty Replacement for a missing per-group count. Defaults to `"0"`.
 #' @param header Column header for the `dm` column, interpreted as markdown.
 #'   Defaults to the `labs$col_missing` option wrapped in bold (`MD` in English,
@@ -77,6 +78,7 @@ col_missing <- \(
   group_cols <- setdiff(all_stat, "stat_0")
   stat_cols <- if (length(group_cols) > 0) group_cols else all_stat
   first_stat <- all_stat[1]
+  prefix_sep <- if (nzchar(prefix)) " " else ""
 
   x |>
     modify_table_body(\(body) {
@@ -86,7 +88,7 @@ col_missing <- \(
         rowwise() |>
         mutate(
           dm = str_glue(
-            "{prefix} {str_c(c_across(all_of(stat_cols)), collapse = '/')}"
+            "{prefix}{prefix_sep}{str_c(c_across(all_of(stat_cols)), collapse = '/')}"
           )
         ) |>
         ungroup() |>

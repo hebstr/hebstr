@@ -332,6 +332,13 @@ test_that("easy_replace honors a custom replacement token", {
   expect_equal(unname(res[["<p>.*(age).*</p>"]]), "[X]")
 })
 
+test_that("easy_replace carries literal braces through unevaluated", {
+  res <- easy_replace("a{b}c", replace = "{X}")
+
+  expect_named(res, c("<p>.*(a{b}c).*</p>", "(\n*\\{X\\})+\n*"))
+  expect_equal(unname(res[["<p>.*(a{b}c).*</p>"]]), "{X}")
+})
+
 test_that("easy_replace collapses a run of a regex-special token into one marker", {
   txt <- "<p>my age here</p>\n<p>my age again</p>\nplain X token"
 

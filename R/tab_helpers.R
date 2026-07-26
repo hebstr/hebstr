@@ -431,23 +431,35 @@ str_na_mv <- \(data) {
 
 #' Recode dichotomous variables to a single 0/1 indicator
 #'
-#' Converts every two-level factor (except those excluded) to a 0/1 numeric
-#' indicator, so gtsummary can display each on a single row.
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' Converted every two-level factor (except those excluded) to a 0/1 numeric
+#' indicator, so `gtsummary` would display each on a single row. Recoding the
+#' data to steer the display loses the factor levels the table then has to
+#' label, and `gtsummary` folds the row on request without it.
 #'
 #' @param data A data frame to recode.
 #' @param exclude Column name(s) to leave untouched; defaults to the first
 #'   column.
 #' @return The data frame with its dichotomous columns recoded to 0/1.
-#' @export
 #'
-#' @examples
-#' # `sex` (two-level factor) is recoded to a 0/1 indicator
-#' show_single_row(datasets::penguins)
+#' @keywords internal
+#' @export
 #'
 show_single_row <- \(
   data,
   exclude = names(data[, 1])
 ) {
+  deprecate_soft(
+    "0.0.0.9000",
+    "show_single_row()",
+    details = c(
+      i = "Fold the row from the table instead, with the `show_single_row` argument of `gtsummary::tbl_summary()` or `gtsummary::tbl_regression()`.",
+      i = "Those keep the factor, so the levels stay available to label the row."
+    )
+  )
+
   all_dichotomous <- expr(c(where(~ nlevels(.) == 2), -all_of(exclude)))
 
   data |>
@@ -462,7 +474,8 @@ show_single_row <- \(
 #' column is left unchanged.
 #'
 #' @param data A `gtsummary` regression table object.
-#' @param label Symbol to display on the reference rows.
+#' @param label Symbol to display on the reference rows. Defaults to the
+#'   `labs$reference` option, localised on `getOption("OutDec")`.
 #' @returns A `gtsummary` table with the reference marker displayed.
 #' @export
 #'
@@ -477,7 +490,7 @@ show_single_row <- \(
 #'   gtsummary::tbl_regression(fit) |>
 #'   add_ref_label()
 #'
-add_ref_label <- \(data, label = "Reference") {
+add_ref_label <- \(data, label = set_opts(.assign = FALSE)$labs$reference) {
   modify_missing_symbol(
     x = data,
     symbol = label,

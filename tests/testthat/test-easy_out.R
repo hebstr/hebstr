@@ -894,8 +894,8 @@ test_that("easy_out() holds the session guard for a workbook", {
 })
 
 test_that("browse_url() hands back the file path outside a remote session", {
-  local_server()
   tmp <- withr::local_tempdir()
+  local_server()
   target <- fs::path(tmp, "report", ext = "html")
 
   withr::local_options(easy_out.serve = FALSE)
@@ -905,8 +905,10 @@ test_that("browse_url() hands back the file path outside a remote session", {
 })
 
 test_that("browse_url() serves the output directory in a remote session", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
   target <- fs::path(tmp, "report", ext = "html")
 
   withr::local_options(easy_out.serve = TRUE)
@@ -919,8 +921,10 @@ test_that("browse_url() serves the output directory in a remote session", {
 })
 
 test_that("browse_url() percent-encodes the file name", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
   target <- fs::path(tmp, "my report", ext = "html")
 
   withr::local_options(easy_out.serve = TRUE)
@@ -929,8 +933,10 @@ test_that("browse_url() percent-encodes the file name", {
 })
 
 test_that("browse_url() percent-encodes the reserved characters", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
   target <- fs::path(tmp, "a#b&c", ext = "html")
 
   withr::local_options(easy_out.serve = TRUE)
@@ -939,10 +945,11 @@ test_that("browse_url() percent-encodes the reserved characters", {
 })
 
 test_that("browse_url() points at a URL the browser can fetch", {
+  skip_on_cran()
   skip_if_not(capabilities("libcurl"))
 
-  local_server()
   tmp <- withr::local_tempdir()
+  local_server()
   target <- fs::path(tmp, "report", ext = "html")
   writeLines("<p>served</p>", target)
 
@@ -955,8 +962,10 @@ test_that("browse_url() points at a URL the browser can fetch", {
 })
 
 test_that("browse_url() reuses a single server across calls", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
 
   withr::local_options(easy_out.serve = TRUE)
 
@@ -972,9 +981,11 @@ test_that("browse_url() reuses a single server across calls", {
 })
 
 test_that("browse_url() restarts the server when the directory changes", {
-  local_server()
+  skip_on_cran()
+
   first_dir <- withr::local_tempdir()
   second_dir <- withr::local_tempdir()
+  local_server()
 
   withr::local_options(easy_out.serve = TRUE)
 
@@ -989,8 +1000,10 @@ test_that("browse_url() restarts the server when the directory changes", {
 })
 
 test_that("browse_url() restarts the server when the port option changes", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
 
   withr::local_options(easy_out.serve = TRUE)
 
@@ -1018,8 +1031,10 @@ test_that("browse_url() restarts the server when the port option changes", {
 })
 
 test_that("browse_url() falls back to the file path when the server cannot start", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
   target <- fs::path(tmp, "report", ext = "html")
 
   blocker <- suppressMessages(httpuv::runStaticServer(
@@ -1080,8 +1095,10 @@ test_that("browse_remote() lets the option override the environment", {
 })
 
 test_that("easy_out() opens a served URL in a remote session", {
-  local_server()
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  local_server()
   wb <- get_xlsx(list(a = head(iris, 3)))
 
   opened <- NULL
@@ -1100,8 +1117,8 @@ test_that("easy_out() opens a served URL in a remote session", {
 })
 
 test_that("easy_out() opens the file path outside a remote session", {
-  local_server()
   tmp <- withr::local_tempdir()
+  local_server()
   wb <- get_xlsx(list(a = head(iris, 3)))
 
   opened <- NULL
@@ -1121,8 +1138,10 @@ test_that("easy_out() opens the file path outside a remote session", {
 })
 
 test_that("local_server() clears a server left by an earlier call", {
-  withr::defer(browse_stop())
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  withr::defer(browse_stop())
 
   withr::local_options(easy_out.serve = TRUE)
 
@@ -1135,8 +1154,10 @@ test_that("local_server() clears a server left by an earlier call", {
 })
 
 test_that("local_server() leaves no handle behind on exit", {
-  withr::defer(browse_stop())
+  skip_on_cran()
+
   tmp <- withr::local_tempdir()
+  withr::defer(browse_stop())
 
   withr::local_options(easy_out.serve = TRUE)
 
