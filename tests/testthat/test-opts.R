@@ -356,3 +356,50 @@ test_that("docx_page_width() measures a landscape template on its long edge", {
 test_that("docx_page_width() aborts on a path that does not exist", {
   expect_error(docx_page_width("no-such-template.dotx"), "does not exist")
 })
+
+test_that("docx_page_width() discovers the template of an installed extension", {
+  root <- withr::local_tempdir()
+  .make_extension(root)
+
+  doc <- fs::path(root, "sub")
+  fs::dir_create(doc)
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = doc)
+
+  expect_equal(docx_page_width(), 6.5)
+})
+
+test_that("docx_page_width() prefers an explicit path over discovery", {
+  root <- withr::local_tempdir()
+  .make_extension(root)
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
+
+  path <- withr::local_tempfile(fileext = ".docx")
+
+  officer::read_docx() |>
+    officer::body_set_default_section(
+      officer::prop_section(
+        page_size = officer::page_size(width = 8.5, height = 11),
+        page_margins = officer::page_mar(left = 2, right = 2)
+      )
+    ) |>
+    print(target = path)
+
+  expect_equal(docx_page_width(path), 4.5)
+})
+
+test_that("docx_page_width() aborts when no extension declares a template", {
+  root <- withr::local_tempdir()
+  .make_extension(root, reference_doc = NULL)
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
+
+  expect_error(docx_page_width(), "0 Word templates found")
+})
+
+test_that("docx_page_width() aborts when several extensions declare a template", {
+  root <- withr::local_tempdir()
+  .make_extension(root, id = "org/one")
+  .make_extension(root, id = "org/two")
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
+
+  expect_error(docx_page_width(), "2 Word templates found")
+})

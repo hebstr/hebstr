@@ -154,6 +154,8 @@ Options and the variable classification cache now live in an internal package st
   About 35 times faster on the ink-box measurement, roughly eight tenths of a second off every cropped grob export.
 - `docx_page_width()` reads the section geometry of a `.docx` or `.dotx` template and returns the width its body text can use, in inches, landscape included.
   Feeding it to `set_opts(page_width = )` derives the reference from the `reference-doc` in use instead of copying a number that drifts the day its margins change.
+  Its `path` is optional: left out, the template is looked up in the installed Quarto extension providing the Word format, so a document declaring `format: <ext>-docx` states the path nowhere.
+  The nearest `_extensions` directory is searched from the document upwards, and the `reference-doc` of the one extension contributing a `docx` format is used; any other count aborts and asks for an explicit `path`.
 - `set_opts()` carries a `page_width` key, in inches, which `tbl_format(page_width = )` now defaults to.
   The usable text width is a property of the rendered Word document, not of each table: declaring it once makes every table convert its pixel width against the `reference-doc` actually in use, instead of the US Letter assumption repeated at each call site.
 - `gtsum_format()` labels the regression count column `n/N` by default (events over observations), and `N` when the model carries no events, replacing the former `Events/Obs` and `Obs` headers.

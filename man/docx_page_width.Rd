@@ -4,11 +4,12 @@
 \alias{docx_page_width}
 \title{Measure the usable text width of a Word template}
 \usage{
-docx_page_width(path)
+docx_page_width(path = NULL)
 }
 \arguments{
 \item{path}{Path to the \code{.docx} or \code{.dotx} template, typically the
-\code{reference-doc} of the Word format in use.}
+\code{reference-doc} of the Word format in use. Discovered from the installed
+Quarto extension when left \code{NULL}.}
 }
 \value{
 The usable text width, in inches.
@@ -25,8 +26,16 @@ expects, reading the reference from the \code{page_width} option. Deriving the
 option from the template keeps the two in step, where a copied number drifts
 the day the template's margins change:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{set_opts(page_width = docx_page_width(here::here("_extensions/org/ext/template.dotx")))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set_opts(page_width = docx_page_width())
 }\if{html}{\out{</div>}}
+
+Called without a \code{path}, the template is looked up in the Quarto extension
+providing the Word format. The nearest \verb{_extensions} directory is searched
+from the document being rendered upwards, mirroring how Quarto itself
+resolves an extension, and the \code{reference-doc} declared by the one extension
+contributing a \code{docx} format is returned. Any other count is an error: pass
+\code{path} when several extensions compete, or when the template lives outside
+an extension.
 
 A document mixing sections of different geometries is reported on its first
 one.

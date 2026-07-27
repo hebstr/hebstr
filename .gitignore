@@ -3,7 +3,8 @@
 .claude/
 /dev/
 /output/
-
+/_extensions/
+/_quarto.yml
 /.quarto/
 **/*.quarto_ipynb
 tests/testthat/_problems/

@@ -443,14 +443,23 @@ get_opts <- \(.name = "opts") {
 #' the day the template's margins change:
 #'
 #' ```r
-#' set_opts(page_width = docx_page_width(here::here("_extensions/org/ext/template.dotx")))
+#' set_opts(page_width = docx_page_width())
 #' ```
+#'
+#' Called without a `path`, the template is looked up in the Quarto extension
+#' providing the Word format. The nearest `_extensions` directory is searched
+#' from the document being rendered upwards, mirroring how Quarto itself
+#' resolves an extension, and the `reference-doc` declared by the one extension
+#' contributing a `docx` format is returned. Any other count is an error: pass
+#' `path` when several extensions compete, or when the template lives outside
+#' an extension.
 #'
 #' A document mixing sections of different geometries is reported on its first
 #' one.
 #'
 #' @param path Path to the `.docx` or `.dotx` template, typically the
-#'   `reference-doc` of the Word format in use.
+#'   `reference-doc` of the Word format in use. Discovered from the installed
+#'   Quarto extension when left `NULL`.
 #'
 #' @returns The usable text width, in inches.
 #'
@@ -464,7 +473,9 @@ get_opts <- \(.name = "opts") {
 #' # the default Word template of the officer package
 #' docx_page_width(system.file("template/template.docx", package = "officer"))
 #'
-docx_page_width <- \(path) {
+docx_page_width <- \(path = NULL) {
+  path <- path %||% .reference_doc()
+
   if (!file.exists(path)) {
     cli_abort(
       c(
@@ -481,4 +492,71 @@ docx_page_width <- \(path) {
       geometry$margins[["left"]] -
       geometry$margins[["right"]]
   )
+}
+
+
+.reference_doc <- \() {
+  dir <- .extensions_dir()
+
+  if (is.null(dir)) {
+    cli_abort(
+      c(
+        "No {.path _extensions} directory found.",
+        i = "Install the Quarto extension providing the Word format, or pass
+             {.arg path}."
+      )
+    )
+  }
+
+  found <- fs::dir_ls(
+    dir,
+    recurse = 2,
+    type = "file",
+    regexp = "_extension[.]ya?ml$"
+  ) |>
+    map(.manifest_reference_doc) |>
+    keep(\(x) !is.null(x) && fs::file_exists(x)) |>
+    unique()
+
+  if (length(found) != 1) {
+    cli_abort(
+      c(
+        "{length(found)} Word template{?s} found in {.path {dir}}.",
+        i = "Pass {.arg path} to select one.",
+        set_names(as.character(found), "*")
+      )
+    )
+  }
+
+  found[[1]]
+}
+
+
+.extensions_dir <- \() {
+  dir <- fs::path_abs(Sys.getenv("QUARTO_DOCUMENT_PATH", unset = getwd()))
+
+  repeat {
+    if (fs::dir_exists(fs::path(dir, "_extensions"))) {
+      return(fs::path(dir, "_extensions"))
+    }
+
+    parent <- fs::path_dir(dir)
+
+    if (parent == dir) {
+      return(NULL)
+    }
+
+    dir <- parent
+  }
+}
+
+
+.manifest_reference_doc <- \(manifest) {
+  docx <- yaml::read_yaml(manifest)$contributes$formats$docx
+
+  if (!is.list(docx) || !is_scalar_character(docx[["reference-doc"]])) {
+    return(NULL)
+  }
+
+  fs::path_norm(fs::path(fs::path_dir(manifest), docx[["reference-doc"]]))
 }

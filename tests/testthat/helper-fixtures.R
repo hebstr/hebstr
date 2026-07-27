@@ -224,3 +224,40 @@
     unlist() |>
     as.numeric()
 }
+
+### QUARTO EXTENSION -------------------------------------------------------------
+
+.make_extension <- \(root, id = "org/ext", reference_doc = "template.dotx") {
+  dir <- fs::path(root, "_extensions", id)
+  fs::dir_create(dir)
+
+  if (!is.null(reference_doc)) {
+    # officer refuses to write any extension but .docx; a reference-doc is a .dotx
+    written <- fs::file_temp(ext = "docx")
+
+    officer::read_docx() |>
+      officer::body_set_default_section(
+        officer::prop_section(
+          page_size = officer::page_size(width = 8.5, height = 11),
+          page_margins = officer::page_mar(left = 1, right = 1)
+        )
+      ) |>
+      print(target = written)
+
+    fs::file_move(written, fs::path(dir, reference_doc))
+  }
+
+  list(
+    contributes = list(
+      formats = list(
+        docx = c(
+          list(`number-sections` = FALSE),
+          if (!is.null(reference_doc)) list(`reference-doc` = reference_doc)
+        )
+      )
+    )
+  ) |>
+    yaml::write_yaml(fs::path(dir, "_extension.yml"))
+
+  dir
+}

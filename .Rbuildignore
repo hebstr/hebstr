@@ -12,3 +12,6 @@
 ^README\.html$
 ^output$
 ^tests/testthat/_problems$
+^_extensions$
+^_quarto\.yml$
+^\.quarto$

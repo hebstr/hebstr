@@ -61,7 +61,8 @@ Imports:
     tidyr,
     utils,
     webshot2,
-    withr
+    withr,
+    yaml
 Suggests:
     dbplyr,
     GGally,
