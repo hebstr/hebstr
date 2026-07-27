@@ -15,8 +15,7 @@ easy_out(
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
   quiet = getOption("easy_out.quiet", default = FALSE),
-  export = getOption("easy_out.export", default = !getOption("hebstr.docx", default =
-    FALSE))
+  export = getOption("easy_out.export", default = !.is_docx())
 )
 }
 \arguments{

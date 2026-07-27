@@ -126,7 +126,7 @@ theme_gt <- \(
   footnote_marks = "extended",
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
-  docx = getOption("hebstr.docx", default = FALSE),
+  docx = .is_docx(),
   ...
 ) {
   if (!is_bool(docx)) {

@@ -180,7 +180,7 @@ tbl_format <- \(
 
   ### RENDER -------------------------------------------------------------------
 
-  if (getOption("hebstr.docx", default = FALSE)) {
+  if (.is_docx()) {
     page_width <- page_width %||% .page_width()
 
     .check_size(page_width, "page_width", allow_null = FALSE)

@@ -519,6 +519,11 @@ docx_page_width <- \(path = NULL) {
 }
 
 
+.is_docx <- \() {
+  getOption("hebstr.docx", default = FALSE)
+}
+
+
 .page_width <- \(default = 6.5) {
   ref <- tryCatch(.reference_doc(), error = \(cnd) cnd)
 

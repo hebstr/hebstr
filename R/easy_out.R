@@ -74,10 +74,7 @@ easy_out <- \(
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
   quiet = getOption("easy_out.quiet", default = FALSE),
-  export = getOption(
-    "easy_out.export",
-    default = !getOption("hebstr.docx", default = FALSE)
-  )
+  export = getOption("easy_out.export", default = !.is_docx())
 ) {
   if (!is_bool(quiet)) {
     cli_abort("{.arg quiet} must be {.code TRUE} or {.code FALSE}.")
@@ -116,7 +113,7 @@ easy_out <- \(
         c(
           "i" = "{.fun tbl_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output. Exporting a {.cls flextable} is out of scope.",
           "i" = "To export, build the table without {.code hebstr.docx} so {.fun tbl_format} returns a {.cls gt_tbl}.",
-          "i" = if (getOption("hebstr.docx", default = FALSE)) {
+          "i" = if (.is_docx()) {
             "To skip the export instead, leave {.arg export} at its {.code hebstr.docx} default."
           } else {
             "To skip the export instead, pass {.code export = FALSE}."
