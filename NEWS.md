@@ -11,7 +11,7 @@ Options and the variable classification cache now live in an internal package st
   `include_code_file()` is unaffected, its `include=` directive being native Quarto syntax.
 - `tbl_format()` takes the table width through its own `width` argument, in pixels on both output branches, instead of forwarding it through `...`.
   Forwarded, `width` reached `theme_gt()` in pixels and `theme_ft()` as a fraction of the page, so no single call site could serve both formats: a pixel value aborted the Word branch on `flextable::set_table_properties()` with "width is > 1".
-  The Word branch now converts the pixel width to a fraction of `page_width` (default `6.5` inches, a US Letter page with one-inch margins), capped at `1`.
+  The Word branch now converts the pixel width to a fraction of `page_width`, capped at `1`, that width being measured on the `reference-doc` in use and falling back to `6.5` inches, a US Letter page with one-inch margins.
   `width` defaults to `700` pixels; pass `NULL` to keep the table's natural width.
   Code passing a fraction for the Word branch must switch to pixels.
 - `set_opts()` no longer creates an `opts` object in the global environment; it stores the options in the internal package store.
@@ -154,10 +154,15 @@ Options and the variable classification cache now live in an internal package st
   About 35 times faster on the ink-box measurement, roughly eight tenths of a second off every cropped grob export.
 - `docx_page_width()` reads the section geometry of a `.docx` or `.dotx` template and returns the width its body text can use, in inches, landscape included.
   Feeding it to `set_opts(page_width = )` derives the reference from the `reference-doc` in use instead of copying a number that drifts the day its margins change.
-  Its `path` is optional: left out, the template is looked up in the installed Quarto extension providing the Word format, so a document declaring `format: <ext>-docx` states the path nowhere.
-  The nearest `_extensions` directory is searched from the document upwards, and the `reference-doc` of the one extension contributing a `docx` format is used; any other count aborts and asks for an explicit `path`.
+  Its `path` is optional: left out, the template of the document being rendered is looked up in its YAML front matter, then in the Quarto extension providing the Word format.
+  The two sources are complementary, a document declaring `format: docx` carrying its template in the front matter, one declaring `format: <ext>-docx` carrying it in the extension manifest, out of reach of the front matter.
+  The extension is searched in the nearest `_extensions` directory, from the document upwards; several extensions contributing a `docx` format aborts, none being more legitimate than the others.
+  A template declaring no page geometry, as the `reference.docx` Pandoc ships does, is now reported as such instead of failing on a subscript.
 - `set_opts()` carries a `page_width` key, in inches, which `tbl_format(page_width = )` now defaults to.
   The usable text width is a property of the rendered Word document, not of each table: declaring it once makes every table convert its pixel width against the `reference-doc` actually in use, instead of the US Letter assumption repeated at each call site.
+  It is unset by default, and `tbl_format()` then runs the `docx_page_width()` lookup itself, on the Word branch only: a document rendering through a Quarto extension states the width nowhere.
+  Set the key when the lookup cannot reach the template, which a warning reports.
+  Falling back to `6.5` stays silent when no template is declared at all, that being the documented default rather than a failed measurement.
 - `gtsum_format()` labels the regression count column `n/N` by default (events over observations), and `N` when the model carries no events, replacing the former `Events/Obs` and `Obs` headers.
   Override with `label_n`.
 - `acro()` adds the `n/N` acronym (events over total observations) to its built-in English and French dictionaries, so the `n/N` count column that `gtsum_format()` emits expands to a full footnote definition.

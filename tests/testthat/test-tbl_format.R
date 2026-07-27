@@ -469,3 +469,24 @@ test_that("tbl_format(page_width = ) overrides the option", {
 
   expect_equal(res$properties$width, 500 / (6.5 * 96))
 })
+
+test_that("tbl_format() resolves the template when no page_width is set", {
+  withr::local_options(hebstr.docx = TRUE)
+  local_opts()
+
+  local_mocked_bindings(.page_width = \(...) 8)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), width = 500)
+
+  expect_equal(res$properties$width, 500 / (8 * 96))
+})
+
+test_that("tbl_format() leaves the template unresolved on the gt branch", {
+  local_opts()
+
+  local_mocked_bindings(
+    .page_width = \(...) cli::cli_abort("resolved on the gt branch")
+  )
+
+  expect_no_error(tbl_format(gtsum_format(.make_summary_tbl()), width = 500))
+})

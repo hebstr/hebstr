@@ -42,11 +42,15 @@
 #'   [flextable::set_table_properties()] expects, capped at `1`. Set to `NULL` to
 #'   let the table keep its natural width.
 #' @param page_width Usable text width, in inches, used to convert `width` on
-#'   the Word branch. Defaults to the `page_width` option (`6.5`, a US Letter
-#'   page with one-inch margins). It is a property of the rendered document
-#'   rather than of the table: set it once through [set_opts()] to match the
-#'   `reference-doc` in use, deriving it from that template with
-#'   [docx_page_width()].
+#'   the Word branch, and read on that branch only. Defaults to the `page_width`
+#'   option, itself unset: the width is then measured on the `reference-doc` of
+#'   the document being rendered, looked up by [docx_page_width()] in the YAML
+#'   front matter then in the Quarto extension providing the Word format. A
+#'   document declaring neither falls back to `6.5`, a US Letter page with
+#'   one-inch margins; one declaring a template that cannot be measured falls
+#'   back too, with a warning. It is a property of the rendered document rather
+#'   than of the table: where the lookup cannot reach it, set it once through
+#'   [set_opts()] rather than at each call.
 #' @param ... Passed on to [theme_gt()], or to [theme_ft()] under
 #'   `options(hebstr.docx = TRUE)`. Set the table width through `width` rather
 #'   than here: the two themes take it in different units.
@@ -94,7 +98,11 @@ tbl_format <- \(
   }
 
   .check_size(width, "width", allow_null = TRUE)
-  .check_size(page_width, "page_width", allow_null = FALSE)
+
+  # forcing the default would resolve the template on the gt branch too
+  if (!missing(page_width)) {
+    .check_size(page_width, "page_width", allow_null = FALSE)
+  }
 
   clear_vars()
 
@@ -173,6 +181,10 @@ tbl_format <- \(
   ### RENDER -------------------------------------------------------------------
 
   if (getOption("hebstr.docx", default = FALSE)) {
+    page_width <- page_width %||% .page_width()
+
+    .check_size(page_width, "page_width", allow_null = FALSE)
+
     x <- .fmt_ft(
       x,
       title = title,

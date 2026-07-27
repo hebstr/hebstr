@@ -313,8 +313,15 @@ test_that("lang_fr(reset = TRUE) calls reset_gtsummary_theme", {
   expect_true(reset_called)
 })
 
-test_that("set_opts() carries a page_width in inches", {
+test_that("set_opts() leaves page_width unset, to be resolved at render time", {
   res <- set_opts(.assign = FALSE, .default_font = "sans")
+
+  expect_true("page_width" %in% names(res))
+  expect_null(res$page_width)
+})
+
+test_that("set_opts() carries an explicit page_width in inches", {
+  res <- set_opts(.assign = FALSE, .default_font = "sans", page_width = 6.5)
 
   expect_equal(res$page_width, 6.5)
 })
@@ -387,12 +394,27 @@ test_that("docx_page_width() prefers an explicit path over discovery", {
   expect_equal(docx_page_width(path), 4.5)
 })
 
-test_that("docx_page_width() aborts when no extension declares a template", {
+test_that("docx_page_width() aborts when nothing declares a template", {
   root <- withr::local_tempdir()
   .make_extension(root, reference_doc = NULL)
   withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
 
-  expect_error(docx_page_width(), "0 Word templates found")
+  expect_error(docx_page_width(), "No reference-doc found")
+})
+
+test_that("docx_page_width() aborts on a template with no page geometry", {
+  path <- withr::local_tempfile(fileext = ".docx")
+
+  officer::read_docx() |> print(target = path)
+
+  # the reference.docx Pandoc ships carries an empty <w:sectPr>
+  local_mocked_bindings(
+    docx_dim = \(...) {
+      list(page = numeric(0), landscape = FALSE, margins = numeric(0))
+    }
+  )
+
+  expect_error(docx_page_width(path), "declares no page geometry")
 })
 
 test_that("docx_page_width() aborts when several extensions declare a template", {
@@ -402,4 +424,82 @@ test_that("docx_page_width() aborts when several extensions declare a template",
   withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
 
   expect_error(docx_page_width(), "2 Word templates found")
+})
+
+test_that(".metadata_reference_doc() reads the reference-doc of the front matter", {
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = "/doc")
+
+  expect_equal(
+    as.character(
+      .metadata_reference_doc(list(docx = list(`reference-doc` = "t.dotx")))
+    ),
+    "/doc/t.dotx"
+  )
+})
+
+test_that(".metadata_reference_doc() reads a format named after its extension", {
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = "/doc")
+
+  expect_equal(
+    as.character(
+      .metadata_reference_doc(
+        list(`hebstr-doc-docx` = list(`reference-doc` = "t.dotx"))
+      )
+    ),
+    "/doc/t.dotx"
+  )
+})
+
+test_that(".metadata_reference_doc() ignores what declares no Word template", {
+  expect_null(.metadata_reference_doc("hebstr-doc-docx"))
+  expect_null(.metadata_reference_doc(list(`hebstr-doc-docx` = "default")))
+  expect_null(.metadata_reference_doc(list(html = list(`reference-doc` = "t"))))
+  expect_null(.metadata_reference_doc(NULL))
+})
+
+test_that(".page_width() falls back on a document declaring no template", {
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = withr::local_tempdir())
+
+  expect_silent(expect_equal(.page_width(), 6.5))
+})
+
+test_that(".page_width() measures the template of an installed extension", {
+  root <- withr::local_tempdir()
+  .make_extension(root)
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
+
+  expect_equal(.page_width(), 6.5)
+})
+
+test_that(".page_width() prefers the front matter over the extension", {
+  root <- withr::local_tempdir()
+  .make_extension(root)
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
+
+  path <- fs::path(root, "own.docx")
+
+  officer::read_docx() |>
+    officer::body_set_default_section(
+      officer::prop_section(
+        page_size = officer::page_size(width = 8.5, height = 11),
+        page_margins = officer::page_mar(left = 2, right = 2)
+      )
+    ) |>
+    print(target = path)
+
+  local_mocked_bindings(
+    .render_formats = \() list(docx = list(`reference-doc` = "own.docx"))
+  )
+
+  expect_equal(.page_width(), 4.5)
+})
+
+test_that(".page_width() warns and falls back on a template it cannot measure", {
+  withr::local_envvar(QUARTO_DOCUMENT_PATH = withr::local_tempdir())
+
+  local_mocked_bindings(
+    .render_formats = \() list(docx = list(`reference-doc` = "absent.docx"))
+  )
+
+  expect_warning(expect_equal(.page_width(), 6.5), "fall back to a page width")
 })

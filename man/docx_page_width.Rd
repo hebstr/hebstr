@@ -8,8 +8,8 @@ docx_page_width(path = NULL)
 }
 \arguments{
 \item{path}{Path to the \code{.docx} or \code{.dotx} template, typically the
-\code{reference-doc} of the Word format in use. Discovered from the installed
-Quarto extension when left \code{NULL}.}
+\code{reference-doc} of the Word format in use. Looked up from the document
+being rendered when left \code{NULL}.}
 }
 \value{
 The usable text width, in inches.
@@ -29,13 +29,18 @@ the day the template's margins change:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{set_opts(page_width = docx_page_width())
 }\if{html}{\out{</div>}}
 
-Called without a \code{path}, the template is looked up in the Quarto extension
-providing the Word format. The nearest \verb{_extensions} directory is searched
-from the document being rendered upwards, mirroring how Quarto itself
-resolves an extension, and the \code{reference-doc} declared by the one extension
-contributing a \code{docx} format is returned. Any other count is an error: pass
-\code{path} when several extensions compete, or when the template lives outside
-an extension.
+Called without a \code{path}, the template of the document being rendered is
+looked up in two places, in order: the \code{reference-doc} of its own YAML front
+matter, then the one declared by the Quarto extension providing the Word
+format. The two are complementary, a document declaring \code{format: docx}
+carrying its template in the front matter, one declaring \verb{format: <ext>-docx}
+carrying it in the extension manifest, out of reach of the front matter. The
+extension is searched in the nearest \verb{_extensions} directory, from the
+document upwards; several extensions contributing a \code{docx} format is an
+error, since none of them is more legitimate than the others.
+
+\code{\link[=tbl_format]{tbl_format()}} runs the same lookup on its own when no \code{page_width} is set,
+so a document rendering through an extension states the template nowhere.
 
 A document mixing sections of different geometries is reported on its first
 one.

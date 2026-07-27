@@ -229,7 +229,7 @@ set_opts <- \(
       all_categorical() ~ c(0, .label$p)
     ),
     pvalue = list(format = label_style_pvalue(digits = 2), seuil = 0.05),
-    page_width = 6.5,
+    page_width = NULL,
     font = list(alpha = "sans", digit = "sans"),
     color = list(
       base = "#999",
@@ -446,20 +446,25 @@ get_opts <- \(.name = "opts") {
 #' set_opts(page_width = docx_page_width())
 #' ```
 #'
-#' Called without a `path`, the template is looked up in the Quarto extension
-#' providing the Word format. The nearest `_extensions` directory is searched
-#' from the document being rendered upwards, mirroring how Quarto itself
-#' resolves an extension, and the `reference-doc` declared by the one extension
-#' contributing a `docx` format is returned. Any other count is an error: pass
-#' `path` when several extensions compete, or when the template lives outside
-#' an extension.
+#' Called without a `path`, the template of the document being rendered is
+#' looked up in two places, in order: the `reference-doc` of its own YAML front
+#' matter, then the one declared by the Quarto extension providing the Word
+#' format. The two are complementary, a document declaring `format: docx`
+#' carrying its template in the front matter, one declaring `format: <ext>-docx`
+#' carrying it in the extension manifest, out of reach of the front matter. The
+#' extension is searched in the nearest `_extensions` directory, from the
+#' document upwards; several extensions contributing a `docx` format is an
+#' error, since none of them is more legitimate than the others.
+#'
+#' [tbl_format()] runs the same lookup on its own when no `page_width` is set,
+#' so a document rendering through an extension states the template nowhere.
 #'
 #' A document mixing sections of different geometries is reported on its first
 #' one.
 #'
 #' @param path Path to the `.docx` or `.dotx` template, typically the
-#'   `reference-doc` of the Word format in use. Discovered from the installed
-#'   Quarto extension when left `NULL`.
+#'   `reference-doc` of the Word format in use. Looked up from the document
+#'   being rendered when left `NULL`.
 #'
 #' @returns The usable text width, in inches.
 #'
@@ -474,7 +479,15 @@ get_opts <- \(.name = "opts") {
 #' docx_page_width(system.file("template/template.docx", package = "officer"))
 #'
 docx_page_width <- \(path = NULL) {
-  path <- path %||% .reference_doc()
+  path <- path %||%
+    .reference_doc() %||%
+    cli_abort(
+      c(
+        "No {.field reference-doc} found for the document being rendered.",
+        i = "Declare one in the YAML front matter or through a Quarto
+             extension, or pass {.arg path}."
+      )
+    )
 
   if (!file.exists(path)) {
     cli_abort(
@@ -487,6 +500,17 @@ docx_page_width <- \(path = NULL) {
 
   geometry <- docx_dim(read_docx(path))
 
+  if (!length(geometry$page) || !length(geometry$margins)) {
+    cli_abort(
+      c(
+        "{.file {path}} declares no page geometry.",
+        i = "Its section properties carry neither a page size nor margins, so
+             the page is whatever Word defaults to in the reader's locale.",
+        i = "Pass a template that sets them."
+      )
+    )
+  }
+
   unname(
     geometry$page[["width"]] -
       geometry$margins[["left"]] -
@@ -495,17 +519,72 @@ docx_page_width <- \(path = NULL) {
 }
 
 
+.page_width <- \(default = 6.5) {
+  ref <- tryCatch(.reference_doc(), error = \(cnd) cnd)
+
+  if (is.null(ref)) {
+    return(default)
+  }
+
+  width <- if (inherits(ref, "error")) {
+    ref
+  } else {
+    tryCatch(docx_page_width(ref), error = \(cnd) cnd)
+  }
+
+  if (inherits(width, "error")) {
+    cli_warn(
+      c(
+        "Word tables fall back to a page width of {.val {default}} inches.",
+        i = "Set the usable text width with
+             {.code set_opts(page_width = docx_page_width(<template>))}."
+      ),
+      parent = width
+    )
+
+    return(default)
+  }
+
+  width
+}
+
+
 .reference_doc <- \() {
+  .metadata_reference_doc() %||% .extension_reference_doc()
+}
+
+
+.metadata_reference_doc <- \(formats = .render_formats()) {
+  if (!is.list(formats) || !is_named(formats)) {
+    return(NULL)
+  }
+
+  ref <- formats[grepl("(^|-)docx$", names(formats))] |>
+    map(.docx_reference_doc) |>
+    keep(\(x) !is.null(x))
+
+  if (!length(ref)) {
+    return(NULL)
+  }
+
+  fs::path(.document_dir(), ref[[1]])
+}
+
+
+.render_formats <- \() {
+  if (!requireNamespace("rmarkdown", quietly = TRUE)) {
+    return(NULL)
+  }
+
+  rmarkdown::metadata$format
+}
+
+
+.extension_reference_doc <- \() {
   dir <- .extensions_dir()
 
   if (is.null(dir)) {
-    cli_abort(
-      c(
-        "No {.path _extensions} directory found.",
-        i = "Install the Quarto extension providing the Word format, or pass
-             {.arg path}."
-      )
-    )
+    return(NULL)
   }
 
   found <- fs::dir_ls(
@@ -515,25 +594,26 @@ docx_page_width <- \(path = NULL) {
     regexp = "_extension[.]ya?ml$"
   ) |>
     map(.manifest_reference_doc) |>
-    keep(\(x) !is.null(x) && fs::file_exists(x)) |>
+    keep(\(x) !is.null(x)) |>
     unique()
 
-  if (length(found) != 1) {
+  if (length(found) > 1) {
     cli_abort(
       c(
-        "{length(found)} Word template{?s} found in {.path {dir}}.",
-        i = "Pass {.arg path} to select one.",
+        "{length(found)} Word templates found in {.path {dir}}.",
+        i = "None is more legitimate than the others; pass {.arg path} to
+             select one.",
         set_names(as.character(found), "*")
       )
     )
   }
 
-  found[[1]]
+  if (length(found)) found[[1]] else NULL
 }
 
 
 .extensions_dir <- \() {
-  dir <- fs::path_abs(Sys.getenv("QUARTO_DOCUMENT_PATH", unset = getwd()))
+  dir <- .document_dir()
 
   repeat {
     if (fs::dir_exists(fs::path(dir, "_extensions"))) {
@@ -551,12 +631,26 @@ docx_page_width <- \(path = NULL) {
 }
 
 
-.manifest_reference_doc <- \(manifest) {
-  docx <- yaml::read_yaml(manifest)$contributes$formats$docx
+.document_dir <- \() {
+  fs::path_abs(Sys.getenv("QUARTO_DOCUMENT_PATH", unset = getwd()))
+}
 
+
+.manifest_reference_doc <- \(manifest) {
+  ref <- .docx_reference_doc(yaml::read_yaml(manifest)$contributes$formats$docx)
+
+  if (is.null(ref)) {
+    return(NULL)
+  }
+
+  fs::path_norm(fs::path(fs::path_dir(manifest), ref))
+}
+
+
+.docx_reference_doc <- \(docx) {
   if (!is.list(docx) || !is_scalar_character(docx[["reference-doc"]])) {
     return(NULL)
   }
 
-  fs::path_norm(fs::path(fs::path_dir(manifest), docx[["reference-doc"]]))
+  docx[["reference-doc"]]
 }

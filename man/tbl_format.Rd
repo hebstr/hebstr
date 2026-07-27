@@ -68,11 +68,15 @@ is converted to the fraction of \code{page_width} that
 let the table keep its natural width.}
 
 \item{page_width}{Usable text width, in inches, used to convert \code{width} on
-the Word branch. Defaults to the \code{page_width} option (\code{6.5}, a US Letter
-page with one-inch margins). It is a property of the rendered document
-rather than of the table: set it once through \code{\link[=set_opts]{set_opts()}} to match the
-\code{reference-doc} in use, deriving it from that template with
-\code{\link[=docx_page_width]{docx_page_width()}}.}
+the Word branch, and read on that branch only. Defaults to the \code{page_width}
+option, itself unset: the width is then measured on the \code{reference-doc} of
+the document being rendered, looked up by \code{\link[=docx_page_width]{docx_page_width()}} in the YAML
+front matter then in the Quarto extension providing the Word format. A
+document declaring neither falls back to \code{6.5}, a US Letter page with
+one-inch margins; one declaring a template that cannot be measured falls
+back too, with a warning. It is a property of the rendered document rather
+than of the table: where the lookup cannot reach it, set it once through
+\code{\link[=set_opts]{set_opts()}} rather than at each call.}
 
 \item{...}{Passed on to \code{\link[=theme_gt]{theme_gt()}}, or to \code{\link[=theme_ft]{theme_ft()}} under
 \code{options(hebstr.docx = TRUE)}. Set the table width through \code{width} rather
