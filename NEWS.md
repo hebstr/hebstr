@@ -50,6 +50,11 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `with_fig_device(width, height, code)` evaluates `code` on an off-screen device of the given size, then closes it and restores the device that was current.
+  `grid` resolves a unit against the device current at the time of the conversion, and a package that precomputes layout performs it when the grob is created rather than when it is drawn, `Gmisc` among them.
+  A flowchart built in the plot pane then carries coordinates measured against the pane, and drawing it on the canvas `easy_out()` opens displaces everything derived from a box edge: `Gmisc::connectGrob(type = "N")` places its horizontal segment halfway between two boxes, and that half-distance shrinks as the construction device gets shorter.
+  Build with the width and height `easy_out()` will be called with, and the exported figure stops depending on the pane size or on the `fig-height` of the chunk that happened to source the script.
+  The device comes from `svglite::svgstring()`, the export's own family measuring into a memory buffer: `cairo_pdf`, `ragg` and `pdf(NULL)` each measure the same text differently, and `withr::with_svg()` wraps the cairo device.
 - `easy_out()` writes an `openxlsx2` workbook to XLSX, so the object `get_xlsx()` returns reaches disk through the package's export verb rather than a qualified `openxlsx2::wb_save()` call, with the output directory created and the `dir`/`filename`/`suffix` conventions applied.
   The `export` guard keeps reading the session option alone, so a workbook exported during a Word run (`options(hebstr.docx = TRUE)`) needs an explicit `export = TRUE`, as any other object does.
 - `tbl_format()` routes Word output through `flextable` instead of `gt`.

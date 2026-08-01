@@ -345,6 +345,106 @@ easy_out_map <- \(
   iwalk(x, map_fun)
 }
 
+#' Build a grid graphic against the device that will draw it
+#'
+#' Opens an off-screen device of the given size, evaluates `code` on it, then
+#' closes it and restores the device that was current before. Pass the size
+#' the graphic will be exported at, so that a layout computed while the grob
+#' is built matches the canvas it ends up on.
+#'
+#' @param width,height Device size in inches. Pass the values [easy_out()]
+#'   will be called with.
+#' @param code Expression building the graphic. Evaluated once, on the device
+#'   this function opens.
+#'
+#' @return The value of `code`.
+#' @export
+#'
+#' @details
+#' `grid` resolves a unit against the device current at the moment of the
+#' conversion, and a package that precomputes layout, `Gmisc` among them,
+#' performs that conversion when the grob is created rather than when it is
+#' drawn. A `Gmisc::boxGrob()` built in the IDE plot pane therefore carries
+#' coordinates measured against the pane, and drawing it on the canvas
+#' [easy_out()] opens displaces everything derived from a box edge:
+#' `Gmisc::connectGrob(type = "N")` puts its horizontal segment halfway
+#' between two boxes, and that half-distance shrinks as the construction
+#' device gets shorter.
+#'
+#' The symptom is one script whose figure differs between the plot pane, a
+#' 'Quarto' render and the exported file. Nothing errors, and the boxes
+#' themselves look right, their text being measured in absolute units.
+#'
+#' @section Device family:
+#' Text metrics differ from one device family to the next, so the construction
+#' device has to come from the same family as the export. Measured on a
+#' five-line box at 11 pt: `svglite` 156.43 pt wide, `cairo_pdf` 157.60 pt,
+#' `ragg` 156.38 pt, and `pdf(NULL)` 150.08 pt, the last one reaching no
+#' system font at all. [withr::with_svg()] wraps the cairo device and so does
+#' not qualify here.
+#'
+#' `svglite::svgstring()` renders to a memory buffer rather than a file. It
+#' measures identically to `svglite::svglite()` and writes nothing to disk.
+#'
+#' @section Cleanup:
+#' The device is closed by its number, captured on opening. Closing whichever
+#' device happens to be current on exit would close the wrong one as soon as
+#' `code` leaves a device behind, which any error raised after a graphics call
+#' does.
+#'
+#' @examples
+#' \dontrun{
+#' size <- list(width = 11.5, height = 8)
+#'
+#' flowchart <- with_fig_device(size$width, size$height, {
+#'   screened <- Gmisc::boxGrob("Screened (n = 333)", x = 0.4, y = 0.7)
+#'   included <- Gmisc::boxGrob("Included (n = 103)", x = 0.4, y = 0.3)
+#'
+#'   grid::grobTree(
+#'     screened,
+#'     included,
+#'     Gmisc::connectGrob(screened, included, type = "N")
+#'   )
+#' })
+#'
+#' easy_out(flowchart, width = size$width, height = size$height)
+#' }
+#'
+#' @seealso [easy_out()], which draws the graphic on a device of that size.
+#'
+with_fig_device <- \(width, height, code) {
+  check_size <- \(value, arg) {
+    valid <-
+      (is_scalar_double(value) || is_scalar_integer(value)) &&
+      !is.na(value) &&
+      value > 0
+
+    if (!valid) {
+      cli_abort("{.arg {arg}} must be a single positive number, in inches.")
+    }
+  }
+
+  check_size(width, "width")
+  check_size(height, "height")
+
+  svglite::svgstring(width = width, height = height)
+  device <- grDevices::dev.cur()
+
+  on.exit(
+    {
+      previous <- grDevices::dev.prev(device)
+      grDevices::dev.off(device)
+
+      if (previous != device) {
+        grDevices::dev.set(previous)
+      }
+    },
+    add = TRUE
+  )
+
+  code
+}
+
 browse_url <- \(browse, dir) {
   if (!browse_remote()) {
     return(browse)

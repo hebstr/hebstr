@@ -215,6 +215,18 @@
   path
 }
 
+.local_device <- \(width, height, .local_envir = parent.frame()) {
+  svglite::svgstring(width = width, height = height)
+  device <- grDevices::dev.cur()
+
+  withr::defer(
+    if (device %in% grDevices::dev.list()) grDevices::dev.off(device),
+    envir = .local_envir
+  )
+
+  device
+}
+
 .view_box <- \(path) {
   path |>
     readLines() |>

@@ -1170,3 +1170,93 @@ test_that("local_server() leaves no handle behind on exit", {
 
   expect_null(.hebstr$.server)
 })
+
+### WITH_FIG_DEVICE --------------------------------------------------------------
+
+test_that("with_fig_device() evaluates code on a device of the requested size", {
+  expect_equal(
+    with_fig_device(width = 11.5, height = 8, code = grDevices::dev.size("in")),
+    c(11.5, 8)
+  )
+})
+
+test_that("with_fig_device() returns the value of code", {
+  expect_identical(
+    with_fig_device(width = 4, height = 3, code = "value"),
+    "value"
+  )
+})
+
+test_that("with_fig_device() shadows the ambient device for unit conversion", {
+  .local_device(width = 7, height = 5)
+
+  npc_in_inches <- \() {
+    grid::convertHeight(grid::unit(1, "npc"), "in", valueOnly = TRUE)
+  }
+
+  expect_equal(npc_in_inches(), 5)
+  expect_equal(
+    with_fig_device(width = 11.5, height = 8, code = npc_in_inches()),
+    8
+  )
+  expect_equal(npc_in_inches(), 5)
+})
+
+test_that("with_fig_device() restores the device that was current", {
+  ambient <- .local_device(width = 7, height = 5)
+
+  with_fig_device(width = 11.5, height = 8, code = NULL)
+
+  expect_identical(grDevices::dev.cur(), ambient)
+  expect_length(grDevices::dev.list(), 1L)
+})
+
+test_that("with_fig_device() closes its own device when code errors after opening another", {
+  .local_device(width = 7, height = 5)
+  before <- grDevices::dev.list()
+
+  expect_error(
+    with_fig_device(
+      width = 11.5,
+      height = 8,
+      code = {
+        svglite::svgstring(width = 3, height = 3)
+        stop("failure inside the block")
+      }
+    ),
+    "failure inside the block"
+  )
+
+  leaked <- setdiff(grDevices::dev.list(), before)
+
+  expect_length(leaked, 1L)
+
+  grDevices::dev.set(leaked)
+  expect_equal(grDevices::dev.size("in"), c(3, 3))
+  grDevices::dev.off(leaked)
+})
+
+test_that("with_fig_device() writes no file", {
+  dir <- withr::local_tempdir()
+  withr::local_dir(dir)
+
+  with_fig_device(width = 11.5, height = 8, code = NULL)
+
+  expect_length(list.files(dir, all.files = TRUE, no.. = TRUE), 0L)
+})
+
+test_that("with_fig_device() rejects a size svglite would silently accept", {
+  expect_error(
+    with_fig_device(width = -1, height = 8, code = NULL),
+    "width.*positive"
+  )
+  expect_error(
+    with_fig_device(width = 11.5, height = NA, code = NULL),
+    "height.*positive"
+  )
+  expect_error(
+    with_fig_device(width = c(7, 8), height = 8, code = NULL),
+    "width.*single positive"
+  )
+  expect_length(grDevices::dev.list(), 0L)
+})
