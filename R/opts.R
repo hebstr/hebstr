@@ -112,10 +112,11 @@ clear_vars <- \() {
 #' [check_opts()] and [get_opts()] read it, or returned for inspection. Keys can
 #' be overridden through `...`.
 #'
-#' @param .default_font Font family used for both the text (`alpha`) and numeric
-#'   (`digit`) font slots unless overridden through `font`. Passed through
-#'   [check_fonts()], so an unavailable font falls back to the OS-agnostic
-#'   system sans-serif (`"sans"`). Defaults to `"sans"`.
+#' @param .default_font Fallback font family, used when a family requested
+#'   through `font` is unavailable on the system. Passed to [check_fonts()] as
+#'   its `.default`. It does not fill the text (`alpha`) and numeric (`digit`)
+#'   font slots itself: those default to the OS-agnostic system sans-serif
+#'   (`"sans"`) and are set through `font`. Defaults to `"sans"`.
 #' @param .vars_envir Optional variable classification (as produced by
 #'   [easy_descr()]) used to resolve the deferred `opts$vars` formulas. When
 #'   `NULL` (default), the formulas resolve against the `.vars_context` cached by
@@ -123,7 +124,11 @@ clear_vars <- \() {
 #' @param .assign Logical. If `TRUE` (default), the options object is stored under
 #'   `.name` in the package's internal store; if `FALSE`, it is returned.
 #' @param .name Name under which the options object is stored in, and retrieved
-#'   from, the package's internal store. Defaults to `"opts"`.
+#'   from, the package's internal store. Defaults to `"opts"`, the only name the
+#'   package reads on its own: the option-backed argument defaults across themes
+#'   and tables target it by name. Another name stays reachable through
+#'   [get_opts()] and [check_opts()], given a matching `.name`, so it serves
+#'   inspection rather than an alternative active profile.
 #' @param ... Named overrides for existing option keys, or new named entries
 #'   added to the options object. Unknown names are accepted as user-defined
 #'   extensions, readable afterwards via [check_opts()] and [get_opts()].

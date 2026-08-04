@@ -24,7 +24,9 @@ With \code{.auto}, the resolved font family (the requested one or
 }
 \description{
 Tests one or more font families against the system font list (via
-\code{\link[systemfonts:system_fonts]{systemfonts::system_fonts()}}). Family names match in full, ignoring case: a
+\code{\link[systemfonts:system_fonts]{systemfonts::system_fonts()}}) and the session registry (via
+\code{\link[systemfonts:registry_fonts]{systemfonts::registry_fonts()}}), so a family registered from bundled font
+files counts as available. Family names match in full, ignoring case: a
 name shared with a wider family (\code{"Liberation"} against \code{"Liberation Sans"})
 counts as missing, since rendering it falls back to the system default. The
 device aliases \code{"sans"}, \code{"serif"} and \code{"mono"} always count as available.

@@ -264,6 +264,28 @@ test_that("check_fonts() falls back to the OS-agnostic 'sans' family", {
   expect_identical(check_fonts(.auto = "luciole"), "sans")
 })
 
+test_that("check_fonts() reports a font registered from bundled files", {
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
+    registry_fonts = \() data.frame(family = "Fake Registered"),
+    .package = "systemfonts"
+  )
+
+  expect_true(check_fonts("Fake Registered"))
+  expect_identical(check_fonts(.auto = "Fake Registered"), "Fake Registered")
+})
+
+test_that("check_fonts() falls back when the registry holds no match either", {
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = "Fake Sans"),
+    registry_fonts = \() data.frame(family = character(0)),
+    .package = "systemfonts"
+  )
+
+  expect_false(check_fonts("Zzz Not Installed"))
+  expect_identical(check_fonts(.auto = "Zzz Not Installed"), "sans")
+})
+
 test_that(".text_font() reads the centralised text font when opts exists", {
   local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 

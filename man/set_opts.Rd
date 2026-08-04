@@ -13,10 +13,11 @@ set_opts(
 )
 }
 \arguments{
-\item{.default_font}{Font family used for both the text (\code{alpha}) and numeric
-(\code{digit}) font slots unless overridden through \code{font}. Passed through
-\code{\link[=check_fonts]{check_fonts()}}, so an unavailable font falls back to the OS-agnostic
-system sans-serif (\code{"sans"}). Defaults to \code{"sans"}.}
+\item{.default_font}{Fallback font family, used when a family requested
+through \code{font} is unavailable on the system. Passed to \code{\link[=check_fonts]{check_fonts()}} as
+its \code{.default}. It does not fill the text (\code{alpha}) and numeric (\code{digit})
+font slots itself: those default to the OS-agnostic system sans-serif
+(\code{"sans"}) and are set through \code{font}. Defaults to \code{"sans"}.}
 
 \item{.vars_envir}{Optional variable classification (as produced by
 \code{\link[=easy_descr]{easy_descr()}}) used to resolve the deferred \code{opts$vars} formulas. When
@@ -27,7 +28,11 @@ system sans-serif (\code{"sans"}). Defaults to \code{"sans"}.}
 \code{.name} in the package's internal store; if \code{FALSE}, it is returned.}
 
 \item{.name}{Name under which the options object is stored in, and retrieved
-from, the package's internal store. Defaults to \code{"opts"}.}
+from, the package's internal store. Defaults to \code{"opts"}, the only name the
+package reads on its own: the option-backed argument defaults across themes
+and tables target it by name. Another name stays reachable through
+\code{\link[=get_opts]{get_opts()}} and \code{\link[=check_opts]{check_opts()}}, given a matching \code{.name}, so it serves
+inspection rather than an alternative active profile.}
 
 \item{...}{Named overrides for existing option keys, or new named entries
 added to the options object. Unknown names are accepted as user-defined

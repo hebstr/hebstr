@@ -255,6 +255,7 @@
 #' @importFrom stringr str_sub
 #' @importFrom stringr "str_sub<-"
 #' @importFrom stringr str_subset
+#' @importFrom systemfonts registry_fonts
 #' @importFrom systemfonts system_fonts
 #' @importFrom tibble add_row
 #' @importFrom tibble as_tibble

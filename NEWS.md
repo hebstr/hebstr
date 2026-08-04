@@ -171,6 +171,7 @@ Options and the variable classification cache now live in an internal package st
 - `gtsum_format()` labels the regression count column `n/N` by default (events over observations), and `N` when the model carries no events, replacing the former `Events/Obs` and `Obs` headers.
   Override with `label_n`.
 - `acro()` adds the `n/N` acronym (events over total observations) to its built-in English and French dictionaries, so the `n/N` count column that `gtsum_format()` emits expands to a full footnote definition.
+- `check_fonts()` tests the session font registry (`systemfonts::registry_fonts()`) alongside the system font list, so a family registered from bundled font files with `systemfonts::register_font()` counts as available instead of falling back to the default.
 - `easy_descr()` prints its variable classification as a single per-variable tibble (name, storage type, statistical group) instead of grouped variable lists, with storage-type codes aligned on those of `easy_view()`.
 - `easy_out()` renders plot SVG with the `svglite` device instead of `grDevices::svg` (via `htmltools::capturePlot`), producing cleaner, more portable SVG and dropping the `htmltools` and `grDevices` dependencies.
 - `easy_out()` lowers its default raster resolution `px` from 2000 to 1200, producing smaller PNG files by default; pass `px = 2000` to restore the previous resolution.

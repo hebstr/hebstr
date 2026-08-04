@@ -1,7 +1,9 @@
 #' Check whether font families are installed
 #'
 #' Tests one or more font families against the system font list (via
-#' [systemfonts::system_fonts()]). Family names match in full, ignoring case: a
+#' [systemfonts::system_fonts()]) and the session registry (via
+#' [systemfonts::registry_fonts()]), so a family registered from bundled font
+#' files counts as available. Family names match in full, ignoring case: a
 #' name shared with a wider family (`"Liberation"` against `"Liberation Sans"`)
 #' counts as missing, since rendering it falls back to the system default. The
 #' device aliases `"sans"`, `"serif"` and `"mono"` always count as available.
@@ -33,6 +35,7 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 
     system <- c(
       unique(systemfonts::system_fonts()$family),
+      unique(systemfonts::registry_fonts()$family),
       c("sans", "serif", "mono")
     )
 
