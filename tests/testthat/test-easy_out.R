@@ -1260,3 +1260,86 @@ test_that("with_fig_device() rejects a size svglite would silently accept", {
   )
   expect_length(grDevices::dev.list(), 0L)
 })
+
+test_that("easy_out() embeds the resolved font into the SVG it writes", {
+  tmp <- withr::local_tempdir()
+  local_opts(font = "Luciole", .default_font = "sans")
+  skip_if_not(check_fonts("Luciole"), "Luciole unavailable")
+
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point(shape = "\U0131")
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "webfont", dir = tmp, quiet = TRUE)
+  svg <- paste(
+    readLines(fs::path(tmp, "webfont", ext = "svg")),
+    collapse = "\n"
+  )
+
+  expect_match(svg, "@font-face")
+  expect_match(svg, "url\\(\\s*[\"']?data:font")
+})
+
+test_that("easy_out() gives the device the same font aliases as the document", {
+  tmp <- withr::local_tempdir()
+  local_opts(font = "Luciole", .default_font = "sans")
+  skip_if_not(check_fonts("Luciole"), "Luciole unavailable")
+
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point(shape = "\U0131")
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "alias", dir = tmp, quiet = TRUE)
+  svg <- paste(readLines(fs::path(tmp, "alias", ext = "svg")), collapse = "\n")
+
+  # a character shape is drawn with the device default family, never the theme's
+  expect_no_match(svg, "Liberation Sans")
+})
+
+test_that("easy_out() embeds the font on the grob branch too", {
+  tmp <- withr::local_tempdir()
+  local_opts(font = "Luciole", .default_font = "sans")
+  skip_if_not(check_fonts("Luciole"), "Luciole unavailable")
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  g <- grid::grobTree(grid::textGrob("Hamburgefonstiv"))
+  easy_out(g, filename = "grobfont", dir = tmp, quiet = TRUE, crop = FALSE)
+  svg <- paste(
+    readLines(fs::path(tmp, "grobfont", ext = "svg")),
+    collapse = "\n"
+  )
+
+  expect_match(svg, "@font-face")
+  expect_match(svg, 'font-family: "Luciole"')
+})
+
+test_that(".web_fonts() returns NULL for a family the package does not bundle", {
+  local_opts(font = "sans")
+
+  # the hint is posted at `.frequency = "once"`, so asserting it would go
+  # false-negative on a repeated run in the same session
+  expect_null(suppressMessages(.web_fonts("Helvetica")))
+  expect_null(.web_fonts("sans"))
+})
+
+test_that(".device_fonts() leaves the generic aliases alone", {
+  local_opts(font = "sans")
+
+  expect_identical(.device_fonts(), list())
+  expect_identical(.device_fonts("Luciole"), list(sans = "Luciole"))
+})

@@ -90,6 +90,15 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `easy_out()` writes SVGs that carry their font, so an exported figure no longer renders in a substitute for a reader who does not have that font installed.
+  An SVG lands in a Quarto document as `<img src="data:image/svg+xml;base64,…">`, and an SVG referenced by `<img>` is an isolated document: the `@font-face` rules of the surrounding page never cross into it, so its `font-family` resolves against the reader's own fonts.
+  The bundled Luciole regular and bold faces are now embedded into the file as `@font-face` blocks with a base64 WOFF2 `src:`, adding roughly 114 KB per figure.
+  The new `web_fonts` argument overrides them, for a family the package does not bundle; build the blocks with `svglite::font_face(woff2 = <data URI>)` rather than `embed = TRUE`, which re-emits the face as uncompressed TTF at thirteen times the weight.
+  A family with no bundled face posts a one-off hint instead of silently writing a figure that depends on the reader.
+- `easy_out()` gives its device the font `set_opts()` resolved, so text that names no family renders in it.
+  A character `shape` (`geom_point(shape = "x")`, a censor mark drawn as a glyph) is drawn with the device's default family and never with the theme's, so it fell through to whatever fontconfig returned, typically `Liberation Sans`.
+  On a plot carrying no hebstr theme the gap covered every string, axis labels included.
+  The same figure therefore rendered differently depending on whether it was read from a Quarto document, whose device carries the alias, or from the exported file.
 - `col_missing()` no longer leaves a leading space in each `dm` cell under its default empty `prefix`.
   The template separated prefix from counts unconditionally, so a cell read `" 0/2"` instead of `"0/2"`.
   HTML collapses leading whitespace, so this surfaced in Word.

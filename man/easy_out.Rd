@@ -15,7 +15,8 @@ easy_out(
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
   quiet = getOption("easy_out.quiet", default = FALSE),
-  export = getOption("easy_out.export", default = !.is_docx())
+  export = getOption("easy_out.export", default = !.is_docx()),
+  web_fonts = .web_fonts()
 )
 }
 \arguments{
@@ -65,6 +66,13 @@ to \code{getOption("easy_out.quiet", FALSE)}.}
 \code{\link[flextable:flextable]{flextable::flextable()}}, leaving no object to export to HTML or PNG.
 The guard is read from the session option alone, so a workbook exported
 during a Word run needs an explicit \code{export = TRUE}.}
+
+\item{web_fonts}{Faces embedded into the SVG, as \code{\link[svglite:font_face]{svglite::font_face()}}
+blocks. Defaults to the bundled faces for the font \code{set_opts()} resolved,
+and to \code{NULL} for a family the package does not ship, which leaves the SVG
+rendering in whatever the reader has installed. Supply your own to cover
+another family; build them with \code{woff2} given as a \verb{data:} URI rather than
+\code{embed = TRUE}, which re-emits the face as uncompressed TTF.}
 }
 \value{
 \code{NULL} (invisibly). Called for its side effects.

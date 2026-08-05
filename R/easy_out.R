@@ -40,6 +40,12 @@
 #'   [flextable::flextable()], leaving no object to export to HTML or PNG.
 #'   The guard is read from the session option alone, so a workbook exported
 #'   during a Word run needs an explicit `export = TRUE`.
+#' @param web_fonts Faces embedded into the SVG, as [svglite::font_face()]
+#'   blocks. Defaults to the bundled faces for the font `set_opts()` resolved,
+#'   and to `NULL` for a family the package does not ship, which leaves the SVG
+#'   rendering in whatever the reader has installed. Supply your own to cover
+#'   another family; build them with `woff2` given as a `data:` URI rather than
+#'   `embed = TRUE`, which re-emits the face as uncompressed TTF.
 #'
 #' @details
 #' In a remote session, the exported file lives on the server while the
@@ -74,7 +80,8 @@ easy_out <- \(
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
   quiet = getOption("easy_out.quiet", default = FALSE),
-  export = getOption("easy_out.export", default = !.is_docx())
+  export = getOption("easy_out.export", default = !.is_docx()),
+  web_fonts = .web_fonts()
 ) {
   if (!is_bool(quiet)) {
     cli_abort("{.arg quiet} must be {.code TRUE} or {.code FALSE}.")
@@ -228,7 +235,9 @@ easy_out <- \(
       plot = x,
       device = svglite::svglite,
       width = width,
-      height = height
+      height = height,
+      system_fonts = .device_fonts(),
+      web_fonts = web_fonts
     )
 
     cli_progress_step("Creating PNG file")
@@ -255,7 +264,13 @@ easy_out <- \(
 
     cli_progress_step("Creating SVG file")
 
-    svglite::svglite(to_svg, width = width, height = height)
+    svglite::svglite(
+      to_svg,
+      width = width,
+      height = height,
+      system_fonts = .device_fonts(),
+      web_fonts = web_fonts
+    )
 
     local({
       # closing a device mid-unwind warns "Killing locked device", noise here
@@ -427,7 +442,11 @@ with_fig_device <- \(width, height, code) {
   check_size(width, "width")
   check_size(height, "height")
 
-  svglite::svgstring(width = width, height = height)
+  svglite::svgstring(
+    width = width,
+    height = height,
+    system_fonts = .device_fonts()
+  )
   device <- grDevices::dev.cur()
 
   on.exit(

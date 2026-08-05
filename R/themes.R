@@ -68,6 +68,73 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 }
 
 
+# Faces the package ships, keyed by family in lowercase: a family reaches here
+# as the user spelled it in set_opts().
+.bundled_faces <- list(
+  luciole = list(
+    c(file = "Luciole-Regular.woff2", weight = "400"),
+    c(file = "Luciole-Bold.woff2", weight = "700")
+  )
+)
+
+
+# An SVG referenced by <img> is an isolated document and never reaches the
+# @font-face rules of the page around it, so the face has to travel inside the
+# file. WOFF2 as a data URI, never font_face(embed = TRUE): that one re-emits
+# the face as uncompressed TTF through FreeType, thirteen times the weight and
+# unreadable where brotli is not compiled in.
+.web_fonts <- \(family = NULL) {
+  family <- family %||% .text_font()
+  faces <- .bundled_faces[[tolower(family)]]
+
+  if (is.null(faces)) {
+    if (!tolower(family) %in% c("sans", "serif", "mono")) {
+      cli_inform(
+        message = c(
+          "!" = "No bundled face for {.val {family}}: exported SVGs render in
+                 whatever the reader has installed.",
+          "i" = "Pass {.arg web_fonts} to {.fn easy_out} to supply your own."
+        ),
+        .frequency = "once",
+        .frequency_id = paste0("hebstr_web_fonts_", tolower(family))
+      )
+    }
+
+    return(NULL)
+  }
+
+  dir <- system.file("fonts", package = "hebstr")
+
+  lapply(faces, \(face) {
+    svglite::font_face(
+      family = family,
+      woff2 = paste0(
+        "data:font/woff2;base64,",
+        xfun::base64_encode(file.path(dir, face[["file"]]))
+      ),
+      weight = face[["weight"]],
+      style = "normal"
+    )
+  })
+}
+
+
+# svglite resolves the generic aliases through systemfonts, so text naming no
+# family (a character `shape` in geom_point, drawn with the device default)
+# lands on whatever fontconfig returns rather than on the requested font.
+.device_fonts <- \(family = NULL) {
+  family <- family %||% .text_font()
+
+  # aliasing a generic to itself asks svglite for a family literally named
+  # "sans", which no system provides
+  if (tolower(family) %in% c("sans", "serif", "mono")) {
+    return(list())
+  }
+
+  list(sans = family)
+}
+
+
 #' Standardized GT table theme
 #'
 #' Applies the package's house style to a [gt::gt()] table: fonts, borders,
