@@ -159,7 +159,7 @@ Options and the variable classification cache now live in an internal package st
 - `tbl_format()` no longer relays the "'big.mark' and 'decimal.mark' are both ','" warning that `flextable` triggers under a French locale when it numbers a footnote symbol.
 - `gtsum_format()` localises the `beta` estimator definition on the decimal mark, like its `adj_label` companion, so a French table reads `aBeta : coefficient de régression ajusté` instead of mixing the French template with an English definition.
   `or` and `hr` keep their English wording, the terms in use in French biomedical writing; override them through `estim_label` if needed.
-- `tbl_format()` renders `note_global` and the acronym definitions as two footnotes on the gt branch, as it already did on the Word branch, instead of running them together into one paragraph.
+- `tbl_format()` runs `note_global` and the acronym definitions together into a single footnote on both output branches, the acronyms following the global note on the same line instead of being broken onto their own.
 - `str_na_mv()` agrees its closing noun in the singular ("une donnée manquante").
 
 ## Minor improvements

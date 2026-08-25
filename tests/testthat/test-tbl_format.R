@@ -422,7 +422,7 @@ test_that("tbl_format() keeps the gtsummary row indentation under docx", {
   expect_gt(lead[rows == "m"], lead[rows == "sex"])
 })
 
-test_that("tbl_format() keeps note_global and the acronym note as separate footnotes", {
+test_that("tbl_format() runs note_global and the acronym note into one footnote", {
   local_opts()
 
   df <- data.frame(
@@ -442,10 +442,9 @@ test_that("tbl_format() keeps note_global and the acronym note as separate footn
 
   expect_length(
     unlist(stringr::str_extract_all(html, 'class="gt_footnote"')),
-    2
+    1
   )
-  expect_match(html, "global note", fixed = TRUE)
-  expect_match(html, "body mass index", fixed = TRUE)
+  expect_match(html, "global note BMI: body mass index.", fixed = TRUE)
 })
 
 test_that("tbl_format() reads page_width from the options", {

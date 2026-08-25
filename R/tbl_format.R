@@ -223,7 +223,7 @@ tbl_format <- \(
   notes <- c(str_c(note_global), .acro_str)
 
   if (length(notes) > 0) {
-    x <- reduce(notes, tab_footnote, .init = x)
+    x <- tab_footnote(x, footnote = str_flatten(notes, collapse = " "))
   }
 
   if (is_coef && !is.null(note_pvalue)) {
@@ -269,7 +269,7 @@ tbl_format <- \(
   notes <- c(str_c(note_global), acro_note)
 
   if (length(notes) > 0) {
-    x <- reduce(notes, modify_source_note, .init = x)
+    x <- modify_source_note(x, str_flatten(notes, collapse = " "))
   }
 
   if (is_coef && !is.null(note_pvalue)) {
