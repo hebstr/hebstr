@@ -252,6 +252,52 @@ test_that("gtsum_format() |> tbl_format() renders the estimator footnote", {
   )
 })
 
+test_that("gtsum_format() defines the Poisson estimator", {
+  local_opts()
+
+  pois <- .make_pois_tbl()
+  res <- gtsum_format(pois$tbl, model_mv = pois$mod)
+
+  expect_equal(unique(res$table_body$coefficients_label), "IRR")
+  expect_equal(unique(res$table_body$estim_label), "incidence rate ratio")
+  expect_match(
+    unlist(tbl_format(res)[["_footnotes"]]$footnotes),
+    "IRR.+incidence rate ratio",
+    all = FALSE
+  )
+})
+
+test_that("gtsum_format() defines the relative-risk estimator", {
+  local_opts()
+
+  rr <- .make_rr_tbl()
+  res <- gtsum_format(rr$tbl, model_mv = rr$mod)
+
+  expect_equal(unique(res$table_body$coefficients_label), "RR")
+  expect_equal(unique(res$table_body$estim_label), "relative risk")
+})
+
+test_that("gtsum_format() overrides the Poisson acronym and its definition", {
+  local_opts()
+
+  pois <- .make_pois_tbl()
+  res <- gtsum_format(
+    pois$tbl,
+    model_mv = pois$mod,
+    estim_acro = list(irr = "MR"),
+    estim_label = list(irr = "mean count ratio")
+  )
+
+  expect_equal(unique(res$table_body$coefficients_label), "MR")
+  header <- res$table_styling$header
+  expect_match(header$label[header$column == "estimate"], "aMR")
+  expect_match(
+    unlist(tbl_format(res)[["_footnotes"]]$footnotes),
+    "aMR.+mean count ratio",
+    all = FALSE
+  )
+})
+
 test_that("tbl_format() strips the native gtsummary abbreviations", {
   local_opts()
 

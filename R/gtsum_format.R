@@ -52,7 +52,9 @@
   .lab_test <- list(
     beta = "Beta",
     or = "OR",
-    hr = "HR"
+    hr = "HR",
+    irr = "IRR",
+    rr = "RR"
   ) |>
     list_modify(!!!.estim_acro)
 
@@ -63,7 +65,9 @@
       "coefficient de r\u00e9gression"
     },
     or = "odds ratio",
-    hr = "hazard ratio"
+    hr = "hazard ratio",
+    irr = "incidence rate ratio",
+    rr = "relative risk"
   ) |>
     list_modify(!!!.estim_label)
 
@@ -76,6 +80,8 @@
             "Beta" ~ .lab_test$beta,
             "exp(Beta)" ~ .lab_test$or,
             "HR" ~ .lab_test$hr,
+            "IRR" ~ .lab_test$irr,
+            "RR" ~ .lab_test$rr,
             default = coefficients_label
           ),
           adj_coefficients_label = if (is_mvreg) {
@@ -87,7 +93,9 @@
             coefficients_label,
             .lab_test$beta ~ .lab$beta,
             .lab_test$or ~ .lab$or,
-            .lab_test$hr ~ .lab$hr
+            .lab_test$hr ~ .lab$hr,
+            .lab_test$irr ~ .lab$irr,
+            .lab_test$rr ~ .lab$rr
           )
         )
     )
@@ -317,11 +325,18 @@
 #' @param adj_label Glue template for the adjusted estimator definition.
 #'   Defaults to a bilingual template keyed on `getOption("OutDec")`.
 #' @param estim_acro Named list overriding the default estimator acronyms
-#'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults.
+#'   (`beta`, `or`, `hr`, `irr`, `rr`). `NULL` (default) keeps the defaults.
 #' @param estim_label Named list overriding the default estimator definitions
-#'   (`beta`, `or`, `hr`). `NULL` (default) keeps the defaults, whose `beta`
-#'   entry is bilingual and keyed on `getOption("OutDec")`, like `adj_label`.
-#'   A partial list overrides the named entries only.
+#'   (`beta`, `or`, `hr`, `irr`, `rr`). `NULL` (default) keeps the defaults,
+#'   whose `beta` entry is bilingual and keyed on `getOption("OutDec")`, like
+#'   `adj_label`. A partial list overrides the named entries only.
+#'
+#'   The slot is selected by the coefficient type `broom.helpers` reads off the
+#'   fitted model, not by the estimand: `irr` covers every Poisson-family fit
+#'   with a log link, whose exponentiated coefficient is a rate ratio only when
+#'   the model carries a person-time offset, and a ratio of expected counts
+#'   otherwise. Override both entries to name what the model actually
+#'   estimates.
 #' @param ci Confidence-interval specification (`label` and `data` pattern).
 #'   Defaults to the `ci` option.
 #' @param model_mv The fitted multivariable model, used to read factor

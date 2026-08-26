@@ -68,12 +68,19 @@ estimator. Defaults to \code{"a"}.}
 Defaults to a bilingual template keyed on \code{getOption("OutDec")}.}
 
 \item{estim_acro}{Named list overriding the default estimator acronyms
-(\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults.}
+(\code{beta}, \code{or}, \code{hr}, \code{irr}, \code{rr}). \code{NULL} (default) keeps the defaults.}
 
 \item{estim_label}{Named list overriding the default estimator definitions
-(\code{beta}, \code{or}, \code{hr}). \code{NULL} (default) keeps the defaults, whose \code{beta}
-entry is bilingual and keyed on \code{getOption("OutDec")}, like \code{adj_label}.
-A partial list overrides the named entries only.}
+(\code{beta}, \code{or}, \code{hr}, \code{irr}, \code{rr}). \code{NULL} (default) keeps the defaults,
+whose \code{beta} entry is bilingual and keyed on \code{getOption("OutDec")}, like
+\code{adj_label}. A partial list overrides the named entries only.
+
+The slot is selected by the coefficient type \code{broom.helpers} reads off the
+fitted model, not by the estimand: \code{irr} covers every Poisson-family fit
+with a log link, whose exponentiated coefficient is a rate ratio only when
+the model carries a person-time offset, and a ratio of expected counts
+otherwise. Override both entries to name what the model actually
+estimates.}
 
 \item{ci}{Confidence-interval specification (\code{label} and \code{data} pattern).
 Defaults to the \code{ci} option.}

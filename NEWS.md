@@ -90,6 +90,10 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `gtsum_format()` defines the `IRR` and `RR` estimators, the acronyms `gtsummary` writes for a Poisson-family fit with a log link and for a log-binomial one.
+  Neither was declared, so the estimator footnote rendered the literal `IRR: NA; aIRR: adjusted NA`, and `estim_acro` could not rename them: the acronym recoding keyed on `Beta`, `exp(Beta)` and `HR` alone, and every other label fell through to its own value with no definition behind it.
+  The `estim_acro` and `estim_label` slot sets gain `irr` and `rr`, defaulting to `incidence rate ratio` and `relative risk`.
+  The `irr` slot follows the coefficient type read off the fitted model, not the estimand: a Poisson fit carrying no person-time offset estimates a ratio of expected counts rather than a rate ratio, which is what the two overrides are there to name.
 - `easy_out()` writes SVGs that carry their font, so an exported figure no longer renders in a substitute for a reader who does not have that font installed.
   An SVG lands in a Quarto document as `<img src="data:image/svg+xml;base64,…">`, and an SVG referenced by `<img>` is an isolated document: the `@font-face` rules of the surrounding page never cross into it, so its `font-family` resolves against the reader's own fonts.
   The bundled Luciole regular and bold faces are now embedded into the file as `@font-face` blocks with a base64 WOFF2 `src:`, adding roughly 114 KB per figure.

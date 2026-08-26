@@ -98,6 +98,31 @@
   )
 }
 
+.make_pois_tbl <- \() {
+  df <- data.frame(
+    y = rep(c(1L, 2L, 3L, 4L, 5L, 6L), 20),
+    x = factor(rep(c("a", "b"), each = 60))
+  )
+  mod <- glm(y ~ x, data = df, family = quasipoisson())
+
+  list(tbl = gtsummary::tbl_regression(mod, exponentiate = TRUE), mod = mod)
+}
+
+.make_rr_tbl <- \() {
+  df <- data.frame(
+    y = c(rep(c(1, 0, 0, 0, 0), 12), rep(c(1, 1, 0, 0, 0), 12)),
+    x = factor(rep(c("a", "b"), each = 60))
+  )
+  mod <- glm(
+    y ~ x,
+    data = df,
+    family = binomial(link = "log"),
+    start = c(log(0.2), log(2))
+  )
+
+  list(tbl = gtsummary::tbl_regression(mod, exponentiate = TRUE), mod = mod)
+}
+
 .make_no_event_tbl <- \() {
   df <- data.frame(
     y = rep(c(0, 1), 15),
