@@ -3,7 +3,6 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^demo$
 ^\.vscode$
 ^air\.toml$
 ^prek\.toml$

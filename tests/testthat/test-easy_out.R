@@ -1660,6 +1660,74 @@ test_that("easy_out() aborts on an unusable filename a suffix would rescue", {
   expect_false(fs::dir_exists(named))
 })
 
+test_that("easy_out() requires a filename when the object carries no name", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out(identity(p), dir = tmp, quiet = TRUE),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out() names the folder a call would have been given", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out(identity(p), dir = withr::local_tempdir(), quiet = TRUE),
+    regexp = "identity-p"
+  )
+})
+
+test_that("easy_out() takes a call once the filename is given", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(identity(p), filename = "fig_flow", dir = tmp, quiet = TRUE)
+
+  expect_true(
+    fs::file_exists(fs::path(tmp, "fig-flow", "fig-flow", ext = "svg"))
+  )
+})
+
+test_that("easy_out() asks for no name when the export is skipped", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_null(easy_out(identity(p), dir = tmp))
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out_map() requires a filename for a list built at the call", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out_map(list(os = p, pfs = p), dir = tmp, quiet = TRUE),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
 test_that("easy_out_map() rejects element names that fold onto one filename", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()

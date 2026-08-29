@@ -11,8 +11,8 @@ easy_out_map(x, filename = NULL, sep = "_", subdir = TRUE, ...)
 folded into kebab-case along with the rest of the filename, so they
 have to stay distinct once folded.}
 
-\item{filename}{Base filename. Defaults to the unevaluated expression
-passed as \code{x}.}
+\item{filename}{Base filename. Defaults to the name of the object passed
+as \code{x}, and is required when the list is built at the call.}
 
 \item{sep}{Separator between \code{filename} and the list element name. Folded
 into a dash along with the rest of the name, so it separates without
@@ -36,7 +36,7 @@ the list name to the filename.
 }
 \examples{
 \dontrun{
-easy_out_map(list(fig1 = p1, fig2 = p2))
+easy_out_map(list(fig1 = p1, fig2 = p2), filename = "fig")
 }
 
 }

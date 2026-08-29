@@ -8,10 +8,12 @@
 #' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
 #'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), or wbWorkbook
 #'   object, such as the one [get_xlsx()] returns.
-#' @param filename Output filename (without extension). Defaults to the
-#'   unevaluated expression passed as `x`. Written out in kebab-case:
-#'   lowercased, with every run of non-alphanumeric characters folded into a
-#'   single dash, so `tbl_demo` writes `tbl-demo.html`.
+#' @param filename Output filename (without extension). Defaults to the name
+#'   of the object passed as `x`, and is required when `x` is anything else
+#'   than a name: the deparsed call would name the folder and the file after
+#'   the whole expression. Written out in kebab-case: lowercased, with every
+#'   run of non-alphanumeric characters folded into a single dash, so
+#'   `tbl_demo` writes `tbl-demo.html`.
 #' @param dir Output directory. Created if it does not exist. Defaults
 #'   to `getOption("easy_out.dir", "output")`.
 #' @param subdir Folder created inside `dir` to hold this output. `TRUE` (the
@@ -92,7 +94,7 @@
 #'
 easy_out <- \(
   x,
-  filename = as_label(enexpr(x)),
+  filename = NULL,
   dir = getOption("easy_out.dir", default = "output"),
   subdir = TRUE,
   suffix = "",
@@ -139,10 +141,14 @@ easy_out <- \(
 
   clear_vars()
 
+  # captured before the guards force x, after which enexpr() hands back the value
+  expr <- enexpr(x)
+  label <- as_label(expr)
+
   cli_h1("easy_out")
   cat_line()
 
-  cli_alert_info("Object: {.strong {filename}} {.cls {class(x)}}")
+  cli_alert_info("Object: {.strong {label}} {.cls {class(x)}}")
   cat_line()
 
   is_supported <-
@@ -152,7 +158,7 @@ easy_out <- \(
 
   if (!is_supported) {
     cli_abort(c(
-      "{.strong {filename}} must be a gt/gtsummary, ggplot, grid grob, or workbook object",
+      "{.strong {label}} must be a gt/gtsummary, ggplot, grid grob, or workbook object",
       "i" = "Received object of class: {.cls {class(x)}}",
       if (inherits(x, "flextable")) {
         c(
@@ -174,8 +180,12 @@ easy_out <- \(
     cli_abort(c(
       "{.arg pptx} only covers a plot or a grid grob.",
       "i" = "Received object of class: {.cls {class(x)}}",
-      "i" = "Pass {.code pptx = FALSE} to export {.strong {filename}} without a slide."
+      "i" = "Pass {.code pptx = FALSE} to export {.strong {label}} without a slide."
     ))
+  }
+
+  if (is.null(filename)) {
+    filename <- .out_label(expr)
   }
 
   .out_name(filename)
@@ -380,8 +390,8 @@ easy_out <- \(
 #' @param x A named list of objects [easy_out()] accepts. The names are
 #'   folded into kebab-case along with the rest of the filename, so they
 #'   have to stay distinct once folded.
-#' @param filename Base filename. Defaults to the unevaluated expression
-#'   passed as `x`.
+#' @param filename Base filename. Defaults to the name of the object passed
+#'   as `x`, and is required when the list is built at the call.
 #' @param sep Separator between `filename` and the list element name. Folded
 #'   into a dash along with the rest of the name, so it separates without
 #'   surviving verbatim.
@@ -398,7 +408,7 @@ easy_out <- \(
 #'
 #' @examples
 #' \dontrun{
-#' easy_out_map(list(fig1 = p1, fig2 = p2))
+#' easy_out_map(list(fig1 = p1, fig2 = p2), filename = "fig")
 #' }
 #'
 easy_out_map <- \(
@@ -408,19 +418,22 @@ easy_out_map <- \(
   subdir = TRUE,
   ...
 ) {
-  if (is.null(filename)) {
-    filename <- as_label(enexpr(x))
-  }
+  expr <- enexpr(x)
+  label <- as_label(expr)
 
   if (!is.list(x) || is.data.frame(x)) {
     cli_abort(c(
-      "{.strong {filename}} must be a list of tables/figures",
+      "{.strong {label}} must be a list of tables/figures",
       "i" = "Received object of class: {.cls {class(x)}}"
     ))
   }
 
   if (!is_named(x)) {
     cli_abort("{.arg x} must be a named list.")
+  }
+
+  if (is.null(filename)) {
+    filename <- .out_label(expr)
   }
 
   bases <- map_chr(names(x), ~ .out_name(paste0(filename, sep, .x)))
@@ -474,6 +487,24 @@ easy_out_map <- \(
   }
 
   .out_name(filename)
+}
+
+# the deparsed call of a piped or inline argument names the callee as much as
+# the object, and a folder is created from it, so it is refused rather than folded
+.out_label <- \(expr) {
+  label <- as_label(expr)
+
+  if (!is_symbol(expr)) {
+    folded <- .kebab(label)
+
+    cli_abort(c(
+      "{.arg filename} is required when {.arg x} is not a named object.",
+      "i" = "{.arg x} was given as {.code {label}}, which would name a folder and a file {.val {folded}}.",
+      "i" = "Assign the object first, or pass {.arg filename} to name the output."
+    ))
+  }
+
+  label
 }
 
 .out_name <- \(filename) {

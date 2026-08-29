@@ -6,7 +6,7 @@
 \usage{
 easy_out(
   x,
-  filename = as_label(enexpr(x)),
+  filename = NULL,
   dir = getOption("easy_out.dir", default = "output"),
   subdir = TRUE,
   suffix = "",
@@ -26,10 +26,12 @@ easy_out(
 Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), or wbWorkbook
 object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.}
 
-\item{filename}{Output filename (without extension). Defaults to the
-unevaluated expression passed as \code{x}. Written out in kebab-case:
-lowercased, with every run of non-alphanumeric characters folded into a
-single dash, so \code{tbl_demo} writes \code{tbl-demo.html}.}
+\item{filename}{Output filename (without extension). Defaults to the name
+of the object passed as \code{x}, and is required when \code{x} is anything else
+than a name: the deparsed call would name the folder and the file after
+the whole expression. Written out in kebab-case: lowercased, with every
+run of non-alphanumeric characters folded into a single dash, so
+\code{tbl_demo} writes \code{tbl-demo.html}.}
 
 \item{dir}{Output directory. Created if it does not exist. Defaults
 to \code{getOption("easy_out.dir", "output")}.}

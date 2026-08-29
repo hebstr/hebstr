@@ -1,8 +1,13 @@
 test_that("auto_exec() errors when directory does not exist", {
-  expect_snapshot(
-    error = TRUE,
-    transform = \(x) gsub(here::here(), "<pkgdir>", x, fixed = TRUE),
-    auto_exec(dir = "nonexistent_dir_abc123")
+  err <- expect_error(
+    auto_exec(dir = "nonexistent_dir_abc123"),
+    class = "rlang_error"
+  )
+
+  expect_match(
+    conditionMessage(err),
+    "No directory named 'nonexistent_dir_abc123' found in",
+    fixed = TRUE
   )
 })
 
@@ -10,10 +15,16 @@ test_that("auto_exec() errors when no matching files found", {
   dir <- withr::local_tempdir()
   writeLines("x <- 1", file.path(dir, "_hidden.R"))
 
-  expect_snapshot(
-    error = TRUE,
-    transform = \(x) gsub(dir, "<tmpdir>", x, fixed = TRUE),
-    auto_exec(dir = dir, except_starts_with = "_", ext = ".R")
+  err <- expect_error(
+    auto_exec(dir = dir, except_starts_with = "_", ext = ".R"),
+    class = "rlang_error"
+  )
+
+  expect_match(conditionMessage(err), "No `*.R` file found in", fixed = TRUE)
+  expect_match(
+    conditionMessage(err),
+    'Excluded files: prefix "_".',
+    fixed = TRUE
   )
 })
 
@@ -21,10 +32,13 @@ test_that("auto_exec() errors when only non-.R files exist", {
   dir <- withr::local_tempdir()
   writeLines("hello", file.path(dir, "readme.txt"))
 
-  expect_snapshot(
-    error = TRUE,
-    transform = \(x) gsub(dir, "<tmpdir>", x, fixed = TRUE),
-    auto_exec(dir = dir)
+  err <- expect_error(auto_exec(dir = dir), class = "rlang_error")
+
+  expect_match(conditionMessage(err), "No `*.R` file found in", fixed = TRUE)
+  expect_match(
+    conditionMessage(err),
+    'Excluded files: prefix "_".',
+    fixed = TRUE
   )
 })
 
