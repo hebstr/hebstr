@@ -9,7 +9,7 @@ gt_qmd(
   top_n = NULL,
   font_family = .text_font(),
   font_size = 15,
-  id = "tbl-id",
+  id = NULL,
   ...
 )
 }
@@ -26,9 +26,13 @@ otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 
 \item{font_size}{Font size in pixels. Defaults to \code{15}.}
 
-\item{id}{HTML id attribute for the table. Defaults to \code{"tbl-id"}. Has no
-effect on the \code{top_n} preview of a data frame: \code{\link[gt:gt_preview]{gt::gt_preview()}} builds
-the table itself and exposes no id argument.}
+\item{id}{HTML id attribute for the table. Defaults to \code{NULL}, which lets
+\code{\link[gt:gt]{gt::gt()}} generate a random unique id. This id scopes gt's own stylesheet,
+so a fixed default makes every table in a document share one scope, where
+the last stylesheet wins for all of them. A readable, stable anchor belongs
+on the Quarto crossref label, not here. Has no effect on the \code{top_n}
+preview of a data frame: \code{\link[gt:gt_preview]{gt::gt_preview()}} builds the table itself and
+exposes no id argument.}
 
 \item{...}{Additional arguments passed to \code{\link[gt:tab_options]{gt::tab_options()}}.}
 }

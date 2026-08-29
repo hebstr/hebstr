@@ -56,6 +56,20 @@ test_that("gt_qmd() sets the html id on the data.frame and gtsummary paths", {
   expect_equal(.id_of(gt_qmd(tbl, id = "tbl-b")), "tbl-b")
 })
 
+test_that("gt_qmd() gives each table its own id by default", {
+  .rendered_id <- \(x) {
+    html <- gt::as_raw_html(x, inline_css = FALSE)
+    match <- regmatches(html, regexpr('id="[^"]+"', html))
+    sub('id="([^"]+)"', "\\1", match)
+  }
+
+  first <- .rendered_id(gt_qmd(head(mtcars, 2)))
+  second <- .rendered_id(gt_qmd(head(mtcars, 2)))
+
+  expect_length(first, 1)
+  expect_false(identical(first, second))
+})
+
 test_that("gt_qmd() leaves the id unset on the top_n path", {
   result <- gt_qmd(mtcars, top_n = 2, id = "tbl-c")
   opts <- result[["_options"]]

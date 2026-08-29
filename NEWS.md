@@ -5,6 +5,12 @@
 Package state no longer touches the user's workspace.
 Options and the variable classification cache now live in an internal package store instead of the global environment, so the package complies with the CRAN policy against writing to `.GlobalEnv`.
 
+- `gt_qmd()` no longer gives every table the same HTML id.
+  Its `id` argument defaulted to `"tbl-id"`, a constant, where [gt::gt()] defaults to `NULL` and generates a random unique one.
+  That id scopes gt's own stylesheet, so every table in a document shared a single scope and, at equal specificity, the last stylesheet won for all of them: a table customised through `...` either had its settings discarded or leaked them onto its neighbours, depending on source order, in both cases without a warning.
+  Measured on a document holding 13 tables, where the one styled at `font_size = 13` rendered at 15 like the rest.
+  An explicit `id` is unaffected; only the default changes.
+  A document hooking `#tbl-id` from hand-written CSS has to target the Quarto crossref label instead, which is the anchor meant to be addressed.
 - `add_code_file()` is removed.
   It generated a Quarto `add-from` directive, a syntax the `hebstr-doc` extension dropped in its 0.10.0 release in favour of the `{{< script path/to/file.R >}}` shortcode, so its output no longer rendered anywhere.
   The shortcode covers the same arguments (`lang`, `filename`, `numbers`, `lines`, `dedent`, `suffix`), including programmatic generation: Quarto processes a shortcode emitted from an R chunk with `results = "asis"`.

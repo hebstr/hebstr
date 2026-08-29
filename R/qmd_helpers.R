@@ -11,9 +11,13 @@
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param font_size Font size in pixels. Defaults to `15`.
-#' @param id HTML id attribute for the table. Defaults to `"tbl-id"`. Has no
-#'   effect on the `top_n` preview of a data frame: [gt::gt_preview()] builds
-#'   the table itself and exposes no id argument.
+#' @param id HTML id attribute for the table. Defaults to `NULL`, which lets
+#'   [gt::gt()] generate a random unique id. This id scopes gt's own stylesheet,
+#'   so a fixed default makes every table in a document share one scope, where
+#'   the last stylesheet wins for all of them. A readable, stable anchor belongs
+#'   on the Quarto crossref label, not here. Has no effect on the `top_n`
+#'   preview of a data frame: [gt::gt_preview()] builds the table itself and
+#'   exposes no id argument.
 #' @param ... Additional arguments passed to [gt::tab_options()].
 #'
 #' @returns A [gt::gt] object.
@@ -28,7 +32,7 @@ gt_qmd <- \(
   top_n = NULL,
   font_family = .text_font(),
   font_size = 15,
-  id = "tbl-id",
+  id = NULL,
   ...
 ) {
   if (!inherits(data, "data.frame") && !inherits(data, "gtsummary")) {
