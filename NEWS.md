@@ -5,6 +5,15 @@
 Package state no longer touches the user's workspace.
 Options and the variable classification cache now live in an internal package store instead of the global environment, so the package complies with the CRAN policy against writing to `.GlobalEnv`.
 
+- `easy_out()` and `easy_out_map()` write each output into a folder of its own inside `dir`, and name both the folder and the files in kebab-case.
+  `easy_out(fig_surv_strata)` writes `output/fig-surv-strata/fig-surv-strata.svg` where it wrote `output/fig_surv_strata.svg`.
+  The rule is `filename` lowercased, with every run of non-alphanumeric characters folded into a single dash: `sep` therefore separates without surviving verbatim, and a `filename` that cleaning leaves empty is an error rather than a silent fallback.
+  The folder is derived before `suffix` is appended, so the variants of one output share it: `output/tbl-baseline/tbl-baseline-v2.html`.
+  `easy_out_map()` derives the folder once from the base name, so the elements of a list stay grouped instead of scattering one folder per element.
+  The directory served over HTTP in a remote session is unchanged: the root stays `dir`, the folder coming through as a path segment of the URL.
+  The new `subdir` argument takes a string to name the folder, or `FALSE` to write straight into `dir` as before; the file names are kebab-case either way.
+  The break is silent rather than noisy: the files earlier runs wrote flat stay where they are, nothing errors, and a hard-coded path such as `knitr::include_graphics("output/fig_flowchart.svg")` keeps resolving, now to an artefact no run refreshes.
+  A project catches up by deleting the old contents of its output directory, pointing its hard-coded paths at the new folder and file names, and resolving the directory of any writer of its own through `easy_out_dir()`.
 - `gt_qmd()` no longer gives every table the same HTML id.
   Its `id` argument defaulted to `"tbl-id"`, a constant, where [gt::gt()] defaults to `NULL` and generates a random unique one.
   That id scopes gt's own stylesheet, so every table in a document shared a single scope and, at equal specificity, the last stylesheet won for all of them: a table customised through `...` either had its settings discarded or leaked them onto its neighbours, depending on source order, in both cases without a warning.
@@ -55,6 +64,10 @@ Options and the variable classification cache now live in an internal package st
   `model_mv`, `ref_sep` and `ref_no` serve this argument alone and go with it at removal.
 
 ## New features
+
+- `easy_out_dir(filename, dir, subdir)` gives back the folder `easy_out()` writes into for a given `filename`, creating it if it does not exist.
+  Call it from a writer of your own to put an artefact `easy_out()` does not handle, a `pptx` among them, beside the files `easy_out()` writes for the same object.
+  With no `suffix` the folder and the base of the files it holds are the same string, so `fs::path_file()` of what it gives back is the name that artefact takes.
 
 - `with_fig_device(width, height, code)` evaluates `code` on an off-screen device of the given size, then closes it and restores the device that was current.
   `grid` resolves a unit against the device current at the time of the conversion, and a package that precomputes layout performs it when the grob is created rather than when it is drawn, `Gmisc` among them.

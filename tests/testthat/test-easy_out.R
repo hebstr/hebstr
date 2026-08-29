@@ -190,7 +190,7 @@ test_that("easy_out() builds filename with suffix", {
 
   easy_out(p, filename = "myplot", suffix = "v2", dir = tmp, quiet = TRUE)
 
-  expect_match(captured_svg, "myplot_v2")
+  expect_match(captured_svg, "myplot-v2")
 })
 
 test_that("easy_out() creates output directory if missing", {
@@ -234,7 +234,7 @@ test_that("easy_out() accepts a gt_tbl and calls gtsave/webshot", {
 
   easy_out(gt_obj, filename = "test_table", dir = tmp, quiet = TRUE)
 
-  expect_match(saved_html, "test_table\\.html$")
+  expect_match(saved_html, "test-table\\.html$")
   expect_true(webshot_called)
 })
 
@@ -520,7 +520,9 @@ test_that("easy_out() accepts a grid grob and creates an SVG", {
     easy_out(g, filename = "test_grob", dir = tmp, crop = FALSE, quiet = TRUE)
   )
 
-  expect_true(fs::file_exists(fs::path(tmp, "test_grob", ext = "svg")))
+  expect_true(
+    fs::file_exists(fs::path(tmp, "test-grob", "test-grob", ext = "svg"))
+  )
   expect_true(write_called)
 })
 
@@ -536,7 +538,7 @@ test_that("easy_out() injects xml:space=preserve on the grob SVG", {
 
   easy_out(g, filename = "test_space", dir = tmp, crop = FALSE, quiet = TRUE)
 
-  svg <- readLines(fs::path(tmp, "test_space", ext = "svg"))
+  svg <- readLines(fs::path(tmp, "test-space", "test-space", ext = "svg"))
   expect_match(
     paste(svg, collapse = "\n"),
     'xml:space="preserve"',
@@ -563,7 +565,7 @@ test_that("easy_out() builds grob filename with suffix", {
     quiet = TRUE
   )
 
-  expect_true(fs::file_exists(fs::path(tmp, "flow_v2", ext = "svg")))
+  expect_true(fs::file_exists(fs::path(tmp, "flow", "flow-v2", ext = "svg")))
 })
 
 test_that("easy_out() closes the SVG device when the grob fails to draw", {
@@ -784,7 +786,7 @@ test_that("easy_out() crops the grob canvas by default", {
   easy_out(g, filename = "cropped", dir = tmp, width = 9, quiet = TRUE)
 
   expect_equal(
-    .view_box(fs::path(tmp, "cropped", ext = "svg"))[3],
+    .view_box(fs::path(tmp, "cropped", "cropped", ext = "svg"))[3],
     0.30 * 9 * 72 * (1 + 2 * 0.03),
     tolerance = 0.02
   )
@@ -805,7 +807,10 @@ test_that("easy_out() leaves the grob canvas whole when crop is FALSE", {
     quiet = TRUE
   )
 
-  expect_equal(.view_box(fs::path(tmp, "whole", ext = "svg"))[3], 9 * 72)
+  expect_equal(
+    .view_box(fs::path(tmp, "whole", "whole", ext = "svg"))[3],
+    9 * 72
+  )
 })
 
 test_that("easy_out() leaves the plot canvas whole", {
@@ -817,7 +822,7 @@ test_that("easy_out() leaves the plot canvas whole", {
 
   easy_out(p, filename = "plot", dir = tmp, width = 9, quiet = TRUE)
 
-  expect_equal(.view_box(fs::path(tmp, "plot", ext = "svg"))[3], 9 * 72)
+  expect_equal(.view_box(fs::path(tmp, "plot", "plot", ext = "svg"))[3], 9 * 72)
 })
 
 test_that("svg_crop() carries the background rect along with the viewBox", {
@@ -846,7 +851,7 @@ test_that("easy_out() writes a workbook to a readable xlsx file", {
 
   easy_out(wb, filename = "book", dir = tmp, quiet = TRUE)
 
-  path <- fs::path(tmp, "book", ext = "xlsx")
+  path <- fs::path(tmp, "book", "book", ext = "xlsx")
 
   expect_true(fs::file_exists(path))
   expect_equal(nrow(openxlsx2::read_xlsx(path)), 3L)
@@ -877,7 +882,9 @@ test_that("easy_out() appends the suffix to a workbook filename", {
     quiet = TRUE
   )
 
-  expect_true(fs::file_exists(fs::path(tmp, "book_v2", ext = "xlsx")))
+  expect_true(
+    fs::file_exists(fs::path(tmp, "book", "book-v2", ext = "xlsx"))
+  )
 })
 
 test_that("easy_out() holds the session guard for a workbook", {
@@ -887,10 +894,14 @@ test_that("easy_out() holds the session guard for a workbook", {
   withr::local_options(hebstr.docx = TRUE)
 
   easy_out(wb, filename = "skipped", dir = tmp, quiet = TRUE)
-  expect_false(fs::file_exists(fs::path(tmp, "skipped", ext = "xlsx")))
+  expect_false(
+    fs::file_exists(fs::path(tmp, "skipped", "skipped", ext = "xlsx"))
+  )
 
   easy_out(wb, filename = "forced", dir = tmp, quiet = TRUE, export = TRUE)
-  expect_true(fs::file_exists(fs::path(tmp, "forced", ext = "xlsx")))
+  expect_true(
+    fs::file_exists(fs::path(tmp, "forced", "forced", ext = "xlsx"))
+  )
 })
 
 test_that("browse_url() hands back the file path outside a remote session", {
@@ -1113,7 +1124,7 @@ test_that("easy_out() opens a served URL in a remote session", {
 
   easy_out(wb, filename = "book", dir = tmp, quiet = FALSE)
 
-  expect_match(opened, "^http://localhost:[0-9]+/book\\.xlsx$")
+  expect_match(opened, "^http://localhost:[0-9]+/book/book\\.xlsx$")
 })
 
 test_that("easy_out() opens the file path outside a remote session", {
@@ -1133,7 +1144,7 @@ test_that("easy_out() opens the file path outside a remote session", {
 
   easy_out(wb, filename = "book", dir = tmp, quiet = FALSE)
 
-  expect_identical(opened, fs::path(tmp, "book", ext = "xlsx"))
+  expect_identical(opened, fs::path(tmp, "book", "book", ext = "xlsx"))
   expect_null(.hebstr$.server)
 })
 
@@ -1169,6 +1180,525 @@ test_that("local_server() leaves no handle behind on exit", {
   })
 
   expect_null(.hebstr$.server)
+})
+
+### SUBDIR ----------------------------------------------------------------------
+
+test_that("easy_out() writes a table into a folder derived from the filename", {
+  tmp <- withr::local_tempdir()
+  gt_obj <- gt::gt(head(mtcars, 3))
+
+  local_mocked_bindings(
+    gtsave = \(data, filename, ...) writeLines("<html></html>", filename),
+    webshot = \(url, file, ...) writeLines("png", file),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(gt_obj, filename = "tbl_baseline", dir = tmp, quiet = TRUE)
+
+  expect_true(
+    fs::file_exists(fs::path(tmp, "tbl-baseline", "tbl-baseline", ext = "html"))
+  )
+  expect_true(
+    fs::file_exists(fs::path(tmp, "tbl-baseline", "tbl-baseline", ext = "png"))
+  )
+})
+
+test_that("easy_out() writes a plot into a folder derived from the filename", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "fig_surv_strata", dir = tmp, quiet = TRUE)
+
+  expect_true(
+    fs::file_exists(
+      fs::path(tmp, "fig-surv-strata", "fig-surv-strata", ext = "svg")
+    )
+  )
+})
+
+test_that("easy_out() writes straight into dir under subdir = FALSE", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "fig_flat", dir = tmp, subdir = FALSE, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "fig-flat", ext = "svg")))
+  expect_false(fs::dir_exists(fs::path(tmp, "fig-flat")))
+})
+
+test_that("easy_out() takes a literal subdir as given", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    p,
+    filename = "fig_x",
+    dir = tmp,
+    subdir = "Fig_Group",
+    quiet = TRUE
+  )
+
+  expect_true(fs::file_exists(fs::path(tmp, "Fig_Group", "fig-x", ext = "svg")))
+})
+
+test_that("easy_out() keeps a suffixed variant in the folder of its base", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    p,
+    filename = "tbl_baseline",
+    suffix = "v2",
+    dir = tmp,
+    quiet = TRUE
+  )
+
+  expect_true(
+    fs::file_exists(
+      fs::path(tmp, "tbl-baseline", "tbl-baseline-v2", ext = "svg")
+    )
+  )
+})
+
+test_that("easy_out() writes the file name in kebab-case", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "Figs$OS", dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "figs-os", "figs-os", ext = "svg")))
+})
+
+test_that("easy_out() folds the suffix separator into the file name", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    p,
+    filename = "fig_flow",
+    suffix = "v2",
+    sep = "__",
+    dir = tmp,
+    quiet = TRUE
+  )
+
+  expect_true(
+    fs::file_exists(fs::path(tmp, "fig-flow", "fig-flow-v2", ext = "svg"))
+  )
+})
+
+test_that("easy_out() aborts on an unusable filename even when writing flat", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out(p, filename = "!!!", dir = tmp, subdir = FALSE, quiet = TRUE),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out() aborts on an unusable filename a suffix would rescue", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  flat <- fs::path(tmp, "flat")
+  named <- fs::path(tmp, "named")
+
+  expect_error(
+    easy_out(
+      p,
+      filename = "!!!",
+      dir = flat,
+      subdir = FALSE,
+      suffix = "v2",
+      quiet = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_error(
+    easy_out(
+      p,
+      filename = "!!!",
+      dir = named,
+      subdir = "held",
+      suffix = "v2",
+      quiet = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_false(fs::dir_exists(flat))
+  expect_false(fs::dir_exists(named))
+})
+
+test_that("easy_out_map() rejects element names that fold onto one filename", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out_map(
+      list(a_b = p, `a-b` = p),
+      filename = "fig",
+      dir = withr::local_tempdir(),
+      quiet = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "fig-a-b"
+  )
+
+  expect_error(
+    easy_out_map(
+      list(OS = p, os = p),
+      filename = "fig",
+      dir = withr::local_tempdir(),
+      quiet = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "fig-os"
+  )
+})
+
+test_that("easy_out_map() keeps element names that stay distinct once folded", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  easy_out_map(
+    list(os = p, pfs = p),
+    filename = "fig",
+    dir = tmp,
+    quiet = TRUE
+  )
+
+  expect_setequal(
+    as.character(fs::path_file(fs::dir_ls(
+      fs::path(tmp, "fig"),
+      glob = "*.svg"
+    ))),
+    c("fig-os.svg", "fig-pfs.svg")
+  )
+})
+
+test_that("easy_out() rejects a suffix or sep that is not a single value", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  reject <- \(...) {
+    expect_error(
+      easy_out(p, dir = withr::local_tempdir(), quiet = TRUE, ...),
+      class = "rlang_error",
+      regexp = "must be a single non-missing value"
+    )
+  }
+
+  reject(suffix = NULL)
+  reject(suffix = character(0))
+  reject(suffix = c("a", "b"))
+  reject(suffix = NA)
+  reject(suffix = "v2", sep = NULL)
+  reject(suffix = "v2", sep = NA)
+})
+
+test_that("easy_out() keeps coercing a numeric suffix rather than rejecting it", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  easy_out(p, filename = "fig", suffix = 2, dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "fig", "fig-2", ext = "svg")))
+})
+
+test_that("easy_out() rejects a subdir that is neither boolean nor a name", {
+  expect_error(
+    easy_out(mtcars, subdir = NA, quiet = TRUE),
+    class = "rlang_error",
+    regexp = "`subdir` must be",
+    fixed = TRUE
+  )
+
+  expect_error(
+    easy_out(mtcars, subdir = "", quiet = TRUE),
+    class = "rlang_error",
+    regexp = "`subdir` must be",
+    fixed = TRUE
+  )
+
+  expect_error(
+    easy_out(mtcars, subdir = c("a", "b"), quiet = TRUE),
+    class = "rlang_error",
+    regexp = "`subdir` must be",
+    fixed = TRUE
+  )
+})
+
+test_that("easy_out_dir() folds the filename into a kebab-case folder", {
+  tmp <- withr::local_tempdir()
+
+  folder <- \(...) as.character(fs::path_file(easy_out_dir(..., dir = tmp)))
+
+  expect_identical(folder("fig_surv_strata"), "fig-surv-strata")
+  expect_identical(folder("figs$os"), "figs-os")
+  expect_identical(folder("Fig  Surv__OS"), "fig-surv-os")
+  expect_identical(folder("_fig_flow_"), "fig-flow")
+})
+
+test_that("easy_out_dir() keeps a numeric token attached to its word", {
+  tmp <- withr::local_tempdir()
+
+  folder <- \(...) as.character(fs::path_file(easy_out_dir(..., dir = tmp)))
+
+  # stringr::str_to_kebab() would split these; a numeric token is part of the name
+  expect_identical(folder("fig_km_5y"), "fig-km-5y")
+  expect_identical(folder("os_12m"), "os-12m")
+  expect_identical(folder("m2_dm3"), "m2-dm3")
+  expect_identical(folder("tbl_baseline_v2"), "tbl-baseline-v2")
+})
+
+test_that("easy_out_dir() keeps letters outside ASCII as they are", {
+  tmp <- withr::local_tempdir()
+
+  folder <- \(...) as.character(fs::path_file(easy_out_dir(..., dir = tmp)))
+
+  expect_identical(folder("fig_prévalence"), "fig-prévalence")
+  expect_identical(folder("tbl_âge_médian"), "tbl-âge-médian")
+})
+
+test_that("easy_out_dir() aborts on a filename that normalises to nothing", {
+  tmp <- withr::local_tempdir()
+
+  expect_error(
+    easy_out_dir("!!!", dir = tmp),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_error(
+    easy_out_dir("!!!", dir = tmp),
+    regexp = "alphanumeric"
+  )
+
+  expect_false(fs::file_exists(fs::path(tmp, "!!!")))
+})
+
+test_that("easy_out_dir() gives back dir itself under subdir = FALSE", {
+  tmp <- withr::local_tempdir()
+
+  expect_identical(
+    as.character(easy_out_dir("fig_flow", dir = tmp, subdir = FALSE)),
+    as.character(fs::path(tmp))
+  )
+})
+
+test_that("easy_out_dir() creates and names the folder easy_out() writes into", {
+  tmp <- withr::local_tempdir()
+  root <- fs::path(tmp, "output")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "fig_flow", dir = root, quiet = TRUE)
+
+  dir <- easy_out_dir("fig_flow", dir = root)
+
+  expect_identical(
+    as.character(dir),
+    as.character(fs::path(root, "fig-flow"))
+  )
+  expect_true(fs::dir_exists(dir))
+  expect_true(fs::file_exists(fs::path(dir, "fig-flow", ext = "svg")))
+})
+
+test_that("easy_out_dir() creates a folder no output has written into yet", {
+  tmp <- withr::local_tempdir()
+
+  dir <- easy_out_dir("fig_flowchart", dir = fs::path(tmp, "output"))
+
+  expect_true(fs::dir_exists(dir))
+})
+
+test_that("easy_out_map() groups its elements in a single folder", {
+  tmp <- withr::local_tempdir()
+
+  plots <- list(
+    os = ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+      ggplot2::geom_point(),
+    pfs = ggplot2::ggplot(mtcars, ggplot2::aes(wt, qsec)) +
+      ggplot2::geom_point()
+  )
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out_map(plots, filename = "fig_surv_strata", dir = tmp, quiet = TRUE)
+
+  expect_identical(
+    as.character(fs::dir_ls(tmp, type = "directory")),
+    as.character(fs::path(tmp, "fig-surv-strata"))
+  )
+  expect_true(
+    fs::file_exists(
+      fs::path(tmp, "fig-surv-strata", "fig-surv-strata-os", ext = "svg")
+    )
+  )
+  expect_true(
+    fs::file_exists(
+      fs::path(tmp, "fig-surv-strata", "fig-surv-strata-pfs", ext = "svg")
+    )
+  )
+})
+
+test_that("easy_out_map() lets an explicit subdir win over the derivation", {
+  tmp <- withr::local_tempdir()
+
+  plots <- list(
+    os = ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+      ggplot2::geom_point()
+  )
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out_map(
+    plots,
+    filename = "fig_surv",
+    dir = tmp,
+    subdir = "grouped",
+    quiet = TRUE
+  )
+
+  expect_true(
+    fs::file_exists(fs::path(tmp, "grouped", "fig-surv-os", ext = "svg"))
+  )
+
+  easy_out_map(
+    plots,
+    filename = "fig_flat",
+    dir = tmp,
+    subdir = FALSE,
+    quiet = TRUE
+  )
+
+  expect_true(fs::file_exists(fs::path(tmp, "fig-flat-os", ext = "svg")))
+})
+
+test_that("browse_url() carries the subdir as a path segment", {
+  skip_on_cran()
+
+  tmp <- withr::local_tempdir()
+  local_server()
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  url <- browse_url(fs::path(tmp, "fig-flow", "fig-flow", ext = "svg"), tmp)
+
+  expect_match(url, "^http://localhost:[0-9]+/fig-flow/fig-flow\\.svg$")
+  expect_identical(.hebstr$.server$dir, fs::path_abs(tmp))
+})
+
+test_that("easy_out() serves the root across outputs of different folders", {
+  skip_on_cran()
+
+  tmp <- withr::local_tempdir()
+  local_server()
+  wb <- get_xlsx(list(a = head(iris, 3)))
+
+  opened <- character()
+  local_mocked_bindings(
+    browseURL = \(url, ...) {
+      opened <<- c(opened, url)
+      invisible(NULL)
+    }
+  )
+
+  withr::local_options(easy_out.serve = TRUE)
+
+  easy_out(wb, filename = "tbl_first", dir = tmp, quiet = FALSE)
+  handle <- .hebstr$.server$handle
+
+  easy_out(wb, filename = "tbl_second", dir = tmp, quiet = FALSE)
+
+  expect_match(
+    opened[1],
+    "^http://localhost:[0-9]+/tbl-first/tbl-first\\.xlsx$"
+  )
+  expect_match(
+    opened[2],
+    "^http://localhost:[0-9]+/tbl-second/tbl-second\\.xlsx$"
+  )
+  expect_identical(.hebstr$.server$handle, handle)
+  expect_identical(.hebstr$.server$dir, fs::path_abs(tmp))
 })
 
 ### WITH_FIG_DEVICE --------------------------------------------------------------
@@ -1209,6 +1739,27 @@ test_that("with_fig_device() restores the device that was current", {
 
   expect_identical(grDevices::dev.cur(), ambient)
   expect_length(grDevices::dev.list(), 1L)
+})
+
+test_that("with_fig_device() leaves no device behind when none was current", {
+  skip_if(grDevices::dev.cur() != 1L, "a device is already current")
+
+  with_fig_device(width = 11.5, height = 8, code = NULL)
+
+  expect_length(grDevices::dev.list(), 0L)
+})
+
+test_that("with_fig_device() restores the current device when a lower slot is free", {
+  .local_device(width = 7, height = 5)
+  middle <- .local_device(width = 7, height = 5)
+  ambient <- .local_device(width = 7, height = 5)
+
+  grDevices::dev.off(middle)
+  grDevices::dev.set(ambient)
+
+  with_fig_device(width = 11.5, height = 8, code = NULL)
+
+  expect_identical(grDevices::dev.cur(), ambient)
 })
 
 test_that("with_fig_device() closes its own device when code errors after opening another", {
@@ -1277,7 +1828,7 @@ test_that("easy_out() embeds the resolved font into the SVG it writes", {
 
   easy_out(p, filename = "webfont", dir = tmp, quiet = TRUE)
   svg <- paste(
-    readLines(fs::path(tmp, "webfont", ext = "svg")),
+    readLines(fs::path(tmp, "webfont", "webfont", ext = "svg")),
     collapse = "\n"
   )
 
@@ -1300,7 +1851,10 @@ test_that("easy_out() gives the device the same font aliases as the document", {
   )
 
   easy_out(p, filename = "alias", dir = tmp, quiet = TRUE)
-  svg <- paste(readLines(fs::path(tmp, "alias", ext = "svg")), collapse = "\n")
+  svg <- paste(
+    readLines(fs::path(tmp, "alias", "alias", ext = "svg")),
+    collapse = "\n"
+  )
 
   # a character shape is drawn with the device default family, never the theme's
   expect_no_match(svg, "Liberation Sans")
@@ -1320,7 +1874,7 @@ test_that("easy_out() embeds the font on the grob branch too", {
   g <- grid::grobTree(grid::textGrob("Hamburgefonstiv"))
   easy_out(g, filename = "grobfont", dir = tmp, quiet = TRUE, crop = FALSE)
   svg <- paste(
-    readLines(fs::path(tmp, "grobfont", ext = "svg")),
+    readLines(fs::path(tmp, "grobfont", "grobfont", ext = "svg")),
     collapse = "\n"
   )
 

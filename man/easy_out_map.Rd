@@ -4,15 +4,26 @@
 \alias{easy_out_map}
 \title{Save a list of ggplot or gt objects to disk}
 \usage{
-easy_out_map(x, filename = NULL, sep = "_", ...)
+easy_out_map(x, filename = NULL, sep = "_", subdir = TRUE, ...)
 }
 \arguments{
-\item{x}{A named list of objects \code{\link[=easy_out]{easy_out()}} accepts.}
+\item{x}{A named list of objects \code{\link[=easy_out]{easy_out()}} accepts. The names are
+folded into kebab-case along with the rest of the filename, so they
+have to stay distinct once folded.}
 
 \item{filename}{Base filename. Defaults to the unevaluated expression
 passed as \code{x}.}
 
-\item{sep}{Separator between \code{filename} and the list element name.}
+\item{sep}{Separator between \code{filename} and the list element name. Folded
+into a dash along with the rest of the name, so it separates without
+surviving verbatim.}
+
+\item{subdir}{Folder created inside the \code{dir} passed on to \code{\link[=easy_out]{easy_out()}},
+to hold the whole list. \code{TRUE} (the default) derives it once from
+\code{filename}, so the elements stay grouped instead of each deriving a
+folder of its own from the name it carries. \code{FALSE} and a literal string
+behave as in \code{\link[=easy_out]{easy_out()}}. The files themselves are named in kebab-case,
+element name included: \code{fig-surv-strata/fig-surv-strata-os.svg}.}
 
 \item{...}{Additional arguments passed to \code{\link[=easy_out]{easy_out()}}.}
 }

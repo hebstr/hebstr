@@ -8,6 +8,7 @@ easy_out(
   x,
   filename = as_label(enexpr(x)),
   dir = getOption("easy_out.dir", default = "output"),
+  subdir = TRUE,
   suffix = "",
   sep = "_",
   width = NULL,
@@ -25,14 +26,25 @@ Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), or wbWorkbook
 object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.}
 
 \item{filename}{Output filename (without extension). Defaults to the
-unevaluated expression passed as \code{x}.}
+unevaluated expression passed as \code{x}. Written out in kebab-case:
+lowercased, with every run of non-alphanumeric characters folded into a
+single dash, so \code{tbl_demo} writes \code{tbl-demo.html}.}
 
 \item{dir}{Output directory. Created if it does not exist. Defaults
 to \code{getOption("easy_out.dir", "output")}.}
 
+\item{subdir}{Folder created inside \code{dir} to hold this output. \code{TRUE} (the
+default) derives it from \code{filename} by that same rule, so \code{fig_surv_strata}
+writes \code{fig-surv-strata/fig-surv-strata.svg}. The derivation happens
+before \code{suffix} is appended, so the variants of one output share a
+folder. \code{FALSE} writes straight into \code{dir}. A string names the folder
+itself, taken as given. See \code{\link[=easy_out_dir]{easy_out_dir()}}, which resolves it.}
+
 \item{suffix}{Optional suffix appended to \code{filename}.}
 
-\item{sep}{Separator between \code{filename} and \code{suffix}.}
+\item{sep}{Separator between \code{filename} and \code{suffix}. Folded into a dash
+along with the rest of the name, so it separates without surviving
+verbatim.}
 
 \item{width}{Width of the output. For tables: table width in pixels,
 overriding the width the object carries from \code{\link[=tbl_format]{tbl_format()}}. When left
@@ -93,6 +105,8 @@ or \code{FALSE} forces the HTTP or the file-path route. Its port comes from
 \code{getOption("easy_out.port")}, a free one when unset. The server is started
 once per session, and restarted whenever \code{dir} or the requested port
 changes. Should it fail to start, the file path is opened instead.
+\code{subdir} never restarts it: the root served stays \code{dir}, and the folder
+comes through as a path segment of the URL.
 }
 \examples{
 \dontrun{

@@ -8,11 +8,21 @@
 #'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), or wbWorkbook
 #'   object, such as the one [get_xlsx()] returns.
 #' @param filename Output filename (without extension). Defaults to the
-#'   unevaluated expression passed as `x`.
+#'   unevaluated expression passed as `x`. Written out in kebab-case:
+#'   lowercased, with every run of non-alphanumeric characters folded into a
+#'   single dash, so `tbl_demo` writes `tbl-demo.html`.
 #' @param dir Output directory. Created if it does not exist. Defaults
 #'   to `getOption("easy_out.dir", "output")`.
+#' @param subdir Folder created inside `dir` to hold this output. `TRUE` (the
+#'   default) derives it from `filename` by that same rule, so `fig_surv_strata`
+#'   writes `fig-surv-strata/fig-surv-strata.svg`. The derivation happens
+#'   before `suffix` is appended, so the variants of one output share a
+#'   folder. `FALSE` writes straight into `dir`. A string names the folder
+#'   itself, taken as given. See [easy_out_dir()], which resolves it.
 #' @param suffix Optional suffix appended to `filename`.
-#' @param sep Separator between `filename` and `suffix`.
+#' @param sep Separator between `filename` and `suffix`. Folded into a dash
+#'   along with the rest of the name, so it separates without surviving
+#'   verbatim.
 #' @param width Width of the output. For tables: table width in pixels,
 #'   overriding the width the object carries from [tbl_format()]. When left
 #'   `NULL`, a table declaring its own width keeps it, and one declaring none
@@ -58,6 +68,8 @@
 #' `getOption("easy_out.port")`, a free one when unset. The server is started
 #' once per session, and restarted whenever `dir` or the requested port
 #' changes. Should it fail to start, the file path is opened instead.
+#' `subdir` never restarts it: the root served stays `dir`, and the folder
+#' comes through as a path segment of the URL.
 #'
 #' @return `NULL` (invisibly). Called for its side effects.
 #' @export
@@ -73,6 +85,7 @@ easy_out <- \(
   x,
   filename = as_label(enexpr(x)),
   dir = getOption("easy_out.dir", default = "output"),
+  subdir = TRUE,
   suffix = "",
   sep = "_",
   width = NULL,
@@ -94,6 +107,17 @@ easy_out <- \(
   if (!is_bool(crop)) {
     cli_abort("{.arg crop} must be {.code TRUE} or {.code FALSE}.")
   }
+
+  .check_subdir(subdir)
+
+  check_affix <- \(value, arg) {
+    if (length(value) != 1L || is.na(value)) {
+      cli_abort("{.arg {arg}} must be a single non-missing value.")
+    }
+  }
+
+  check_affix(suffix, "suffix")
+  check_affix(sep, "sep")
 
   if (!export) {
     return(invisible(NULL))
@@ -130,13 +154,15 @@ easy_out <- \(
     ))
   }
 
+  .out_name(filename)
+
+  out_dir <- easy_out_dir(filename, dir = dir, subdir = subdir)
+
   if (nzchar(suffix)) {
     filename <- paste0(filename, sep, suffix)
   }
 
-  fs::dir_create(path = dir)
-
-  path <- fs::path(dir, filename)
+  path <- fs::path(out_dir, .out_name(filename))
   to_png <- fs::path(path, ext = "png")
 
   cli_output <- \(files, browse) {
@@ -146,7 +172,8 @@ easy_out <- \(
     )
 
     cat_line()
-    cli_alert_info("Files saved in {.strong {.path {fs::path_abs(dir)}}}")
+    cli_alert_info("Files saved in {.strong {.path {fs::path_abs(out_dir)}}}")
+    cat_line()
     cli_ul(files_list)
     cat_line()
 
@@ -314,10 +341,20 @@ easy_out <- \(
 #' Iterate over a named list and call [easy_out()] on each element, appending
 #' the list name to the filename.
 #'
-#' @param x A named list of objects [easy_out()] accepts.
+#' @param x A named list of objects [easy_out()] accepts. The names are
+#'   folded into kebab-case along with the rest of the filename, so they
+#'   have to stay distinct once folded.
 #' @param filename Base filename. Defaults to the unevaluated expression
 #'   passed as `x`.
-#' @param sep Separator between `filename` and the list element name.
+#' @param sep Separator between `filename` and the list element name. Folded
+#'   into a dash along with the rest of the name, so it separates without
+#'   surviving verbatim.
+#' @param subdir Folder created inside the `dir` passed on to [easy_out()],
+#'   to hold the whole list. `TRUE` (the default) derives it once from
+#'   `filename`, so the elements stay grouped instead of each deriving a
+#'   folder of its own from the name it carries. `FALSE` and a literal string
+#'   behave as in [easy_out()]. The files themselves are named in kebab-case,
+#'   element name included: `fig-surv-strata/fig-surv-strata-os.svg`.
 #' @param ... Additional arguments passed to [easy_out()].
 #'
 #' @return `NULL` (invisibly, via [easy_out()]).
@@ -332,6 +369,7 @@ easy_out_map <- \(
   x,
   filename = NULL,
   sep = "_",
+  subdir = TRUE,
   ...
 ) {
   if (is.null(filename)) {
@@ -349,15 +387,134 @@ easy_out_map <- \(
     cli_abort("{.arg x} must be a named list.")
   }
 
+  bases <- map_chr(names(x), ~ .out_name(paste0(filename, sep, .x)))
+
+  if (anyDuplicated(bases)) {
+    cli_abort(c(
+      "{.arg x} holds element names that fold onto one filename.",
+      "i" = "Folded to: {.val {unique(bases[duplicated(bases)])}}.",
+      "i" = "Element names are written in kebab-case, so they have to stay distinct once folded."
+    ))
+  }
+
+  # derived once from the base name, so the elements share a folder
+  subdir <- .out_subdir(filename, subdir)
+
   map_fun <- \(data, name) {
     easy_out(
       x = data,
       filename = paste0(filename, sep, name),
+      subdir = subdir,
       ...
     )
   }
 
   iwalk(x, map_fun)
+}
+
+#' Resolve the output folder of one output
+#'
+#' Give back the directory [easy_out()] writes into for a given `filename`,
+#' creating it if it does not exist. Call it from a writer of your own to put
+#' an artefact `easy_out()` does not handle, a `pptx` among them, beside the
+#' files `easy_out()` writes for the same object.
+#'
+#' @param filename Output filename, without extension, as passed to
+#'   [easy_out()]. Read only when `subdir` is `TRUE`.
+#' @param dir Output directory. Created if it does not exist. Defaults
+#'   to `getOption("easy_out.dir", "output")`.
+#' @param subdir Folder created inside `dir`. `TRUE` (the default) derives it
+#'   from `filename`, `FALSE` gives back `dir` itself, and a string names the
+#'   folder, taken as given.
+#'
+#' @details
+#' The derived name is `filename` lowercased, with every run of
+#' non-alphanumeric characters folded into a single dash and the leading and
+#' trailing ones dropped: `fig_surv_strata` gives `fig-surv-strata`. The
+#' `filename` [easy_out()] resolves is the expression it was handed rather
+#' than a name, so `easy_out(figs$os)` normalises to `figs-os`. A `filename`
+#' left empty by that cleaning is an error, never a silent fallback on `dir`.
+#' Letters outside ASCII count as alphanumeric and are kept as they are
+#' rather than transliterated, accented ones among them.
+#'
+#' [easy_out()] names the files it writes by that same rule, so with no
+#' `suffix` the folder and the base of the files it holds are the same
+#' string: a writer of your own reaches that base through
+#' `fs::path_file()` of what this function gives back.
+#'
+#' @return The path of the folder, as an `fs_path`.
+#' @export
+#'
+#' @seealso [easy_out()], which writes into that folder.
+#'
+#' @examples
+#' easy_out_dir("fig_surv_strata", dir = fs::path(tempdir(), "output"))
+#'
+easy_out_dir <- \(
+  filename,
+  dir = getOption("easy_out.dir", default = "output"),
+  subdir = TRUE
+) {
+  name <- .out_subdir(filename, subdir)
+  path <- if (isFALSE(name)) fs::path(dir) else fs::path(dir, name)
+
+  fs::dir_create(path)
+
+  path
+}
+
+.check_subdir <- \(subdir) {
+  valid <-
+    is_bool(subdir) ||
+    (is_scalar_character(subdir) && !is.na(subdir) && nzchar(subdir))
+
+  if (!valid) {
+    cli_abort(
+      "{.arg subdir} must be {.code TRUE}, {.code FALSE}, or a folder name."
+    )
+  }
+
+  invisible(NULL)
+}
+
+.out_subdir <- \(filename, subdir) {
+  .check_subdir(subdir)
+
+  if (isFALSE(subdir)) {
+    return(FALSE)
+  }
+
+  if (is_scalar_character(subdir)) {
+    return(subdir)
+  }
+
+  .out_name(filename)
+}
+
+.out_name <- \(filename) {
+  if (!is_scalar_character(filename) || is.na(filename)) {
+    cli_abort("{.arg filename} must be a single string.")
+  }
+
+  name <- .kebab(filename)
+
+  if (!nzchar(name)) {
+    cli_abort(c(
+      "{.arg filename} holds nothing a name can be built from: {.val {filename}}.",
+      "i" = "A folder and a file are both named after it, so it needs at least one alphanumeric character."
+    ))
+  }
+
+  name
+}
+
+# not str_to_kebab(), which splits letter-digit boundaries: a numeric token
+# belongs to the name it qualifies ("fig_km_5y" is one output, not five)
+.kebab <- \(x) {
+  x |>
+    str_replace_all("[^[:alnum:]]+", "-") |>
+    str_remove_all("^-+|-+$") |>
+    str_to_lower()
 }
 
 #' Build a grid graphic against the device that will draw it
@@ -442,6 +599,8 @@ with_fig_device <- \(width, height, code) {
   check_size(width, "width")
   check_size(height, "height")
 
+  previous <- grDevices::dev.cur()
+
   svglite::svgstring(
     width = width,
     height = height,
@@ -451,10 +610,10 @@ with_fig_device <- \(width, height, code) {
 
   on.exit(
     {
-      previous <- grDevices::dev.prev(device)
       grDevices::dev.off(device)
 
-      if (previous != device) {
+      # dev.set(1) opens a device instead of selecting the null one
+      if (previous != 1L) {
         grDevices::dev.set(previous)
       }
     },

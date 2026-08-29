@@ -253,6 +253,7 @@
 #' @importFrom stringr str_squish
 #' @importFrom stringr str_starts
 #' @importFrom stringr str_sub
+#' @importFrom stringr str_to_lower
 #' @importFrom stringr "str_sub<-"
 #' @importFrom stringr str_subset
 #' @importFrom systemfonts registry_fonts
