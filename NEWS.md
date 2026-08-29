@@ -13,7 +13,7 @@ Options and the variable classification cache now live in an internal package st
   The directory served over HTTP in a remote session is unchanged: the root stays `dir`, the folder coming through as a path segment of the URL.
   The new `subdir` argument takes a string to name the folder, or `FALSE` to write straight into `dir` as before; the file names are kebab-case either way.
   The break is silent rather than noisy: the files earlier runs wrote flat stay where they are, nothing errors, and a hard-coded path such as `knitr::include_graphics("output/fig_flowchart.svg")` keeps resolving, now to an artefact no run refreshes.
-  A project catches up by deleting the old contents of its output directory, pointing its hard-coded paths at the new folder and file names, and resolving the directory of any writer of its own through `easy_out_dir()`.
+  A project catches up by deleting the old contents of its output directory and pointing its hard-coded paths at the new folder and file names.
 - `gt_qmd()` no longer gives every table the same HTML id.
   Its `id` argument defaulted to `"tbl-id"`, a constant, where [gt::gt()] defaults to `NULL` and generates a random unique one.
   That id scopes gt's own stylesheet, so every table in a document shared a single scope and, at equal specificity, the last stylesheet won for all of them: a table customised through `...` either had its settings discarded or leaked them onto its neighbours, depending on source order, in both cases without a warning.
@@ -65,9 +65,13 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
-- `easy_out_dir(filename, dir, subdir)` gives back the folder `easy_out()` writes into for a given `filename`, creating it if it does not exist.
-  Call it from a writer of your own to put an artefact `easy_out()` does not handle, a `pptx` among them, beside the files `easy_out()` writes for the same object.
-  With no `suffix` the folder and the base of the files it holds are the same string, so `fs::path_file()` of what it gives back is the name that artefact takes.
+- `easy_out(pptx = TRUE)` also writes a plot or a grid graphic to a PPTX slide, as an editable DrawingML shape rather than an image.
+  A project that wanted an editable figure wrote a writer of its own next to `easy_out()`, half of it restating the `dir` default, the filename derivation, the folder creation and the class check, and entering the size a second time with nothing keeping the two calls in step.
+  The slide goes into the same folder and takes the same name as the SVG and the PNG, and it is scaled to fit the default 4:3 `Office Theme` slide and centred on it, from the `width` and `height` the call already resolved.
+  The default is `FALSE`, read from `getOption("easy_out.pptx")`, so a presentation-oriented project switches every output at once.
+  It needs the \pkg{rvg} package, a `Suggests` rather than an `Imports` because it pulls `gdtools` and its cairo, freetype2 and fontconfig system requirements.
+  Two deliberate gaps: `crop` does not reach the slide, which carries the whole canvas, an editable object being cropped in the tool that opens it; and fonts are named in the slide rather than embedded, so a reader without the family installed gets a substitute.
+  Tables and workbooks have no slide form and error out rather than ignoring the argument.
 
 - `with_fig_device(width, height, code)` evaluates `code` on an off-screen device of the given size, then closes it and restores the device that was current.
   `grid` resolves a unit against the device current at the time of the conversion, and a package that precomputes layout performs it when the grob is created rather than when it is drawn, `Gmisc` among them.
@@ -108,6 +112,12 @@ Options and the variable classification cache now live in an internal package st
 - `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
 ## Bug fixes
+
+- `fct_str()` and `fct_keep()` no longer abort on a brace in the data.
+  Both compose their entries with `glue()`, flatten them, then appended the final period with a second `glue()` call over that already-composed string.
+  The second call re-ran interpolation on the data, so a value such as `drug {A}` was read as a glue component and errored with `Failed to evaluate glue component {A}`, a message naming nothing the caller could act on.
+  Both functions take free text, `fct_keep()` splitting a delimited column and `fct_str()` counting factor levels, so the input is data rather than a literal.
+  The period is now appended with `stringr::str_c()`, which concatenates without interpolating, and the returned value is the plain character string the documentation already promised rather than a `glue` object.
 
 - `gtsum_format()` defines the `IRR` and `RR` estimators, the acronyms `gtsummary` writes for a Poisson-family fit with a log link and for a log-binomial one.
   Neither was declared, so the estimator footnote rendered the literal `IRR: NA; aIRR: adjusted NA`, and `estim_acro` could not rename them: the acronym recoding keyed on `Beta`, `exp(Beta)` and `HR` alone, and every other label fell through to its own value with no definition behind it.

@@ -250,7 +250,7 @@ fct_str <- \(x, sep, cap = TRUE) {
     mutate(str = glue("{f} [{n}]")) |>
     pull(str) |>
     str_flatten(sep) |>
-    glue(".")
+    str_c(".")
 
   if (cap) {
     str <- str |> tolower() %>% str_cap(toupper, .)
@@ -343,8 +343,8 @@ fct_keep <- \(data, var, min, sep) {
       drop = x$drop |>
         mutate(str = glue("{get(var)} [{n}]")) |>
         pull(str) |>
-        str_flatten(sep) %>%
-        glue(".")
+        str_flatten(sep) |>
+        str_c(".")
     )
 
   return(y)

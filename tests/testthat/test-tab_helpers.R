@@ -167,6 +167,14 @@ test_that("fct_keep does not error when no level passes min", {
   expect_match(res$drop, "b \\[1\\]")
 })
 
+test_that("fct_keep survives a brace in the data", {
+  data <- data.frame(g = c("a", "a", "drug {A}"))
+
+  res <- fct_keep(data, "g", min = 2, sep = "; ")
+
+  expect_equal(res$drop, "drug {A} [1].")
+})
+
 test_that("add_label inserts the label before the exact variable, not a substring match", {
   d <- data.frame(
     age_group = factor(c("x", "y", "x", "y")),
@@ -189,6 +197,12 @@ test_that("fct_str counts levels by decreasing frequency and capitalises when as
     as.character(fct_str(x, sep = "; ", cap = FALSE)),
     "a [2]; b [1]."
   )
+})
+
+test_that("fct_str survives a brace in the data", {
+  x <- c("a", "a", "drug {A}")
+
+  expect_equal(fct_str(x, sep = "; ", cap = FALSE), "a [2]; drug {A} [1].")
 })
 
 test_that("all_dichotomous_uv keeps only two-level factor columns", {

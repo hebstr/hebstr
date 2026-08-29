@@ -15,6 +15,7 @@ easy_out(
   height = NULL,
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
+  pptx = getOption("easy_out.pptx", default = FALSE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !.is_docx()),
   web_fonts = .web_fonts()
@@ -38,7 +39,7 @@ default) derives it from \code{filename} by that same rule, so \code{fig_surv_st
 writes \code{fig-surv-strata/fig-surv-strata.svg}. The derivation happens
 before \code{suffix} is appended, so the variants of one output share a
 folder. \code{FALSE} writes straight into \code{dir}. A string names the folder
-itself, taken as given. See \code{\link[=easy_out_dir]{easy_out_dir()}}, which resolves it.}
+itself, taken as given.}
 
 \item{suffix}{Optional suffix appended to \code{filename}.}
 
@@ -67,7 +68,16 @@ the bounding box of the drawing, keeping a small margin. Grob positions
 are relative to the whole page, so a drawing covering a sub-rectangle
 leaves an empty band that no \code{width}/\code{height} value removes. Ignored
 for tables and plots, whose margins come from the theme, and for
-workbooks.}
+workbooks. Ignored for the PPTX slide too, which carries the whole
+canvas: an editable object is cropped in the tool that opens it.}
+
+\item{pptx}{If \code{TRUE}, also write the plot or grid graphic to a PPTX slide,
+as an editable DrawingML shape rather than an image. Defaults to
+\code{getOption("easy_out.pptx", FALSE)}, and requires the \pkg{rvg} package.
+The slide is the default 4:3 \verb{Office Theme} one, and the drawing is
+scaled to fit it and centred. Fonts are named in the slide rather than
+embedded, so a reader without the family installed gets a substitute.
+Tables and workbooks have no slide form and error out.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
@@ -92,6 +102,7 @@ another family; build them with \code{woff2} given as a \verb{data:} URI rather 
 \description{
 Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 HTML depending on the object type), or an \code{openxlsx2} workbook to XLSX.
+A figure also goes to an editable PPTX slide under \code{pptx = TRUE}.
 Opens the result in a browser unless \code{quiet = TRUE}.
 }
 \details{

@@ -2,6 +2,7 @@
 #'
 #' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 #' HTML depending on the object type), or an `openxlsx2` workbook to XLSX.
+#' A figure also goes to an editable PPTX slide under `pptx = TRUE`.
 #' Opens the result in a browser unless `quiet = TRUE`.
 #'
 #' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
@@ -18,7 +19,7 @@
 #'   writes `fig-surv-strata/fig-surv-strata.svg`. The derivation happens
 #'   before `suffix` is appended, so the variants of one output share a
 #'   folder. `FALSE` writes straight into `dir`. A string names the folder
-#'   itself, taken as given. See [easy_out_dir()], which resolves it.
+#'   itself, taken as given.
 #' @param suffix Optional suffix appended to `filename`.
 #' @param sep Separator between `filename` and `suffix`. Folded into a dash
 #'   along with the rest of the name, so it separates without surviving
@@ -41,7 +42,15 @@
 #'   are relative to the whole page, so a drawing covering a sub-rectangle
 #'   leaves an empty band that no `width`/`height` value removes. Ignored
 #'   for tables and plots, whose margins come from the theme, and for
-#'   workbooks.
+#'   workbooks. Ignored for the PPTX slide too, which carries the whole
+#'   canvas: an editable object is cropped in the tool that opens it.
+#' @param pptx If `TRUE`, also write the plot or grid graphic to a PPTX slide,
+#'   as an editable DrawingML shape rather than an image. Defaults to
+#'   `getOption("easy_out.pptx", FALSE)`, and requires the \pkg{rvg} package.
+#'   The slide is the default 4:3 `Office Theme` one, and the drawing is
+#'   scaled to fit it and centred. Fonts are named in the slide rather than
+#'   embedded, so a reader without the family installed gets a substitute.
+#'   Tables and workbooks have no slide form and error out.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. Defaults to
@@ -92,6 +101,7 @@ easy_out <- \(
   height = NULL,
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
+  pptx = getOption("easy_out.pptx", default = FALSE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !.is_docx()),
   web_fonts = .web_fonts()
@@ -106,6 +116,10 @@ easy_out <- \(
 
   if (!is_bool(crop)) {
     cli_abort("{.arg crop} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (!is_bool(pptx)) {
+    cli_abort("{.arg pptx} must be {.code TRUE} or {.code FALSE}.")
   }
 
   .check_subdir(subdir)
@@ -154,9 +168,22 @@ easy_out <- \(
     ))
   }
 
+  is_figure <- is_ggplot(x) || inherits(x, "ggmatrix") || grid::is.grob(x)
+
+  if (pptx && !is_figure) {
+    cli_abort(c(
+      "{.arg pptx} only covers a plot or a grid grob.",
+      "i" = "Received object of class: {.cls {class(x)}}",
+      "i" = "Pass {.code pptx = FALSE} to export {.strong {filename}} without a slide."
+    ))
+  }
+
   .out_name(filename)
 
-  out_dir <- easy_out_dir(filename, dir = dir, subdir = subdir)
+  name <- .out_subdir(filename, subdir)
+  out_dir <- if (isFALSE(name)) fs::path(dir) else fs::path(dir, name)
+
+  fs::dir_create(out_dir)
 
   if (nzchar(suffix)) {
     filename <- paste0(filename, sep, suffix)
@@ -271,10 +298,12 @@ easy_out <- \(
 
     svg_to_png(to_svg, to_png, px)
 
+    to_pptx <- .out_pptx(pptx, path, \() print(x), width, height)
+
     cli_progress_done()
 
     cli_output(
-      files = c(to_svg, to_png),
+      files = c(to_svg, to_png, to_pptx),
       browse = to_svg
     )
 
@@ -310,10 +339,17 @@ easy_out <- \(
 
     svg_to_png(to_svg, to_png, px, crop = crop)
 
+    draw <- \() {
+      grid::grid.newpage()
+      grid::grid.draw(x)
+    }
+
+    to_pptx <- .out_pptx(pptx, path, draw, width, height)
+
     cli_progress_done()
 
     cli_output(
-      files = c(to_svg, to_png),
+      files = c(to_svg, to_png, to_pptx),
       browse = to_svg
     )
 
@@ -412,57 +448,6 @@ easy_out_map <- \(
   iwalk(x, map_fun)
 }
 
-#' Resolve the output folder of one output
-#'
-#' Give back the directory [easy_out()] writes into for a given `filename`,
-#' creating it if it does not exist. Call it from a writer of your own to put
-#' an artefact `easy_out()` does not handle, a `pptx` among them, beside the
-#' files `easy_out()` writes for the same object.
-#'
-#' @param filename Output filename, without extension, as passed to
-#'   [easy_out()]. Read only when `subdir` is `TRUE`.
-#' @param dir Output directory. Created if it does not exist. Defaults
-#'   to `getOption("easy_out.dir", "output")`.
-#' @param subdir Folder created inside `dir`. `TRUE` (the default) derives it
-#'   from `filename`, `FALSE` gives back `dir` itself, and a string names the
-#'   folder, taken as given.
-#'
-#' @details
-#' The derived name is `filename` lowercased, with every run of
-#' non-alphanumeric characters folded into a single dash and the leading and
-#' trailing ones dropped: `fig_surv_strata` gives `fig-surv-strata`. The
-#' `filename` [easy_out()] resolves is the expression it was handed rather
-#' than a name, so `easy_out(figs$os)` normalises to `figs-os`. A `filename`
-#' left empty by that cleaning is an error, never a silent fallback on `dir`.
-#' Letters outside ASCII count as alphanumeric and are kept as they are
-#' rather than transliterated, accented ones among them.
-#'
-#' [easy_out()] names the files it writes by that same rule, so with no
-#' `suffix` the folder and the base of the files it holds are the same
-#' string: a writer of your own reaches that base through
-#' `fs::path_file()` of what this function gives back.
-#'
-#' @return The path of the folder, as an `fs_path`.
-#' @export
-#'
-#' @seealso [easy_out()], which writes into that folder.
-#'
-#' @examples
-#' easy_out_dir("fig_surv_strata", dir = fs::path(tempdir(), "output"))
-#'
-easy_out_dir <- \(
-  filename,
-  dir = getOption("easy_out.dir", default = "output"),
-  subdir = TRUE
-) {
-  name <- .out_subdir(filename, subdir)
-  path <- if (isFALSE(name)) fs::path(dir) else fs::path(dir, name)
-
-  fs::dir_create(path)
-
-  path
-}
-
 .check_subdir <- \(subdir) {
   valid <-
     is_bool(subdir) ||
@@ -515,6 +500,43 @@ easy_out_dir <- \(
     str_replace_all("[^[:alnum:]]+", "-") |>
     str_remove_all("^-+|-+$") |>
     str_to_lower()
+}
+
+# rvg names the font family in the slide rather than embedding it, so the
+# alias is what keeps the slide and the SVG on the same one
+.out_pptx <- \(pptx, path, draw, width, height) {
+  if (!pptx) {
+    return(NULL)
+  }
+
+  check_installed("rvg", reason = "to write a PPTX slide.")
+
+  cli_progress_step("Creating PPTX file")
+
+  to_pptx <- fs::path(path, ext = "pptx")
+
+  doc <- add_slide(read_pptx(), layout = "Blank", master = "Office Theme")
+  slide <- slide_size(doc)
+
+  scale <- min(slide$width / width, slide$height / height)
+  w <- width * scale
+  h <- height * scale
+
+  location <- ph_location(
+    left = (slide$width - w) / 2,
+    top = (slide$height - h) / 2,
+    width = w,
+    height = h
+  )
+
+  doc |>
+    ph_with(
+      value = rvg::dml(code = draw(), fonts = .device_fonts()),
+      location = location
+    ) |>
+    print(target = to_pptx)
+
+  to_pptx
 }
 
 #' Build a grid graphic against the device that will draw it

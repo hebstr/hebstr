@@ -71,6 +71,7 @@ Suggests:
     knitr,
     quarto,
     rmarkdown,
+    rvg,
     testthat (>= 3.2.0)
 VignetteBuilder:
     quarto

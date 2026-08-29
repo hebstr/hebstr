@@ -262,6 +262,32 @@
     as.numeric()
 }
 
+### PPTX -------------------------------------------------------------------------
+
+# geometry of the DrawingML group, in inches (OOXML stores it in EMU)
+.slide_frame <- \(path) {
+  dir <- withr::local_tempdir()
+
+  utils::unzip(path, files = "ppt/slides/slide1.xml", exdir = dir)
+
+  frame <-
+    fs::path(dir, "ppt", "slides", "slide1.xml") |>
+    readLines(warn = FALSE) |>
+    paste(collapse = "") |>
+    stringr::str_extract("<p:grpSp .*?</a:xfrm>")
+
+  emu <- \(pattern) {
+    as.numeric(stringr::str_extract(frame, pattern, group = 1)) / 914400
+  }
+
+  c(
+    left = emu('<a:off x="([0-9]+)"'),
+    top = emu('<a:off x="[0-9]+" y="([0-9]+)"'),
+    width = emu('<a:ext cx="([0-9]+)"'),
+    height = emu('<a:ext cx="[0-9]+" cy="([0-9]+)"')
+  )
+}
+
 ### QUARTO EXTENSION -------------------------------------------------------------
 
 .make_extension <- \(root, id = "org/ext", reference_doc = "template.dotx") {

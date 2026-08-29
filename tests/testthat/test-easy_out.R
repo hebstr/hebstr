@@ -1182,6 +1182,278 @@ test_that("local_server() leaves no handle behind on exit", {
   expect_null(.hebstr$.server)
 })
 
+### PPTX ------------------------------------------------------------------------
+
+test_that("easy_out() rejects a non-boolean pptx", {
+  expect_error(
+    easy_out(grid::rectGrob(), pptx = "yes", quiet = TRUE),
+    class = "rlang_error",
+    regexp = "`pptx` must be",
+    fixed = TRUE
+  )
+})
+
+test_that("easy_out() writes a pptx slide beside the plot files", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(p, filename = "fig_slide", dir = tmp, quiet = TRUE, pptx = TRUE)
+
+  expect_true(
+    fs::file_exists(fs::path(tmp, "fig-slide", "fig-slide", ext = "pptx"))
+  )
+})
+
+test_that("easy_out() writes a pptx slide beside the grob files", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+  g <- grid::grobTree(grid::rectGrob(), grid::textGrob("x"))
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    g,
+    filename = "fig_grob_slide",
+    dir = tmp,
+    crop = FALSE,
+    quiet = TRUE,
+    pptx = TRUE
+  )
+
+  path <- fs::path(tmp, "fig-grob-slide", "fig-grob-slide", ext = "pptx")
+
+  expect_true(fs::file_exists(path))
+  expect_s3_class(officer::read_pptx(path), "rpptx")
+})
+
+test_that("easy_out() appends the suffix to a pptx filename", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    grid::rectGrob(),
+    filename = "fig_slide",
+    suffix = "v2",
+    dir = tmp,
+    crop = FALSE,
+    quiet = TRUE,
+    pptx = TRUE
+  )
+
+  expect_true(
+    fs::file_exists(fs::path(tmp, "fig-slide", "fig-slide-v2", ext = "pptx"))
+  )
+})
+
+test_that("easy_out() reports the pptx in the file banner", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  banner <- capture_messages(
+    easy_out(
+      grid::rectGrob(),
+      filename = "fig_slide",
+      dir = tmp,
+      crop = FALSE,
+      quiet = TRUE,
+      pptx = TRUE
+    )
+  )
+
+  expect_true(any(grepl("fig-slide.pptx", banner, fixed = TRUE)))
+})
+
+test_that("easy_out() scales the slide drawing to fit and centres it", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    grid::rectGrob(),
+    filename = "fig_fit",
+    dir = tmp,
+    width = 20,
+    height = 5,
+    crop = FALSE,
+    quiet = TRUE,
+    pptx = TRUE
+  )
+
+  path <- fs::path(tmp, "fig-fit", "fig-fit", ext = "pptx")
+  slide <- officer::slide_size(officer::read_pptx(path))
+  frame <- .slide_frame(path)
+
+  # 20 x 5 on a 10 x 7.5 slide binds on the width, so scale = 0.5
+  expect_equal(unname(frame[["width"]]), slide$width)
+  expect_equal(unname(frame[["height"]]), 2.5)
+  expect_equal(unname(frame[["left"]]), 0)
+  expect_equal(unname(frame[["top"]]), (slide$height - 2.5) / 2)
+})
+
+test_that("easy_out() names the class when a table is asked for a slide", {
+  tmp <- withr::local_tempdir()
+
+  expect_error(
+    easy_out(
+      gt::gt(head(mtcars, 3)),
+      filename = "tbl_slide",
+      dir = tmp,
+      quiet = TRUE,
+      pptx = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "gt_tbl"
+  )
+
+  expect_false(fs::dir_exists(fs::path(tmp, "tbl-slide")))
+})
+
+test_that("easy_out() names the class when a workbook is asked for a slide", {
+  tmp <- withr::local_tempdir()
+
+  expect_error(
+    easy_out(
+      get_xlsx(list(a = head(iris, 3))),
+      filename = "book",
+      dir = tmp,
+      quiet = TRUE,
+      pptx = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "wbWorkbook"
+  )
+})
+
+test_that("easy_out() writes no slide when export is FALSE", {
+  tmp <- withr::local_tempdir()
+
+  easy_out(
+    grid::rectGrob(),
+    filename = "fig_slide",
+    dir = tmp,
+    quiet = TRUE,
+    pptx = TRUE,
+    export = FALSE
+  )
+
+  expect_false(fs::dir_exists(fs::path(tmp, "fig-slide")))
+})
+
+test_that("easy_out() offers to install rvg rather than failing on the call", {
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL),
+    check_installed = \(pkg, ...) cli_abort("{.pkg {pkg}} is not installed.")
+  )
+
+  expect_error(
+    easy_out(
+      grid::rectGrob(),
+      filename = "fig_slide",
+      dir = tmp,
+      crop = FALSE,
+      quiet = TRUE,
+      pptx = TRUE
+    ),
+    regexp = "rvg is not installed"
+  )
+})
+
+test_that("easy_out() writes no slide when pptx is FALSE", {
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(
+    grid::rectGrob(),
+    filename = "fig_slide",
+    dir = tmp,
+    crop = FALSE,
+    quiet = TRUE
+  )
+
+  expect_false(
+    fs::file_exists(fs::path(tmp, "fig-slide", "fig-slide", ext = "pptx"))
+  )
+})
+
+test_that("easy_out() hands the slide the device font alias", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+  captured <- NULL
+
+  local_mocked_bindings(
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  local_mocked_bindings(
+    dml = \(code, fonts, ...) {
+      captured <<- fonts
+      cli_abort("slide not rendered")
+    },
+    .package = "rvg"
+  )
+
+  expect_error(
+    easy_out(
+      grid::textGrob("x"),
+      filename = "fig_font",
+      dir = tmp,
+      crop = FALSE,
+      quiet = TRUE,
+      pptx = TRUE
+    ),
+    "slide not rendered"
+  )
+
+  expect_equal(captured, .device_fonts())
+})
+
 ### SUBDIR ----------------------------------------------------------------------
 
 test_that("easy_out() writes a table into a folder derived from the filename", {
@@ -1489,10 +1761,8 @@ test_that("easy_out() rejects a subdir that is neither boolean nor a name", {
   )
 })
 
-test_that("easy_out_dir() folds the filename into a kebab-case folder", {
-  tmp <- withr::local_tempdir()
-
-  folder <- \(...) as.character(fs::path_file(easy_out_dir(..., dir = tmp)))
+test_that(".out_subdir() folds the filename into a kebab-case folder", {
+  folder <- \(x) .out_subdir(x, TRUE)
 
   expect_identical(folder("fig_surv_strata"), "fig-surv-strata")
   expect_identical(folder("figs$os"), "figs-os")
@@ -1500,10 +1770,8 @@ test_that("easy_out_dir() folds the filename into a kebab-case folder", {
   expect_identical(folder("_fig_flow_"), "fig-flow")
 })
 
-test_that("easy_out_dir() keeps a numeric token attached to its word", {
-  tmp <- withr::local_tempdir()
-
-  folder <- \(...) as.character(fs::path_file(easy_out_dir(..., dir = tmp)))
+test_that(".out_subdir() keeps a numeric token attached to its word", {
+  folder <- \(x) .out_subdir(x, TRUE)
 
   # stringr::str_to_kebab() would split these; a numeric token is part of the name
   expect_identical(folder("fig_km_5y"), "fig-km-5y")
@@ -1512,72 +1780,11 @@ test_that("easy_out_dir() keeps a numeric token attached to its word", {
   expect_identical(folder("tbl_baseline_v2"), "tbl-baseline-v2")
 })
 
-test_that("easy_out_dir() keeps letters outside ASCII as they are", {
-  tmp <- withr::local_tempdir()
-
-  folder <- \(...) as.character(fs::path_file(easy_out_dir(..., dir = tmp)))
+test_that(".out_subdir() keeps letters outside ASCII as they are", {
+  folder <- \(x) .out_subdir(x, TRUE)
 
   expect_identical(folder("fig_prévalence"), "fig-prévalence")
   expect_identical(folder("tbl_âge_médian"), "tbl-âge-médian")
-})
-
-test_that("easy_out_dir() aborts on a filename that normalises to nothing", {
-  tmp <- withr::local_tempdir()
-
-  expect_error(
-    easy_out_dir("!!!", dir = tmp),
-    class = "rlang_error",
-    regexp = "filename"
-  )
-
-  expect_error(
-    easy_out_dir("!!!", dir = tmp),
-    regexp = "alphanumeric"
-  )
-
-  expect_false(fs::file_exists(fs::path(tmp, "!!!")))
-})
-
-test_that("easy_out_dir() gives back dir itself under subdir = FALSE", {
-  tmp <- withr::local_tempdir()
-
-  expect_identical(
-    as.character(easy_out_dir("fig_flow", dir = tmp, subdir = FALSE)),
-    as.character(fs::path(tmp))
-  )
-})
-
-test_that("easy_out_dir() creates and names the folder easy_out() writes into", {
-  tmp <- withr::local_tempdir()
-  root <- fs::path(tmp, "output")
-  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
-    ggplot2::geom_point()
-
-  local_mocked_bindings(
-    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
-
-  easy_out(p, filename = "fig_flow", dir = root, quiet = TRUE)
-
-  dir <- easy_out_dir("fig_flow", dir = root)
-
-  expect_identical(
-    as.character(dir),
-    as.character(fs::path(root, "fig-flow"))
-  )
-  expect_true(fs::dir_exists(dir))
-  expect_true(fs::file_exists(fs::path(dir, "fig-flow", ext = "svg")))
-})
-
-test_that("easy_out_dir() creates a folder no output has written into yet", {
-  tmp <- withr::local_tempdir()
-
-  dir <- easy_out_dir("fig_flowchart", dir = fs::path(tmp, "output"))
-
-  expect_true(fs::dir_exists(dir))
 })
 
 test_that("easy_out_map() groups its elements in a single folder", {
