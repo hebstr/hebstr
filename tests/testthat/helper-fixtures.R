@@ -234,11 +234,28 @@
   .cell_style_ref(wb, dims, sheet, "fillId", "fills")
 }
 
-.view_cols <- \(x) {
+# alignment is an attribute of the cellXf itself, not a reference into a registry
+.cell_halign <- \(wb, dims, sheet = 1L) {
+  xfs <- .cell_xf(wb, dims, sheet)
+
+  set_names(stringr::str_match(xfs, 'horizontal="([a-z]+)"')[, 2], names(xfs))
+}
+
+.sheet_halign <- \(wb, data, row, sheet = 1L) {
+  dims <- vapply(
+    seq_along(data),
+    \(col) openxlsx2::wb_dims(rows = row, cols = col),
+    character(1)
+  )
+
+  set_names(.cell_halign(wb, dims, sheet), names(data))
+}
+
+.view_cols <- \(x, key = "minWidth") {
   defs <- x$output$x$tag$attribs$columns
 
   setNames(
-    sapply(defs, \(col) col$minWidth),
+    sapply(defs, \(col) col[[key]]),
     sapply(defs, \(col) col$id)
   )
 }

@@ -14,13 +14,15 @@ get_xlsx(sheets, ...)
 \item \code{max_width}: Maximum column width forwarded to
 \code{openxlsx2.maxWidth}. Default: \code{60}.
 \item \code{halign}: Horizontal cell alignment. One of \code{"center"}, \code{"left"},
-\code{"right"}. Default: \code{"center"}.
+\code{"right"}, or a named list aligning the columns it names and leaving
+the others at the default, e.g. \code{list(variable = "left")}. Default:
+\code{"center"}.
 \item \code{font_size}: Base font size for data cells. Header row uses
 \code{font_size + 1}. Default: \code{8}.
 \item \code{header_color}: Fill color for the header row (hex string).
 Default: \code{"#E5E5E5"}.
 \item \code{border_color}: Border color for all cells (hex string).
-Default: \code{"#999999"}.
+Default: \code{"#C5C5C5"}.
 \item \code{border_type}: Border line type passed to
 \code{\link[openxlsx2:wb_add_border]{openxlsx2::wb_add_border()}}. Default: \code{"thin"}.
 \item \code{color}: Named list mapping column names to hex colors for

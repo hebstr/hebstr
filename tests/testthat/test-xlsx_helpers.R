@@ -84,7 +84,7 @@ test_that("get_xlsx() borders every cell of the sheet identically", {
   )
 
   expect_length(unique(borders), 1L)
-  expect_match(unique(borders), "FF999999", fixed = TRUE)
+  expect_match(unique(borders), "FFC5C5C5", fixed = TRUE)
 })
 
 test_that("get_xlsx() borders follow border_color and border_type", {
@@ -112,12 +112,12 @@ test_that("get_xlsx() bounds each sheet's border on its own column count", {
   expect_equal(unname(.cell_borders(wb, "E1", sheet = "narrow")), "")
   expect_match(
     .cell_borders(wb, "B1", sheet = "narrow"),
-    "FF999999",
+    "FFC5C5C5",
     fixed = TRUE
   )
   expect_match(
     .cell_borders(wb, "E1", sheet = "wide"),
-    "FF999999",
+    "FFC5C5C5",
     fixed = TRUE
   )
 })
@@ -129,7 +129,7 @@ test_that("get_xlsx() styles a zero-row sheet without spilling below the header"
   header <- .cell_fonts(wb, c("A1", "E1"))
 
   expect_length(borders, 1L)
-  expect_match(borders, "FF999999", fixed = TRUE)
+  expect_match(borders, "FFC5C5C5", fixed = TRUE)
   expect_equal(unname(.cell_borders(wb, "A2")), "")
 
   expect_match(header, '<b val="1"/>', fixed = TRUE)
@@ -217,4 +217,51 @@ test_that("get_xlsx() applies each color only to sheets that contain the column"
   expect_match(on_mtcars[["A2"]], 'rgb="FFFFFF00"', fixed = TRUE)
   expect_no_match(on_mtcars[["B2"]], '<b val="1"/>', fixed = TRUE)
   expect_match(on_mtcars[["C2"]], 'rgb="FFFA8000"', fixed = TRUE)
+})
+
+test_that("get_xlsx() aligns the columns a named halign names", {
+  data <- head(iris, 3)
+  wb <- get_xlsx(
+    list(a = data),
+    halign = list(Sepal.Width = "left", Petal.Width = "right")
+  )
+
+  expect_equal(
+    unname(.sheet_halign(wb, data, row = 2)),
+    c("center", "left", "center", "right", "center")
+  )
+})
+
+test_that("get_xlsx() carries a named halign to the header and the last row", {
+  data <- head(iris, 5)
+  wb <- get_xlsx(list(a = data), halign = list(Species = "left"))
+
+  expect_equal(.sheet_halign(wb, data, row = 1)[["Species"]], "left")
+  expect_equal(
+    .sheet_halign(wb, data, row = nrow(data) + 1)[["Species"]],
+    "left"
+  )
+})
+
+test_that("get_xlsx() ignores a halign naming a column the sheet does not carry", {
+  data <- head(iris, 3)
+  wb <- get_xlsx(list(a = data), halign = list(absent = "left"))
+
+  expect_true(all(.sheet_halign(wb, data, row = 2) == "center"))
+})
+
+test_that("get_xlsx() aborts on an unnamed halign list", {
+  expect_error(
+    get_xlsx(list(a = head(iris, 3)), halign = list("left")),
+    "must be a fully named list"
+  )
+})
+
+test_that("get_xlsx() sizes a column on its header when the values are shorter", {
+  data <- data.frame(a_long_header_name = 1:3, b = strrep("x", 30))
+  attrs <- get_xlsx(list(s = data))$worksheets[[1]]$cols_attr
+  width <- \(i) as.numeric(sub('.*width="([0-9.]+)".*', "\\1", attrs[[i]]))
+
+  expect_gt(width(1), nchar("a_long_header_name") * 8 / 11)
+  expect_lt(width(2), 30)
 })

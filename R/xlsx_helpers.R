@@ -1,12 +1,33 @@
+.xlsx_align <- "center"
+
+# openxlsx2 measures a column in characters of the workbook's base font, so a
+# sheet set in a smaller face comes out wider than its text; the header carries
+# its autofilter button on top, which its own length does not account for
+.xlsx_widths <- \(wb, data, font_size, header_size, filter = 3, pad = 1) {
+  base <- as.numeric(wb_get_base_font(wb)$size$val)
+  em <- \(chars, size) chars * size / base
+
+  imap_dbl(data, \(col, name) {
+    values <- as.character(col)
+    values <- values[!is.na(values)]
+
+    pad +
+      max(
+        em(nchar(name) + filter, header_size),
+        em(if (length(values)) max(nchar(values)) else 0L, font_size)
+      )
+  })
+}
+
 .xlsx_add_sheet <- \(
   x,
   sheet,
   data,
   max_width = 60,
-  halign = "center",
+  halign = .xlsx_align,
   font_size = 8,
   header_color = "#E5E5E5",
-  border_color = "#999999",
+  border_color = "#C5C5C5",
   border_type = "thin",
   color = NULL
 ) {
@@ -17,6 +38,10 @@
   has_data <- nrow(data) > 0L
 
   color <- if (has_data) color[names(color) %in% names(data)]
+
+  # a named list aligns the columns it names and leaves the rest at the default
+  by_col <- if (is.list(halign)) halign[names(halign) %in% names(data)]
+  halign <- if (is.null(by_col)) halign else .xlsx_align
 
   params <- list(
     dims = list(
@@ -43,6 +68,21 @@
       wb = wb,
       dims = params$dims$data,
       size = font_size
+    )
+  }
+
+  # posed before the border, so that the prototype row spread_style() broadcasts
+  # already carries the column's own alignment
+  add_halign <- \(wb, col, align) {
+    wb_add_cell_style(
+      wb = wb,
+      dims = wb_dims(
+        rows = seq_len(nrow(data) + 1L),
+        cols = match(col, names(data))
+      ),
+      horizontal = align,
+      vertical = "center",
+      wrap_text = TRUE
     )
   }
 
@@ -96,13 +136,19 @@
     ) |>
     wb_set_col_widths(
       cols = seq_len(ncol(data)),
-      widths = "auto"
+      widths = .xlsx_widths(x, data, font_size, font_size + 1)
     ) |>
     wb_add_cell_style(
       dims = params$dims$full,
       horizontal = halign,
       vertical = "center",
       wrap_text = TRUE
+    ) |>
+    reduce2(
+      .x = names(by_col),
+      .y = by_col,
+      .f = add_halign,
+      .init = _
     ) |>
     wb_add_border(
       dims = params$dims$proto,
@@ -143,13 +189,15 @@
 #'     \item `max_width`: Maximum column width forwarded to
 #'       `openxlsx2.maxWidth`. Default: `60`.
 #'     \item `halign`: Horizontal cell alignment. One of `"center"`, `"left"`,
-#'       `"right"`. Default: `"center"`.
+#'       `"right"`, or a named list aligning the columns it names and leaving
+#'       the others at the default, e.g. `list(variable = "left")`. Default:
+#'       `"center"`.
 #'     \item `font_size`: Base font size for data cells. Header row uses
 #'       `font_size + 1`. Default: `8`.
 #'     \item `header_color`: Fill color for the header row (hex string).
 #'       Default: `"#E5E5E5"`.
 #'     \item `border_color`: Border color for all cells (hex string).
-#'       Default: `"#999999"`.
+#'       Default: `"#C5C5C5"`.
 #'     \item `border_type`: Border line type passed to
 #'       [openxlsx2::wb_add_border()]. Default: `"thin"`.
 #'     \item `color`: Named list mapping column names to hex colors for
@@ -178,6 +226,12 @@ get_xlsx <- \(sheets, ...) {
 
   if (length(color) && !is_named(color)) {
     cli::cli_abort("{.arg color} must be a fully named list.")
+  }
+
+  halign <- list(...)$halign
+
+  if (is.list(halign) && !is_named(halign)) {
+    cli::cli_abort("{.arg halign} must be a fully named list.")
   }
 
   reduce2(
