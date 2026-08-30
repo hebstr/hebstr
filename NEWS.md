@@ -123,6 +123,8 @@ Options and the variable classification cache now live in an internal package st
   A flowchart built in the plot pane then carries coordinates measured against the pane, and drawing it on the canvas `easy_out()` opens displaces everything derived from a box edge: `Gmisc::connectGrob(type = "N")` places its horizontal segment halfway between two boxes, and that half-distance shrinks as the construction device gets shorter.
   Build with the width and height `easy_out()` will be called with, and the exported figure stops depending on the pane size or on the `fig-height` of the chunk that happened to source the script.
   The device comes from `svglite::svgstring()`, the export's own family measuring into a memory buffer: `cairo_pdf`, `ragg` and `pdf(NULL)` each measure the same text differently, and `withr::with_svg()` wraps the cairo device.
+  A bare symbol passed to `code` is an error, that construction having been forced by its own assignment before the call: the device then opens and closes around a lookup and measures nothing, reinstating in silence the very drift the function exists to remove.
+  Splitting the construction out of the call stays possible through a function, `code = .flow_grob()` against `code = .flow_grob`.
 
 - `easy_out()` writes an `openxlsx2` workbook to XLSX, so the object `get_xlsx()` returns reaches disk through the package's export verb rather than a qualified `openxlsx2::wb_save()` call, with the output directory created and the `dir`/`filename`/`suffix` conventions applied.
   The `export` guard keeps reading the session option alone, so a workbook exported during a Word run (`options(hebstr.docx = TRUE)`) needs an explicit `export = TRUE`, as any other object does.

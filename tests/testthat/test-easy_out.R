@@ -2088,6 +2088,24 @@ test_that("with_fig_device() rejects a size svglite would silently accept", {
   expect_length(grDevices::dev.list(), 0L)
 })
 
+test_that("with_fig_device() rejects a graphic built before the call", {
+  built <- grid::grobTree()
+
+  expect_error(
+    with_fig_device(width = 11.5, height = 8, code = built),
+    class = "rlang_error",
+    regexp = "`code` must be"
+  )
+  expect_length(grDevices::dev.list(), 0L)
+})
+
+test_that("with_fig_device() leaves a missing code to R", {
+  expect_error(
+    with_fig_device(width = 11.5, height = 8),
+    "argument \"code\" is missing"
+  )
+})
+
 test_that("easy_out() embeds the resolved font into the SVG it writes", {
   tmp <- withr::local_tempdir()
   local_opts(font = "Luciole", .default_font = "sans")

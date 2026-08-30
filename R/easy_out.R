@@ -655,7 +655,9 @@ easy_out <- \(
 #' @param width,height Device size in inches. Pass the values [easy_out()]
 #'   will be called with.
 #' @param code Expression building the graphic. Evaluated once, on the device
-#'   this function opens.
+#'   this function opens, so it has to be the construction itself rather than
+#'   a graphic built beforehand. A bare symbol is rejected: its value was
+#'   computed before the call, which leaves nothing for the device to measure.
 #'
 #' @return The value of `code`.
 #' @export
@@ -674,6 +676,17 @@ easy_out <- \(
 #' The symptom is one script whose figure differs between the plot pane, a
 #' 'Quarto' render and the exported file. Nothing errors, and the boxes
 #' themselves look right, their text being measured in absolute units.
+#'
+#' Hoisting the construction into a variable reinstates that symptom, since
+#' `code` is then a symbol whose value the enclosing assignment has already
+#' forced. Splitting the construction out stays possible through a function,
+#' called from `code`:
+#'
+#' ```
+#' .flow_grob <- \() { ... }
+#'
+#' with_fig_device(width, height, code = .flow_grob())
+#' ```
 #'
 #' @section Device family:
 #' Text metrics differ from one device family to the next, so the construction
@@ -726,6 +739,20 @@ with_fig_device <- \(width, height, code) {
 
   check_size(width, "width")
   check_size(height, "height")
+
+  code_expr <- if (missing(code)) NULL else enexpr(code)
+
+  if (is_symbol(code_expr)) {
+    name <- as.character(code_expr)
+
+    cli_abort(c(
+      "{.arg code} must be the expression building the graphic.",
+      "x" = "{.var {name}} is already built when {.fn with_fig_device} is
+             called, so the device it opens measures nothing.",
+      "i" = "Inline the construction, or make {.var {name}} a function and
+             call it: {.code code = {name}()}."
+    ))
+  }
 
   previous <- grDevices::dev.cur()
 

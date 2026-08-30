@@ -11,7 +11,9 @@ with_fig_device(width, height, code)
 will be called with.}
 
 \item{code}{Expression building the graphic. Evaluated once, on the device
-this function opens.}
+this function opens, so it has to be the construction itself rather than
+a graphic built beforehand. A bare symbol is rejected: its value was
+computed before the call, which leaves nothing for the device to measure.}
 }
 \value{
 The value of \code{code}.
@@ -36,6 +38,16 @@ device gets shorter.
 The symptom is one script whose figure differs between the plot pane, a
 'Quarto' render and the exported file. Nothing errors, and the boxes
 themselves look right, their text being measured in absolute units.
+
+Hoisting the construction into a variable reinstates that symptom, since
+\code{code} is then a symbol whose value the enclosing assignment has already
+forced. Splitting the construction out stays possible through a function,
+called from \code{code}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{.flow_grob <- \\() \{ ... \}
+
+with_fig_device(width, height, code = .flow_grob())
+}\if{html}{\out{</div>}}
 }
 \section{Device family}{
 
