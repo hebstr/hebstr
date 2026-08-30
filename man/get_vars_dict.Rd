@@ -7,10 +7,9 @@
 get_vars_dict(
   x,
   cols = everything(),
-  font_size = "0.7rem",
+  font_size = "0.65rem",
   font_family = .text_font(),
   strip_color = set_opts(.assign = FALSE)$color$cold[1],
-  json = FALSE,
   ...
 )
 }
@@ -33,25 +32,23 @@ otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
 \item{strip_color}{Background color of the striped rows. Defaults to the first
 cold-palette color from the options.}
 
-\item{json}{Also return a JSON-friendly copy of the summary? It keeps the
-multi-valued cells as list columns marked with \code{\link[base:I]{base::I()}}, so that a JSON
-writer emits arrays rather than strings, counts missing values as \code{0}
-instead of \code{NA} and carries \code{p_miss} as a proportion rather than a
-formatted percentage.}
-
 \item{...}{Additional arguments forwarded to \code{\link[reactable:reactable]{reactable::reactable()}}.}
 }
 \value{
-A named list with \code{data} (the per-variable summary tibble), \code{output}
-(the interactive \code{reactable} widget) and \code{json} (the JSON-friendly copy, or
-\code{NULL}). \code{data} flattens the multi-valued cells (\code{range}, \code{q1_med_q3},
-\code{levels}) into \code{" ; "}-separated strings.
+A \code{hebstr_dict} object: a named list with \code{data} (the per-variable
+summary tibble), \code{json} (the JSON-friendly copy) and \code{output} (the
+interactive \code{reactable} widget). \code{data} flattens the multi-valued cells
+(\code{range}, \code{q1_med_q3}, \code{levels}) into \code{" ; "}-separated strings, where
+\code{json} keeps them as vectors marked with \code{\link[base:I]{base::I()}} so that a JSON writer
+emits arrays rather than strings, counts missing values as \code{0} instead of
+\code{NA} and carries \code{p_miss} as a proportion rather than a formatted
+percentage. The class is what \code{\link[=easy_out]{easy_out()}} dispatches on to write the
+widget and the summary together, as HTML, XLSX and JSON.
 }
 \description{
 Summarises each variable of a data frame (type, missingness, range, quartiles,
 factor levels) and returns that dictionary three ways: as a tibble, as an
-interactive \code{\link[reactable:reactable]{reactable::reactable()}} widget, and, on demand, as a
-JSON-friendly copy.
+interactive \code{\link[reactable:reactable]{reactable::reactable()}} widget, and as a JSON-friendly copy.
 }
 \examples{
 \dontrun{

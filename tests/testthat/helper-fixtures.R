@@ -164,6 +164,10 @@
   )
 }
 
+.make_dict <- \(...) {
+  get_vars_dict(head(datasets::iris, 10), ...)
+}
+
 ### EXTRACTORS ------------------------------------------------------------------
 
 .ft_txt <- \(x, part = "footer") {

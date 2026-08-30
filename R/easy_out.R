@@ -1,13 +1,15 @@
-#' Save a ggplot, gt table, grid graphic, or workbook to disk
+#' Save a ggplot, gt table, grid graphic, widget, or workbook to disk
 #'
 #' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
-#' HTML depending on the object type), or an `openxlsx2` workbook to XLSX.
-#' A figure also goes to an editable PPTX slide under `pptx = TRUE`.
-#' Opens the result in a browser unless `quiet = TRUE`.
+#' HTML depending on the object type), an htmlwidget to HTML, or an `openxlsx2`
+#' workbook to XLSX. A figure also goes to an editable PPTX slide under
+#' `pptx = TRUE`, and the variable dictionary [get_vars_dict()] returns also
+#' goes to XLSX and JSON. Opens the result in a browser unless `quiet = TRUE`.
 #'
 #' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
-#'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), or wbWorkbook
-#'   object, such as the one [get_xlsx()] returns.
+#'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), htmlwidget (a
+#'   [reactable::reactable()], say), `hebstr_dict` (what [get_vars_dict()]
+#'   returns), or wbWorkbook object, such as the one [get_xlsx()] returns.
 #' @param filename Output filename (without extension). Defaults to the name
 #'   of the object passed as `x`, and is required when `x` is anything else
 #'   than a name: the deparsed call would name the folder and the file after
@@ -32,10 +34,11 @@
 #'   gets 700. For plots and grid graphics: SVG width in inches
 #'   (default 7). For a grid grob under `crop = TRUE`, `width` and `height`
 #'   are a canvas budget rather than the size of the exported file, which
-#'   is trimmed back to the drawing it contains.
+#'   is trimmed back to the drawing it contains. Ignored for widgets, which
+#'   carry their own layout.
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
-#'   for tables and workbooks.
+#'   for tables, widgets and workbooks.
 #' @param px Height in pixels for the PNG rasterization of plots and grid
 #'   graphics.
 #' @param crop If `TRUE` (the default, read from
@@ -43,8 +46,8 @@
 #'   the bounding box of the drawing, keeping a small margin. Grob positions
 #'   are relative to the whole page, so a drawing covering a sub-rectangle
 #'   leaves an empty band that no `width`/`height` value removes. Ignored
-#'   for tables and plots, whose margins come from the theme, and for
-#'   workbooks. Ignored for the PPTX slide too, which carries the whole
+#'   for tables and plots, whose margins come from the theme, and for widgets
+#'   and workbooks. Ignored for the PPTX slide too, which carries the whole
 #'   canvas: an editable object is cropped in the tool that opens it.
 #' @param pptx If `TRUE`, also write the plot or grid graphic to a PPTX slide,
 #'   as an editable DrawingML shape rather than an image. Defaults to
@@ -52,7 +55,7 @@
 #'   The slide is the default 4:3 `Office Theme` one, and the drawing is
 #'   scaled to fit it and centred. Fonts are named in the slide rather than
 #'   embedded, so a reader without the family installed gets a substitute.
-#'   Tables and workbooks have no slide form and error out.
+#'   Tables, widgets and workbooks have no slide form and error out.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. Defaults to
@@ -153,12 +156,22 @@ easy_out <- \(
 
   is_supported <-
     is_ggplot(x) ||
-    inherits(x, c("ggmatrix", "gt_tbl", "gtsummary", "wbWorkbook")) ||
+    inherits(
+      x,
+      c(
+        "ggmatrix",
+        "gt_tbl",
+        "gtsummary",
+        "wbWorkbook",
+        "hebstr_dict",
+        "htmlwidget"
+      )
+    ) ||
     grid::is.grob(x)
 
   if (!is_supported) {
     cli_abort(c(
-      "{.strong {label}} must be a gt/gtsummary, ggplot, grid grob, or workbook object",
+      "{.strong {label}} must be a gt/gtsummary, ggplot, grid grob, widget, or workbook object",
       "i" = "Received object of class: {.cls {class(x)}}",
       if (inherits(x, "flextable")) {
         c(
@@ -377,6 +390,60 @@ easy_out <- \(
       files = to_xlsx,
       browse = to_xlsx
     )
+
+    ### WIDGET -------------------------------------------------------------------------
+  } else if (inherits(x, c("hebstr_dict", "htmlwidget"))) {
+    is_dict <- inherits(x, "hebstr_dict")
+    widget <- if (is_dict) x$output else x
+
+    to_html <- fs::path(path, ext = "html")
+
+    cli_progress_step("Creating HTML file")
+
+    local({
+      # saveWidget resolves libdir against the working directory rather than
+      # the file, so its own cleanup misses a libdir written elsewhere
+      withr::local_dir(out_dir)
+      saveWidget(
+        widget,
+        file = fs::path_file(to_html),
+        selfcontained = .self_contained()
+      )
+    })
+
+    to_xlsx <- NULL
+    to_json <- NULL
+
+    if (is_dict) {
+      cli_progress_step("Creating XLSX file")
+
+      to_xlsx <- fs::path(path, ext = "xlsx")
+      sheets <- set_names(list(x$data), .out_sheet(fs::path_file(path)))
+
+      wb_save(get_xlsx(sheets, halign = .dict_halign()), file = to_xlsx)
+
+      cli_progress_step("Creating JSON file")
+
+      to_json <- fs::path(path, ext = "json")
+
+      # auto_unbox is what makes the I() marking of .dict_json() load-bearing:
+      # without it every scalar comes out as a one-element array instead
+      write_json(
+        x$json,
+        path = to_json,
+        pretty = TRUE,
+        auto_unbox = TRUE,
+        digits = 3,
+        na = "null"
+      )
+    }
+
+    cli_progress_done()
+
+    cli_output(
+      files = c(to_html, to_xlsx, to_json),
+      browse = to_html
+    )
   }
 
   invisible(NULL)
@@ -389,7 +456,9 @@ easy_out <- \(
 #'
 #' @param x A named list of objects [easy_out()] accepts. The names are
 #'   folded into kebab-case along with the rest of the filename, so they
-#'   have to stay distinct once folded.
+#'   have to stay distinct once folded. What [get_vars_dict()] returns is one
+#'   output rather than a list of them, named list though it is, and goes to
+#'   [easy_out()] instead.
 #' @param filename Base filename. Defaults to the name of the object passed
 #'   as `x`, and is required when the list is built at the call.
 #' @param sep Separator between `filename` and the list element name. Folded
@@ -425,6 +494,15 @@ easy_out_map <- \(
     cli_abort(c(
       "{.strong {label}} must be a list of tables/figures",
       "i" = "Received object of class: {.cls {class(x)}}"
+    ))
+  }
+
+  # a dictionary is a named list too, so it reaches the map and fails on its
+  # first element, naming the element rather than the door that was missed
+  if (inherits(x, "hebstr_dict")) {
+    cli_abort(c(
+      "{.strong {label}} is one output, not a list of them.",
+      "i" = "Pass it to {.fun easy_out}, which writes its widget and its summary together."
     ))
   }
 
@@ -532,6 +610,25 @@ easy_out_map <- \(
     str_remove_all("^-+|-+$") |>
     str_to_lower()
 }
+
+# selfcontained routes through pandoc, absent from a bare R install: the libdir
+# fallback keeps the widget readable rather than aborting the export
+.self_contained <- \() {
+  if (is_installed("rmarkdown") && rmarkdown::pandoc_available()) {
+    return(TRUE)
+  }
+
+  cli_warn(c(
+    "Writing the widget beside its library folder: {.pkg pandoc} was not found.",
+    "i" = "A self-contained file needs {.pkg pandoc}, which {.fun htmlwidgets::saveWidget} reaches through {.pkg rmarkdown}.",
+    "i" = "The file stays readable in place, but moving it means moving the folder beside it."
+  ))
+
+  FALSE
+}
+
+# Excel caps a sheet name at 31 characters
+.out_sheet <- \(name) str_sub(name, 1, 31)
 
 # rvg names the font family in the slide rather than embedding it, so the
 # alias is what keeps the slide and the SVG on the same one

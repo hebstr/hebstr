@@ -128,7 +128,7 @@ test_that("get_vars_dict() keeps the widget widths within their bounds", {
 
   widths <- .view_cols(get_vars_dict(df, strip_color = "#fff"))
 
-  expect_equal(widths[["label"]], 300)
+  expect_equal(widths[["label"]], 250)
   expect_equal(widths[["n"]], 50)
 })
 
@@ -143,14 +143,39 @@ test_that("get_vars_dict() scales the widget widths with the font size", {
   expect_gt(large[["variable"]], small[["variable"]])
 })
 
-test_that("get_vars_dict(json = TRUE) keeps the multi-valued cells structured", {
+test_that("get_vars_dict() centers every widget column but the text ones", {
+  df <- tibble::tibble(
+    cont = c(10, 20, 30, 40, NA),
+    grp = factor(c("x", "y", "x", "z", "y"))
+  )
+
+  aligns <- .view_cols(get_vars_dict(df, strip_color = "#fff"), "align")
+
+  expect_equal(
+    unname(aligns[c("variable", "label", "levels")]),
+    rep("left", 3)
+  )
+  expect_true(all(
+    aligns[setdiff(names(aligns), c("variable", "label", "levels"))] == "center"
+  ))
+})
+
+test_that("get_vars_dict() keeps the multi-valued cells structured", {
   df <- tibble::tibble(cont = c(10, 20, 30, 40, NA))
 
-  view <- get_vars_dict(df, json = TRUE, strip_color = "#fff")
+  view <- get_vars_dict(df, strip_color = "#fff")
 
-  expect_null(get_vars_dict(df, strip_color = "#fff")$json)
   expect_type(view$json$range, "list")
   expect_equal(as.numeric(view$json$range[[1]]), c(10, 40))
   expect_equal(unname(view$json$n_miss), 1)
   expect_equal(unname(view$json$p_miss), 0.2)
+})
+
+test_that("get_vars_dict() returns a hebstr_dict easy_out() can dispatch on", {
+  dict <- .make_dict()
+
+  expect_s3_class(dict, "hebstr_dict")
+  expect_named(dict, c("data", "json", "output"))
+  expect_s3_class(dict$data, "tbl_df")
+  expect_s3_class(dict$output, "reactable")
 })

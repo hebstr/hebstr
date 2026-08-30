@@ -2,8 +2,7 @@
 #'
 #' Summarises each variable of a data frame (type, missingness, range, quartiles,
 #' factor levels) and returns that dictionary three ways: as a tibble, as an
-#' interactive [reactable::reactable()] widget, and, on demand, as a
-#' JSON-friendly copy.
+#' interactive [reactable::reactable()] widget, and as a JSON-friendly copy.
 #'
 #' @param x A data frame to summarise.
 #' @param cols <[`tidy-select`][dplyr::dplyr_tidy_select]> Columns of the
@@ -18,17 +17,17 @@
 #'   otherwise the OS-agnostic system sans-serif (`"sans"`).
 #' @param strip_color Background color of the striped rows. Defaults to the first
 #'   cold-palette color from the options.
-#' @param json Also return a JSON-friendly copy of the summary? It keeps the
-#'   multi-valued cells as list columns marked with [base::I()], so that a JSON
-#'   writer emits arrays rather than strings, counts missing values as `0`
-#'   instead of `NA` and carries `p_miss` as a proportion rather than a
-#'   formatted percentage.
 #' @param ... Additional arguments forwarded to [reactable::reactable()].
 #'
-#' @return A named list with `data` (the per-variable summary tibble), `output`
-#'   (the interactive `reactable` widget) and `json` (the JSON-friendly copy, or
-#'   `NULL`). `data` flattens the multi-valued cells (`range`, `q1_med_q3`,
-#'   `levels`) into `" ; "`-separated strings.
+#' @return A `hebstr_dict` object: a named list with `data` (the per-variable
+#'   summary tibble), `json` (the JSON-friendly copy) and `output` (the
+#'   interactive `reactable` widget). `data` flattens the multi-valued cells
+#'   (`range`, `q1_med_q3`, `levels`) into `" ; "`-separated strings, where
+#'   `json` keeps them as vectors marked with [base::I()] so that a JSON writer
+#'   emits arrays rather than strings, counts missing values as `0` instead of
+#'   `NA` and carries `p_miss` as a proportion rather than a formatted
+#'   percentage. The class is what [easy_out()] dispatches on to write the
+#'   widget and the summary together, as HTML, XLSX and JSON.
 #' @export
 #'
 #' @examples
@@ -40,10 +39,9 @@
 get_vars_dict <- \(
   x,
   cols = everything(),
-  font_size = "0.7rem",
+  font_size = "0.65rem",
   font_family = .text_font(),
   strip_color = set_opts(.assign = FALSE)$color$cold[1],
-  json = FALSE,
   ...
 ) {
   set_cols <- \(y, vars, fn, name) {
@@ -107,17 +105,6 @@ get_vars_dict <- \(
       map_chr(col, ~ str_flatten(.x, " ; ")) |> na_if("")
     }))
 
-  .data_json <- if (json) {
-    .dict |>
-      mutate(
-        n_miss = coalesce(n_miss, 0L),
-        p_miss = n_miss / nrow(x),
-        across(where(is.list), \(col) {
-          map(col, ~ if (is.null(.x)) NA else I(.x))
-        })
-      )
-  }
-
   .output_cols <- .view_data |>
     rename("n" = pos) |>
     select(!!enexpr(cols))
@@ -135,11 +122,7 @@ get_vars_dict <- \(
       filterable = TRUE,
       striped = TRUE,
       resizable = TRUE,
-      columns = .col_defs(
-        .output_cols,
-        font_size,
-        extra = list(n_miss = list(align = "left"))
-      ),
+      columns = .col_defs(.output_cols, font_size),
       theme = reactableTheme(
         style = list(fontSize = font_size, fontFamily = font_family),
         stripedColor = strip_color,
@@ -150,9 +133,11 @@ get_vars_dict <- \(
 
   .view <- lst(
     data = .view_data,
-    output = .view_output,
-    json = .data_json
+    json = .dict_json(.dict, nrow(x)),
+    output = .view_output
   )
+
+  class(.view) <- c("hebstr_dict", "list")
 
   return(.view)
 }
@@ -173,22 +158,37 @@ get_vars_dict <- \(
   )
 }
 
+.dict_json <- \(dict, n) {
+  dict |>
+    mutate(
+      n_miss = coalesce(n_miss, 0L),
+      p_miss = n_miss / n,
+      across(where(is.list), \(col) {
+        map(col, ~ if (is.null(.x)) NA else I(.x))
+      })
+    )
+}
+
+.dict_left <- c("variable", "label", "levels")
+
+.dict_halign <- \() set_names(rep(list("left"), length(.dict_left)), .dict_left)
+
 .col_defs <- \(
   data,
   font_size,
-  extra = list(),
+  left = .dict_left,
   em = 0.47,
   pad = 20,
-  bounds = c(50, 300)
+  bounds = c(50, 250)
 ) {
   char <- .font_px(font_size) * em
 
   imap(data, \(col, name) {
     chars <- max(nchar(as.character(col)), nchar(name) + 3, na.rm = TRUE)
 
-    inject(colDef(
+    colDef(
       minWidth = round(min(max(chars * char + pad, bounds[1]), bounds[2])),
-      !!!extra[[name]]
-    ))
+      align = if (name %in% left) "left" else "center"
+    )
   })
 }

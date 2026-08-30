@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_out.R
 \name{easy_out}
 \alias{easy_out}
-\title{Save a ggplot, gt table, grid graphic, or workbook to disk}
+\title{Save a ggplot, gt table, grid graphic, widget, or workbook to disk}
 \usage{
 easy_out(
   x,
@@ -23,8 +23,9 @@ easy_out(
 }
 \arguments{
 \item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
-Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), or wbWorkbook
-object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.}
+Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), htmlwidget (a
+\code{\link[reactable:reactable]{reactable::reactable()}}, say), \code{hebstr_dict} (what \code{\link[=get_vars_dict]{get_vars_dict()}}
+returns), or wbWorkbook object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.}
 
 \item{filename}{Output filename (without extension). Defaults to the name
 of the object passed as \code{x}, and is required when \code{x} is anything else
@@ -55,11 +56,12 @@ overriding the width the object carries from \code{\link[=tbl_format]{tbl_format
 gets 700. For plots and grid graphics: SVG width in inches
 (default 7). For a grid grob under \code{crop = TRUE}, \code{width} and \code{height}
 are a canvas budget rather than the size of the exported file, which
-is trimmed back to the drawing it contains.}
+is trimmed back to the drawing it contains. Ignored for widgets, which
+carry their own layout.}
 
 \item{height}{Height in inches for SVG output of plots and grid graphics
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
-for tables and workbooks.}
+for tables, widgets and workbooks.}
 
 \item{px}{Height in pixels for the PNG rasterization of plots and grid
 graphics.}
@@ -69,8 +71,8 @@ graphics.}
 the bounding box of the drawing, keeping a small margin. Grob positions
 are relative to the whole page, so a drawing covering a sub-rectangle
 leaves an empty band that no \code{width}/\code{height} value removes. Ignored
-for tables and plots, whose margins come from the theme, and for
-workbooks. Ignored for the PPTX slide too, which carries the whole
+for tables and plots, whose margins come from the theme, and for widgets
+and workbooks. Ignored for the PPTX slide too, which carries the whole
 canvas: an editable object is cropped in the tool that opens it.}
 
 \item{pptx}{If \code{TRUE}, also write the plot or grid graphic to a PPTX slide,
@@ -79,7 +81,7 @@ as an editable DrawingML shape rather than an image. Defaults to
 The slide is the default 4:3 \verb{Office Theme} one, and the drawing is
 scaled to fit it and centred. Fonts are named in the slide rather than
 embedded, so a reader without the family installed gets a substitute.
-Tables and workbooks have no slide form and error out.}
+Tables, widgets and workbooks have no slide form and error out.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
@@ -103,9 +105,10 @@ another family; build them with \code{woff2} given as a \verb{data:} URI rather 
 }
 \description{
 Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
-HTML depending on the object type), or an \code{openxlsx2} workbook to XLSX.
-A figure also goes to an editable PPTX slide under \code{pptx = TRUE}.
-Opens the result in a browser unless \code{quiet = TRUE}.
+HTML depending on the object type), an htmlwidget to HTML, or an \code{openxlsx2}
+workbook to XLSX. A figure also goes to an editable PPTX slide under
+\code{pptx = TRUE}, and the variable dictionary \code{\link[=get_vars_dict]{get_vars_dict()}} returns also
+goes to XLSX and JSON. Opens the result in a browser unless \code{quiet = TRUE}.
 }
 \details{
 In a remote session, the exported file lives on the server while the

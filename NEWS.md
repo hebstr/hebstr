@@ -64,7 +64,7 @@ Options and the variable classification cache now live in an internal package st
 - `get_vars_dict()` loses its `level_sep` argument, and the returned `data` flattens the multi-valued cells.
   The values of such a cell, the levels of a factor, the two ends of a range or the three quartiles, are joined with `" ; "`, in the widget and in `data` alike, and the separator is no longer configurable.
   `data$range`, `data$q1_med_q3` and `data$levels` are therefore strings where each was a list column holding a vector.
-  Code reading those cells goes through `json = TRUE`, which keeps them as lists.
+  Code reading those cells goes through the `json` element, which keeps them as lists.
 - `get_vars_dict()` renames the quartile column of its returned `data` from `q1_q2_q3` to `q1_med_q3`, the middle of the three values being the median rather than a second quartile.
   Code reading `view$data$q1_q2_q3` has to follow, and the widget carries the column under the new name as well.
 
@@ -80,6 +80,16 @@ Options and the variable classification cache now live in an internal package st
   `model_mv`, `ref_sep` and `ref_no` serve this argument alone and go with it at removal.
 
 ## New features
+
+- `easy_out()` accepts an htmlwidget, writing it to a self-contained HTML file, and the variable dictionary `get_vars_dict()` returns, writing the widget and its summary together as HTML, XLSX and JSON.
+  `get_vars_dict()` classes its return `hebstr_dict`, which is what `easy_out()` dispatches on, so `easy_out(vars_dict)` names its output after the object rather than needing a `filename` for `vars_dict$output`.
+  The dictionary gets no PNG: a raster of an interactive widget freezes the search box and the filter row, and stops at the first page, so a summary of three hundred variables would give an image of a hundred rows looking complete.
+  The XLSX carries `data` whole even when `cols` restricts the widget, an archive having no reason to be amputated by a display choice, and the sheet is named after the file, capped at the 31 characters Excel allows.
+  The JSON carries the `json` element, written with `auto_unbox = TRUE` so that the cells `get_vars_dict()` marks with `I()` come out as arrays even when they hold a single value, and with missing values as `null`.
+  The frame is not read back out of the widget: reactable holds it as JSON under a private reactR structure with no exported accessor, encodes a missing value as the string `"NA"` so an all-missing integer column comes back logical, and carries the displayed selection rather than the source.
+  A self-contained file needs pandoc, which `htmlwidgets::saveWidget()` reaches through rmarkdown; without it the widget is written beside its library folder and a warning says so.
+  `htmlwidgets` and `jsonlite` join `Imports`, both already installed as dependencies of reactable, and `rmarkdown` stays a `Suggests`, reached only through the guarded call above.
+  `easy_out_map()` now points a dictionary at `easy_out()` rather than mapping over it: a `hebstr_dict` is a named list, so it passed both guards and failed inside the map on `data`, naming the element instead of the door that was missed.
 
 - `easy_check()` turns a set of logical checks into a data-quality report: one row per pair of a row and a check it fails, identified by `.id` and carried by whatever context `.with` declares.
   It is meant for the spreadsheet a data manager works from, one line per thing to look at, and goes straight into [get_xlsx()] and [easy_out()].
@@ -276,15 +286,31 @@ Options and the variable classification cache now live in an internal package st
 
 ## Minor improvements
 
-- `get_vars_dict(json = TRUE)` returns a third element, `json`, a copy of the summary meant for a JSON writer.
+- `get_vars_dict()` returns a third element, `json`, a copy of the summary meant for a JSON writer.
   It keeps the multi-valued cells as list columns marked with [base::I()], so `jsonlite::toJSON()` emits them as arrays rather than as the `" ; "` strings `data` carries, counts missing values as `0` rather than `NA`, and gives `p_miss` as a proportion rather than a formatted percentage.
-  The element is `NULL` when the argument is left at `FALSE`, and the copy is not computed at all.
+  No argument gates it: the copy is a form of the dictionary, like the tibble and the widget, and a `json = TRUE` at a call site is now an error, the argument reaching [reactable::reactable()] through `...`.
+  [easy_out()] writes it to a `.json` file beside the widget and the workbook, so reaching for a JSON writer by hand is only needed to send the dictionary somewhere other than disk.
+- The columns of a `get_xlsx()` sheet are sized on what they hold at the size they are set in, header included.
+  openxlsx2 measures a column in characters of the workbook's base font, so a sheet set in a smaller face came out wider than its text, by the ratio of the two sizes: a 27-character cell asked for 27 units of an 11 pt font while rendering at 8 pt, leaving about a quarter of the column empty on the right.
+  The header was measured the same way and, carrying an autofilter button its own length does not account for, wrapped and clipped whenever it was the longest thing in its column: `n_miss` over an empty column came out as two lines of which only the first was visible.
+  Each column now asks for the longest of its header and its values, each scaled by the size it is written at, plus the button allowance and a character of slack.
+  `max_width` still caps the result.
+- `get_xlsx(halign = )` also takes a named list, aligning the columns it names and leaving the others at the default `"center"`: `halign = list(variable = "left")`.
+  A string still aligns the whole sheet, and an unnamed list is an error rather than a silent no-op.
+  The alignment is posed on the column before the borders are broadcast, so it survives the per-column style spread that carries the number formats.
+  The XLSX `easy_out()` writes beside a variable dictionary reads the same rule as the widget, so its `variable`, `label` and `levels` columns are left-aligned and the rest centred.
+- The `border_color` default of a `get_xlsx()` sheet lightens from `"#999999"` to `"#C5C5C5"`, the grid reading as a rule between cells rather than as a second layer of content.
+  `wb_add_custom()` keeps its own default.
+- The cells of the `get_vars_dict()` widget are centred, except those of `variable`, `label` and `levels`, which stay left-aligned.
+  Alignment used to be left to reactable, which aligns on the storage type: the counts came out right-aligned, the codes left-aligned, and no column lined up with its header.
+  The three text columns are the ones a reader scans down rather than compares, so they keep a common left edge.
 - The columns of the `get_vars_dict()` widget are sized on what they hold rather than on a fixed width per column name.
-  Each column asks for the width of its longest value, header included, counted at 0.47 em a character plus the cell padding and bounded to between 50 and 300 pixels, so that one verbose label neither starves its neighbours nor pushes the table into a horizontal scroll.
+  Each column asks for the width of its longest value, header included, counted at 0.47 em a character plus the cell padding and bounded to between 50 and 250 pixels, so that one verbose label neither starves its neighbours nor pushes the table into a horizontal scroll.
   The em figure is measured, not guessed: a canvas at the widget's own font size gives between 0.41 and 0.48 em a character on the strings long enough to decide a width.
   Reading it from `font_size` rather than from a constant keeps the widths honest when that argument moves, `rem`, `em`, `px`, `pt` and `%` included.
   The widths are minimums in a flexbox layout, so the columns still share whatever room the container has left.
   Selecting a subset through `cols` no longer leaves the columns that had no hard-coded entry at the generic default.
+  The `font_size` default itself moves from `"0.7rem"` to `"0.65rem"`, and the widths follow it, being read from that argument rather than from a constant.
 - `easy_out(crop = TRUE)` finds the modal background of the raster through `tabulate()` rather than `table()`, which coerced every pixel to character.
   About 35 times faster on the ink-box measurement, roughly eight tenths of a second off every cropped grob export.
 - `docx_page_width()` reads the section geometry of a `.docx` or `.dotx` template and returns the width its body text can use, in inches, landscape included.

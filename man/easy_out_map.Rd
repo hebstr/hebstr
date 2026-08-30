@@ -9,7 +9,9 @@ easy_out_map(x, filename = NULL, sep = "_", subdir = TRUE, ...)
 \arguments{
 \item{x}{A named list of objects \code{\link[=easy_out]{easy_out()}} accepts. The names are
 folded into kebab-case along with the rest of the filename, so they
-have to stay distinct once folded.}
+have to stay distinct once folded. What \code{\link[=get_vars_dict]{get_vars_dict()}} returns is one
+output rather than a list of them, named list though it is, and goes to
+\code{\link[=easy_out]{easy_out()}} instead.}
 
 \item{filename}{Base filename. Defaults to the name of the object passed
 as \code{x}, and is required when the list is built at the call.}

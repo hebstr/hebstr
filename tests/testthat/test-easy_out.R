@@ -2172,3 +2172,119 @@ test_that(".device_fonts() leaves the generic aliases alone", {
   expect_identical(.device_fonts(), list())
   expect_identical(.device_fonts("Luciole"), list(sans = "Luciole"))
 })
+
+test_that("easy_out() writes a hebstr_dict to html, xlsx and json", {
+  tmp <- withr::local_tempdir()
+  dict <- .make_dict()
+
+  easy_out(dict, filename = "vars", dir = tmp, quiet = TRUE)
+
+  html <- fs::path(tmp, "vars", "vars", ext = "html")
+  xlsx <- fs::path(tmp, "vars", "vars", ext = "xlsx")
+  json <- fs::path(tmp, "vars", "vars", ext = "json")
+
+  expect_true(fs::file_exists(html))
+  expect_true(fs::file_exists(xlsx))
+  expect_true(fs::file_exists(json))
+
+  wb <- openxlsx2::wb_load(xlsx)
+
+  expect_equal(wb$get_sheet_names(), c("vars" = "vars"))
+  expect_equal(names(openxlsx2::wb_to_df(wb)), names(dict$data))
+})
+
+test_that("easy_out() leaves no library folder beside a self-contained widget", {
+  skip_if_not(rmarkdown::pandoc_available())
+
+  tmp <- withr::local_tempdir()
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE)
+
+  expect_equal(
+    sort(fs::path_file(fs::dir_ls(fs::path(tmp, "vars"), all = TRUE))),
+    c("vars.html", "vars.json", "vars.xlsx")
+  )
+})
+
+test_that("easy_out() writes a bare htmlwidget to html alone", {
+  tmp <- withr::local_tempdir()
+
+  easy_out(.make_dict()$output, filename = "widget", dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "widget", "widget", ext = "html")))
+  expect_false(fs::file_exists(fs::path(tmp, "widget", "widget", ext = "xlsx")))
+  expect_false(fs::file_exists(fs::path(tmp, "widget", "widget", ext = "json")))
+})
+
+test_that("easy_out() keeps the dictionary json multi-valued and unformatted", {
+  tmp <- withr::local_tempdir()
+  data <- data.frame(g = factor(c("a", "a")), n = c(1, NA))
+
+  easy_out(get_vars_dict(data), filename = "vars", dir = tmp, quiet = TRUE)
+
+  json <- jsonlite::read_json(fs::path(tmp, "vars", "vars", ext = "json"))
+  rows <- set_names(json, vapply(json, \(row) row$variable, character(1)))
+
+  expect_equal(rows$g$levels, list("a"))
+  expect_equal(rows$n$q1_med_q3, list(1, 1, 1))
+  expect_equal(rows$g$p_miss, 0)
+  expect_equal(rows$n$p_miss, 0.5)
+  expect_null(rows$g$range)
+})
+
+test_that("easy_out() keeps every summary column in the xlsx a restricted widget drops", {
+  tmp <- withr::local_tempdir()
+  dict <- .make_dict(cols = c(n, variable))
+
+  easy_out(dict, filename = "vars", dir = tmp, quiet = TRUE)
+
+  cols <- names(openxlsx2::wb_to_df(
+    openxlsx2::wb_load(fs::path(tmp, "vars", "vars", ext = "xlsx"))
+  ))
+
+  expect_equal(cols, names(dict$data))
+  expect_gt(length(cols), length(.view_cols(dict)))
+})
+
+test_that("easy_out() aligns the xlsx on the widget's own rule", {
+  tmp <- withr::local_tempdir()
+  dict <- .make_dict()
+
+  easy_out(dict, filename = "vars", dir = tmp, quiet = TRUE)
+
+  wb <- openxlsx2::wb_load(fs::path(tmp, "vars", "vars", ext = "xlsx"))
+  aligns <- .sheet_halign(wb, dict$data, row = 2)
+  left <- c("variable", "label", "levels")
+
+  expect_equal(unname(aligns[left]), rep("left", 3))
+  expect_true(all(aligns[setdiff(names(aligns), left)] == "center"))
+})
+
+test_that("easy_out() refuses a slide for a widget without creating its folder", {
+  tmp <- withr::local_tempdir()
+
+  expect_error(
+    easy_out(
+      .make_dict(),
+      filename = "vars",
+      dir = tmp,
+      pptx = TRUE,
+      quiet = TRUE
+    ),
+    regexp = "plot or a grid grob"
+  )
+
+  expect_false(fs::dir_exists(fs::path(tmp, "vars")))
+})
+
+test_that(".out_sheet() caps a sheet name at the Excel limit", {
+  expect_equal(nchar(.out_sheet(strrep("a", 40))), 31L)
+  expect_equal(.out_sheet("vars"), "vars")
+})
+
+test_that("easy_out_map() points a hebstr_dict at easy_out()", {
+  expect_error(
+    easy_out_map(.make_dict(), filename = "vars", dir = withr::local_tempdir()),
+    regexp = "one output, not a list"
+  )
+})
