@@ -152,8 +152,10 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 #' @param bg Background color for the heading, column labels, striping, and
 #'   footnotes.
 #' @param row_padding Vertical padding of data rows, in pixels.
-#' @param title_align Horizontal alignment of the heading (`"left"`,
-#'   `"center"`, or `"right"`).
+#' @param title_align Horizontal alignment of the heading (`"justify"`,
+#'   `"left"`, `"center"`, or `"right"`). Applied to the title itself, so it
+#'   holds even under the `docx = FALSE` refinements, which justify the
+#'   footnotes only.
 #' @param font_size Base font size, in pixels.
 #' @param title_font_size Heading title font size, in pixels.
 #' @param stat_font_size Font size of stat and estimate cells, in pixels.
@@ -164,9 +166,11 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 #'   (e.g. `"extended"`, `"standard"`, `"numbers"`).
 #' @param footnote_font_size Footnote font size, in pixels.
 #' @param footnote_padding Footnote padding, in pixels.
-#' @param docx If `TRUE`, skip the style refinements (justified title and
-#'   footnotes, digit font, reduced stat and p-value sizes) that render poorly
-#'   in Word output. Defaults to `getOption("hebstr.docx", FALSE)`.
+#' @param docx If `TRUE`, skip the cell-level style refinements (aligned
+#'   title, justified footnotes, digit font, reduced stat and p-value sizes)
+#'   that render poorly in Word output. `title_align` still reaches the
+#'   heading through [gt::tab_options()], whose call sits outside the branch.
+#'   Defaults to `getOption("hebstr.docx", FALSE)`.
 #' @param ... Additional options forwarded to [gt::tab_options()].
 #'
 #' @return A [gt::gt()] table object (`gt_tbl`).
@@ -187,7 +191,7 @@ theme_gt <- \(
   color = check_opts(color$cold[1]),
   bg = "white",
   row_padding = 8,
-  title_align = "left",
+  title_align = "justify",
   font_size = 13,
   title_font_size = font_size + 1,
   stat_font_size = font_size - 1,
@@ -248,8 +252,12 @@ theme_gt <- \(
   if (!docx) {
     x <- x |>
       tab_style(
+        style = cell_text(align = title_align),
+        locations = cells_title()
+      ) |>
+      tab_style(
         style = cell_text(align = "justify"),
-        locations = list(cells_title(), cells_footnotes())
+        locations = cells_footnotes()
       ) |>
       tab_style(
         style = cell_text(font = digit),

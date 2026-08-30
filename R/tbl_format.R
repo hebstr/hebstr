@@ -51,9 +51,16 @@
 #'   back too, with a warning. It is a property of the rendered document rather
 #'   than of the table: where the lookup cannot reach it, set it once through
 #'   [set_opts()] rather than at each call.
+#' @param title_align Horizontal alignment of the title (`"justify"`, `"left"`,
+#'   `"center"`, or `"right"`). Defaults to `"justify"`. Exposed here rather
+#'   than left to `...` because the two themes default it differently
+#'   ([theme_gt()] justifies, [theme_ft()] left-aligns): one value drives both
+#'   branches, so a table titled from a single source is aligned the same way
+#'   in HTML and in Word.
 #' @param ... Passed on to [theme_gt()], or to [theme_ft()] under
-#'   `options(hebstr.docx = TRUE)`. Set the table width through `width` rather
-#'   than here: the two themes take it in different units.
+#'   `options(hebstr.docx = TRUE)`. Set the table width through `width` and the
+#'   title alignment through `title_align` rather than here: the two themes take
+#'   the first in different units and default the second differently.
 #'
 #' @returns A `gt_tbl` object, or a `flextable` object under
 #'   `options(hebstr.docx = TRUE)`. Style verbs applied downstream must handle
@@ -80,6 +87,7 @@ tbl_format <- \(
   missing_size = 11,
   width = 700,
   page_width = check_opts(page_width),
+  title_align = "justify",
   ...
 ) {
   if (!inherits(x, "gtsummary")) {
@@ -196,6 +204,7 @@ tbl_format <- \(
       is_coef = is_coef,
       zero_replace = zero_replace,
       width = .page_fraction(width, page_width),
+      title_align = title_align,
       ...
     )
 
@@ -212,7 +221,7 @@ tbl_format <- \(
 
   x <- x |>
     tab_header(title = if (!is.null(title)) md(title)) |>
-    theme_gt(width = width, ...)
+    theme_gt(width = width, title_align = title_align, ...)
 
   if (size_dm) {
     x <- tbl_font_size(x, columns = dm, size = missing_size)
@@ -264,6 +273,7 @@ tbl_format <- \(
   is_coef,
   zero_replace,
   width,
+  title_align,
   ...
 ) {
   notes <- c(str_c(note_global), acro_note)
@@ -310,7 +320,12 @@ tbl_format <- \(
     x <- modify_caption(x, title)
   }
 
-  theme_ft(.ft_render(.ft_breaks(x)), width = width, ...)
+  theme_ft(
+    .ft_render(.ft_breaks(x)),
+    width = width,
+    title_align = title_align,
+    ...
+  )
 }
 
 .mark_clash <- "'big\\.mark' and 'decimal\\.mark'"

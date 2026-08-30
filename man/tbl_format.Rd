@@ -18,6 +18,7 @@ tbl_format(
   missing_size = 11,
   width = 700,
   page_width = check_opts(page_width),
+  title_align = "justify",
   ...
 )
 }
@@ -78,9 +79,17 @@ back too, with a warning. It is a property of the rendered document rather
 than of the table: where the lookup cannot reach it, set it once through
 \code{\link[=set_opts]{set_opts()}} rather than at each call.}
 
+\item{title_align}{Horizontal alignment of the title (\code{"justify"}, \code{"left"},
+\code{"center"}, or \code{"right"}). Defaults to \code{"justify"}. Exposed here rather
+than left to \code{...} because the two themes default it differently
+(\code{\link[=theme_gt]{theme_gt()}} justifies, \code{\link[=theme_ft]{theme_ft()}} left-aligns): one value drives both
+branches, so a table titled from a single source is aligned the same way
+in HTML and in Word.}
+
 \item{...}{Passed on to \code{\link[=theme_gt]{theme_gt()}}, or to \code{\link[=theme_ft]{theme_ft()}} under
-\code{options(hebstr.docx = TRUE)}. Set the table width through \code{width} rather
-than here: the two themes take it in different units.}
+\code{options(hebstr.docx = TRUE)}. Set the table width through \code{width} and the
+title alignment through \code{title_align} rather than here: the two themes take
+the first in different units and default the second differently.}
 }
 \value{
 A \code{gt_tbl} object, or a \code{flextable} object under

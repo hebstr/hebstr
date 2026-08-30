@@ -147,6 +147,31 @@ test_that("tbl_format() sets the table caption from `title` under docx", {
   expect_match(paste(unlist(res$caption), collapse = " "), "My Title")
 })
 
+test_that("tbl_format(title_align) reaches the caption under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(.make_summary_tbl(), title = "T", title_align = "center")
+
+  expect_identical(res$caption$fp_p$text.align, "center")
+})
+
+test_that("tbl_format() gives both branches the same title alignment by default", {
+  local_opts()
+
+  gt_tbl <- withr::with_options(
+    list(hebstr.docx = NULL),
+    tbl_format(.make_summary_tbl(), title = "T")
+  )
+  ft <- withr::with_options(
+    list(hebstr.docx = TRUE),
+    tbl_format(.make_summary_tbl(), title = "T")
+  )
+
+  expect_identical(.gt_align(gt_tbl, "title"), "justify")
+  expect_identical(ft$caption$fp_p$text.align, "justify")
+})
+
 test_that("tbl_format() applies zero_replace under docx, and leaves cells alone when NULL", {
   local_opts()
   withr::local_options(hebstr.docx = TRUE)

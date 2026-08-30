@@ -169,6 +169,18 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `theme_gt(title_align)` reaches the title it names.
+  The argument was passed to `gt::tab_options(heading.align = )`, then silently overridden by the `docx = FALSE` refinements, which restyled `cells_title()` and `cells_footnotes()` to `justify` in a single call.
+  Every table therefore carried a justified title whatever the caller asked for, and a document wanting a centred one had to reach past `tbl_format()` with its own `gt::tab_style()`, which then aborted on the Word branch where `tbl_format()` returns a `flextable`.
+  The refinement is split in two: the footnotes keep `justify`, the title takes `title_align`.
+  Its default moves from `"left"` to `"justify"` so the rendered output is unchanged for every caller that never set it, and `tbl_format(title_align = "center")` now works on both branches, `theme_ft()` having always honoured the argument.
+  The one place the new default is visible is `theme_gt(docx = TRUE)`, which skips that refinement and leaves the heading to `gt::tab_options()`: a title of more than one line is justified there where it used to be left-aligned.
+
+- `tbl_format(title_align)` is a formal of its own rather than an argument travelling through `...`.
+  The two themes it routes to default the alignment differently, `theme_gt()` justifying and `theme_ft()` left-aligning, so a table titled from a single source came out justified in HTML and left-aligned in Word.
+  One value now drives both branches, defaulting to `"justify"`: the HTML output is unchanged, and a Word caption running to more than one line is justified where it used to be left-aligned.
+  The themes keep their own defaults, which only a direct call to either of them now sees.
+
 - `fct_str()` and `fct_keep()` no longer abort on a brace in the data.
   Both compose their entries with `glue()`, flatten them, then appended the final period with a second `glue()` call over that already-composed string.
   The second call re-ran interpolation on the data, so a value such as `drug {A}` was read as a glue component and errored with `Failed to evaluate glue component {A}`, a message naming nothing the caller could act on.

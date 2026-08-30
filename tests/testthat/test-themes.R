@@ -33,6 +33,51 @@ test_that("theme_gt() ignores a global object named docx", {
   expect_gt(nrow(themed$`_styles`), 0)
 })
 
+test_that("theme_gt() justifies the title by default, as it does the footnotes", {
+  local_opts()
+
+  themed <- theme_gt(.make_gt_titled())
+
+  expect_identical(.gt_align(themed, "title"), "justify")
+  expect_identical(.gt_align(themed, "footnotes"), "justify")
+})
+
+test_that("theme_gt(title_align) reaches the title, which the refinements used to override", {
+  local_opts()
+
+  themed <- theme_gt(.make_gt_titled(), title_align = "center")
+
+  expect_identical(.gt_align(themed, "title"), "center")
+  expect_identical(.gt_align(themed, "footnotes"), "justify")
+})
+
+test_that("tbl_format(title_align) carries through to the title", {
+  local_opts()
+
+  themed <- tbl_format(.make_summary_tbl(), title = "T", title_align = "center")
+
+  expect_identical(.gt_align(themed, "title"), "center")
+})
+
+test_that("theme_gt(title_align) reaches the heading under docx, which drops the cell refinement", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  themed <- theme_gt(.make_gt_titled(), title_align = "center")
+
+  expect_identical(.gt_heading_align(themed), "center")
+  expect_equal(nrow(themed$`_styles`), 0)
+})
+
+test_that("theme_gt() carries its justify default to the heading under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  themed <- theme_gt(.make_gt_titled())
+
+  expect_identical(.gt_heading_align(themed), "justify")
+})
+
 test_that("theme_gt() aborts on a non-boolean docx", {
   local_opts()
 

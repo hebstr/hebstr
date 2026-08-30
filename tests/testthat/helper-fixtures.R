@@ -24,6 +24,8 @@
 
 .make_gt_mtcars <- \() gt::gt(head(mtcars))
 
+.make_gt_titled <- \() gt::tab_header(gt::gt(head(mtcars)), title = "T")
+
 .make_ft_mtcars <- \() flextable::flextable(head(mtcars))
 
 ### GTSUMMARY -------------------------------------------------------------------
@@ -196,6 +198,22 @@
   .keep <- !is.na(x$`_styles`$colname) & x$`_styles`$colname == col
 
   x$`_styles`$styles[.keep]
+}
+
+.gt_align <- \(x, locname) {
+  styles <- x$`_styles`
+
+  vapply(
+    styles$styles[styles$locname == locname],
+    \(style) style$cell_text$align %||% NA_character_,
+    character(1)
+  )
+}
+
+.gt_heading_align <- \(x) {
+  opts <- x$`_options`
+
+  opts$value[opts$parameter == "heading_align"][[1]]
 }
 
 .note_labels <- \(x) {

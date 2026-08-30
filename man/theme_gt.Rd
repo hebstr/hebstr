@@ -13,7 +13,7 @@ theme_gt(
   color = check_opts(color$cold[1]),
   bg = "white",
   row_padding = 8,
-  title_align = "left",
+  title_align = "justify",
   font_size = 13,
   title_font_size = font_size + 1,
   stat_font_size = font_size - 1,
@@ -46,8 +46,10 @@ footnotes.}
 
 \item{row_padding}{Vertical padding of data rows, in pixels.}
 
-\item{title_align}{Horizontal alignment of the heading (\code{"left"},
-\code{"center"}, or \code{"right"}).}
+\item{title_align}{Horizontal alignment of the heading (\code{"justify"},
+\code{"left"}, \code{"center"}, or \code{"right"}). Applied to the title itself, so it
+holds even under the \code{docx = FALSE} refinements, which justify the
+footnotes only.}
 
 \item{font_size}{Base font size, in pixels.}
 
@@ -67,9 +69,11 @@ is made transparent.}
 
 \item{footnote_padding}{Footnote padding, in pixels.}
 
-\item{docx}{If \code{TRUE}, skip the style refinements (justified title and
-footnotes, digit font, reduced stat and p-value sizes) that render poorly
-in Word output. Defaults to \code{getOption("hebstr.docx", FALSE)}.}
+\item{docx}{If \code{TRUE}, skip the cell-level style refinements (aligned
+title, justified footnotes, digit font, reduced stat and p-value sizes)
+that render poorly in Word output. \code{title_align} still reaches the
+heading through \code{\link[gt:tab_options]{gt::tab_options()}}, whose call sits outside the branch.
+Defaults to \code{getOption("hebstr.docx", FALSE)}.}
 
 \item{...}{Additional options forwarded to \code{\link[gt:tab_options]{gt::tab_options()}}.}
 }
