@@ -2307,6 +2307,7 @@ test_that("easy_out() takes a flextable as one output rather than walking it", {
     "tbl.docx"
   )
 })
+
 test_that("easy_out() writes a flextable to a docx in a folder it creates", {
   tmp <- withr::local_tempdir()
   dir <- fs::path(tmp, "absent")

@@ -176,7 +176,7 @@ easy_out <- \(
   x_expr <- enexpr(x)
   label <- as_label(x_expr)
 
-  # bare only: four of the supported classes are named lists themselves, so a
+  # bare only: five of the supported classes are named lists themselves, so a
   # class of its own marks one output rather than a list of them
   if (is_bare_list(x)) {
     if (!is_named(x)) {

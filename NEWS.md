@@ -2,13 +2,20 @@
 
 ## Breaking changes
 
+- `auto_exec()` filters filenames by regular expression, and `except_starts_with` is replaced by two arguments.
+  `exclude` takes over the exclusion, as a pattern rather than a bare prefix, and defaults to `"^_"`: the underscore convention is unchanged, so `auto_exec()` with no argument sweeps exactly what it swept before.
+  `include` is new and keeps only the files it matches, which is what a sweep restricted to one family of scripts needs: `auto_exec(include = "^tbl")` runs the table scripts and leaves the figures and everything else alone.
+  The two compose in one direction only, `exclude` applying after `include`, so a file matching both is skipped and `include = "^tbl"` still leaves `_tbl_wip.R` out.
+  Matching goes through `stringr::str_detect()`, whose engine takes lookarounds without a flag, so an inclusion can also be written as a negation: `exclude = "^(?!tbl)"`.
+  A caller passing `except_starts_with` has to rename it and anchor the pattern, `except_starts_with = "draft"` becoming `exclude = "^draft"`; the argument was never passed by position, so a call giving only `dir`, `ext` or `quiet` is unaffected.
+
 Package state no longer touches the user's workspace.
 Options and the variable classification cache now live in an internal package store instead of the global environment, so the package complies with the CRAN policy against writing to `.GlobalEnv`.
 
 - `easy_out_map()` is removed, its behaviour folded into `easy_out()`.
   Hand `easy_out()` a named list and it writes the elements one by one, exactly as the map did: the element name follows `filename` after `sep`, and the elements share the folder the list derives.
   `easy_out_map(plots, filename = "fig")` becomes `easy_out(plots, filename = "fig")`; nothing else about the call or the files it writes changes.
-  The map added no step of its own, only a second class guard deciding "a list of outputs" against "an output that is a list" for a set where four of the six supported classes are named lists: `gt_tbl`, `gtsummary`, `htmlwidget` and `hebstr_dict`.
+  The map added no step of its own, only a second class guard deciding "a list of outputs" against "an output that is a list" for a set where five of the seven supported classes are named lists: `gt_tbl`, `gtsummary`, `htmlwidget`, `hebstr_dict` and `flextable`.
   That guard is now a single branch of `easy_out()`, and the special case that pointed a `hebstr_dict` back at `easy_out()` is gone with it.
   The fallback takes a bare list alone, so an object carrying a class of its own is still one output; a `flextable` goes down its own branch rather than being walked over.
   The banner also stops announcing `Object: data` for every element, `data` having been the name of the map's own loop variable, and names the element instead.

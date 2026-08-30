@@ -321,9 +321,8 @@
     as.numeric()
 }
 
-### PPTX -------------------------------------------------------------------------
+### DOCX -------------------------------------------------------------------------
 
-# geometry of the DrawingML group, in inches (OOXML stores it in EMU)
 # officer offers no reader for a written file, so the part is read as text
 .docx_body <- \(path) {
   dir <- withr::local_tempdir()
@@ -335,7 +334,9 @@
     paste(collapse = "")
 }
 
+### PPTX -------------------------------------------------------------------------
 
+# geometry of the DrawingML group, in inches (OOXML stores it in EMU)
 .slide_frame <- \(path) {
   dir <- withr::local_tempdir()
 

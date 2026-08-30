@@ -16,14 +16,14 @@ test_that("auto_exec() errors when no matching files found", {
   writeLines("x <- 1", file.path(dir, "_hidden.R"))
 
   err <- expect_error(
-    auto_exec(dir = dir, except_starts_with = "_", ext = ".R"),
+    auto_exec(dir = dir, exclude = "^_", ext = ".R"),
     class = "rlang_error"
   )
 
   expect_match(conditionMessage(err), "No `*.R` file found in", fixed = TRUE)
   expect_match(
     conditionMessage(err),
-    'Excluded files: prefix "_".',
+    'Excluded: names matching "^_".',
     fixed = TRUE
   )
 })
@@ -37,7 +37,7 @@ test_that("auto_exec() errors when only non-.R files exist", {
   expect_match(conditionMessage(err), "No `*.R` file found in", fixed = TRUE)
   expect_match(
     conditionMessage(err),
-    'Excluded files: prefix "_".',
+    'Excluded: names matching "^_".',
     fixed = TRUE
   )
 })
@@ -81,25 +81,25 @@ test_that("auto_exec() sources .R files in directory", {
   expect_equal(get("test_auto_exec_val_2", envir = globalenv()), 99)
 })
 
-test_that("auto_exec() excludes files starting with prefix", {
+test_that("auto_exec() drops the underscore scripts by default", {
   dir <- withr::local_tempdir()
   writeLines("test_auto_exec_included <- TRUE", file.path(dir, "run.R"))
   writeLines("test_auto_exec_excluded <- TRUE", file.path(dir, "_skip.R"))
   withr::defer(rm(test_auto_exec_included, envir = globalenv()))
 
-  auto_exec(dir = dir, except_starts_with = "_")
+  auto_exec(dir = dir, exclude = "^_")
 
   expect_true(get("test_auto_exec_included", envir = globalenv()))
   expect_false(exists("test_auto_exec_excluded", envir = globalenv()))
 })
 
-test_that("auto_exec() respects custom prefix", {
+test_that("auto_exec() respects a custom exclude pattern", {
   dir <- withr::local_tempdir()
   writeLines("test_auto_exec_ok <- TRUE", file.path(dir, "main.R"))
   writeLines("test_auto_exec_draft <- TRUE", file.path(dir, "draft_test.R"))
   withr::defer(rm(test_auto_exec_ok, envir = globalenv()))
 
-  auto_exec(dir = dir, except_starts_with = "draft")
+  auto_exec(dir = dir, exclude = "^draft")
 
   expect_true(get("test_auto_exec_ok", envir = globalenv()))
   expect_false(exists("test_auto_exec_draft", envir = globalenv()))
@@ -135,4 +135,76 @@ test_that("auto_exec() only sources files matching ext", {
 
   expect_true(get("test_auto_exec_r2", envir = globalenv()))
   expect_false(exists("test_auto_exec_rmd", envir = globalenv()))
+})
+
+test_that("auto_exec() keeps only the files include matches", {
+  dir <- withr::local_tempdir()
+  writeLines("test_auto_exec_tbl <- TRUE", file.path(dir, "tbl_one.R"))
+  writeLines("test_auto_exec_fig <- TRUE", file.path(dir, "fig_one.R"))
+  writeLines("test_auto_exec_var <- TRUE", file.path(dir, "var.R"))
+  withr::defer(rm(test_auto_exec_tbl, envir = globalenv()))
+
+  auto_exec(dir = dir, include = "^tbl", quiet = TRUE)
+
+  expect_true(get("test_auto_exec_tbl", envir = globalenv()))
+  expect_false(exists("test_auto_exec_fig", envir = globalenv()))
+  expect_false(exists("test_auto_exec_var", envir = globalenv()))
+})
+
+test_that("auto_exec() applies exclude after include, so both bite", {
+  dir <- withr::local_tempdir()
+  writeLines("test_auto_exec_kept <- TRUE", file.path(dir, "tbl_one.R"))
+  writeLines("test_auto_exec_wip <- TRUE", file.path(dir, "_tbl_wip.R"))
+  withr::defer(rm(test_auto_exec_kept, envir = globalenv()))
+
+  auto_exec(dir = dir, include = "^tbl", quiet = TRUE)
+
+  expect_true(get("test_auto_exec_kept", envir = globalenv()))
+  expect_false(exists("test_auto_exec_wip", envir = globalenv()))
+})
+
+test_that("auto_exec() takes a lookaround in exclude", {
+  dir <- withr::local_tempdir()
+  writeLines("test_auto_exec_look_tbl <- TRUE", file.path(dir, "tbl_one.R"))
+  writeLines("test_auto_exec_look_fig <- TRUE", file.path(dir, "fig_one.R"))
+  withr::defer(rm(test_auto_exec_look_tbl, envir = globalenv()))
+
+  # str_detect() runs on ICU, which takes lookarounds without a flag
+  auto_exec(dir = dir, exclude = "^(?!tbl)", quiet = TRUE)
+
+  expect_true(get("test_auto_exec_look_tbl", envir = globalenv()))
+  expect_false(exists("test_auto_exec_look_fig", envir = globalenv()))
+})
+
+test_that("auto_exec() excludes nothing when exclude is NULL", {
+  dir <- withr::local_tempdir()
+  writeLines("test_auto_exec_null_run <- TRUE", file.path(dir, "run.R"))
+  writeLines("test_auto_exec_null_skip <- TRUE", file.path(dir, "_skip.R"))
+  withr::defer(rm(
+    test_auto_exec_null_run,
+    test_auto_exec_null_skip,
+    envir = globalenv()
+  ))
+
+  auto_exec(dir = dir, exclude = NULL, quiet = TRUE)
+
+  expect_true(get("test_auto_exec_null_run", envir = globalenv()))
+  expect_true(get("test_auto_exec_null_skip", envir = globalenv()))
+})
+
+test_that("auto_exec() rejects a filter that is not a single string", {
+  dir <- withr::local_tempdir()
+  writeLines("x <- 1", file.path(dir, "run.R"))
+
+  expect_error(
+    auto_exec(dir = dir, include = c("^tbl", "^fig"), quiet = TRUE),
+    "`include` must be",
+    fixed = TRUE
+  )
+
+  expect_error(
+    auto_exec(dir = dir, exclude = 1, quiet = TRUE),
+    "`exclude` must be",
+    fixed = TRUE
+  )
 })

@@ -4,14 +4,28 @@
 \alias{auto_exec}
 \title{Source all scripts from a directory}
 \usage{
-auto_exec(dir = "scripts", except_starts_with = "_", ext = ".R", quiet = FALSE)
+auto_exec(
+  dir = "scripts",
+  include = NULL,
+  exclude = "^_",
+  ext = ".R",
+  quiet = FALSE
+)
 }
 \arguments{
 \item{dir}{Path to the directory containing the scripts. Defaults to
 \code{"scripts"}.}
 
-\item{except_starts_with}{Prefix used to exclude files. Files starting with
-this string are skipped. Defaults to \code{"_"}.}
+\item{include}{Regular expression a filename must match to be sourced.
+\code{NULL} (the default) keeps every file. Matched against the name alone,
+extension included, never against the path.}
+
+\item{exclude}{Regular expression excluding a file whose name matches it.
+Defaults to \code{"^_"}, the package convention marking a script the sweep
+skips. \code{NULL} excludes nothing. Applied after \code{include}, so a file
+matching both is skipped: \code{include = "^tbl"} still leaves \verb{_tbl_wip.R}
+out. Matched by \code{\link[stringr:str_detect]{stringr::str_detect()}}, whose engine takes lookarounds,
+so an inclusion can also be written as a negation: \code{"^(?!tbl)"}.}
 
 \item{ext}{File extension to match. Defaults to \code{".R"}.}
 
@@ -21,18 +35,21 @@ this string are skipped. Defaults to \code{"_"}.}
 Called for its side effects. Returns \code{NULL} invisibly.
 }
 \description{
-Executes all files found in a directory, excluding files whose name
-starts with a given prefix.
+Executes the files found in a directory, keeping those whose name matches
+\code{include} and dropping those matching \code{exclude}.
 }
 \examples{
 \dontrun{
 # source all R scripts in "scripts/", except those starting with "_"
 auto_exec()
 
+# only the table scripts, the underscore convention still applying
+auto_exec(include = "^tbl")
+
 # source all markdown files in "example/scripts/", except test_*.md
 auto_exec(
   dir = "example/scripts",
-  except_starts_with = "test_",
+  exclude = "^test_",
   ext = ".md"
 )
 }
