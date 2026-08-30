@@ -4,12 +4,23 @@
 #' HTML depending on the object type), an htmlwidget to HTML, or an `openxlsx2`
 #' workbook to XLSX. A figure also goes to an editable PPTX slide under
 #' `pptx = TRUE`, and the variable dictionary [get_vars_dict()] returns also
-#' goes to XLSX and JSON. Opens the result in a browser unless `quiet = TRUE`.
+#' goes to XLSX and JSON. A named list of such objects is written element by
+#' element into a folder of its own. Opens the result in a browser unless
+#' `quiet = TRUE`.
 #'
 #' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
 #'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), htmlwidget (a
 #'   [reactable::reactable()], say), `hebstr_dict` (what [get_vars_dict()]
 #'   returns), or wbWorkbook object, such as the one [get_xlsx()] returns.
+#'
+#'   A bare named list of such objects is written element by element, each
+#'   file taking `sep` and the element name after `filename`, all of them
+#'   sharing the folder the list derives. The names are folded into kebab-case
+#'   along with the rest of the filename, so they have to stay distinct once
+#'   folded. Only a list of class `"list"` is taken this way: an object
+#'   carrying a class of its own is one output, list though it may be, which
+#'   is what sends a `hebstr_dict` down its own branch rather than into the
+#'   walk.
 #' @param filename Output filename (without extension). Defaults to the name
 #'   of the object passed as `x`, and is required when `x` is anything else
 #'   than a name: the deparsed call would name the folder and the file after
@@ -22,12 +33,14 @@
 #'   default) derives it from `filename` by that same rule, so `fig_surv_strata`
 #'   writes `fig-surv-strata/fig-surv-strata.svg`. The derivation happens
 #'   before `suffix` is appended, so the variants of one output share a
-#'   folder. `FALSE` writes straight into `dir`. A string names the folder
-#'   itself, taken as given.
+#'   folder. For a list it happens once, from the base name rather than from
+#'   the name each element carries, so the elements stay grouped:
+#'   `fig-surv-strata/fig-surv-strata-os.svg`. `FALSE` writes straight into
+#'   `dir`. A string names the folder itself, taken as given.
 #' @param suffix Optional suffix appended to `filename`.
-#' @param sep Separator between `filename` and `suffix`. Folded into a dash
-#'   along with the rest of the name, so it separates without surviving
-#'   verbatim.
+#' @param sep Separator between `filename` and `suffix`, and between
+#'   `filename` and the element name for a list. Folded into a dash along
+#'   with the rest of the name, so it separates without surviving verbatim.
 #' @param width Width of the output. For tables: table width in pixels,
 #'   overriding the width the object carries from [tbl_format()]. When left
 #'   `NULL`, a table declaring its own width keeps it, and one declaring none
@@ -93,6 +106,7 @@
 #' easy_out(my_plot)
 #' easy_out(my_table, suffix = "v2", quiet = TRUE)
 #' easy_out(get_xlsx(list(iris = iris)), filename = "tables")
+#' easy_out(list(os = p1, pfs = p2), filename = "fig_surv")
 #' }
 #'
 easy_out <- \(
@@ -145,8 +159,62 @@ easy_out <- \(
   clear_vars()
 
   # captured before the guards force x, after which enexpr() hands back the value
-  expr <- enexpr(x)
-  label <- as_label(expr)
+  x_expr <- enexpr(x)
+  label <- as_label(x_expr)
+
+  # bare only: four of the supported classes are named lists themselves, so a
+  # class of its own marks one output rather than a list of them
+  if (is_bare_list(x)) {
+    if (!is_named(x)) {
+      cli_abort("{.arg x} must be a named list.")
+    }
+
+    if (is.null(filename)) {
+      filename <- .out_label(x_expr)
+    }
+
+    bases <- map_chr(names(x), ~ .out_name(paste0(filename, sep, .x)))
+
+    if (anyDuplicated(bases)) {
+      cli_abort(c(
+        "{.arg x} holds element names that fold onto one filename.",
+        "i" = "Folded to: {.val {unique(bases[duplicated(bases)])}}.",
+        "i" = "Element names are written in kebab-case, so they have to stay distinct once folded."
+      ))
+    }
+
+    # derived once from the base name, so the elements share a folder
+    subdir <- .out_subdir(filename, subdir)
+
+    # elements bound by name, so each announces itself instead of a loop variable
+    frame <- env(current_env(), !!!x)
+
+    # for, not walk(): purrr wraps an element error in map()'s indexed condition,
+    # reporting a function the caller never called
+    for (nm in names(x)) {
+      eval_bare(
+        expr(easy_out(
+          x = !!sym(nm),
+          filename = !!paste0(filename, sep, nm),
+          dir = !!dir,
+          subdir = !!subdir,
+          suffix = !!suffix,
+          sep = !!sep,
+          width = !!width,
+          height = !!height,
+          px = !!px,
+          crop = !!crop,
+          pptx = !!pptx,
+          quiet = !!quiet,
+          export = !!export,
+          web_fonts = !!web_fonts
+        )),
+        env = frame
+      )
+    }
+
+    return(invisible(NULL))
+  }
 
   cli_h1("easy_out")
   cat_line()
@@ -171,7 +239,7 @@ easy_out <- \(
 
   if (!is_supported) {
     cli_abort(c(
-      "{.strong {label}} must be a gt/gtsummary, ggplot, grid grob, widget, or workbook object",
+      "{.strong {label}} must be a gt/gtsummary, ggplot, grid grob, widget, or workbook object, or a named list of them",
       "i" = "Received object of class: {.cls {class(x)}}",
       if (inherits(x, "flextable")) {
         c(
@@ -198,7 +266,7 @@ easy_out <- \(
   }
 
   if (is.null(filename)) {
-    filename <- .out_label(expr)
+    filename <- .out_label(x_expr)
   }
 
   .out_name(filename)
@@ -447,96 +515,6 @@ easy_out <- \(
   }
 
   invisible(NULL)
-}
-
-#' Save a list of ggplot or gt objects to disk
-#'
-#' Iterate over a named list and call [easy_out()] on each element, appending
-#' the list name to the filename.
-#'
-#' @param x A named list of objects [easy_out()] accepts. The names are
-#'   folded into kebab-case along with the rest of the filename, so they
-#'   have to stay distinct once folded. What [get_vars_dict()] returns is one
-#'   output rather than a list of them, named list though it is, and goes to
-#'   [easy_out()] instead.
-#' @param filename Base filename. Defaults to the name of the object passed
-#'   as `x`, and is required when the list is built at the call.
-#' @param sep Separator between `filename` and the list element name. Folded
-#'   into a dash along with the rest of the name, so it separates without
-#'   surviving verbatim.
-#' @param subdir Folder created inside the `dir` passed on to [easy_out()],
-#'   to hold the whole list. `TRUE` (the default) derives it once from
-#'   `filename`, so the elements stay grouped instead of each deriving a
-#'   folder of its own from the name it carries. `FALSE` and a literal string
-#'   behave as in [easy_out()]. The files themselves are named in kebab-case,
-#'   element name included: `fig-surv-strata/fig-surv-strata-os.svg`.
-#' @param ... Additional arguments passed to [easy_out()].
-#'
-#' @return `NULL` (invisibly, via [easy_out()]).
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' easy_out_map(list(fig1 = p1, fig2 = p2), filename = "fig")
-#' }
-#'
-easy_out_map <- \(
-  x,
-  filename = NULL,
-  sep = "_",
-  subdir = TRUE,
-  ...
-) {
-  expr <- enexpr(x)
-  label <- as_label(expr)
-
-  if (!is.list(x) || is.data.frame(x)) {
-    cli_abort(c(
-      "{.strong {label}} must be a list of tables/figures",
-      "i" = "Received object of class: {.cls {class(x)}}"
-    ))
-  }
-
-  # a dictionary is a named list too, so it reaches the map and fails on its
-  # first element, naming the element rather than the door that was missed
-  if (inherits(x, "hebstr_dict")) {
-    cli_abort(c(
-      "{.strong {label}} is one output, not a list of them.",
-      "i" = "Pass it to {.fun easy_out}, which writes its widget and its summary together."
-    ))
-  }
-
-  if (!is_named(x)) {
-    cli_abort("{.arg x} must be a named list.")
-  }
-
-  if (is.null(filename)) {
-    filename <- .out_label(expr)
-  }
-
-  bases <- map_chr(names(x), ~ .out_name(paste0(filename, sep, .x)))
-
-  if (anyDuplicated(bases)) {
-    cli_abort(c(
-      "{.arg x} holds element names that fold onto one filename.",
-      "i" = "Folded to: {.val {unique(bases[duplicated(bases)])}}.",
-      "i" = "Element names are written in kebab-case, so they have to stay distinct once folded."
-    ))
-  }
-
-  # derived once from the base name, so the elements share a folder
-  subdir <- .out_subdir(filename, subdir)
-
-  map_fun <- \(data, name) {
-    easy_out(
-      x = data,
-      filename = paste0(filename, sep, name),
-      subdir = subdir,
-      ...
-    )
-  }
-
-  iwalk(x, map_fun)
 }
 
 .check_subdir <- \(subdir) {

@@ -581,33 +581,26 @@ test_that("easy_out() closes the SVG device when the grob fails to draw", {
   expect_identical(grDevices::dev.cur(), before)
 })
 
-test_that("easy_out_map() rejects an unnamed list", {
+test_that("easy_out() rejects an unnamed list", {
   plots <- list(
     ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
       ggplot2::geom_point()
   )
 
   expect_error(
-    easy_out_map(plots),
+    easy_out(plots),
     class = "rlang_error"
   )
 })
 
-test_that("easy_out_map() rejects a data.frame", {
+test_that("easy_out() rejects a data.frame", {
   expect_error(
-    easy_out_map(mtcars),
+    easy_out(mtcars),
     class = "rlang_error"
   )
 })
 
-test_that("easy_out_map() rejects a vector", {
-  expect_error(
-    easy_out_map(1:5),
-    class = "rlang_error"
-  )
-})
-
-test_that("easy_out_map() iterates over a list of ggplots", {
+test_that("easy_out() writes every element of a list of ggplots", {
   tmp <- withr::local_tempdir()
 
   plots <- list(
@@ -617,19 +610,25 @@ test_that("easy_out_map() iterates over a list of ggplots", {
       ggplot2::geom_point()
   )
 
-  call_count <- 0L
   local_mocked_bindings(
-    easy_out = \(...) {
-      call_count <<- call_count + 1L
-      invisible(NULL)
-    }
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
   )
 
-  expect_no_error(easy_out_map(plots, filename = "fig", dir = tmp))
-  expect_equal(call_count, 2L)
+  easy_out(plots, filename = "fig", dir = tmp, quiet = TRUE)
+
+  expect_setequal(
+    as.character(fs::path_file(fs::dir_ls(
+      fs::path(tmp, "fig"),
+      glob = "*.svg"
+    ))),
+    c("fig-a.svg", "fig-b.svg")
+  )
 })
 
-test_that("easy_out_map() forwards ... to easy_out()", {
+test_that("easy_out() forwards its arguments to every element of a list", {
   tmp <- withr::local_tempdir()
 
   plots <- list(
@@ -637,20 +636,22 @@ test_that("easy_out_map() forwards ... to easy_out()", {
       ggplot2::geom_point()
   )
 
-  captured_args <- list()
   local_mocked_bindings(
-    easy_out = \(...) {
-      captured_args <<- list(...)
-      invisible(NULL)
-    }
+    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
+    image_read_svg = \(...) "mock_img",
+    image_write = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
   )
 
-  easy_out_map(plots, filename = "fig", dir = tmp, quiet = TRUE, suffix = "v1")
+  easy_out(
+    plots,
+    filename = "fig",
+    dir = tmp,
+    quiet = TRUE,
+    suffix = "v1"
+  )
 
-  expect_match(as.character(captured_args$filename), "fig_a")
-  expect_equal(captured_args$dir, tmp)
-  expect_true(captured_args$quiet)
-  expect_equal(captured_args$suffix, "v1")
+  expect_true(fs::file_exists(fs::path(tmp, "fig", "fig-a-v1", ext = "svg")))
 })
 
 test_that("easy_out() rejects a non-boolean crop", {
@@ -1714,13 +1715,13 @@ test_that("easy_out() asks for no name when the export is skipped", {
   expect_length(fs::dir_ls(tmp), 0L)
 })
 
-test_that("easy_out_map() requires a filename for a list built at the call", {
+test_that("easy_out() requires a filename for a list built at the call", {
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
 
   expect_error(
-    easy_out_map(list(os = p, pfs = p), dir = tmp, quiet = TRUE),
+    easy_out(list(os = p, pfs = p), dir = tmp, quiet = TRUE),
     class = "rlang_error",
     regexp = "filename"
   )
@@ -1728,12 +1729,12 @@ test_that("easy_out_map() requires a filename for a list built at the call", {
   expect_length(fs::dir_ls(tmp), 0L)
 })
 
-test_that("easy_out_map() rejects element names that fold onto one filename", {
+test_that("easy_out() rejects element names that fold onto one filename", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
 
   expect_error(
-    easy_out_map(
+    easy_out(
       list(a_b = p, `a-b` = p),
       filename = "fig",
       dir = withr::local_tempdir(),
@@ -1744,7 +1745,7 @@ test_that("easy_out_map() rejects element names that fold onto one filename", {
   )
 
   expect_error(
-    easy_out_map(
+    easy_out(
       list(OS = p, os = p),
       filename = "fig",
       dir = withr::local_tempdir(),
@@ -1755,12 +1756,12 @@ test_that("easy_out_map() rejects element names that fold onto one filename", {
   )
 })
 
-test_that("easy_out_map() keeps element names that stay distinct once folded", {
+test_that("easy_out() keeps element names that stay distinct once folded", {
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
 
-  easy_out_map(
+  easy_out(
     list(os = p, pfs = p),
     filename = "fig",
     dir = tmp,
@@ -1855,7 +1856,7 @@ test_that(".out_subdir() keeps letters outside ASCII as they are", {
   expect_identical(folder("tbl_âge_médian"), "tbl-âge-médian")
 })
 
-test_that("easy_out_map() groups its elements in a single folder", {
+test_that("easy_out() groups its elements in a single folder", {
   tmp <- withr::local_tempdir()
 
   plots <- list(
@@ -1872,7 +1873,7 @@ test_that("easy_out_map() groups its elements in a single folder", {
     browseURL = \(...) invisible(NULL)
   )
 
-  easy_out_map(plots, filename = "fig_surv_strata", dir = tmp, quiet = TRUE)
+  easy_out(plots, filename = "fig_surv_strata", dir = tmp, quiet = TRUE)
 
   expect_identical(
     as.character(fs::dir_ls(tmp, type = "directory")),
@@ -1890,7 +1891,7 @@ test_that("easy_out_map() groups its elements in a single folder", {
   )
 })
 
-test_that("easy_out_map() lets an explicit subdir win over the derivation", {
+test_that("easy_out() lets an explicit subdir win over the derivation", {
   tmp <- withr::local_tempdir()
 
   plots <- list(
@@ -1905,7 +1906,7 @@ test_that("easy_out_map() lets an explicit subdir win over the derivation", {
     browseURL = \(...) invisible(NULL)
   )
 
-  easy_out_map(
+  easy_out(
     plots,
     filename = "fig_surv",
     dir = tmp,
@@ -1917,7 +1918,7 @@ test_that("easy_out_map() lets an explicit subdir win over the derivation", {
     fs::file_exists(fs::path(tmp, "grouped", "fig-surv-os", ext = "svg"))
   )
 
-  easy_out_map(
+  easy_out(
     plots,
     filename = "fig_flat",
     dir = tmp,
@@ -2282,9 +2283,32 @@ test_that(".out_sheet() caps a sheet name at the Excel limit", {
   expect_equal(.out_sheet("vars"), "vars")
 })
 
-test_that("easy_out_map() points a hebstr_dict at easy_out()", {
+test_that("easy_out() keeps a classed list out of the list branch", {
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    saveWidget = \(widget, file, ...) writeLines("<html></html>", file),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "vars", "vars", ext = "html")))
+  expect_true(fs::file_exists(fs::path(tmp, "vars", "vars", ext = "xlsx")))
+})
+
+test_that("easy_out() rejects a flextable rather than walking it", {
+  withr::local_options(hebstr.docx = TRUE)
+
   expect_error(
-    easy_out_map(.make_dict(), filename = "vars", dir = withr::local_tempdir()),
-    regexp = "one output, not a list"
+    easy_out(
+      flextable::flextable(head(mtcars)),
+      filename = "tbl",
+      export = TRUE,
+      dir = withr::local_tempdir(),
+      quiet = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "hebstr.docx"
   )
 })

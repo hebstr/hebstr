@@ -25,7 +25,16 @@ easy_out(
 \item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
 Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), htmlwidget (a
 \code{\link[reactable:reactable]{reactable::reactable()}}, say), \code{hebstr_dict} (what \code{\link[=get_vars_dict]{get_vars_dict()}}
-returns), or wbWorkbook object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.}
+returns), or wbWorkbook object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.
+
+A bare named list of such objects is written element by element, each
+file taking \code{sep} and the element name after \code{filename}, all of them
+sharing the folder the list derives. The names are folded into kebab-case
+along with the rest of the filename, so they have to stay distinct once
+folded. Only a list of class \code{"list"} is taken this way: an object
+carrying a class of its own is one output, list though it may be, which
+is what sends a \code{hebstr_dict} down its own branch rather than into the
+walk.}
 
 \item{filename}{Output filename (without extension). Defaults to the name
 of the object passed as \code{x}, and is required when \code{x} is anything else
@@ -41,14 +50,16 @@ to \code{getOption("easy_out.dir", "output")}.}
 default) derives it from \code{filename} by that same rule, so \code{fig_surv_strata}
 writes \code{fig-surv-strata/fig-surv-strata.svg}. The derivation happens
 before \code{suffix} is appended, so the variants of one output share a
-folder. \code{FALSE} writes straight into \code{dir}. A string names the folder
-itself, taken as given.}
+folder. For a list it happens once, from the base name rather than from
+the name each element carries, so the elements stay grouped:
+\code{fig-surv-strata/fig-surv-strata-os.svg}. \code{FALSE} writes straight into
+\code{dir}. A string names the folder itself, taken as given.}
 
 \item{suffix}{Optional suffix appended to \code{filename}.}
 
-\item{sep}{Separator between \code{filename} and \code{suffix}. Folded into a dash
-along with the rest of the name, so it separates without surviving
-verbatim.}
+\item{sep}{Separator between \code{filename} and \code{suffix}, and between
+\code{filename} and the element name for a list. Folded into a dash along
+with the rest of the name, so it separates without surviving verbatim.}
 
 \item{width}{Width of the output. For tables: table width in pixels,
 overriding the width the object carries from \code{\link[=tbl_format]{tbl_format()}}. When left
@@ -108,7 +119,9 @@ Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 HTML depending on the object type), an htmlwidget to HTML, or an \code{openxlsx2}
 workbook to XLSX. A figure also goes to an editable PPTX slide under
 \code{pptx = TRUE}, and the variable dictionary \code{\link[=get_vars_dict]{get_vars_dict()}} returns also
-goes to XLSX and JSON. Opens the result in a browser unless \code{quiet = TRUE}.
+goes to XLSX and JSON. A named list of such objects is written element by
+element into a folder of its own. Opens the result in a browser unless
+\code{quiet = TRUE}.
 }
 \details{
 In a remote session, the exported file lives on the server while the
@@ -129,6 +142,7 @@ comes through as a path segment of the URL.
 easy_out(my_plot)
 easy_out(my_table, suffix = "v2", quiet = TRUE)
 easy_out(get_xlsx(list(iris = iris)), filename = "tables")
+easy_out(list(os = p1, pfs = p2), filename = "fig_surv")
 }
 
 }

@@ -5,16 +5,23 @@
 Package state no longer touches the user's workspace.
 Options and the variable classification cache now live in an internal package store instead of the global environment, so the package complies with the CRAN policy against writing to `.GlobalEnv`.
 
-- `easy_out()` and `easy_out_map()` write each output into a folder of its own inside `dir`, and name both the folder and the files in kebab-case.
+- `easy_out_map()` is removed, its behaviour folded into `easy_out()`.
+  Hand `easy_out()` a named list and it writes the elements one by one, exactly as the map did: the element name follows `filename` after `sep`, and the elements share the folder the list derives.
+  `easy_out_map(plots, filename = "fig")` becomes `easy_out(plots, filename = "fig")`; nothing else about the call or the files it writes changes.
+  The map added no step of its own, only a second class guard deciding "a list of outputs" against "an output that is a list" for a set where four of the six supported classes are named lists: `gt_tbl`, `gtsummary`, `htmlwidget` and `hebstr_dict`.
+  That guard is now a single branch of `easy_out()`, and the special case that pointed a `hebstr_dict` back at `easy_out()` is gone with it.
+  The fallback takes a bare list alone, so an object carrying a class of its own is still one output; a `flextable` keeps the abort naming `hebstr.docx` rather than being walked over.
+  The banner also stops announcing `Object: data` for every element, `data` having been the name of the map's own loop variable, and names the element instead.
+- `easy_out()` writes each output into a folder of its own inside `dir`, and names both the folder and the files in kebab-case.
   `easy_out(fig_surv_strata)` writes `output/fig-surv-strata/fig-surv-strata.svg` where it wrote `output/fig_surv_strata.svg`.
   The rule is `filename` lowercased, with every run of non-alphanumeric characters folded into a single dash: `sep` therefore separates without surviving verbatim, and a `filename` that cleaning leaves empty is an error rather than a silent fallback.
   The folder is derived before `suffix` is appended, so the variants of one output share it: `output/tbl-baseline/tbl-baseline-v2.html`.
-  `easy_out_map()` derives the folder once from the base name, so the elements of a list stay grouped instead of scattering one folder per element.
+  For a named list the folder is derived once from the base name, so the elements stay grouped instead of scattering one folder per element.
   The directory served over HTTP in a remote session is unchanged: the root stays `dir`, the folder coming through as a path segment of the URL.
   The new `subdir` argument takes a string to name the folder, or `FALSE` to write straight into `dir` as before; the file names are kebab-case either way.
   The break is silent rather than noisy: the files earlier runs wrote flat stay where they are, nothing errors, and a hard-coded path such as `knitr::include_graphics("output/fig_flowchart.svg")` keeps resolving, now to an artefact no run refreshes.
   A project catches up by deleting the old contents of its output directory and pointing its hard-coded paths at the new folder and file names.
-- `easy_out()` and `easy_out_map()` require a `filename` when the object is not passed by name.
+- `easy_out()` requires a `filename` when the object is not passed by name.
   The default derived it from a deparse of the expression, so the callee entered the name of both the folder and the file: `easy_out(get_xlsx(checklist))` wrote `get-xlsx-checklist/`, and a piped chain wrote itself out backwards, `df |> tbl_summary() |> tbl_format() |> easy_out()` giving `tbl-format-gtsum-format-tbl-summary-df/`.
   A name that cleaning did not empty passed unremarked, the banner presenting it as a legitimate one, and each way of writing the same call created a folder of its own.
   The abort names the folder that would have been created and points at `filename`; assigning the object first works just as well.
@@ -89,7 +96,6 @@ Options and the variable classification cache now live in an internal package st
   The frame is not read back out of the widget: reactable holds it as JSON under a private reactR structure with no exported accessor, encodes a missing value as the string `"NA"` so an all-missing integer column comes back logical, and carries the displayed selection rather than the source.
   A self-contained file needs pandoc, which `htmlwidgets::saveWidget()` reaches through rmarkdown; without it the widget is written beside its library folder and a warning says so.
   `htmlwidgets` and `jsonlite` join `Imports`, both already installed as dependencies of reactable, and `rmarkdown` stays a `Suggests`, reached only through the guarded call above.
-  `easy_out_map()` now points a dictionary at `easy_out()` rather than mapping over it: a `hebstr_dict` is a named list, so it passed both guards and failed inside the map on `data`, naming the element instead of the door that was missed.
 
 - `easy_check()` turns a set of logical checks into a data-quality report: one row per pair of a row and a check it fails, identified by `.id` and carried by whatever context `.with` declares.
   It is meant for the spreadsheet a data manager works from, one line per thing to look at, and goes straight into [get_xlsx()] and [easy_out()].
