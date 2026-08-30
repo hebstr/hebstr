@@ -5,21 +5,6 @@ test_that("easy_out() rejects unsupported objects", {
   )
 })
 
-test_that("easy_out() points at hebstr.docx when handed a flextable", {
-  expect_error(
-    easy_out(flextable::flextable(head(mtcars)), quiet = TRUE),
-    "hebstr.docx"
-  )
-})
-
-test_that("easy_out() names export = FALSE when hebstr.docx is unset", {
-  expect_error(
-    easy_out(flextable::flextable(head(mtcars)), quiet = TRUE),
-    "export = FALSE",
-    fixed = TRUE
-  )
-})
-
 test_that("easy_out() rejects a non-boolean export", {
   expect_error(
     easy_out(mtcars, export = "yes", quiet = TRUE),
@@ -68,31 +53,20 @@ test_that("easy_out() skips the export under hebstr.docx rather than rejecting a
   expect_false(fs::dir_exists(dir))
 })
 
-test_that("easy_out() names hebstr.docx and export when a flextable export is forced", {
+test_that("easy_out() writes a flextable when the export is forced under a Word run", {
+  tmp <- withr::local_tempdir()
+
   withr::local_options(hebstr.docx = TRUE)
 
-  expect_error(
-    easy_out(
-      flextable::flextable(head(mtcars)),
-      quiet = TRUE,
-      export = TRUE
-    ),
-    "hebstr.docx"
+  easy_out(
+    flextable::flextable(head(mtcars)),
+    filename = "test",
+    dir = tmp,
+    quiet = TRUE,
+    export = TRUE
   )
-})
 
-test_that("easy_out() names the export default under a Word run", {
-  withr::local_options(hebstr.docx = TRUE)
-
-  expect_error(
-    easy_out(
-      flextable::flextable(head(mtcars)),
-      quiet = TRUE,
-      export = TRUE
-    ),
-    "leave `export` at its `hebstr.docx` default",
-    fixed = TRUE
-  )
+  expect_true(fs::file_exists(fs::path(tmp, "test", "test", ext = "docx")))
 })
 
 test_that("easy_out.export option overrides the hebstr.docx default", {
@@ -2315,18 +2289,113 @@ test_that("easy_out() keeps a classed list out of the list branch", {
   expect_true(fs::file_exists(fs::path(tmp, "vars", "vars", ext = "xlsx")))
 })
 
-test_that("easy_out() rejects a flextable rather than walking it", {
+test_that("easy_out() takes a flextable as one output rather than walking it", {
+  tmp <- withr::local_tempdir()
+
   withr::local_options(hebstr.docx = TRUE)
 
-  expect_error(
-    easy_out(
-      flextable::flextable(head(mtcars)),
-      filename = "tbl",
-      export = TRUE,
-      dir = withr::local_tempdir(),
-      quiet = TRUE
-    ),
-    class = "rlang_error",
-    regexp = "hebstr.docx"
+  easy_out(
+    flextable::flextable(head(mtcars)),
+    filename = "tbl",
+    export = TRUE,
+    dir = tmp,
+    quiet = TRUE
   )
+
+  expect_equal(
+    fs::path_file(fs::dir_ls(fs::path(tmp, "tbl"))),
+    "tbl.docx"
+  )
+})
+test_that("easy_out() writes a flextable to a docx in a folder it creates", {
+  tmp <- withr::local_tempdir()
+  dir <- fs::path(tmp, "absent")
+
+  easy_out(
+    .make_ft_mtcars(),
+    filename = "tbl_demo",
+    dir = dir,
+    suffix = "v2",
+    quiet = TRUE
+  )
+
+  expect_true(
+    fs::file_exists(fs::path(dir, "tbl-demo", "tbl-demo-v2", ext = "docx"))
+  )
+})
+
+test_that("easy_out() keeps the alignment a flextable carries", {
+  tmp <- withr::local_tempdir()
+
+  ft <- flextable::set_table_properties(
+    .make_ft_mtcars(),
+    layout = "autofit",
+    width = 0.5,
+    align = "left"
+  )
+
+  easy_out(ft, filename = "tbl", dir = tmp, quiet = TRUE)
+
+  # save_as_docx() centres the table unless align is passed as NULL
+  expect_match(
+    .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
+    '<w:jc w:val="start"/>',
+    fixed = TRUE
+  )
+})
+
+test_that("easy_out() carries the title tbl_format() posted into the docx", {
+  local_opts()
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  tbl <- tbl_format(gtsum_format(.make_summary_tbl()), title = "Ma legende")
+
+  easy_out(tbl, filename = "tbl", dir = tmp, quiet = TRUE, export = TRUE)
+
+  # the Quarto docx pipeline drops a flextable caption, save_as_docx() does not
+  expect_match(
+    .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
+    "Ma legende",
+    fixed = TRUE
+  )
+})
+
+test_that("easy_out() carries a formatted table with its footnote into the docx", {
+  local_opts()
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  tbl <- tbl_format(
+    gtsum_format(.make_summary_tbl()),
+    note_global = "global note"
+  )
+
+  easy_out(tbl, filename = "tbl", dir = tmp, quiet = TRUE, export = TRUE)
+
+  expect_match(
+    .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
+    "global note",
+    fixed = TRUE
+  )
+})
+
+test_that("easy_out.export separates a Word render from a docx deliverable", {
+  tmp <- withr::local_tempdir()
+  render <- fs::path(tmp, "render")
+  deliver <- fs::path(tmp, "deliver")
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  easy_out(.make_ft_mtcars(), filename = "tbl", dir = render, quiet = TRUE)
+
+  expect_false(fs::dir_exists(render))
+
+  withr::local_options(easy_out.export = TRUE)
+
+  easy_out(.make_ft_mtcars(), filename = "tbl", dir = deliver, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(deliver, "tbl", "tbl", ext = "docx")))
 })

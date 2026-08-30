@@ -10,7 +10,7 @@ Options and the variable classification cache now live in an internal package st
   `easy_out_map(plots, filename = "fig")` becomes `easy_out(plots, filename = "fig")`; nothing else about the call or the files it writes changes.
   The map added no step of its own, only a second class guard deciding "a list of outputs" against "an output that is a list" for a set where four of the six supported classes are named lists: `gt_tbl`, `gtsummary`, `htmlwidget` and `hebstr_dict`.
   That guard is now a single branch of `easy_out()`, and the special case that pointed a `hebstr_dict` back at `easy_out()` is gone with it.
-  The fallback takes a bare list alone, so an object carrying a class of its own is still one output; a `flextable` keeps the abort naming `hebstr.docx` rather than being walked over.
+  The fallback takes a bare list alone, so an object carrying a class of its own is still one output; a `flextable` goes down its own branch rather than being walked over.
   The banner also stops announcing `Object: data` for every element, `data` having been the name of the map's own loop variable, and names the element instead.
 - `easy_out()` writes each output into a folder of its own inside `dir`, and names both the folder and the files in kebab-case.
   `easy_out(fig_surv_strata)` writes `output/fig-surv-strata/fig-surv-strata.svg` where it wrote `output/fig_surv_strata.svg`.
@@ -88,6 +88,16 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `easy_out()` writes a `flextable` to a `.docx`, so a table formatted for Word can leave the session as a standalone file instead of only reaching a rendered document.
+  The object is what `tbl_format()` already returns under `options(hebstr.docx = TRUE)`, so nothing new is built and no second object is named beside the table: a script declares the target once and its tables come out as Word files.
+  The class carries the dispatch, as it does for a workbook, so there is no new argument and no new exported name.
+  `export` keeps its meaning and its default: `options(hebstr.docx = TRUE)` alone still writes nothing, because under a Quarto Word render the table belongs in the document rather than in a file of its own.
+  Asking for the file is therefore `options(easy_out.export = TRUE)` alongside it, which is how a whole sweep is switched over in one line:
+  `withr::with_options(list(hebstr.docx = TRUE, easy_out.export = TRUE), auto_exec())` writes every table of `scripts/` as a `.docx` beside the HTML and PNG of an ordinary run, the per-output folder keeping the three formats together.
+  Two consequences worth knowing.
+  The table alignment `theme_ft()` posted survives into the file, `save_as_docx()` centring the table otherwise regardless of what the object carries.
+  And the title given to `tbl_format(title = )` reaches the file, where the Quarto docx pipeline drops it: the documented advice to caption through `#| tbl-cap:` still holds for a rendered document, not for this export.
+
 - `easy_out()` accepts an htmlwidget, writing it to a self-contained HTML file, and the variable dictionary `get_vars_dict()` returns, writing the widget and its summary together as HTML, XLSX and JSON.
   `get_vars_dict()` classes its return `hebstr_dict`, which is what `easy_out()` dispatches on, so `easy_out(vars_dict)` names its output after the object rather than needing a `filename` for `vars_dict$output`.
   The dictionary gets no PNG: a raster of an interactive widget freezes the search box and the filter row, and stops at the first page, so a summary of three hundred variables would give an image of a hundred rows looking complete.
@@ -146,7 +156,7 @@ Options and the variable classification cache now live in an internal package st
   A Word run renders tables through `flextable`, leaving no `gt_tbl` to write to HTML or PNG, so the export is skipped rather than aborting on the class.
   The decision is the session's, not the object's: `easy_out()` reads the option and never inspects the class to make it.
   Set `options(easy_out.export = TRUE)` to force the export under `hebstr.docx`, or `FALSE` to silence it in any run.
-  Exporting a `flextable` remains out of scope, and forcing one still errors, naming `hebstr.docx` and the `export` argument.
+  Forcing the export writes the `flextable` as a `.docx`, which is how a Word-formatted table leaves the session as a standalone file.
 
 - `easy_out()` accepts a grid grob (for example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`), exporting it to SVG and PNG through the same pipeline as ggplot objects.
 

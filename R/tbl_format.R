@@ -14,7 +14,9 @@
 #' @param title Optional table title, interpreted as markdown. On the Word
 #'   branch it becomes the `flextable` caption, which the Quarto `docx` pipeline
 #'   drops: caption a table rendered from Quarto through the chunk's `tbl-cap`
-#'   option, which serves both formats and carries the cross-references.
+#'   option, which serves both formats and carries the cross-references. The
+#'   loss is the Quarto pipeline's alone: a table written to a standalone file
+#'   by [easy_out()] carries this title into the `.docx`.
 #' @param note_global Optional character string added as a global table
 #'   footnote, alongside the automatic acronym definitions.
 #' @param note_pvalue Optional footnote attached to the p-value column.

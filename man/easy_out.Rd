@@ -2,7 +2,7 @@
 % Please edit documentation in R/easy_out.R
 \name{easy_out}
 \alias{easy_out}
-\title{Save a ggplot, gt table, grid graphic, widget, or workbook to disk}
+\title{Save a ggplot, table, grid graphic, widget, or workbook to disk}
 \usage{
 easy_out(
   x,
@@ -22,10 +22,12 @@ easy_out(
 )
 }
 \arguments{
-\item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
-Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}), htmlwidget (a
-\code{\link[reactable:reactable]{reactable::reactable()}}, say), \code{hebstr_dict} (what \code{\link[=get_vars_dict]{get_vars_dict()}}
-returns), or wbWorkbook object, such as the one \code{\link[=get_xlsx]{get_xlsx()}} returns.
+\item{x}{A ggplot, ggmatrix, gt_tbl, gtsummary, flextable (what
+\code{\link[=tbl_format]{tbl_format()}} returns under \code{options(hebstr.docx = TRUE)}), grid grob
+(for example a Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}),
+htmlwidget (a \code{\link[reactable:reactable]{reactable::reactable()}}, say), \code{hebstr_dict} (what
+\code{\link[=get_vars_dict]{get_vars_dict()}} returns), or wbWorkbook object, such as the one
+\code{\link[=get_xlsx]{get_xlsx()}} returns.
 
 A bare named list of such objects is written element by element, each
 file taking \code{sep} and the element name after \code{filename}, all of them
@@ -61,14 +63,15 @@ the name each element carries, so the elements stay grouped:
 \code{filename} and the element name for a list. Folded into a dash along
 with the rest of the name, so it separates without surviving verbatim.}
 
-\item{width}{Width of the output. For tables: table width in pixels,
+\item{width}{Width of the output. For gt tables: table width in pixels,
 overriding the width the object carries from \code{\link[=tbl_format]{tbl_format()}}. When left
 \code{NULL}, a table declaring its own width keeps it, and one declaring none
 gets 700. For plots and grid graphics: SVG width in inches
 (default 7). For a grid grob under \code{crop = TRUE}, \code{width} and \code{height}
 are a canvas budget rather than the size of the exported file, which
 is trimmed back to the drawing it contains. Ignored for widgets, which
-carry their own layout.}
+carry their own layout, and for a flextable, whose width is a fraction
+of the page that only \code{\link[=tbl_format]{tbl_format()}} can compute.}
 
 \item{height}{Height in inches for SVG output of plots and grid graphics
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
@@ -99,10 +102,13 @@ to \code{getOption("easy_out.quiet", FALSE)}.}
 
 \item{export}{If \code{FALSE}, return without writing anything. Defaults to
 \code{getOption("easy_out.export")}, itself defaulting to \code{FALSE} under
-\code{options(hebstr.docx = TRUE)}: a Word run renders tables through
-\code{\link[flextable:flextable]{flextable::flextable()}}, leaving no object to export to HTML or PNG.
-The guard is read from the session option alone, so a workbook exported
-during a Word run needs an explicit \code{export = TRUE}.}
+\code{options(hebstr.docx = TRUE)}: under a Word render the table goes into
+the document rather than into a file of its own. The guard is read from
+the session option alone, never from the class of \code{x}, so writing
+anything at all during a Word run takes an explicit \code{export = TRUE}.
+That is the way to get a standalone \code{.docx} out of a script: set both
+options for the run, and the flextable \code{\link[=tbl_format]{tbl_format()}} returns is written
+beside the outputs of the other scripts.}
 
 \item{web_fonts}{Faces embedded into the SVG, as \code{\link[svglite:font_face]{svglite::font_face()}}
 blocks. Defaults to the bundled faces for the font \code{set_opts()} resolved,
@@ -116,12 +122,12 @@ another family; build them with \code{woff2} given as a \verb{data:} URI rather 
 }
 \description{
 Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
-HTML depending on the object type), an htmlwidget to HTML, or an \code{openxlsx2}
-workbook to XLSX. A figure also goes to an editable PPTX slide under
-\code{pptx = TRUE}, and the variable dictionary \code{\link[=get_vars_dict]{get_vars_dict()}} returns also
-goes to XLSX and JSON. A named list of such objects is written element by
-element into a folder of its own. Opens the result in a browser unless
-\code{quiet = TRUE}.
+HTML depending on the object type), a flextable to DOCX, an htmlwidget to
+HTML, or an \code{openxlsx2} workbook to XLSX. A figure also goes to an editable
+PPTX slide under \code{pptx = TRUE}, and the variable dictionary
+\code{\link[=get_vars_dict]{get_vars_dict()}} returns also goes to XLSX and JSON. A named list of such
+objects is written element by element into a folder of its own. Opens the
+result in a browser unless \code{quiet = TRUE}.
 }
 \details{
 In a remote session, the exported file lives on the server while the
@@ -143,6 +149,14 @@ easy_out(my_plot)
 easy_out(my_table, suffix = "v2", quiet = TRUE)
 easy_out(get_xlsx(list(iris = iris)), filename = "tables")
 easy_out(list(os = p1, pfs = p2), filename = "fig_surv")
+
+# a Word file of every table of scripts/, beside the HTML and PNG of a
+# plain run: hebstr.docx picks the flextable branch, easy_out.export says
+# the table is wanted as a file rather than inside a rendered document
+withr::with_options(
+  list(hebstr.docx = TRUE, easy_out.export = TRUE),
+  auto_exec()
+)
 }
 
 }

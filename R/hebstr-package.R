@@ -66,6 +66,7 @@
 #' @importFrom flextable hline_bottom
 #' @importFrom flextable hline_top
 #' @importFrom flextable padding
+#' @importFrom flextable save_as_docx
 #' @importFrom flextable set_caption
 #' @importFrom flextable set_table_properties
 #' @importFrom forcats as_factor

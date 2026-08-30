@@ -4,15 +4,16 @@ Version: 0.0.0.9000
 Authors@R:
     person("Henry", "Bostorrhus", , "ju.diez@protonmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0009-0001-3983-5713"))
-Description: Provides a standardised workflow for descriptive analysis and
+Description:
+    Provides a standardised workflow for descriptive analysis and
     reporting. Variables are classified automatically before descriptive
     statistics are computed, figures are drawn with consistent 'ggplot2'
     themes, and tables are formatted with 'gt' and 'gtsummary', with Word
     output routed through 'flextable'. A single interface exports figures,
-    tables, and workbooks to PNG, SVG, HTML, and XLSX. Output switches
-    between English and French based on the session locale, and further
-    helpers cover statistical tests, acronym dictionaries, and 'Quarto'
-    integration.
+    tables, and workbooks to PNG, SVG, HTML, DOCX, XLSX, JSON, and PPTX.
+    Output switches between English and French based on the session
+    locale, and further helpers cover statistical tests, acronym
+    dictionaries, and 'Quarto' integration.
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends:

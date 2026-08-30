@@ -1,17 +1,19 @@
-#' Save a ggplot, gt table, grid graphic, widget, or workbook to disk
+#' Save a ggplot, table, grid graphic, widget, or workbook to disk
 #'
 #' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
-#' HTML depending on the object type), an htmlwidget to HTML, or an `openxlsx2`
-#' workbook to XLSX. A figure also goes to an editable PPTX slide under
-#' `pptx = TRUE`, and the variable dictionary [get_vars_dict()] returns also
-#' goes to XLSX and JSON. A named list of such objects is written element by
-#' element into a folder of its own. Opens the result in a browser unless
-#' `quiet = TRUE`.
+#' HTML depending on the object type), a flextable to DOCX, an htmlwidget to
+#' HTML, or an `openxlsx2` workbook to XLSX. A figure also goes to an editable
+#' PPTX slide under `pptx = TRUE`, and the variable dictionary
+#' [get_vars_dict()] returns also goes to XLSX and JSON. A named list of such
+#' objects is written element by element into a folder of its own. Opens the
+#' result in a browser unless `quiet = TRUE`.
 #'
-#' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, grid grob (for example a
-#'   Gmisc flowchart built from `boxGrob()`/`connectGrob()`), htmlwidget (a
-#'   [reactable::reactable()], say), `hebstr_dict` (what [get_vars_dict()]
-#'   returns), or wbWorkbook object, such as the one [get_xlsx()] returns.
+#' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, flextable (what
+#'   [tbl_format()] returns under `options(hebstr.docx = TRUE)`), grid grob
+#'   (for example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`),
+#'   htmlwidget (a [reactable::reactable()], say), `hebstr_dict` (what
+#'   [get_vars_dict()] returns), or wbWorkbook object, such as the one
+#'   [get_xlsx()] returns.
 #'
 #'   A bare named list of such objects is written element by element, each
 #'   file taking `sep` and the element name after `filename`, all of them
@@ -41,14 +43,15 @@
 #' @param sep Separator between `filename` and `suffix`, and between
 #'   `filename` and the element name for a list. Folded into a dash along
 #'   with the rest of the name, so it separates without surviving verbatim.
-#' @param width Width of the output. For tables: table width in pixels,
+#' @param width Width of the output. For gt tables: table width in pixels,
 #'   overriding the width the object carries from [tbl_format()]. When left
 #'   `NULL`, a table declaring its own width keeps it, and one declaring none
 #'   gets 700. For plots and grid graphics: SVG width in inches
 #'   (default 7). For a grid grob under `crop = TRUE`, `width` and `height`
 #'   are a canvas budget rather than the size of the exported file, which
 #'   is trimmed back to the drawing it contains. Ignored for widgets, which
-#'   carry their own layout.
+#'   carry their own layout, and for a flextable, whose width is a fraction
+#'   of the page that only [tbl_format()] can compute.
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
 #'   for tables, widgets and workbooks.
@@ -73,10 +76,13 @@
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. Defaults to
 #'   `getOption("easy_out.export")`, itself defaulting to `FALSE` under
-#'   `options(hebstr.docx = TRUE)`: a Word run renders tables through
-#'   [flextable::flextable()], leaving no object to export to HTML or PNG.
-#'   The guard is read from the session option alone, so a workbook exported
-#'   during a Word run needs an explicit `export = TRUE`.
+#'   `options(hebstr.docx = TRUE)`: under a Word render the table goes into
+#'   the document rather than into a file of its own. The guard is read from
+#'   the session option alone, never from the class of `x`, so writing
+#'   anything at all during a Word run takes an explicit `export = TRUE`.
+#'   That is the way to get a standalone `.docx` out of a script: set both
+#'   options for the run, and the flextable [tbl_format()] returns is written
+#'   beside the outputs of the other scripts.
 #' @param web_fonts Faces embedded into the SVG, as [svglite::font_face()]
 #'   blocks. Defaults to the bundled faces for the font `set_opts()` resolved,
 #'   and to `NULL` for a family the package does not ship, which leaves the SVG
@@ -107,6 +113,14 @@
 #' easy_out(my_table, suffix = "v2", quiet = TRUE)
 #' easy_out(get_xlsx(list(iris = iris)), filename = "tables")
 #' easy_out(list(os = p1, pfs = p2), filename = "fig_surv")
+#'
+#' # a Word file of every table of scripts/, beside the HTML and PNG of a
+#' # plain run: hebstr.docx picks the flextable branch, easy_out.export says
+#' # the table is wanted as a file rather than inside a rendered document
+#' withr::with_options(
+#'   list(hebstr.docx = TRUE, easy_out.export = TRUE),
+#'   auto_exec()
+#' )
 #' }
 #'
 easy_out <- \(
@@ -230,6 +244,7 @@ easy_out <- \(
         "ggmatrix",
         "gt_tbl",
         "gtsummary",
+        "flextable",
         "wbWorkbook",
         "hebstr_dict",
         "htmlwidget"
@@ -239,19 +254,8 @@ easy_out <- \(
 
   if (!is_supported) {
     cli_abort(c(
-      "{.strong {label}} must be a gt/gtsummary, ggplot, grid grob, widget, or workbook object, or a named list of them",
-      "i" = "Received object of class: {.cls {class(x)}}",
-      if (inherits(x, "flextable")) {
-        c(
-          "i" = "{.fun tbl_format} returns a {.cls flextable} under {.code options(hebstr.docx = TRUE)}, for Word output. Exporting a {.cls flextable} is out of scope.",
-          "i" = "To export, build the table without {.code hebstr.docx} so {.fun tbl_format} returns a {.cls gt_tbl}.",
-          "i" = if (.is_docx()) {
-            "To skip the export instead, leave {.arg export} at its {.code hebstr.docx} default."
-          } else {
-            "To skip the export instead, pass {.code export = FALSE}."
-          }
-        )
-      }
+      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, widget, or workbook object, or a named list of them",
+      "i" = "Received object of class: {.cls {class(x)}}"
     ))
   }
 
@@ -360,6 +364,22 @@ easy_out <- \(
     cli_output(
       files = c(to_html, to_png),
       browse = to_html
+    )
+
+    ### DOCX -------------------------------------------------------------------------
+  } else if (inherits(x, "flextable")) {
+    to_docx <- fs::path(path, ext = "docx")
+
+    cli_progress_step("Creating DOCX file")
+
+    # align defaults to "center" and overrides the alignment the object carries
+    save_as_docx(x, path = to_docx, align = NULL)
+
+    cli_progress_done()
+
+    cli_output(
+      files = to_docx,
+      browse = to_docx
     )
 
     ### PLOT -------------------------------------------------------------------------

@@ -324,6 +324,18 @@
 ### PPTX -------------------------------------------------------------------------
 
 # geometry of the DrawingML group, in inches (OOXML stores it in EMU)
+# officer offers no reader for a written file, so the part is read as text
+.docx_body <- \(path) {
+  dir <- withr::local_tempdir()
+
+  utils::unzip(path, files = "word/document.xml", exdir = dir)
+
+  fs::path(dir, "word", "document.xml") |>
+    readLines(warn = FALSE) |>
+    paste(collapse = "")
+}
+
+
 .slide_frame <- \(path) {
   dir <- withr::local_tempdir()
 
