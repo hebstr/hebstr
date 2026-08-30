@@ -33,7 +33,7 @@ utils::globalVariables(c(
   "p.value",
   "parameter",
   "pos",
-  "q1_q2_q3",
+  "q1_med_q3",
   "quiet",
   "reference_level",
   "reference_row",
@@ -49,5 +49,6 @@ utils::globalVariables(c(
   "variable",
   "font",
   "parametric",
-  "sep"
+  "sep",
+  "status"
 ))

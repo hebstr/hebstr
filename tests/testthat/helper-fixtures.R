@@ -153,6 +153,17 @@
   gtsummary::tbl_regression(mod, exponentiate = TRUE)
 }
 
+.make_check_df <- \() {
+  data.frame(
+    rowname = 1:4,
+    site = c("A", "B", "A", "B"),
+    start = as.Date(c("2024-01-01", NA, "2024-03-01", "2024-04-01")),
+    end = as.Date(c("2023-12-01", "2024-02-01", "2024-04-01", NA)),
+    n_first = c(0, 3, 0, 2),
+    n_second = c(1, 0, 0, 2)
+  )
+}
+
 ### EXTRACTORS ------------------------------------------------------------------
 
 .ft_txt <- \(x, part = "footer") {
