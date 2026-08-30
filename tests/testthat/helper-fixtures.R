@@ -234,6 +234,15 @@
   .cell_style_ref(wb, dims, sheet, "fillId", "fills")
 }
 
+.view_cols <- \(x) {
+  defs <- x$output$x$tag$attribs$columns
+
+  setNames(
+    sapply(defs, \(col) col$minWidth),
+    sapply(defs, \(col) col$id)
+  )
+}
+
 ### SVG -------------------------------------------------------------------------
 
 .make_svg <- \(grob, bg = "white", width = 9, height = 8) {

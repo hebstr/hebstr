@@ -37,8 +37,8 @@ Options and the variable classification cache now live in an internal package st
   Code passing a fraction for the Word branch must switch to pixels.
 - `set_opts()` no longer creates an `opts` object in the global environment; it stores the options in the internal package store.
   Read the whole object with the new `get_opts()`, or a single validated key with `check_opts()`.
-- `easy_view()` loses its `assign` argument (and the `name` argument, which only served to name the assigned widget).
-  It returns the widget; assign it yourself if you need a bound name.
+- `get_vars_dict()` loses its `assign` argument (and the `name` argument, which only served to name the assigned widget).
+  It returns the dictionary; assign it yourself if you need a bound name.
 - `clear_vars()` loses its `env` argument and is now called with no arguments; it always clears the internal cache set by `use_vars()`.
 - The default text and numeric font is now the portable `"sans"` family instead of Luciole, so output no longer depends on a non-standard font being installed.
   Opt into Luciole with `set_opts(font = "luciole")`.
@@ -57,6 +57,16 @@ Options and the variable classification cache now live in an internal package st
   It attaches the footnote with `gtsummary::modify_footnote_body()` instead of `gt::tab_footnote()`, so one call site serves both output formats: a `gt` verb applied after `tbl_format()` fails on the Word branch, and appending the footnote to a rendered `flextable` restarts the symbol counter, colliding with the symbols `tbl_format()` has already emitted.
   Declared upstream, `gtsummary` numbers the footnotes in table reading order whatever order they are declared in.
   Move each `add_note()` call above `tbl_format()` in the pipe.
+- `easy_view()` is renamed `get_vars_dict()`.
+  The function returns a variable dictionary, of which the interactive widget is one of three forms, beside the tibble and the JSON-friendly copy, so a name built on the display described the smallest part of what comes back.
+  It joins `get_opts()` and `get_xlsx()` rather than taking one of the family prefixes, on the same reading: the name says which object comes back.
+  There is no alias under the old name; a project catches up by renaming its call sites.
+- `get_vars_dict()` loses its `level_sep` argument, and the returned `data` flattens the multi-valued cells.
+  The values of such a cell, the levels of a factor, the two ends of a range or the three quartiles, are joined with `" ; "`, in the widget and in `data` alike, and the separator is no longer configurable.
+  `data$range`, `data$q1_med_q3` and `data$levels` are therefore strings where each was a list column holding a vector.
+  Code reading those cells goes through `json = TRUE`, which keeps them as lists.
+- `get_vars_dict()` renames the quartile column of its returned `data` from `q1_q2_q3` to `q1_med_q3`, the middle of the three values being the median rather than a second quartile.
+  Code reading `view$data$q1_q2_q3` has to follow, and the widget carries the column under the new name as well.
 
 ## Deprecated
 
@@ -71,6 +81,19 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `easy_check()` turns a set of logical checks into a data-quality report: one row per pair of a row and a check it fails, identified by `.id` and carried by whatever context `.with` declares.
+  It is meant for the spreadsheet a data manager works from, one line per thing to look at, and goes straight into [get_xlsx()] and [easy_out()].
+  `.with` follows the semantics of [dplyr::transmute()]: name what is computed (`n_cures = induc_nb + adj_nb`), give bare what already exists (`centre`), and the columns come out in that order.
+  It runs before the checks, so a check reads what it declares, and the same expression is therefore written once rather than computed upstream and named again to be carried.
+  A check that reads a missing value decides nothing rather than passing: `.na = "drop"` leaves it out, `.na = "flag"` reports it with a `status` column telling `fail` from `unknown`, and a check is made total at its own site, where the knowledge of whether an absence is legitimate lives.
+  `.id` defaults to `"rowname"`, the column [tibble::rownames_to_column()] adds, and its values need not be unique: a repeated identifier is itself a legitimate thing to check for.
+  Every check must be named and must evaluate to a logical vector, which is what keeps a `0`/`1` column from being taken for a check that passes everywhere.
+
+- `get_vars_dict(cols = )` chooses which columns of the summary the widget shows, as a tidy-selection: `get_vars_dict(df, cols = c(n, variable, type, n_miss))` drops the labels and the levels from a display that only has to answer what is missing.
+  The selection reads the displayed names, `n` rather than the `pos` the returned `data` carries.
+  An empty selection is an error rather than a widget of nothing.
+  The default is `everything()`, so the widget now also carries `range` and `q1_med_q3`, which it used to drop while the returned `data` kept them: a call left as it was renders two columns wider, and `cols = -matches(c("range", "q1_med_q3"))` restores the former display.
+
 - `easy_out(pptx = TRUE)` also writes a plot or a grid graphic to a PPTX slide, as an editable DrawingML shape rather than an image.
   A project that wanted an editable figure wrote a writer of its own next to `easy_out()`, half of it restating the `dir` default, the filename derivation, the folder creation and the class check, and entering the size a second time with nothing keeping the two calls in step.
   The slide goes into the same folder and takes the same name as the SVG and the PNG, and it is scaled to fit the default 4:3 `Office Theme` slide and centred on it, from the `width` and `height` the call already resolved.
@@ -84,37 +107,48 @@ Options and the variable classification cache now live in an internal package st
   A flowchart built in the plot pane then carries coordinates measured against the pane, and drawing it on the canvas `easy_out()` opens displaces everything derived from a box edge: `Gmisc::connectGrob(type = "N")` places its horizontal segment halfway between two boxes, and that half-distance shrinks as the construction device gets shorter.
   Build with the width and height `easy_out()` will be called with, and the exported figure stops depending on the pane size or on the `fig-height` of the chunk that happened to source the script.
   The device comes from `svglite::svgstring()`, the export's own family measuring into a memory buffer: `cairo_pdf`, `ragg` and `pdf(NULL)` each measure the same text differently, and `withr::with_svg()` wraps the cairo device.
+
 - `easy_out()` writes an `openxlsx2` workbook to XLSX, so the object `get_xlsx()` returns reaches disk through the package's export verb rather than a qualified `openxlsx2::wb_save()` call, with the output directory created and the `dir`/`filename`/`suffix` conventions applied.
   The `export` guard keeps reading the session option alone, so a workbook exported during a Word run (`options(hebstr.docx = TRUE)`) needs an explicit `export = TRUE`, as any other object does.
+
 - `tbl_format()` routes Word output through `flextable` instead of `gt`.
   Under `options(hebstr.docx = TRUE)` it returns a themed `flextable` rather than a `gt_tbl`, because `gt` is HTML-first and its OOXML export flattens backgrounds, row striping, and custom borders.
   Acronyms, footnotes, and the zero substitution carry over to that branch; the HTML output is unchanged.
+
 - `tbl_font_size()` and `tbl_row_color()` style table columns and rows on either a `gt_tbl` or a `flextable`, dispatching on the class.
   Downstream styling therefore keeps a single call site across both output formats, where a bare `gt` verb would fail on the Word branch.
   Sizes are given in pixels and converted to points on the `flextable` side.
+
 - `theme_ft()` applies the package house style to a `flextable`, as the Word-facing twin of `theme_gt()`.
   Sizes are in points, not pixels, except `width`, which is a fraction of the available page width; set the table width through `tbl_format(width = )`, in pixels on either branch.
   The refinements `theme_gt(docx = TRUE)` had to drop (justified footnotes, digit font, reduced stat and p-value sizes) render in Word through `flextable`.
   Caption typography is left to the Word `Table Caption` style, its alignment set by `title_align` (default left).
+
 - `easy_out()` gains an `export` argument, reading `getOption("easy_out.export")` and defaulting to `FALSE` under `options(hebstr.docx = TRUE)`.
   A Word run renders tables through `flextable`, leaving no `gt_tbl` to write to HTML or PNG, so the export is skipped rather than aborting on the class.
   The decision is the session's, not the object's: `easy_out()` reads the option and never inspects the class to make it.
   Set `options(easy_out.export = TRUE)` to force the export under `hebstr.docx`, or `FALSE` to silence it in any run.
   Exporting a `flextable` remains out of scope, and forcing one still errors, naming `hebstr.docx` and the `export` argument.
+
 - `easy_out()` accepts a grid grob (for example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`), exporting it to SVG and PNG through the same pipeline as ggplot objects.
+
 - `easy_out()` gains a `crop` argument, reading `getOption("easy_out.crop")` and defaulting to `TRUE`, which trims the SVG canvas of a grid grob to the bounding box of the drawing plus a 3% margin.
   Grob positions are relative to the whole page, so a flowchart covering a sub-rectangle leaves an empty band that no `width`/`height` value removes, both being scaled by the same amount.
   The trim rewrites the SVG `width`, `height`, and `viewBox` on the measured bounding box, a lossless vector operation that leaves text sizes, boxes, and internal spacing untouched; `width` and `height` therefore become a canvas budget rather than the size of the exported file.
   Plots are left alone, their margins coming from the theme.
+
 - `easy_out()` opens its output in the local browser from a remote session.
   The exported file lives on the server while the browser runs on the local machine, so `browseURL()` on a file path could not reach it; the output directory is now served over HTTP on the loopback interface and the URL `http://localhost:<port>/<file>` is opened instead, which the IDE forwards.
   The route is read from `getOption("easy_out.serve")`: `NULL` (the default) detects a remote session through `SSH_CONNECTION`, `TRUE` or `FALSE` force the HTTP or the file-path route, leaving a local session on its former behaviour, and any other value aborts.
   One server is started per session, restarted whenever `dir` or the requested port changes, on a free port unless `getOption("easy_out.port")` pins one; should it fail to start, the file path is opened as before.
   The server is released when the namespace is unloaded, so reloading the package does not strand the port.
+
 - `col_missing()` folds the automatic `gtsummary` missing-value rows into a single `dm` column on the label row, joining the per-group counts with `/`, then drops the missing rows.
   It is idempotent and returns the table unchanged when there is nothing to collapse, so it composes safely with the `tbl_format(collapse_missing = )` switch.
   The column header defaults to the language-dependent `labs$col_missing` option (`MD` in English, `DM` in French) and so requires `set_opts()`; `acro()` carries the matching entry, so `tbl_format()` expands the acronym in a footnote on its own.
+
 - `acro()` adds the missing-data acronym to its built-in base, `MD` (missing data by group) in English configuration and `DM` (données manquantes par groupe) in French, matching the `col_missing()` column header.
+
 - `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
 ## Bug fixes
@@ -129,80 +163,128 @@ Options and the variable classification cache now live in an internal package st
   Neither was declared, so the estimator footnote rendered the literal `IRR: NA; aIRR: adjusted NA`, and `estim_acro` could not rename them: the acronym recoding keyed on `Beta`, `exp(Beta)` and `HR` alone, and every other label fell through to its own value with no definition behind it.
   The `estim_acro` and `estim_label` slot sets gain `irr` and `rr`, defaulting to `incidence rate ratio` and `relative risk`.
   The `irr` slot follows the coefficient type read off the fitted model, not the estimand: a Poisson fit carrying no person-time offset estimates a ratio of expected counts rather than a rate ratio, which is what the two overrides are there to name.
+
 - `easy_out()` writes SVGs that carry their font, so an exported figure no longer renders in a substitute for a reader who does not have that font installed.
   An SVG lands in a Quarto document as `<img src="data:image/svg+xml;base64,…">`, and an SVG referenced by `<img>` is an isolated document: the `@font-face` rules of the surrounding page never cross into it, so its `font-family` resolves against the reader's own fonts.
   The bundled Luciole regular and bold faces are now embedded into the file as `@font-face` blocks with a base64 WOFF2 `src:`, adding roughly 114 KB per figure.
   The new `web_fonts` argument overrides them, for a family the package does not bundle; build the blocks with `svglite::font_face(woff2 = <data URI>)` rather than `embed = TRUE`, which re-emits the face as uncompressed TTF at thirteen times the weight.
   A family with no bundled face posts a one-off hint instead of silently writing a figure that depends on the reader.
+
 - `easy_out()` gives its device the font `set_opts()` resolved, so text that names no family renders in it.
   A character `shape` (`geom_point(shape = "x")`, a censor mark drawn as a glyph) is drawn with the device's default family and never with the theme's, so it fell through to whatever fontconfig returned, typically `Liberation Sans`.
   On a plot carrying no hebstr theme the gap covered every string, axis labels included.
   The same figure therefore rendered differently depending on whether it was read from a Quarto document, whose device carries the alias, or from the exported file.
+
 - `col_missing()` no longer leaves a leading space in each `dm` cell under its default empty `prefix`.
   The template separated prefix from counts unconditionally, so a cell read `" 0/2"` instead of `"0/2"`.
   HTML collapses leading whitespace, so this surfaced in Word.
   A non-empty `prefix` keeps its separating space, `"n ="` still rendering `"n = 0/2"`.
+
 - `add_ref_label()` localises its default `label`, which was the hardcoded English literal `"Reference"`.
   It now reads the `labs$reference` option, so a French session renders `Référence`.
   The canonical path was already correct, `gtsum_format()` passing the localised label down, so only a direct call was affected, which is what the function's own example shows.
   The default builds the options object without assigning it, so the call still works when `set_opts()` has never run.
+
 - `easy_out(width = )` overrides the width a table carries from `tbl_format()`, applying it to the table and to the capture viewport alike.
   The argument was defaulted to `700` before the object's own `table.width` was read, which destroyed the "no value supplied" signal and made every explicit `width` inert on the standard pipeline, `tbl_format()` always baking a width in.
   Left `NULL`, a table declaring its own width still keeps it.
+
 - `easy_out()` restarts its HTTP server when `getOption("easy_out.port")` changes, the singleton having been keyed on the output directory alone.
   A port set after the first export was ignored for the rest of the session, which is the value Positron's port forwarding needs and no public verb could reset.
+
 - `easy_out()` percent-encodes the reserved characters of the served URL, path segment by path segment.
   A file whose name held a `#` or a `?` produced a URL the browser truncated at the fragment or the query, so a remote session opened a 404 on a file that was on disk; the other reserved characters (`&`, `+`, `;`) reached the server unescaped.
+
 - `easy_out()` points a rejected `flextable` at `export = FALSE` when `hebstr.docx` is unset, rather than at the `export` default, which is `TRUE` in that state and reproduces the same error.
+
 - `easy_out()` closes the SVG device when a grid grob fails to draw.
   The device was closed on the success path alone, so an error raised by `grid::grid.draw()` (a malformed `gpar`, an undefined viewport in a `boxGrob()` tree) left it current for the rest of the session and every later plot went silently into the half-written SVG.
+
 - `svg_ink_box()` lets the rasterization error through instead of masking it.
   Its exit handler deleted a temporary file that `fs::file_temp()` never creates, so a failure before the raster was written surfaced as `[ENOENT] Failed to remove ...` in place of the real diagnostic.
+
 - `tbl_format()` and `col_missing()` detect the missing rows with `%in%`, so a table whose body carries `NA` row types (for example the header row inserted by `add_label()`) no longer aborts with "missing value where TRUE/FALSE needed" when it holds no missing rows, as with `gtsummary::tbl_summary(missing = "no")`.
+
 - `get_xlsx()` validates the sheet names with `rlang::is_named()`, so a list carrying an `NA` name raises the "fully named list" error instead of aborting on "missing value where TRUE/FALSE needed".
+
 - `get_xlsx()` validates the `color` names the same way, so an unnamed or partially named list raises the "fully named list" error instead of being silently dropped by the per-sheet column filter.
   A name matching no column stays a no-op, that filter being what lets one palette serve sheets holding different columns.
+
 - `get_xlsx()` keeps the header styling of a zero-row sheet.
   On an empty data frame `openxlsx2::wb_dims(select = "data")` collapses onto the header row, so the data font overwrote the header font and a `color =` highlight landed on the header instead of the data cells.
+
 - `theme_bubble()` derives its grid colors with `%in%`, so `NA` axis colors (transparent, a valid ggplot2 color) propagate to the grid as a transparent color instead of aborting on "missing value where TRUE/FALSE needed".
+
 - `check_fonts()` matches family names in full instead of on a word boundary, so a name shared with a wider family (`"Liberation"` against `"Liberation Sans"`) counts as missing rather than installed, since rendering it falls back to the system default.
   The device aliases `"sans"`, `"serif"` and `"mono"` always count as available.
+
 - `easy_fct(.name = )` names the output column on the categorical branch as documented, instead of being ignored and silently overwriting the source column.
+
 - `gt_qmd(id = )` reaches the table built from a `gtsummary` object, which was rendered with the `gt` default id.
   The argument still has no effect together with `top_n`, which delegates to `gt::gt_preview()`.
+
 - `auto_exec()` returns `NULL` invisibly as documented, instead of the value of the closing `cli::cli_rule()`.
+
 - `p_shortenr()` decides the `<` prefix on the raw p-value instead of the rounded one, so a value that only rounds up to the threshold is no longer flagged as below it (e.g. `0.0011` prints as `0.001`, not `<0.001`).
+
 - `logit_lty()` errors early when the outcome is not a two-level factor, instead of silently returning an empty `$data`.
+
 - `fct_other_str()` no longer emits a leading separator when no level falls below the minimum count.
+
 - `easy_replace(replace = )` escapes the token before building the rule that collapses runs of it, so a token carrying regex metacharacters behaves as the literal string it is.
   With the documented `replace = "[X]"` the pattern read as a character class matching a bare `X`: the brackets were left orphaned in the output, consecutive tokens were not collapsed into a single marker, and unrelated standalone `X` characters were replaced.
+
 - `add_label()` locates the insertion point with an exact name match, fixing a misplaced label when one variable name is a substring of another (e.g. `age` next to `age_group`).
+
 - `merge_estim_ci(keep = TRUE)` returns the original numeric estimate and confidence-interval columns as documented, instead of their formatted character versions.
+
 - `acro_extract()` matches an acronym that ends in a non-word character (e.g. `IC95%`), which the previous `\b`-bounded pattern could never match.
+
 - `acro_extract()` returns a compound acronym whole (e.g. `n/N`) instead of separately matching its constituent parts, so a dictionary that holds both the parts (`n`, `N`) and the compound extracts the intended term.
   Matches within a string are now all returned, not just the first.
+
 - `gtsum_format()` adds the events/observations column to a multivariable regression, not only to a univariate one: the column now appears whenever the table carries the `n_obs` count, so a `tbl_regression()` and a `tbl_uvregression()` render it alike.
+
 - `gtsum_format()` blanks the estimate and confidence interval of a regression level carrying no event, on every table reporting an event count (Cox, logistic, Poisson).
   Such a level has no identifiable estimate (the coefficient diverges), and the fitted value rendered as a spurious `0.00` instead of being dropped.
+
 - `add_note(rows = )` resolves its expression against the caller's environment, so a predicate citing a local variable works from inside a function, a loop, or a `map()`.
   The expression was captured without its environment and evaluated against the package namespace, whose scope chain ends at the global environment: a global variable resolved and a local one failed, reported as `rows` not evaluating to a logical vector rather than as an object not found.
+
 - `easy_out(export = FALSE)` returns without clearing the variable context cached by `use_vars()`, as its documented "return without writing anything" implies.
   Under `options(hebstr.docx = TRUE)`, where the export is skipped by default, every call silently invalidated that cache while doing nothing else.
+
 - `tbl_format()` renders the line break of a by-group header as a line break on the Word branch, where the `<br>` that `gtsum_format()` writes for the HTML branch used to print as literal text (`Total<br>(N=344)`).
   Each line keeps its own pair of bold markers, `flextable` reading markdown only from a pair wrapping the whole header.
+
 - `tbl_format()` renders a univariate regression to Word instead of aborting on "non-numeric argument to binary operator".
   `gtsum_format()` rewrites the `stat_n` column that `tbl_uvregression()` creates as glued text, leaving behind the numeric formatter registered on it, which `flextable` applied where `gt` ignored it.
+
 - `theme_ft()` keeps the row indentation of a `gtsummary` table, which `gtsummary` encodes as a left padding on the label column and the uniform horizontal padding of the theme flattened.
   Levels are indented under their variable again on the Word branch.
+
 - `gtsum_format()` records the adjusted estimator definition for multivariable tables only, so the footnote of a univariate regression no longer defines an `aBeta` or `aOR` acronym the table never displays.
+
 - `tbl_format()` no longer relays the "'big.mark' and 'decimal.mark' are both ','" warning that `flextable` triggers under a French locale when it numbers a footnote symbol.
+
 - `gtsum_format()` localises the `beta` estimator definition on the decimal mark, like its `adj_label` companion, so a French table reads `aBeta : coefficient de régression ajusté` instead of mixing the French template with an English definition.
   `or` and `hr` keep their English wording, the terms in use in French biomedical writing; override them through `estim_label` if needed.
+
 - `tbl_format()` runs `note_global` and the acronym definitions together into a single footnote on both output branches, the acronyms following the global note on the same line instead of being broken onto their own.
+
 - `str_na_mv()` agrees its closing noun in the singular ("une donnée manquante").
 
 ## Minor improvements
 
+- `get_vars_dict(json = TRUE)` returns a third element, `json`, a copy of the summary meant for a JSON writer.
+  It keeps the multi-valued cells as list columns marked with [base::I()], so `jsonlite::toJSON()` emits them as arrays rather than as the `" ; "` strings `data` carries, counts missing values as `0` rather than `NA`, and gives `p_miss` as a proportion rather than a formatted percentage.
+  The element is `NULL` when the argument is left at `FALSE`, and the copy is not computed at all.
+- The columns of the `get_vars_dict()` widget are sized on what they hold rather than on a fixed width per column name.
+  Each column asks for the width of its longest value, header included, counted at 0.47 em a character plus the cell padding and bounded to between 50 and 300 pixels, so that one verbose label neither starves its neighbours nor pushes the table into a horizontal scroll.
+  The em figure is measured, not guessed: a canvas at the widget's own font size gives between 0.41 and 0.48 em a character on the strings long enough to decide a width.
+  Reading it from `font_size` rather than from a constant keeps the widths honest when that argument moves, `rem`, `em`, `px`, `pt` and `%` included.
+  The widths are minimums in a flexbox layout, so the columns still share whatever room the container has left.
+  Selecting a subset through `cols` no longer leaves the columns that had no hard-coded entry at the generic default.
 - `easy_out(crop = TRUE)` finds the modal background of the raster through `tabulate()` rather than `table()`, which coerced every pixel to character.
   About 35 times faster on the ink-box measurement, roughly eight tenths of a second off every cropped grob export.
 - `docx_page_width()` reads the section geometry of a `.docx` or `.dotx` template and returns the width its body text can use, in inches, landscape included.
@@ -220,7 +302,7 @@ Options and the variable classification cache now live in an internal package st
   Override with `label_n`.
 - `acro()` adds the `n/N` acronym (events over total observations) to its built-in English and French dictionaries, so the `n/N` count column that `gtsum_format()` emits expands to a full footnote definition.
 - `check_fonts()` tests the session font registry (`systemfonts::registry_fonts()`) alongside the system font list, so a family registered from bundled font files with `systemfonts::register_font()` counts as available instead of falling back to the default.
-- `easy_descr()` prints its variable classification as a single per-variable tibble (name, storage type, statistical group) instead of grouped variable lists, with storage-type codes aligned on those of `easy_view()`.
+- `easy_descr()` prints its variable classification as a single per-variable tibble (name, storage type, statistical group) instead of grouped variable lists, with storage-type codes aligned on those of `get_vars_dict()`.
 - `easy_out()` renders plot SVG with the `svglite` device instead of `grDevices::svg` (via `htmltools::capturePlot`), producing cleaner, more portable SVG and dropping the `htmltools` and `grDevices` dependencies.
 - `easy_out()` lowers its default raster resolution `px` from 2000 to 1200, producing smaller PNG files by default; pass `px = 2000` to restore the previous resolution.
 - `get_xlsx()` builds large sheets in near-linear time instead of quadratic (17,200 rows by 5 columns: 0.6 second instead of 16).

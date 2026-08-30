@@ -60,7 +60,7 @@ The function produces a report through the CLI interface presenting the
 variable classification as a tibble with one row per variable. The tibble
 reports each variable name, its abbreviated storage type (the \code{labelled}
 dictionary code, with numeric variables shown as \code{num} or \code{bin}, aligned with
-\code{\link[=easy_view]{easy_view()}}) and its operational statistical type (quantitative parametric,
+\code{\link[=get_vars_dict]{get_vars_dict()}}) and its operational statistical type (quantitative parametric,
 quantitative non-parametric, qualitative categorical, qualitative binary or
 date). This supports rapid inspection of the data structure and validation of
 the automatic classification before statistical analysis.

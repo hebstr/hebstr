@@ -43,7 +43,7 @@
 #' variable classification as a tibble with one row per variable. The tibble
 #' reports each variable name, its abbreviated storage type (the `labelled`
 #' dictionary code, with numeric variables shown as `num` or `bin`, aligned with
-#' [easy_view()]) and its operational statistical type (quantitative parametric,
+#' [get_vars_dict()]) and its operational statistical type (quantitative parametric,
 #' quantitative non-parametric, qualitative categorical, qualitative binary or
 #' date). This supports rapid inspection of the data structure and validation of
 #' the automatic classification before statistical analysis.
