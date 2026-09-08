@@ -112,6 +112,11 @@ clear_vars <- \() {
 #' [check_opts()] and [get_opts()] read it, or returned for inspection. Keys can
 #' be overridden through `...`.
 #'
+#' Storing the object also sets `reactable.theme`, the session option
+#' [reactable::reactable()] reads as its own `theme` default, so a widget a
+#' project builds by hand carries the house palette without a line of its own.
+#' See `.reactable` for the ways out.
+#'
 #' @param .default_font Fallback font family, used when a family requested
 #'   through `font` is unavailable on the system. Passed to [check_fonts()] as
 #'   its `.default`. It does not fill the text (`alpha`) and numeric (`digit`)
@@ -129,12 +134,21 @@ clear_vars <- \() {
 #'   and tables target it by name. Another name stays reachable through
 #'   [get_opts()] and [check_opts()], given a matching `.name`, so it serves
 #'   inspection rather than an alternative active profile.
+#' @param .reactable Logical. Whether to set the session option
+#'   `reactable.theme` to [theme_rt()], which [reactable::reactable()] reads as
+#'   its `theme` default. `TRUE` (default) sets it, overwriting whatever the
+#'   session carried, so that the rendering follows the call rather than the
+#'   order of two declarations; `FALSE` clears it, which is what returns a
+#'   session to the unthemed `reactable` default. Only ever touched on the
+#'   storing path (`.assign = TRUE`) and under the default `.name`, an
+#'   inspection profile having no business theming the session.
 #' @param ... Named overrides for existing option keys, or new named entries
 #'   added to the options object. Unknown names are accepted as user-defined
 #'   extensions, readable afterwards via [check_opts()] and [get_opts()].
 #'
-#' @returns The options list. With `.assign = TRUE` (default) it is also stored
-#'   under `.name` in the package's internal store.
+#' @returns The options list, invisibly when stored. With `.assign = TRUE`
+#'   (default) it is also stored under `.name` in the package's internal store,
+#'   and the session option `reactable.theme` is set from `.reactable`.
 #'
 #' @export
 #'
@@ -151,8 +165,13 @@ set_opts <- \(
   .vars_envir = NULL,
   .assign = TRUE,
   .name = "opts",
+  .reactable = TRUE,
   ...
 ) {
+  if (!is_bool(.reactable)) {
+    cli_abort("{.arg .reactable} must be logical.")
+  }
+
   if (
     !.assign &&
       ...length() == 0L &&
@@ -331,11 +350,17 @@ set_opts <- \(
 
   opts$font <- .font(opts$font)
 
-  if (.assign) {
-    assign(.name, opts, envir = .hebstr)
-  } else {
+  if (!.assign) {
     return(opts)
   }
+
+  assign(.name, opts, envir = .hebstr)
+
+  if (.name == "opts") {
+    options(reactable.theme = if (.reactable) theme_rt() else NULL)
+  }
+
+  invisible(opts)
 }
 
 

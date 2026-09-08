@@ -9,6 +9,7 @@ set_opts(
   .vars_envir = NULL,
   .assign = TRUE,
   .name = "opts",
+  .reactable = TRUE,
   ...
 )
 }
@@ -34,13 +35,23 @@ and tables target it by name. Another name stays reachable through
 \code{\link[=get_opts]{get_opts()}} and \code{\link[=check_opts]{check_opts()}}, given a matching \code{.name}, so it serves
 inspection rather than an alternative active profile.}
 
+\item{.reactable}{Logical. Whether to set the session option
+\code{reactable.theme} to \code{\link[=theme_rt]{theme_rt()}}, which \code{\link[reactable:reactable]{reactable::reactable()}} reads as
+its \code{theme} default. \code{TRUE} (default) sets it, overwriting whatever the
+session carried, so that the rendering follows the call rather than the
+order of two declarations; \code{FALSE} clears it, which is what returns a
+session to the unthemed \code{reactable} default. Only ever touched on the
+storing path (\code{.assign = TRUE}) and under the default \code{.name}, an
+inspection profile having no business theming the session.}
+
 \item{...}{Named overrides for existing option keys, or new named entries
 added to the options object. Unknown names are accepted as user-defined
 extensions, readable afterwards via \code{\link[=check_opts]{check_opts()}} and \code{\link[=get_opts]{get_opts()}}.}
 }
 \value{
-The options list. With \code{.assign = TRUE} (default) it is also stored
-under \code{.name} in the package's internal store.
+The options list, invisibly when stored. With \code{.assign = TRUE}
+(default) it is also stored under \code{.name} in the package's internal store,
+and the session option \code{reactable.theme} is set from \code{.reactable}.
 }
 \description{
 Assembles the centralised options list consumed across the package: statistic
@@ -50,6 +61,12 @@ dictionary, page width, fonts, and colours. Labels and formats follow the locale
 stored under a name in the package's internal store (the default), from where
 \code{\link[=check_opts]{check_opts()}} and \code{\link[=get_opts]{get_opts()}} read it, or returned for inspection. Keys can
 be overridden through \code{...}.
+}
+\details{
+Storing the object also sets \code{reactable.theme}, the session option
+\code{\link[reactable:reactable]{reactable::reactable()}} reads as its own \code{theme} default, so a widget a
+project builds by hand carries the house palette without a line of its own.
+See \code{.reactable} for the ways out.
 }
 \examples{
 opts <- set_opts(.assign = FALSE)

@@ -38,10 +38,17 @@ local_server <- \(.env = parent.frame()) {
   invisible(NULL)
 }
 
+# set_opts() writes reactable.theme, which lives in the session options and not
+# in .hebstr, so the restore of the three bindings above would leave it behind
+# for the next file and make the suite order-dependent.
 local_opts <- \(..., .env = parent.frame()) {
   local_hebstr("opts", .env = .env)
   local_vars_context(.env = .env)
   local_estim_channel(.env = .env)
+  withr::local_options(
+    reactable.theme = getOption("reactable.theme"),
+    .local_envir = .env
+  )
   set_opts(...)
 
   invisible(NULL)

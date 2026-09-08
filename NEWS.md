@@ -99,6 +99,15 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `set_opts()` sets the session option `reactable.theme` to `theme_rt()`, so a project gets the house palette on the widgets it builds itself without writing a line for it.
+  `reactable()` reads that option as its own `theme` default, which makes the diffusion native rather than contrived, and `set_opts()` is the one configuration call every project already makes.
+  What decides is a defect rather than an ergonomic cost: across four projects the palette was reached through one local constructor in one case, two divergent ones in another (`0.7em` against `0.85em`), and not at all in the two others, where a widget written straight into a chunk carried no house style and raised nothing.
+  A per-project line of option would have reproduced exactly that, one step further out.
+  The new `.reactable` argument opts out, and it clears the option rather than merely not setting it, so that it returns a session to the unthemed `reactable` default instead of leaving a theme an earlier call had posted.
+  The option is written on the storing path only: `set_opts(.assign = FALSE)` stays free of side effects, and a `.name` other than the default, which the documentation reserves for inspection, does not theme the session.
+  An option a user set by hand is overwritten, so the rendering follows the call rather than the order of two declarations.
+  `get_vars_dict(theme = )` keeps its explicit `theme_rt()` default and does not read the option, a function of the package having no business rendering differently according to what ran before it.
+
 - `theme_rt()` exports the package's house palette for a `reactable` widget, as a `reactableTheme` object.
   The same palette was declared three times, in `get_vars_dict()` and in two projects, and the three had drifted apart: the package set no `backgroundColor`, so its widget rendered under a dark scheme was a white card carrying light text.
   Unlike `theme_gt()` and `theme_ft()`, which take a table and return a table, this one takes no table and returns a value, `reactable` reading its theme at construction and offering no way to restyle a widget afterwards.
@@ -210,6 +219,12 @@ Options and the variable classification cache now live in an internal package st
 - `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
 ## Bug fixes
+
+- `easy_out()` checks the call before `export` decides whether to write.
+  The class guard, the `pptx` guard, the name resolution and the collision check on a list of element names all ran behind the `export = FALSE` early return, so a call that a Word render skipped was never validated: an unsupported object, a slide asked of a table, or two element names folding onto one file passed unremarked under `options(hebstr.docx = TRUE)` and only surfaced on the HTML render of the same source.
+  One source feeds both renders, so a call now fails the same way under each.
+  Only the writing stays behind the return, `check_installed("rvg")` with it, so a Word run still needs no slide writer and creates no folder.
+  The break is a call that was already wrong and silent under a Word render, and the abort names the same cause it names elsewhere.
 
 - `theme_gt(title_align)` reaches the title it names.
   The argument was passed to `gt::tab_options(heading.align = )`, then silently overridden by the `docx = FALSE` refinements, which restyled `cells_title()` and `cells_footnotes()` to `justify` in a single call.

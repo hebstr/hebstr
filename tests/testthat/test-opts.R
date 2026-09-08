@@ -60,6 +60,62 @@ test_that("set_opts() normalizes a scalar font override to a named alpha/digit l
   expect_identical(res$font$alpha, res$font$digit)
 })
 
+test_that("set_opts() sets the reactable theme option", {
+  local_opts()
+
+  expect_s3_class(getOption("reactable.theme"), "reactableTheme")
+})
+
+test_that("set_opts() themes a widget built with no theme argument", {
+  local_opts()
+
+  widget <- reactable::reactable(head(mtcars))
+
+  expect_identical(
+    widget$x$tag$attribs$theme$backgroundColor,
+    theme_rt()$backgroundColor
+  )
+})
+
+test_that("set_opts(.reactable = FALSE) clears the option instead of leaving it", {
+  local_opts()
+
+  set_opts(.reactable = FALSE)
+
+  expect_null(getOption("reactable.theme"))
+})
+
+test_that("set_opts(.assign = FALSE) leaves the session option untouched", {
+  local_opts(.reactable = FALSE)
+
+  set_opts(.assign = FALSE, .default_font = "sans")
+
+  expect_null(getOption("reactable.theme"))
+})
+
+test_that("set_opts() leaves the option alone under a custom .name", {
+  local_opts(.reactable = FALSE)
+  local_hebstr("custom_reactable_name")
+
+  set_opts(.name = "custom_reactable_name")
+
+  expect_true(exists("custom_reactable_name", envir = .hebstr))
+  expect_null(getOption("reactable.theme"))
+})
+
+test_that("set_opts() returns the options invisibly when it stores them", {
+  local_opts()
+
+  res <- withVisible(set_opts())
+
+  expect_false(res$visible)
+  expect_contains(names(res$value), c("parametric", "qt_stat", "font"))
+})
+
+test_that("set_opts() aborts on a non-boolean .reactable", {
+  expect_error(set_opts(.assign = FALSE, .reactable = "yes"), "must be logical")
+})
+
 test_that("set_opts() applies French labels when OutDec is a comma", {
   withr::local_options(OutDec = ",")
   local_hebstr("opts")
