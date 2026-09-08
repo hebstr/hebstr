@@ -364,9 +364,13 @@
 
 # stands in for the ChromoteSession generator, recording the call it is driven
 # through into `log` and writing the file a real capture would leave behind
-.fake_chromote <- \(log, write = TRUE) {
+.fake_chromote <- \(log, write = TRUE, fail = NULL) {
   session <- list(
     go_to = \(url, ...) {
+      if (identical(fail, "go_to")) {
+        cli::cli_abort("Chrome did not answer.")
+      }
+
       log$url <- url
       invisible(NULL)
     },
@@ -393,6 +397,10 @@
   )
 
   list(new = \(...) {
+    if (identical(fail, "new")) {
+      cli::cli_abort("No Chrome installation was found.")
+    }
+
     log$viewport <- list(...)
     session
   })

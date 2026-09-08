@@ -116,7 +116,11 @@ image form, and ignore it.}
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
 
-\item{export}{If \code{FALSE}, return without writing anything. Defaults to
+\item{export}{If \code{FALSE}, return without writing anything. The arguments
+are checked first, so a call the Word render skips still fails on an
+unsupported class, on a slide asked of a table, or on a name nothing can
+be built from: one source feeds both renders, and a call has to fail the
+same way under each. Defaults to
 \code{getOption("easy_out.export")}, itself defaulting to \code{FALSE} under
 \code{options(hebstr.docx = TRUE)}: under a Word render the table goes into
 the document rather than into a file of its own. The guard is read from

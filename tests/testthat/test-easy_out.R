@@ -310,14 +310,23 @@ test_that("easy_out() lets an explicit width override the gt table_width", {
   expect_identical(applied_width, "900px")
 })
 
-test_that("easy_out() ignores a percentage table_width and falls back to default px", {
+test_that("easy_out() keeps a percentage table_width and sizes the viewport by default", {
   tmp <- withr::local_tempdir()
   gt_obj <- gt::gt(head(mtcars, 3)) |>
     gt::tab_options(table.width = gt::pct(80))
 
   captured_vwidth <- NULL
+  applied_width <- NULL
+
   local_mocked_bindings(
-    gtsave = \(data, filename, ...) writeLines("<html></html>", filename),
+    gtsave = \(data, filename, ...) {
+      applied_width <<- data[["_options"]] |>
+        dplyr::filter(parameter == "table_width") |>
+        dplyr::pull(value) |>
+        unlist()
+
+      writeLines("<html></html>", filename)
+    },
     webshot = \(url, file, vwidth, ...) {
       captured_vwidth <<- vwidth
       invisible(NULL)
@@ -327,7 +336,63 @@ test_that("easy_out() ignores a percentage table_width and falls back to default
 
   easy_out(gt_obj, filename = "test_pct", dir = tmp, quiet = TRUE)
 
+  expect_identical(applied_width, "80%")
   expect_equal(captured_vwidth, 700 * 1.1)
+})
+
+test_that("easy_out() keeps a fractional pixel table_width", {
+  tmp <- withr::local_tempdir()
+  gt_obj <- gt::gt(head(mtcars, 3)) |>
+    gt::tab_options(table.width = gt::px(712.5))
+
+  captured_vwidth <- NULL
+  applied_width <- NULL
+
+  local_mocked_bindings(
+    gtsave = \(data, filename, ...) {
+      applied_width <<- data[["_options"]] |>
+        dplyr::filter(parameter == "table_width") |>
+        dplyr::pull(value) |>
+        unlist()
+
+      writeLines("<html></html>", filename)
+    },
+    webshot = \(url, file, vwidth, ...) {
+      captured_vwidth <<- vwidth
+      invisible(NULL)
+    },
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(gt_obj, filename = "test_frac", dir = tmp, quiet = TRUE)
+
+  expect_identical(applied_width, "712.5px")
+  expect_equal(captured_vwidth, 712.5 * 1.1)
+})
+
+test_that("easy_out() lets an explicit width override a percentage table_width", {
+  tmp <- withr::local_tempdir()
+  gt_obj <- gt::gt(head(mtcars, 3)) |>
+    gt::tab_options(table.width = gt::pct(80))
+
+  applied_width <- NULL
+
+  local_mocked_bindings(
+    gtsave = \(data, filename, ...) {
+      applied_width <<- data[["_options"]] |>
+        dplyr::filter(parameter == "table_width") |>
+        dplyr::pull(value) |>
+        unlist()
+
+      writeLines("<html></html>", filename)
+    },
+    webshot = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  easy_out(gt_obj, filename = "test_pct", dir = tmp, quiet = TRUE, width = 900)
+
+  expect_identical(applied_width, "900px")
 })
 
 test_that("easy_out() rejects a character string", {
@@ -1337,6 +1402,11 @@ test_that("easy_out() names the class when a workbook is asked for a slide", {
 test_that("easy_out() writes no slide when export is FALSE", {
   tmp <- withr::local_tempdir()
 
+  # no skip_if_not_installed("rvg"): a skipped export asks for no slide writer
+  local_mocked_bindings(
+    check_installed = \(pkg, ...) cli_abort("{.pkg {pkg}} is not installed.")
+  )
+
   easy_out(
     grid::rectGrob(),
     filename = "fig_slide",
@@ -1370,6 +1440,8 @@ test_that("easy_out() offers to install rvg rather than failing on the call", {
     ),
     regexp = "rvg is not installed"
   )
+
+  expect_false(fs::dir_exists(fs::path(tmp, "fig-slide")))
 })
 
 test_that("easy_out() writes no slide when pptx is FALSE", {
@@ -1678,14 +1750,47 @@ test_that("easy_out() takes a call once the filename is given", {
   )
 })
 
-test_that("easy_out() asks for no name when the export is skipped", {
+test_that("easy_out() asks for a name even when the export is skipped", {
   tmp <- withr::local_tempdir()
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
 
   withr::local_options(hebstr.docx = TRUE)
 
-  expect_null(easy_out(identity(p), dir = tmp))
+  expect_error(
+    easy_out(identity(p), dir = tmp),
+    class = "rlang_error",
+    regexp = "filename"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out() guards the class even when the export is skipped", {
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_error(
+    easy_out(lm(mpg ~ hp, mtcars), filename = "model", dir = tmp),
+    class = "rlang_error",
+    regexp = "must be a gt"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out() refuses a slide for a table even when the export is skipped", {
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_error(
+    easy_out(.make_gt_mtcars(), filename = "tbl", dir = tmp, pptx = TRUE),
+    class = "rlang_error",
+    regexp = "only covers a plot"
+  )
+
   expect_length(fs::dir_ls(tmp), 0L)
 })
 
@@ -1728,6 +1833,61 @@ test_that("easy_out() rejects element names that fold onto one filename", {
     class = "rlang_error",
     regexp = "fig-os"
   )
+})
+
+test_that("easy_out() rejects an unsupported element before writing any of them", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out(
+      list(os = p, pfs = p, model = lm(mpg ~ hp, mtcars)),
+      filename = "fig",
+      dir = tmp,
+      quiet = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "model"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out() rejects a slide for a list element before writing any of them", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(
+    easy_out(
+      list(fig = p, tbl = .make_gt_mtcars()),
+      filename = "out",
+      dir = tmp,
+      quiet = TRUE,
+      pptx = TRUE
+    ),
+    class = "rlang_error",
+    regexp = "tbl"
+  )
+
+  expect_length(fs::dir_ls(tmp), 0L)
+})
+
+test_that("easy_out() walks a list nested inside a list", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  easy_out(
+    list(os = p, sub = list(pfs = p)),
+    filename = "fig",
+    dir = tmp,
+    quiet = TRUE
+  )
+
+  expect_true(fs::file_exists(fs::path(tmp, "fig", "fig-os.svg")))
+  expect_true(fs::file_exists(fs::path(tmp, "fig", "fig-sub-pfs.svg")))
 })
 
 test_that("easy_out() keeps element names that stay distinct once folded", {
@@ -2394,6 +2554,49 @@ test_that("easy_out() keeps a capture that failed out of the file banner", {
   )
 
   expect_false(any(grepl("vars.png", banner, fixed = TRUE)))
+})
+
+test_that("easy_out() writes the other files when the capture throws", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log, fail = "new"))
+
+  expect_warning(
+    easy_out(
+      .make_dict(),
+      filename = "vars",
+      dir = tmp,
+      quiet = TRUE,
+      png = TRUE
+    ),
+    regexp = "No PNG was captured"
+  )
+
+  expect_true(fs::file_exists(fs::path(tmp, "vars", "vars.html")))
+  expect_true(fs::file_exists(fs::path(tmp, "vars", "vars.xlsx")))
+  expect_true(fs::file_exists(fs::path(tmp, "vars", "vars.json")))
+  expect_false(fs::file_exists(fs::path(tmp, "vars", "vars.png")))
+})
+
+test_that("easy_out() carries the capture failure into the warning", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log, fail = "go_to"))
+
+  cnd <- tryCatch(
+    easy_out(
+      .make_dict(),
+      filename = "vars",
+      dir = tmp,
+      quiet = TRUE,
+      png = TRUE
+    ),
+    warning = \(w) w
+  )
+
+  expect_match(conditionMessage(cnd$parent), "Chrome did not answer")
 })
 
 test_that("easy_out() leaves png without effect outside the widget branch", {

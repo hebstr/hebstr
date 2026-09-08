@@ -88,7 +88,11 @@
 #'   image form, and ignore it.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
-#' @param export If `FALSE`, return without writing anything. Defaults to
+#' @param export If `FALSE`, return without writing anything. The arguments
+#'   are checked first, so a call the Word render skips still fails on an
+#'   unsupported class, on a slide asked of a table, or on a name nothing can
+#'   be built from: one source feeds both renders, and a call has to fail the
+#'   same way under each. Defaults to
 #'   `getOption("easy_out.export")`, itself defaulting to `FALSE` under
 #'   `options(hebstr.docx = TRUE)`: under a Word render the table goes into
 #'   the document rather than into a file of its own. The guard is read from
@@ -185,19 +189,18 @@ easy_out <- \(
   check_affix(suffix, "suffix")
   check_affix(sep, "sep")
 
-  if (!export) {
-    return(invisible(NULL))
-  }
-
-  clear_vars()
-
   # captured before the guards force x, after which enexpr() hands back the value
   x_expr <- enexpr(x)
   label <- as_label(x_expr)
 
   # bare only: five of the supported classes are named lists themselves, so a
   # class of its own marks one output rather than a list of them
-  if (is_bare_list(x)) {
+  is_list <- is_bare_list(x)
+
+  # the guards run whatever export says: the same source feeds both renders, so
+  # a call has to fail the same way under the one that writes and the one that
+  # does not, rather than surfacing only when the file is wanted
+  if (is_list) {
     if (!is_named(x)) {
       cli_abort("{.arg x} must be a named list.")
     }
@@ -216,6 +219,36 @@ easy_out <- \(
       ))
     }
 
+    # every element cleared before the first one is written, the guards being
+    # per-element while the folder they would leave behind is shared
+    for (nm in names(x)) {
+      .out_check(x[[nm]], pptx, nm)
+    }
+  } else {
+    # before .out_label(), so that rejecting an object built at the call site
+    # names its class instead of asking for a filename first
+    .out_check(x, pptx, label)
+
+    if (is.null(filename)) {
+      filename <- .out_label(x_expr)
+    }
+
+    .out_name(filename)
+  }
+
+  if (!export) {
+    return(invisible(NULL))
+  }
+
+  clear_vars()
+
+  # asked once the export is decided, so a Word run needs no slide writer, and
+  # before any folder is created, so a declined install leaves nothing behind
+  if (pptx) {
+    check_installed("rvg", reason = "to write a PPTX slide.")
+  }
+
+  if (is_list) {
     # derived once from the base name, so the elements share a folder
     subdir <- .out_subdir(filename, subdir)
 
@@ -255,45 +288,6 @@ easy_out <- \(
 
   cli_alert_info("Object: {.strong {label}} {.cls {class(x)}}")
   cat_line()
-
-  is_supported <-
-    is_ggplot(x) ||
-    inherits(
-      x,
-      c(
-        "ggmatrix",
-        "gt_tbl",
-        "gtsummary",
-        "flextable",
-        "wbWorkbook",
-        "hebstr_dict",
-        "htmlwidget"
-      )
-    ) ||
-    grid::is.grob(x)
-
-  if (!is_supported) {
-    cli_abort(c(
-      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, widget, or workbook object, or a named list of them",
-      "i" = "Received object of class: {.cls {class(x)}}"
-    ))
-  }
-
-  is_figure <- is_ggplot(x) || inherits(x, "ggmatrix") || grid::is.grob(x)
-
-  if (pptx && !is_figure) {
-    cli_abort(c(
-      "{.arg pptx} only covers a plot or a grid grob.",
-      "i" = "Received object of class: {.cls {class(x)}}",
-      "i" = "Pass {.code pptx = FALSE} to export {.strong {label}} without a slide."
-    ))
-  }
-
-  if (is.null(filename)) {
-    filename <- .out_label(x_expr)
-  }
-
-  .out_name(filename)
 
   name <- .out_subdir(filename, subdir)
   out_dir <- if (isFALSE(name)) fs::path(dir) else fs::path(dir, name)
@@ -347,20 +341,24 @@ easy_out <- \(
       x <- as_gt(x)
     }
 
+    given <- !is.null(width)
+
     gt_width <-
       x[["_options"]] |>
       filter(parameter == "table_width") |>
       pull(value) |>
-      str_extract("^(\\d+)px$", group = 1) |>
-      as.numeric()
+      unlist()
 
-    declared <- length(gt_width) > 0 && !is.na(gt_width)
+    # "auto" is what gt carries for a table declaring nothing, so any other
+    # value is a declaration; only a pixel one can also size the viewport
+    declared <- length(gt_width) == 1L && !identical(gt_width, "auto")
+    gt_px <- as.numeric(str_extract(gt_width, "^([0-9.]+)px$", group = 1))
 
-    if (is.null(width)) {
-      width <- if (declared) gt_width else 700
+    if (!given) {
+      width <- if (length(gt_px) == 1L && !is.na(gt_px)) gt_px else 700
     }
 
-    if (!declared || width != gt_width) {
+    if (given || !declared) {
       x <- x |> tab_options(table.width = px(width))
     }
 
@@ -559,6 +557,51 @@ easy_out <- \(
   invisible(NULL)
 }
 
+# the coherence of the call, gathered so that the list branch can clear every
+# element before writing the first. Availability of a suggested package is not
+# checked here: it belongs to the run that writes, not to the call. A bare list
+# is left to the recursion, which checks the elements it fans out.
+.out_check <- \(x, pptx, label) {
+  if (is_bare_list(x)) {
+    return(invisible(NULL))
+  }
+
+  is_supported <-
+    is_ggplot(x) ||
+    inherits(
+      x,
+      c(
+        "ggmatrix",
+        "gt_tbl",
+        "gtsummary",
+        "flextable",
+        "wbWorkbook",
+        "hebstr_dict",
+        "htmlwidget"
+      )
+    ) ||
+    grid::is.grob(x)
+
+  if (!is_supported) {
+    cli_abort(c(
+      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, widget, or workbook object, or a named list of them",
+      "i" = "Received object of class: {.cls {class(x)}}"
+    ))
+  }
+
+  is_figure <- is_ggplot(x) || inherits(x, "ggmatrix") || grid::is.grob(x)
+
+  if (pptx && !is_figure) {
+    cli_abort(c(
+      "{.arg pptx} only covers a plot or a grid grob.",
+      "i" = "Received object of class: {.cls {class(x)}}",
+      "i" = "Pass {.code pptx = FALSE} to export {.strong {label}} without a slide."
+    ))
+  }
+
+  invisible(NULL)
+}
+
 .check_subdir <- \(subdir) {
   valid <-
     is_bool(subdir) ||
@@ -638,11 +681,15 @@ easy_out <- \(
     return(TRUE)
   }
 
-  cli_warn(c(
-    "Writing the widget beside its library folder: {.pkg pandoc} was not found.",
-    "i" = "A self-contained file needs {.pkg pandoc}, which {.fun htmlwidgets::saveWidget} reaches through {.pkg rmarkdown}.",
-    "i" = "The file stays readable in place, but moving it means moving the folder beside it."
-  ))
+  cli_warn(
+    c(
+      "Writing the widget beside its library folder: {.pkg pandoc} was not found.",
+      "i" = "A self-contained file needs {.pkg pandoc}, which {.fun htmlwidgets::saveWidget} reaches through {.pkg rmarkdown}.",
+      "i" = "The file stays readable in place, but moving it means moving the folder beside it."
+    ),
+    .frequency = "once",
+    .frequency_id = "easy_out_self_contained"
+  )
 
   FALSE
 }
@@ -666,37 +713,50 @@ easy_out <- \(
     width <- 950
   }
 
-  session <- ChromoteSession$new(width = width, height = 800)
-  on.exit(session$close(), add = TRUE)
+  # the capture decorates an export already on disk, and the files of the
+  # dictionary are written after it: a missing browser or an unanswered
+  # navigation throws, and would take them down with it
+  failed <- tryCatch(
+    {
+      session <- ChromoteSession$new(width = width, height = 800)
+      on.exit(session$close(), add = TRUE)
 
-  # go_to(), not navigate() then loadEventFired(): the event is registered
-  # before the navigation, where the pair races it and times out on a fast load
-  session$go_to(paste0(
-    "file://",
-    URLencode(as.character(fs::path_abs(to_html)))
-  ))
+      # go_to(), not navigate() then loadEventFired(): the event is registered
+      # before the navigation, where the pair races it and times out on a fast load
+      session$go_to(paste0(
+        "file://",
+        URLencode(as.character(fs::path_abs(to_html)))
+      ))
 
-  session$Runtime$evaluate(
-    "document.documentElement.style.overflowY = 'hidden'"
-  )
+      session$Runtime$evaluate(
+        "document.documentElement.style.overflowY = 'hidden'"
+      )
 
-  # the widget is drawn by the script the page carries, after the load event
-  session$screenshot(
-    to_png,
-    selector = ".html-widget",
-    scale = 2,
-    expand = 5,
-    delay = 2
+      # the widget is drawn by the script the page carries, after the load event
+      session$screenshot(
+        to_png,
+        selector = ".html-widget",
+        scale = 2,
+        expand = 5,
+        delay = 2
+      )
+
+      NULL
+    },
+    error = \(cnd) cnd
   )
 
   # chromote turns a failed capture into a warning, which would leave the
   # banner announcing a file that was never written
-  if (!fs::file_exists(to_png)) {
-    cli_warn(c(
-      "No PNG was captured from {.path {fs::path_file(to_html)}}.",
-      "i" = "The page has to reach Chrome: a sandboxed install (snap, flatpak) has a private {.path /tmp} and sees nothing written there.",
-      "i" = "The HTML file itself was written and is unaffected."
-    ))
+  if (!is.null(failed) || !fs::file_exists(to_png)) {
+    cli_warn(
+      c(
+        "No PNG was captured from {.path {fs::path_file(to_html)}}.",
+        "i" = "The page has to reach Chrome: a sandboxed install (snap, flatpak) has a private {.path /tmp} and sees nothing written there.",
+        "i" = "The HTML file itself was written and is unaffected."
+      ),
+      parent = failed
+    )
 
     return(NULL)
   }
@@ -710,8 +770,6 @@ easy_out <- \(
   if (!pptx) {
     return(NULL)
   }
-
-  check_installed("rvg", reason = "to write a PPTX slide.")
 
   cli_progress_step("Creating PPTX file")
 
