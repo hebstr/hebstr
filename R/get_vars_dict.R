@@ -11,12 +11,12 @@
 #'   `levels`) rather than on the `pos` the returned `data` carries. Defaults to
 #'   every column of the summary; a column the frame does not carry (`range` on
 #'   a frame with no numeric column, say) is absent from the selection too.
-#' @param font_size CSS font size for the widget's text.
-#' @param font_family Font family for the widget's text. When [set_opts()] has
-#'   been called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
-#' @param strip_color Background color of the striped rows. Defaults to the first
-#'   cold-palette color from the options.
+#' @param theme A [reactable::reactableTheme()] object styling the widget,
+#'   defaulting to the package theme [theme_rt()]. The default is that value
+#'   rather than a read of `getOption("reactable.theme")`, so the widget does
+#'   not depend on whether a project set that option before or after this call.
+#'   The column widths are counted in the theme's font size, so a theme
+#'   carrying another one resizes them too.
 #' @param ... Additional arguments forwarded to [reactable::reactable()].
 #'
 #' @return A `hebstr_dict` object: a named list with `data` (the per-variable
@@ -39,9 +39,7 @@
 get_vars_dict <- \(
   x,
   cols = everything(),
-  font_size = "0.65rem",
-  font_family = .text_font(),
-  strip_color = set_opts(.assign = FALSE)$color$cold[1],
+  theme = theme_rt(),
   ...
 ) {
   set_cols <- \(y, vars, fn, name) {
@@ -122,12 +120,8 @@ get_vars_dict <- \(
       filterable = TRUE,
       striped = TRUE,
       resizable = TRUE,
-      columns = .col_defs(.output_cols, font_size),
-      theme = reactableTheme(
-        style = list(fontSize = font_size, fontFamily = font_family),
-        stripedColor = strip_color,
-        searchInputStyle = list(width = "100%")
-      ),
+      columns = .col_defs(.output_cols, theme$style$fontSize %||% .rt_size),
+      theme = theme,
       ...
     )
 

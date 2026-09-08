@@ -177,6 +177,52 @@ test_that("theme_ft() aborts when opts does not exist (deliberately strict)", {
   expect_error(theme_ft(.make_ft_mtcars()), "does not exist")
 })
 
+test_that("theme_rt() returns a reactableTheme carrying the widget palette", {
+  theme <- theme_rt()
+
+  expect_s3_class(theme, "reactableTheme")
+  expect_identical(theme$style$fontSize, .rt_size)
+  expect_identical(theme$backgroundColor, "var(--primary-surface, #ffffff)")
+  expect_match(theme$stripedColor, "^var\\(--primary-back, #")
+  expect_match(theme$borderColor, "^color-mix\\(")
+})
+
+test_that("theme_rt() falls each token back to the package palette", {
+  theme <- theme_rt()
+
+  expect_identical(
+    theme$stripedColor,
+    paste0("var(--primary-back, ", set_opts(.assign = FALSE)$color$cold[1], ")")
+  )
+})
+
+test_that("theme_rt() colors the expander arrow, which no theme argument reaches", {
+  theme <- theme_rt(expander_color = "#123456")
+
+  expect_identical(
+    theme$style[[".rt-expander:after"]],
+    list(borderTopColor = "#123456")
+  )
+})
+
+test_that("theme_rt() renders standalone when opts is absent", {
+  local_hebstr("opts")
+
+  expect_identical(theme_rt()$style$fontFamily, "sans")
+})
+
+test_that("theme_rt() reads the centralised text font", {
+  local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
+
+  expect_identical(theme_rt()$style$fontFamily, "PinnedAlpha")
+})
+
+test_that("theme_rt() forwards its dots to reactableTheme()", {
+  theme <- theme_rt(strip_color = "#fff", highlightColor = "#eeeeee")
+
+  expect_identical(theme$highlightColor, "#eeeeee")
+})
+
 test_that("theme_bar() returns a theme honoring legend_position", {
   themed <- theme_bar(family = "", legend_position = "bottom")
 

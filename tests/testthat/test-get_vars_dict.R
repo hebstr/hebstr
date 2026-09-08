@@ -1,7 +1,7 @@
 test_that("get_vars_dict() propagates the centralised text font into the widget", {
   local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
-  view <- get_vars_dict(head(mtcars), strip_color = "#fff")
+  view <- get_vars_dict(head(mtcars), theme = .make_rt_theme())
 
   expect_true(any(grepl("PinnedAlpha", unlist(view), fixed = TRUE)))
 })
@@ -19,7 +19,7 @@ test_that("get_vars_dict() assembles the descriptive data columns", {
     grp = c("x", "y", "x", "z", "y")
   )
 
-  d <- get_vars_dict(df, strip_color = "#fff")$data
+  d <- get_vars_dict(df, theme = .make_rt_theme())$data
 
   expect_equal(unname(d$type[d$variable == "bin_num"]), "bin")
   expect_equal(unname(d$type[d$variable == "cont"]), "num")
@@ -43,7 +43,7 @@ test_that("get_vars_dict() reports the type and levels of categorical columns", 
     visit = as.Date("2020-01-01") + c(0, 10, 5, 30, 2)
   )
 
-  d <- get_vars_dict(df, strip_color = "#fff")$data
+  d <- get_vars_dict(df, theme = .make_rt_theme())$data
 
   expect_equal(unname(d$type[d$variable == "grp"]), "fct")
   expect_equal(unname(d$levels[d$variable == "grp"]), "x ; y ; z")
@@ -54,7 +54,7 @@ test_that("get_vars_dict() restricts the widget to the selected columns", {
   view <- get_vars_dict(
     head(mtcars),
     cols = c(variable, type),
-    strip_color = "#fff"
+    theme = .make_rt_theme()
   )
 
   expect_equal(names(.view_cols(view)), c("variable", "type"))
@@ -62,7 +62,7 @@ test_that("get_vars_dict() restricts the widget to the selected columns", {
 })
 
 test_that("get_vars_dict() shows every summary column by default", {
-  view <- get_vars_dict(head(mtcars), strip_color = "#fff")
+  view <- get_vars_dict(head(mtcars), theme = .make_rt_theme())
 
   expect_equal(
     names(.view_cols(view)),
@@ -83,7 +83,7 @@ test_that("get_vars_dict() selects on the displayed name of the position column"
   view <- get_vars_dict(
     head(mtcars),
     cols = c(n, variable),
-    strip_color = "#fff"
+    theme = .make_rt_theme()
   )
 
   expect_equal(names(.view_cols(view)), c("n", "variable"))
@@ -92,7 +92,11 @@ test_that("get_vars_dict() selects on the displayed name of the position column"
 
 test_that("get_vars_dict() aborts when the selection is empty", {
   expect_error(
-    get_vars_dict(head(mtcars), cols = starts_with("zz"), strip_color = "#fff"),
+    get_vars_dict(
+      head(mtcars),
+      cols = starts_with("zz"),
+      theme = .make_rt_theme()
+    ),
     "must select at least one column"
   )
 })
@@ -103,7 +107,7 @@ test_that("get_vars_dict() reports the range of Date columns", {
     visit = as.Date("2020-01-01") + c(0, 10, 5, 30, 2)
   )
 
-  d <- get_vars_dict(df, strip_color = "#fff")$data
+  d <- get_vars_dict(df, theme = .make_rt_theme())$data
 
   expect_equal(unname(d$type[d$variable == "visit"]), "date")
   expect_equal(
@@ -113,11 +117,11 @@ test_that("get_vars_dict() reports the range of Date columns", {
 })
 
 test_that("get_vars_dict() sizes the widget columns on their content", {
-  short <- get_vars_dict(tibble::tibble(v = 1:3), strip_color = "#fff")
+  short <- get_vars_dict(tibble::tibble(v = 1:3), theme = .make_rt_theme())
 
   wide <- tibble::tibble(v = 1:3) |>
     setNames("a_considerably_longer_variable_name") |>
-    get_vars_dict(strip_color = "#fff")
+    get_vars_dict(theme = .make_rt_theme())
 
   expect_gt(.view_cols(wide)[["variable"]], .view_cols(short)[["variable"]])
 })
@@ -126,21 +130,42 @@ test_that("get_vars_dict() keeps the widget widths within their bounds", {
   df <- tibble::tibble(v = 1:3)
   labelled::var_label(df$v) <- strrep("long ", 100)
 
-  widths <- .view_cols(get_vars_dict(df, strip_color = "#fff"))
+  widths <- .view_cols(get_vars_dict(df, theme = .make_rt_theme()))
 
   expect_equal(widths[["label"]], 250)
   expect_equal(widths[["n"]], 50)
 })
 
-test_that("get_vars_dict() scales the widget widths with the font size", {
+test_that("get_vars_dict() scales the widget widths with the theme font size", {
   small <- .view_cols(
-    get_vars_dict(head(mtcars), font_size = "0.7rem", strip_color = "#fff")
+    get_vars_dict(head(mtcars), theme = .make_rt_theme(font_size = "0.7rem"))
   )
   large <- .view_cols(
-    get_vars_dict(head(mtcars), font_size = "1.4rem", strip_color = "#fff")
+    get_vars_dict(head(mtcars), theme = .make_rt_theme(font_size = "1.4rem"))
   )
 
   expect_gt(large[["variable"]], small[["variable"]])
+})
+
+test_that("get_vars_dict() sizes the widget columns when the theme carries no font size", {
+  bare <- .view_cols(
+    get_vars_dict(head(mtcars), theme = reactable::reactableTheme())
+  )
+  default <- .view_cols(get_vars_dict(head(mtcars), theme = .make_rt_theme()))
+
+  expect_equal(bare, default)
+})
+
+test_that("get_vars_dict() hands the widget the theme it is given", {
+  view <- get_vars_dict(
+    head(mtcars),
+    theme = .make_rt_theme(bg = "#123456")
+  )
+
+  expect_identical(
+    view$output$x$tag$attribs$theme$backgroundColor,
+    "#123456"
+  )
 })
 
 test_that("get_vars_dict() centers every widget column but the text ones", {
@@ -149,7 +174,7 @@ test_that("get_vars_dict() centers every widget column but the text ones", {
     grp = factor(c("x", "y", "x", "z", "y"))
   )
 
-  aligns <- .view_cols(get_vars_dict(df, strip_color = "#fff"), "align")
+  aligns <- .view_cols(get_vars_dict(df, theme = .make_rt_theme()), "align")
 
   expect_equal(
     unname(aligns[c("variable", "label", "levels")]),
@@ -163,7 +188,7 @@ test_that("get_vars_dict() centers every widget column but the text ones", {
 test_that("get_vars_dict() keeps the multi-valued cells structured", {
   df <- tibble::tibble(cont = c(10, 20, 30, 40, NA))
 
-  view <- get_vars_dict(df, strip_color = "#fff")
+  view <- get_vars_dict(df, theme = .make_rt_theme())
 
   expect_type(view$json$range, "list")
   expect_equal(as.numeric(view$json$range[[1]]), c(10, 40))

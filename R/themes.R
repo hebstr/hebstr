@@ -399,6 +399,92 @@ theme_ft <- \(
 }
 
 
+# Also the unit the get_vars_dict() column widths are counted in, so the default
+# has to be readable from both signatures.
+.rt_size <- "0.65rem"
+
+
+#' Standardized reactable widget theme
+#'
+#' Builds the package's house palette for a [reactable::reactable()] widget, the
+#' HTML-only member of the table themes. Unlike [theme_gt()] and [theme_ft()],
+#' which take a table and return a table, this one takes no table and returns a
+#' value: `reactable` reads its theme at construction and offers no way to
+#' restyle a widget afterwards. Pass it at the call site,
+#' `reactable(theme = theme_rt())`, or once for a session,
+#' `options(reactable.theme = theme_rt())`, which [reactable::reactable()]
+#' reads as its own default.
+#'
+#' The color defaults are CSS custom properties carrying a literal fallback,
+#' which `reactable` serialises to the DOM as written. Under a document
+#' declaring `--primary-surface` and `--primary-back` (the `hebstr-doc` Quarto
+#' theme does) the widget follows the light and dark schemes; anywhere else,
+#' the standalone artifacts [easy_out()] writes included, every token falls
+#' back to its literal and the rendering is the package palette. Ground and
+#' striping are the inverse of [theme_gt()], which tints its body and leaves
+#' its striping white: a `reactable` follows the ordinary convention of a white
+#' ground and a tinted stripe.
+#'
+#' @param alpha Font family for the widget's text. When [set_opts()] has been
+#'   called, defaults to the centralised text font (`opts$font$alpha`);
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
+#' @param font_size CSS font size for the widget's text. [get_vars_dict()]
+#'   counts its column widths in this size, so a theme carrying another one
+#'   resizes them too.
+#' @param bg Background color of the widget. `reactable` paints `.Reactable`
+#'   white in its own stylesheet, so a widget left without this renders as a
+#'   white card carrying light text under a dark scheme.
+#' @param strip_color Background color of the striped rows. The fallback is the
+#'   first cold-palette color from the options.
+#' @param border_color Color of the cell rules. A translucent mix rather than a
+#'   token, so it composes on whichever surface carries it and follows the
+#'   scheme on its own.
+#' @param expander_color Color of the group expander arrow, which `reactable`
+#'   paints at `rgba(0, 0, 0, 0.8)` and no [reactable::reactableTheme()]
+#'   argument reaches: it goes in through a nested selector key instead. Never
+#'   `currentColor`, which resolves to `transparent` here, `reactable` setting
+#'   `color: transparent` on the element carrying the arrow.
+#' @param search_style Style of the search input, forwarded to
+#'   [reactable::reactableTheme()].
+#' @param ... Additional arguments forwarded to [reactable::reactableTheme()].
+#'
+#' @return A [reactable::reactableTheme()] object.
+#' @export
+#'
+#' @examples
+#' theme_rt()
+#'
+#' theme_rt(strip_color = "#F5FBFF")
+#'
+theme_rt <- \(
+  alpha = .text_font(),
+  font_size = .rt_size,
+  bg = "var(--primary-surface, #ffffff)",
+  strip_color = str_c(
+    "var(--primary-back, ",
+    set_opts(.assign = FALSE)$color$cold[1],
+    ")"
+  ),
+  border_color = "color-mix(in srgb, currentColor, transparent 88%)",
+  expander_color = "var(--bs-body-color, rgba(0, 0, 0, 0.8))",
+  search_style = list(width = "100%"),
+  ...
+) {
+  reactableTheme(
+    style = list(
+      fontSize = font_size,
+      fontFamily = alpha,
+      ".rt-expander:after" = list(borderTopColor = expander_color)
+    ),
+    backgroundColor = bg,
+    stripedColor = strip_color,
+    borderColor = border_color,
+    searchInputStyle = search_style,
+    ...
+  )
+}
+
+
 #' Standardized bar-chart theme
 #'
 #' A [ggplot2::theme()] built on textbox title and caption, tuned for the

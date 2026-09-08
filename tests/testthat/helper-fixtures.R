@@ -170,6 +170,9 @@
   get_vars_dict(head(datasets::iris, 10), ...)
 }
 
+# pins the striped color so the widget stops depending on the ambient opts
+.make_rt_theme <- \(...) theme_rt(strip_color = "#fff", ...)
+
 ### EXTRACTORS ------------------------------------------------------------------
 
 .ft_txt <- \(x, part = "footer") {

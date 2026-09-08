@@ -2,6 +2,10 @@
 
 ## Breaking changes
 
+- `get_vars_dict()` loses `font_size`, `font_family` and `strip_color`, replaced by a single `theme` argument defaulting to `theme_rt()`.
+  The three covered three keys of the widget theme, so keeping them beside it would have left the question of which wins when both are given; `get_vars_dict(df, font_size = "0.7rem")` becomes `get_vars_dict(df, theme = theme_rt(font_size = "0.7rem"))`.
+  The default is the value rather than a read of `getOption("reactable.theme")`, so the widget does not depend on whether a project set that option before or after the call.
+  The column widths keep following the font size, read from the theme rather than from an argument of its own, so a theme carrying another size resizes them too.
 - `auto_exec()` filters filenames by regular expression, and `except_starts_with` is replaced by two arguments.
   `exclude` takes over the exclusion, as a pattern rather than a bare prefix, and defaults to `"^_"`: the underscore convention is unchanged, so `auto_exec()` with no argument sweeps exactly what it swept before.
   `include` is new and keeps only the files it matches, which is what a sweep restricted to one family of scripts needs: `auto_exec(include = "^tbl")` runs the table scripts and leaves the figures and everything else alone.
@@ -94,6 +98,15 @@ Options and the variable classification cache now live in an internal package st
   `model_mv`, `ref_sep` and `ref_no` serve this argument alone and go with it at removal.
 
 ## New features
+
+- `theme_rt()` exports the package's house palette for a `reactable` widget, as a `reactableTheme` object.
+  The same palette was declared three times, in `get_vars_dict()` and in two projects, and the three had drifted apart: the package set no `backgroundColor`, so its widget rendered under a dark scheme was a white card carrying light text.
+  Unlike `theme_gt()` and `theme_ft()`, which take a table and return a table, this one takes no table and returns a value, `reactable` reading its theme at construction and offering no way to restyle a widget afterwards.
+  Pass it at the call site, `reactable(theme = theme_rt())`, or once for a session, `options(reactable.theme = theme_rt())`, which `reactable()` reads as its own default.
+  The colors default to CSS custom properties carrying a literal fallback, which `reactable` serialises to the DOM as written: under a document declaring `--primary-surface` and `--primary-back` the widget follows the light and dark schemes, and anywhere else, the standalone artefacts `easy_out()` writes included, every token falls back to its literal and the rendering is the package palette.
+  Ground and striping are the inverse of `theme_gt()`, which tints its body and leaves its striping white, a `reactable` following the ordinary convention of a white ground and a tinted stripe.
+  The group expander arrow, which `reactable` paints at `rgba(0, 0, 0, 0.8)` and no `reactableTheme()` argument reaches, goes in through a nested selector key; `currentColor` is not an option there, `reactable` setting `color: transparent` on the element that carries the arrow.
+  The kind of table stays with the caller: `groupBy`, `defaultExpanded` and `pagination` describe a widget, not a palette.
 
 - `easy_out(png = TRUE)` also captures a widget to PNG, taken with Chrome from the self-contained HTML the branch has just written.
   A project that wanted the image of its `reactable`, for a Word deliverable or a slide, wrote a capture helper of its own beside `easy_out()` and hard-coded the path of the artefact, which `easy_out()` had just resolved under its own folder rule.

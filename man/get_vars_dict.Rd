@@ -4,14 +4,7 @@
 \alias{get_vars_dict}
 \title{Variable dictionary of a data frame}
 \usage{
-get_vars_dict(
-  x,
-  cols = everything(),
-  font_size = "0.65rem",
-  font_family = .text_font(),
-  strip_color = set_opts(.assign = FALSE)$color$cold[1],
-  ...
-)
+get_vars_dict(x, cols = everything(), theme = theme_rt(), ...)
 }
 \arguments{
 \item{x}{A data frame to summarise.}
@@ -23,14 +16,12 @@ summary to show in the widget, selected on their displayed names (\code{n},
 every column of the summary; a column the frame does not carry (\code{range} on
 a frame with no numeric column, say) is absent from the selection too.}
 
-\item{font_size}{CSS font size for the widget's text.}
-
-\item{font_family}{Font family for the widget's text. When \code{\link[=set_opts]{set_opts()}} has
-been called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
-
-\item{strip_color}{Background color of the striped rows. Defaults to the first
-cold-palette color from the options.}
+\item{theme}{A \code{\link[reactable:reactableTheme]{reactable::reactableTheme()}} object styling the widget,
+defaulting to the package theme \code{\link[=theme_rt]{theme_rt()}}. The default is that value
+rather than a read of \code{getOption("reactable.theme")}, so the widget does
+not depend on whether a project set that option before or after this call.
+The column widths are counted in the theme's font size, so a theme
+carrying another one resizes them too.}
 
 \item{...}{Additional arguments forwarded to \code{\link[reactable:reactable]{reactable::reactable()}}.}
 }
