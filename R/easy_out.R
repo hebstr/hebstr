@@ -3,10 +3,10 @@
 #' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 #' HTML depending on the object type), a flextable to DOCX, an htmlwidget to
 #' HTML, or an `openxlsx2` workbook to XLSX. A figure also goes to an editable
-#' PPTX slide under `pptx = TRUE`, and the variable dictionary
-#' [get_vars_dict()] returns also goes to XLSX and JSON. A named list of such
-#' objects is written element by element into a folder of its own. Opens the
-#' result in a browser unless `quiet = TRUE`.
+#' PPTX slide under `pptx = TRUE`, a widget to PNG under `png = TRUE`, and the
+#' variable dictionary [get_vars_dict()] returns also goes to XLSX and JSON. A
+#' named list of such objects is written element by element into a folder of
+#' its own. Opens the result in a browser unless `quiet = TRUE`.
 #'
 #' @param x A ggplot, ggmatrix, gt_tbl, gtsummary, flextable (what
 #'   [tbl_format()] returns under `options(hebstr.docx = TRUE)`), grid grob
@@ -49,9 +49,11 @@
 #'   gets 700. For plots and grid graphics: SVG width in inches
 #'   (default 7). For a grid grob under `crop = TRUE`, `width` and `height`
 #'   are a canvas budget rather than the size of the exported file, which
-#'   is trimmed back to the drawing it contains. Ignored for widgets, which
-#'   carry their own layout, and for a flextable, whose width is a fraction
-#'   of the page that only [tbl_format()] can compute.
+#'   is trimmed back to the drawing it contains. For a widget under
+#'   `png = TRUE`: the viewport width in pixels the capture composes at
+#'   (default 950), the HTML itself carrying its own layout. Ignored for a
+#'   flextable, whose width is a fraction of the page that only
+#'   [tbl_format()] can compute.
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
 #'   for tables, widgets and workbooks.
@@ -72,6 +74,18 @@
 #'   scaled to fit it and centred. Fonts are named in the slide rather than
 #'   embedded, so a reader without the family installed gets a substitute.
 #'   Tables, widgets and workbooks have no slide form and error out.
+#' @param png If `TRUE`, also capture a widget, or the dictionary
+#'   [get_vars_dict()] returns, to PNG from the standalone
+#'   HTML this branch has just written. Defaults to
+#'   `getOption("easy_out.png", FALSE)`, and needs a Chrome installation,
+#'   which \pkg{chromote} locates on its own.
+#'
+#'   Off by default because the package cannot tell whether the image lies: a
+#'   frame of an interactive widget freezes the search box and the filter row
+#'   and stops at the first page, so a hundred rows look complete. Ask for it
+#'   on a widget carrying its whole content, `pagination = FALSE` and no
+#'   filters. The other classes either write their PNG already or have no
+#'   image form, and ignore it.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. Defaults to
@@ -135,6 +149,7 @@ easy_out <- \(
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
   pptx = getOption("easy_out.pptx", default = FALSE),
+  png = getOption("easy_out.png", default = FALSE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !.is_docx()),
   web_fonts = .web_fonts()
@@ -153,6 +168,10 @@ easy_out <- \(
 
   if (!is_bool(pptx)) {
     cli_abort("{.arg pptx} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (!is_bool(png)) {
+    cli_abort("{.arg png} must be {.code TRUE} or {.code FALSE}.")
   }
 
   .check_subdir(subdir)
@@ -219,6 +238,7 @@ easy_out <- \(
           px = !!px,
           crop = !!crop,
           pptx = !!pptx,
+          png = !!png,
           quiet = !!quiet,
           export = !!export,
           web_fonts = !!web_fonts
@@ -499,6 +519,8 @@ easy_out <- \(
       )
     })
 
+    to_shot <- .out_shot(png, to_html, to_png, width)
+
     to_xlsx <- NULL
     to_json <- NULL
 
@@ -529,7 +551,7 @@ easy_out <- \(
     cli_progress_done()
 
     cli_output(
-      files = c(to_html, to_xlsx, to_json),
+      files = c(to_html, to_shot, to_xlsx, to_json),
       browse = to_html
     )
   }
@@ -627,6 +649,60 @@ easy_out <- \(
 
 # Excel caps a sheet name at 31 characters
 .out_sheet <- \(name) str_sub(name, 1, 31)
+
+# The clip rectangle is measured on a page that still reserves the scrollbar,
+# while captureBeyondViewport widens the viewport to paint: Chrome then rewraps
+# on those fifteen pixels and every full line loses its end, silently. Hiding
+# the bar beforehand makes the two widths agree. chromote's own
+# setScrollbarsHidden does not reflow, so it does not settle this.
+.out_shot <- \(png, to_html, to_png, width) {
+  if (!png) {
+    return(NULL)
+  }
+
+  cli_progress_step("Creating PNG file")
+
+  if (is.null(width)) {
+    width <- 950
+  }
+
+  session <- ChromoteSession$new(width = width, height = 800)
+  on.exit(session$close(), add = TRUE)
+
+  # go_to(), not navigate() then loadEventFired(): the event is registered
+  # before the navigation, where the pair races it and times out on a fast load
+  session$go_to(paste0(
+    "file://",
+    URLencode(as.character(fs::path_abs(to_html)))
+  ))
+
+  session$Runtime$evaluate(
+    "document.documentElement.style.overflowY = 'hidden'"
+  )
+
+  # the widget is drawn by the script the page carries, after the load event
+  session$screenshot(
+    to_png,
+    selector = ".html-widget",
+    scale = 2,
+    expand = 5,
+    delay = 2
+  )
+
+  # chromote turns a failed capture into a warning, which would leave the
+  # banner announcing a file that was never written
+  if (!fs::file_exists(to_png)) {
+    cli_warn(c(
+      "No PNG was captured from {.path {fs::path_file(to_html)}}.",
+      "i" = "The page has to reach Chrome: a sandboxed install (snap, flatpak) has a private {.path /tmp} and sees nothing written there.",
+      "i" = "The HTML file itself was written and is unaffected."
+    ))
+
+    return(NULL)
+  }
+
+  to_png
+}
 
 # rvg names the font family in the slide rather than embedding it, so the
 # alias is what keeps the slide and the SVG on the same one

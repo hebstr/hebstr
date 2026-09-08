@@ -16,6 +16,7 @@ easy_out(
   px = 1200,
   crop = getOption("easy_out.crop", default = TRUE),
   pptx = getOption("easy_out.pptx", default = FALSE),
+  png = getOption("easy_out.png", default = FALSE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !.is_docx()),
   web_fonts = .web_fonts()
@@ -69,9 +70,11 @@ overriding the width the object carries from \code{\link[=tbl_format]{tbl_format
 gets 700. For plots and grid graphics: SVG width in inches
 (default 7). For a grid grob under \code{crop = TRUE}, \code{width} and \code{height}
 are a canvas budget rather than the size of the exported file, which
-is trimmed back to the drawing it contains. Ignored for widgets, which
-carry their own layout, and for a flextable, whose width is a fraction
-of the page that only \code{\link[=tbl_format]{tbl_format()}} can compute.}
+is trimmed back to the drawing it contains. For a widget under
+\code{png = TRUE}: the viewport width in pixels the capture composes at
+(default 950), the HTML itself carrying its own layout. Ignored for a
+flextable, whose width is a fraction of the page that only
+\code{\link[=tbl_format]{tbl_format()}} can compute.}
 
 \item{height}{Height in inches for SVG output of plots and grid graphics
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
@@ -96,6 +99,19 @@ The slide is the default 4:3 \verb{Office Theme} one, and the drawing is
 scaled to fit it and centred. Fonts are named in the slide rather than
 embedded, so a reader without the family installed gets a substitute.
 Tables, widgets and workbooks have no slide form and error out.}
+
+\item{png}{If \code{TRUE}, also capture a widget, or the dictionary
+\code{\link[=get_vars_dict]{get_vars_dict()}} returns, to PNG from the standalone
+HTML this branch has just written. Defaults to
+\code{getOption("easy_out.png", FALSE)}, and needs a Chrome installation,
+which \pkg{chromote} locates on its own.
+
+Off by default because the package cannot tell whether the image lies: a
+frame of an interactive widget freezes the search box and the filter row
+and stops at the first page, so a hundred rows look complete. Ask for it
+on a widget carrying its whole content, \code{pagination = FALSE} and no
+filters. The other classes either write their PNG already or have no
+image form, and ignore it.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}
@@ -124,10 +140,10 @@ another family; build them with \code{woff2} given as a \verb{data:} URI rather 
 Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 HTML depending on the object type), a flextable to DOCX, an htmlwidget to
 HTML, or an \code{openxlsx2} workbook to XLSX. A figure also goes to an editable
-PPTX slide under \code{pptx = TRUE}, and the variable dictionary
-\code{\link[=get_vars_dict]{get_vars_dict()}} returns also goes to XLSX and JSON. A named list of such
-objects is written element by element into a folder of its own. Opens the
-result in a browser unless \code{quiet = TRUE}.
+PPTX slide under \code{pptx = TRUE}, a widget to PNG under \code{png = TRUE}, and the
+variable dictionary \code{\link[=get_vars_dict]{get_vars_dict()}} returns also goes to XLSX and JSON. A
+named list of such objects is written element by element into a folder of
+its own. Opens the result in a browser unless \code{quiet = TRUE}.
 }
 \details{
 In a remote session, the exported file lives on the server while the

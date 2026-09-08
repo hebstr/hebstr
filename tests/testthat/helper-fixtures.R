@@ -360,6 +360,44 @@
   )
 }
 
+### CHROME -----------------------------------------------------------------------
+
+# stands in for the ChromoteSession generator, recording the call it is driven
+# through into `log` and writing the file a real capture would leave behind
+.fake_chromote <- \(log, write = TRUE) {
+  session <- list(
+    go_to = \(url, ...) {
+      log$url <- url
+      invisible(NULL)
+    },
+    Runtime = list(
+      evaluate = \(expression, ...) {
+        log$js <- c(log$js, expression)
+        invisible(NULL)
+      }
+    ),
+    screenshot = \(filename, ...) {
+      log$shot <- c(list(filename = filename), list(...))
+      log$js_before <- log$js
+
+      if (write) {
+        writeLines("png", filename)
+      }
+
+      invisible(filename)
+    },
+    close = \(...) {
+      log$closed <- TRUE
+      invisible(NULL)
+    }
+  )
+
+  list(new = \(...) {
+    log$viewport <- list(...)
+    session
+  })
+}
+
 ### QUARTO EXTENSION -------------------------------------------------------------
 
 .make_extension <- \(root, id = "org/ext", reference_doc = "template.dotx") {

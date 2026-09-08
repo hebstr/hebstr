@@ -95,6 +95,16 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `easy_out(png = TRUE)` also captures a widget to PNG, taken with Chrome from the self-contained HTML the branch has just written.
+  A project that wanted the image of its `reactable`, for a Word deliverable or a slide, wrote a capture helper of its own beside `easy_out()` and hard-coded the path of the artefact, which `easy_out()` had just resolved under its own folder rule.
+  The capture goes into that folder and takes the same name as the HTML, `width` giving the viewport width it composes at, 950 pixels by default, where it was inert on this branch before.
+  The default is `FALSE`, read from `getOption("easy_out.png")`.
+  It stays off because the package cannot tell whether the image lies: a frame of an interactive widget freezes the search box and the filter row and stops at the first page, so a hundred rows look complete.
+  Deciding that for the caller would mean reading `pagination`, `searchable` and `filterable` out of the private reactR structure the package already refuses to open, so the condition is declared at the call site instead, on a widget carrying its whole content.
+  The scrollbar is hidden before Chrome measures the element, which is what keeps the capture whole: `captureBeyondViewport` widens the viewport to paint but not to measure, so Chrome rewraps on fifteen pixels the clip rectangle does not have and every full line loses its end, with nothing reported.
+  Measured on a 40-row table at 950 pixels: 855 pixels wide at the measure against 870 at the paint, and "selon 5 incidences ou plus" losing its last word.
+  `chromote` joins `Imports`, where it already arrived through `webshot2`; a capture Chrome could not take is a warning naming the reason, and the file banner then reports only what was written.
+
 - `easy_out()` writes a `flextable` to a `.docx`, so a table formatted for Word can leave the session as a standalone file instead of only reaching a rendered document.
   The object is what `tbl_format()` already returns under `options(hebstr.docx = TRUE)`, so nothing new is built and no second object is named beside the table: a script declares the target once and its tables come out as Word files.
   The class carries the dispatch, as it does for a workbook, so there is no new argument and no new exported name.
@@ -107,7 +117,7 @@ Options and the variable classification cache now live in an internal package st
 
 - `easy_out()` accepts an htmlwidget, writing it to a self-contained HTML file, and the variable dictionary `get_vars_dict()` returns, writing the widget and its summary together as HTML, XLSX and JSON.
   `get_vars_dict()` classes its return `hebstr_dict`, which is what `easy_out()` dispatches on, so `easy_out(vars_dict)` names its output after the object rather than needing a `filename` for `vars_dict$output`.
-  The dictionary gets no PNG: a raster of an interactive widget freezes the search box and the filter row, and stops at the first page, so a summary of three hundred variables would give an image of a hundred rows looking complete.
+  The dictionary gets no PNG unless one is asked for: a raster of an interactive widget freezes the search box and the filter row, and stops at the first page, so a summary of three hundred variables would give an image of a hundred rows looking complete.
   The XLSX carries `data` whole even when `cols` restricts the widget, an archive having no reason to be amputated by a display choice, and the sheet is named after the file, capped at the 31 characters Excel allows.
   The JSON carries the `json` element, written with `auto_unbox = TRUE` so that the cells `get_vars_dict()` marks with `I()` come out as arrays even when they hold a single value, and with missing values as `null`.
   The frame is not read back out of the widget: reactable holds it as JSON under a private reactR structure with no exported accessor, encodes a missing value as the string `"NA"` so an all-missing integer column comes back logical, and carries the displayed selection rather than the source.

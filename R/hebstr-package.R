@@ -5,6 +5,7 @@
 #' @importFrom broom augment
 #' @importFrom broom tidy
 #' @importFrom broom.helpers model_list_terms_levels
+#' @importFrom chromote ChromoteSession
 #' @importFrom cli cat_line
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info

@@ -2270,6 +2270,209 @@ test_that("easy_out() refuses a slide for a widget without creating its folder",
   expect_false(fs::dir_exists(fs::path(tmp, "vars")))
 })
 
+test_that("easy_out() rejects a non-boolean png", {
+  expect_error(
+    easy_out(.make_dict(), png = "yes", quiet = TRUE),
+    regexp = "`png` must be"
+  )
+})
+
+test_that("easy_out() writes no PNG beside a widget by default", {
+  tmp <- withr::local_tempdir()
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE)
+
+  expect_false(fs::file_exists(fs::path(tmp, "vars", "vars", ext = "png")))
+})
+
+test_that("easy_out() captures the widget from the file it just wrote", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log))
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE, png = TRUE)
+
+  html <- fs::path(tmp, "vars", "vars", ext = "html")
+  shot <- fs::path(tmp, "vars", "vars", ext = "png")
+
+  expect_true(fs::file_exists(shot))
+  expect_equal(log$url, paste0("file://", URLencode(as.character(html))))
+  expect_equal(as.character(log$shot$filename), as.character(shot))
+  expect_equal(log$shot$selector, ".html-widget")
+  expect_true(log$closed)
+})
+
+test_that("easy_out() hides the scrollbar before the widget is captured", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log))
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE, png = TRUE)
+
+  expect_match(
+    log$js_before,
+    "overflowY = 'hidden'",
+    fixed = TRUE,
+    all = FALSE
+  )
+})
+
+test_that("easy_out() composes the widget capture at the width it is given", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log))
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE, png = TRUE)
+
+  expect_equal(log$viewport$width, 950)
+
+  easy_out(
+    .make_dict(),
+    filename = "narrow",
+    dir = tmp,
+    quiet = TRUE,
+    png = TRUE,
+    width = 600
+  )
+
+  expect_equal(log$viewport$width, 600)
+})
+
+test_that("easy_out() reads the widget capture from its option", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  withr::local_options(easy_out.png = TRUE)
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log))
+
+  easy_out(.make_dict(), filename = "vars", dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "vars", "vars", ext = "png")))
+})
+
+test_that("easy_out() reports the widget PNG in the file banner", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log))
+
+  banner <- capture_messages(
+    easy_out(
+      .make_dict(),
+      filename = "vars",
+      dir = tmp,
+      quiet = TRUE,
+      png = TRUE
+    )
+  )
+
+  expect_true(any(grepl("vars.png", banner, fixed = TRUE)))
+})
+
+test_that("easy_out() keeps a capture that failed out of the file banner", {
+  tmp <- withr::local_tempdir()
+  log <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(ChromoteSession = .fake_chromote(log, write = FALSE))
+
+  banner <- NULL
+
+  expect_warning(
+    banner <- capture_messages(
+      easy_out(
+        .make_dict(),
+        filename = "vars",
+        dir = tmp,
+        quiet = TRUE,
+        png = TRUE
+      )
+    ),
+    regexp = "No PNG was captured"
+  )
+
+  expect_false(any(grepl("vars.png", banner, fixed = TRUE)))
+})
+
+test_that("easy_out() leaves png without effect outside the widget branch", {
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    gtsave = \(data, filename, ...) writeLines("<html></html>", filename),
+    webshot = \(...) invisible(NULL),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  expect_no_error(
+    easy_out(
+      gt::gt(head(mtcars, 3)),
+      filename = "tbl",
+      dir = tmp,
+      quiet = TRUE,
+      png = TRUE
+    )
+  )
+
+  expect_no_error(
+    easy_out(
+      get_xlsx(list(iris = head(datasets::iris, 3))),
+      filename = "book",
+      dir = tmp,
+      quiet = TRUE,
+      png = TRUE
+    )
+  )
+
+  expect_false(fs::file_exists(fs::path(tmp, "book", "book", ext = "png")))
+})
+
+test_that("easy_out() keeps the scrollbar's width in the widget capture", {
+  skip_on_cran()
+  skip_if(is.null(chromote::find_chrome()))
+
+  # beside the suite rather than under /tmp, which a sandboxed Chrome cannot read
+  tmp <- withr::local_tempdir(tmpdir = ".")
+
+  widget <- reactable::reactable(
+    data.frame(code = 1:60, label = strrep("wide ", 8)),
+    pagination = FALSE
+  )
+
+  # the skip below is what reports a capture Chrome could not take
+  suppressWarnings(easy_out(
+    widget,
+    filename = "wide",
+    dir = tmp,
+    quiet = TRUE,
+    png = TRUE,
+    width = 950
+  ))
+
+  shot <- fs::path(tmp, "wide", "wide", ext = "png")
+
+  # a sandboxed Chrome (snap, flatpak) has a private /tmp and never sees the file
+  skip_if(!fs::file_exists(shot), "Chrome cannot read the session tempdir")
+
+  html <- fs::path(tmp, "wide", "wide", ext = "html")
+  naive <- fs::path(tmp, "naive.png")
+
+  session <- chromote::ChromoteSession$new(width = 950, height = 800)
+  withr::defer(session$close())
+
+  session$go_to(paste0("file://", as.character(fs::path_abs(html))))
+  session$screenshot(
+    naive,
+    selector = ".html-widget",
+    scale = 2,
+    expand = 5,
+    delay = 2
+  )
+
+  expect_gt(dim(png::readPNG(shot))[2], dim(png::readPNG(naive))[2])
+})
+
 test_that(".out_sheet() caps a sheet name at the Excel limit", {
   expect_equal(nchar(.out_sheet(strrep("a", 40))), 31L)
   expect_equal(.out_sheet("vars"), "vars")
