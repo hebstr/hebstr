@@ -173,6 +173,17 @@
 # pins the striped color so the widget stops depending on the ambient opts
 .make_rt_theme <- \(...) theme_rt(strip_color = "#fff", ...)
 
+# include_graphics() checks that the file is there, so a path read by out_qmd()
+# has to be laid down first
+.make_out_files <- \(...) {
+  paths <- fs::path(c(...))
+
+  fs::dir_create(unique(fs::path_dir(paths)))
+  fs::file_create(paths)
+
+  invisible(paths)
+}
+
 ### EXTRACTORS ------------------------------------------------------------------
 
 .ft_txt <- \(x, part = "footer") {

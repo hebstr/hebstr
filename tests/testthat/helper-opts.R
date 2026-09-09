@@ -54,6 +54,18 @@ local_opts <- \(..., .env = parent.frame()) {
   invisible(NULL)
 }
 
+# the render target lives in knitr's own settings, so a test drives
+# is_html_output() itself instead of mocking it
+local_pandoc_to <- \(to, .env = parent.frame()) {
+  old <- knitr::opts_knit$get("rmarkdown.pandoc.to")
+
+  withr::defer(knitr::opts_knit$set(rmarkdown.pandoc.to = old), envir = .env)
+
+  knitr::opts_knit$set(rmarkdown.pandoc.to = to)
+
+  invisible(NULL)
+}
+
 local_vars_context <- \(.env = parent.frame()) {
   .local_binding(".vars_context", .hebstr, .env = .env)
 

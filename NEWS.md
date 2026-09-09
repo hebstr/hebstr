@@ -99,6 +99,18 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `out_qmd()` publishes an `easy_out()` output inside a rendered document, handing it either the live object or the artefact written beside it, whichever the render target can carry.
+  A document rendering to HTML and to Word from one source had to choose between a duplicated `.qmd` per format and a conditional block per output; the chunk is now a single call, `out_qmd(tbl_pop)`.
+  What goes out follows the object's class: a `gt_tbl`, a `gtsummary`, a widget and a dictionary are live under HTML and their PNG otherwise, a `flextable` is live whichever the target, and a figure is always the file its script wrote, SVG under HTML and PNG otherwise.
+  The class carries the format decision the document already made, so one reader serves both regimes: under `options(hebstr.docx = knitr::pandoc_to("docx"))` a table reaches Word as a native `flextable`, and a document leaving the option unset gets the PNG of its `gt_tbl`.
+  The target itself is read from knitr rather than from `hebstr.docx`, which the second regime never sets.
+  A figure is never redrawn: left to knitr it would be drawn on the chunk device, at other dimensions and with other fonts, and nothing would report it.
+  The path is derived with the rules `easy_out()` writes under, `filename`, `dir`, `subdir`, `suffix` and `sep` being arguments of the reader with the same defaults, so a document restates no filename and a change of convention moves both sides at once.
+  The object is passed by name, `out_qmd(tbl_codes$cim10)` reading one element of a list `easy_out()` wrote panel by panel; any other expression is refused, a deparse naming the callee as much as the object.
+  A bare list is published as one multi-panel figure and holds figures only: `knitr::include_graphics()` vectorises over paths, where a list of live objects prints as a list, so a list of tables would publish under Word and break under HTML.
+  A workbook is named apart, no rendered document being able to hold one.
+  `knitr` stays in `Suggests`, claimed by `rlang::check_installed()` at the call, the function being dead code outside a render.
+
 - `set_opts()` sets the session option `reactable.theme` to `theme_rt()`, so a project gets the house palette on the widgets it builds itself without writing a line for it.
   `reactable()` reads that option as its own `theme` default, which makes the diffusion native rather than contrived, and `set_opts()` is the one configuration call every project already makes.
   What decides is a defect rather than an ergonomic cost: across four projects the palette was reached through one local constructor in one case, two divergent ones in another (`0.7em` against `0.85em`), and not at all in the two others, where a widget written straight into a chunk carried no house style and raised nothing.
