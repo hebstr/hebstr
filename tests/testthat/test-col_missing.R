@@ -48,7 +48,7 @@ test_that("col_missing() drops the missing rows from the table body", {
   expect_false(any(res$table_body$row_type == "missing"))
 })
 
-test_that("col_missing() honours a custom prefix, empty, and header", {
+test_that("col_missing() honours a custom prefix and header", {
   local_opts()
 
   res <- col_missing(

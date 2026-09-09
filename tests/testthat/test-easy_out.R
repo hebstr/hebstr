@@ -614,7 +614,9 @@ test_that("easy_out() closes the SVG device when the grob fails to draw", {
   before <- grDevices::dev.cur()
 
   expect_error(
-    easy_out(g, filename = "boom", dir = tmp, crop = FALSE, quiet = TRUE)
+    easy_out(g, filename = "boom", dir = tmp, crop = FALSE, quiet = TRUE),
+    "invalid color name 'not_a_colour'",
+    fixed = TRUE
   )
 
   expect_identical(grDevices::dev.cur(), before)
@@ -2190,11 +2192,14 @@ test_that("with_fig_device() closes its own device when code errors after openin
 
   leaked <- setdiff(grDevices::dev.list(), before)
 
+  # a failed assertion below does not stop the block, so the close has to be
+  # deferred: left inline it would be skipped and the device would outlive the file
+  withr::defer(if (length(leaked) == 1L) grDevices::dev.off(leaked))
+
   expect_length(leaked, 1L)
 
   grDevices::dev.set(leaked)
   expect_equal(grDevices::dev.size("in"), c(3, 3))
-  grDevices::dev.off(leaked)
 })
 
 test_that("with_fig_device() writes no file", {
@@ -2347,6 +2352,7 @@ test_that("easy_out() writes a hebstr_dict to html, xlsx and json", {
 })
 
 test_that("easy_out() leaves no library folder beside a self-contained widget", {
+  skip_if_not_installed("rmarkdown")
   skip_if_not(rmarkdown::pandoc_available())
 
   tmp <- withr::local_tempdir()

@@ -301,14 +301,18 @@
 .make_svg <- \(grob, bg = "white", width = 9, height = 8) {
   path <- withr::local_tempfile(fileext = ".svg", .local_envir = parent.frame())
 
-  svglite::svglite(path, width = width, height = height, bg = bg)
-  grid::grid.newpage()
+  # an undrawable grob would otherwise leave the device current, and every later
+  # plot of the file would go silently into this half-written SVG
+  local({
+    svglite::svglite(path, width = width, height = height, bg = bg)
+    on.exit(grDevices::dev.off())
 
-  if (!is.null(grob)) {
-    grid::grid.draw(grob)
-  }
+    grid::grid.newpage()
 
-  grDevices::dev.off()
+    if (!is.null(grob)) {
+      grid::grid.draw(grob)
+    }
+  })
 
   path
 }
