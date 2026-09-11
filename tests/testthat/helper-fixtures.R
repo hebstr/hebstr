@@ -317,6 +317,36 @@
   path
 }
 
+.make_png <- \(grob, width = 9, height = 8, res = 40, background = "white") {
+  path <- withr::local_tempfile(fileext = ".png", .local_envir = parent.frame())
+
+  local({
+    ragg::agg_png(
+      path,
+      width = width,
+      height = height,
+      units = "in",
+      res = res,
+      background = background
+    )
+    on.exit(grDevices::dev.off())
+
+    grid::grid.newpage()
+
+    if (!is.null(grob)) {
+      grid::grid.draw(grob)
+    }
+  })
+
+  path
+}
+
+.ink_width <- \(path) {
+  box <- .ink_box(path)
+
+  if (is.null(box)) 0 else box[["x1"]] - box[["x0"]]
+}
+
 .local_device <- \(width, height, .local_envir = parent.frame()) {
   svglite::svgstring(width = width, height = height)
   device <- grDevices::dev.cur()

@@ -245,6 +245,14 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `easy_out()` draws the PNG of a grid grob instead of rasterizing its SVG, so the two files carry the same type.
+  The raster came from rsvg, which resolves fonts through fontconfig alone and never reads the systemfonts registry the package fills, so a grob whose SVG was written in the package font came out in a fallback in its PNG on any machine that does not have the family installed.
+  The defect was wider than the font: the ink box that trims a cropped grob was measured on that same raster, so the canvas of the **SVG** was itself computed from an image whose text was set in the wrong metrics.
+  ragg reads the resolution svglite used, and the drawing is measured on it, cropped from it, and the SVG rewritten with the same fractions of the canvas.
+  A grob declaring no font family of its own follows too: `ragg::agg_png()` takes no alias argument, so the family is pushed on a viewport before drawing, which is what the device alias does on the svglite side.
+  One deliberate gap left: a `gpar(fontfamily = "sans")` set explicitly on the grob overrides the viewport and stays on the device generic in the PNG, where the svglite alias maps it onto the resolved family.
+  Under `crop = TRUE`, `px` becomes a canvas budget like `width` and `height`: the file written is shorter by whatever the trim removes, where it used to come back exactly `px` tall.
+
 - `easy_out()` checks the call before `export` decides whether to write.
   The class guard, the `pptx` guard, the name resolution and the collision check on a list of element names all ran behind the `export = FALSE` early return, so a call that a Word render skipped was never validated: an unsupported object, a slide asked of a table, or two element names folding onto one file passed unremarked under `options(hebstr.docx = TRUE)` and only surfaced on the HTML render of the same source.
   One source feeds both renders, so a call now fails the same way under each.

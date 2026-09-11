@@ -200,9 +200,7 @@ out_qmd <- \(
 ) {
   check_installed("knitr", reason = "to publish an output in a document.")
 
-  if (
-    !is.null(filename) && (!is_scalar_character(filename) || is.na(filename))
-  ) {
+  if (!is.null(filename) && (!is_scalar_character(filename) || is.na(filename))) {
     cli_abort("{.arg filename} must be a single string.")
   }
 

@@ -539,19 +539,11 @@ test_that("easy_out() dir argument overrides easy_out.dir option", {
   expect_false(fs::dir_exists(option_dir))
 })
 
-test_that("easy_out() accepts a grid grob and creates an SVG", {
+test_that("easy_out() accepts a grid grob and creates an SVG and a PNG", {
   tmp <- withr::local_tempdir()
   g <- grid::grobTree(grid::rectGrob(), grid::textGrob("x"))
 
-  write_called <- FALSE
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) {
-      write_called <<- TRUE
-      invisible(NULL)
-    },
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   expect_no_error(
     easy_out(g, filename = "test_grob", dir = tmp, crop = FALSE, quiet = TRUE)
@@ -560,18 +552,130 @@ test_that("easy_out() accepts a grid grob and creates an SVG", {
   expect_true(
     fs::file_exists(fs::path(tmp, "test-grob", "test-grob", ext = "svg"))
   )
-  expect_true(write_called)
+  expect_true(
+    fs::file_exists(fs::path(tmp, "test-grob", "test-grob", ext = "png"))
+  )
+})
+
+test_that("easy_out() draws the grob PNG rather than rasterizing its SVG", {
+  tmp <- withr::local_tempdir()
+  g <- grid::grobTree(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2),
+    grid::textGrob("x", x = 0.4, y = 0.6)
+  )
+
+  local_mocked_bindings(
+    image_read_svg = \(...) cli_abort("rsvg was called"),
+    browseURL = \(...) invisible(NULL)
+  )
+
+  expect_no_error(
+    easy_out(g, filename = "no_rsvg", dir = tmp, quiet = TRUE)
+  )
+})
+
+test_that("easy_out() gives the grob PNG the family its SVG names", {
+  local_opts(font = "luciole")
+
+  tmp <- withr::local_tempdir()
+  g <- grid::textGrob("Hamburgefonstiv", x = 0.5, y = 0.5)
+
+  # the same resolution as the export, so the two boxes quantize alike
+  generic <- .ink_width(.make_png(g, res = 150))
+  named <- .ink_width(
+    .make_png(
+      grid::editGrob(g, gp = grid::gpar(fontfamily = .text_font())),
+      res = 150
+    )
+  )
+
+  skip_if(
+    isTRUE(all.equal(generic, named, tolerance = 1e-3)),
+    "the device generic already resolves to the package font"
+  )
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  # svglite warns on the case of a registered name a system font also carries,
+  # which the machine running the suite decides and the export does not
+  suppressWarnings(
+    easy_out(
+      g,
+      filename = "grob_family",
+      dir = tmp,
+      width = 9,
+      height = 8,
+      crop = FALSE,
+      quiet = TRUE
+    )
+  )
+
+  written <- .ink_width(
+    fs::path(tmp, "grob-family", "grob-family", ext = "png")
+  )
+
+  expect_equal(written, named, tolerance = 1e-3)
+})
+
+test_that("easy_out() trims the grob PNG by the fractions it trims the SVG", {
+  tmp <- withr::local_tempdir()
+  g <- grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  easy_out(
+    g,
+    filename = "ratio",
+    dir = tmp,
+    width = 9,
+    height = 6,
+    px = 600,
+    quiet = TRUE
+  )
+
+  view_box <- .view_box(fs::path(tmp, "ratio", "ratio", ext = "svg"))
+  info <- image_info(
+    image_read(fs::path(tmp, "ratio", "ratio", ext = "png"))
+  )
+
+  expect_equal(
+    info$width / info$height,
+    view_box[3] / view_box[4],
+    tolerance = 0.01
+  )
+  expect_lt(info$height, 600)
+})
+
+test_that("easy_out() sizes the whole grob PNG on px when crop is FALSE", {
+  tmp <- withr::local_tempdir()
+  g <- grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  easy_out(
+    g,
+    filename = "whole_png",
+    dir = tmp,
+    width = 9,
+    height = 6,
+    px = 600,
+    crop = FALSE,
+    quiet = TRUE
+  )
+
+  info <- image_info(
+    image_read(fs::path(tmp, "whole-png", "whole-png", ext = "png"))
+  )
+
+  expect_equal(info$height, 600)
+  expect_equal(info$width, 900)
 })
 
 test_that("easy_out() injects xml:space=preserve on the grob SVG", {
   tmp <- withr::local_tempdir()
   g <- grid::grobTree(grid::rectGrob(), grid::textGrob("a    b"))
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   easy_out(g, filename = "test_space", dir = tmp, crop = FALSE, quiet = TRUE)
 
@@ -607,11 +711,7 @@ test_that("easy_out() builds grob filename with suffix", {
   tmp <- withr::local_tempdir()
   g <- grid::rectGrob()
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   easy_out(
     g,
@@ -720,6 +820,47 @@ test_that("easy_out() rejects a non-boolean crop", {
     regexp = "`crop` must be",
     fixed = TRUE
   )
+})
+
+test_that(".ink_box() keeps the outer rows and columns unless seam is set", {
+  path <- .make_png(
+    grid::rectGrob(x = 0.25, width = 0.5, gp = grid::gpar(fill = "red"))
+  )
+
+  expect_equal(.ink_box(path)[["x0"]], 0)
+  expect_equal(.ink_box(path)[["y0"]], 0)
+  expect_gt(.ink_box(path, seam = TRUE)[["x0"]], 0)
+  expect_gt(.ink_box(path, seam = TRUE)[["y0"]], 0)
+})
+
+test_that(".crop_box() depends on the canvas only through its aspect ratio", {
+  box <- c(x0 = 0.2, x1 = 0.5, y0 = 0.1, y1 = 0.4)
+
+  expect_equal(
+    .crop_box(box, .crop_margin, 9, 6),
+    .crop_box(box, .crop_margin, 900, 600)
+  )
+})
+
+test_that(".crop_box() keeps the padded box inside the canvas", {
+  full <- c(x0 = 0, x1 = 1, y0 = 0, y1 = 1)
+
+  expect_equal(.crop_box(full, 0.5, 4, 4), full)
+})
+
+test_that("svg_crop() takes a box without rasterizing the SVG", {
+  path <- .make_svg(
+    grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
+  )
+
+  local_mocked_bindings(image_read_svg = \(...) cli_abort("rsvg was called"))
+
+  before <- .view_box(path)
+
+  expect_true(
+    svg_crop(path, box = c(x0 = 0.25, x1 = 0.55, y0 = 0.3, y1 = 0.5))
+  )
+  expect_lt(.view_box(path)[3], before[3])
 })
 
 test_that("svg_ink_box() lets the rasterization error through", {
@@ -1280,11 +1421,7 @@ test_that("easy_out() writes a pptx slide beside the grob files", {
   tmp <- withr::local_tempdir()
   g <- grid::grobTree(grid::rectGrob(), grid::textGrob("x"))
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   easy_out(
     g,
@@ -1306,11 +1443,7 @@ test_that("easy_out() appends the suffix to a pptx filename", {
 
   tmp <- withr::local_tempdir()
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   easy_out(
     grid::rectGrob(),
@@ -1332,11 +1465,7 @@ test_that("easy_out() reports the pptx in the file banner", {
 
   tmp <- withr::local_tempdir()
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   banner <- capture_messages(
     easy_out(
@@ -1357,11 +1486,7 @@ test_that("easy_out() scales the slide drawing to fit and centres it", {
 
   tmp <- withr::local_tempdir()
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   easy_out(
     grid::rectGrob(),
@@ -1443,8 +1568,6 @@ test_that("easy_out() offers to install rvg rather than failing on the call", {
   tmp <- withr::local_tempdir()
 
   local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
     browseURL = \(...) invisible(NULL),
     check_installed = \(pkg, ...) cli_abort("{.pkg {pkg}} is not installed.")
   )
@@ -1467,11 +1590,7 @@ test_that("easy_out() offers to install rvg rather than failing on the call", {
 test_that("easy_out() writes no slide when pptx is FALSE", {
   tmp <- withr::local_tempdir()
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   easy_out(
     grid::rectGrob(),
@@ -1492,11 +1611,7 @@ test_that("easy_out() hands the slide the device font alias", {
   tmp <- withr::local_tempdir()
   captured <- NULL
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   local_mocked_bindings(
     dml = \(code, fonts, ...) {
@@ -2316,11 +2431,7 @@ test_that("easy_out() embeds the font on the grob branch too", {
   local_opts(font = "Luciole", .default_font = "sans")
   skip_if_not(check_fonts("Luciole"), "Luciole unavailable")
 
-  local_mocked_bindings(
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) invisible(NULL),
-    browseURL = \(...) invisible(NULL)
-  )
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
 
   g <- grid::grobTree(grid::textGrob("Hamburgefonstiv"))
   easy_out(g, filename = "grobfont", dir = tmp, quiet = TRUE, crop = FALSE)
@@ -2782,6 +2893,10 @@ test_that("easy_out() embeds the shipped faces in the table HTML", {
   set_opts(font = "luciole")
 
   tbl <- tbl_format(gtsum_format(.make_summary_tbl()))
+
+  # gtsave writes the stylesheet this block reads and is left alone; webshot is
+  # the half that would start a real Chrome for a PNG nothing here looks at
+  local_mocked_bindings(webshot = \(url, file, ...) writeLines("png", file))
 
   easy_out(tbl, filename = "tbl", dir = tmp, quiet = TRUE)
 

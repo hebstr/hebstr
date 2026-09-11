@@ -57,11 +57,15 @@
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
 #'   for tables, widgets and workbooks.
-#' @param px Height in pixels for the PNG rasterization of plots and grid
-#'   graphics.
+#' @param px Height in pixels for the PNG of plots and grid graphics. For a
+#'   grid grob under `crop = TRUE` it sizes the canvas the drawing is measured
+#'   on rather than the file written, which comes back shorter by whatever the
+#'   trim removes, as `width` and `height` do.
 #' @param crop If `TRUE` (the default, read from
-#'   `getOption("easy_out.crop")`), trim the SVG canvas of a grid grob to
-#'   the bounding box of the drawing, keeping a small margin. Grob positions
+#'   `getOption("easy_out.crop")`), trim the canvas of a grid grob, in the
+#'   SVG and in the PNG alike, to the bounding box of the drawing, keeping a
+#'   small margin. The box is measured on the PNG, so both files are trimmed
+#'   by the same fractions of the canvas. Grob positions
 #'   are relative to the whole page, so a drawing covering a sub-rectangle
 #'   leaves an empty band that no `width`/`height` value removes. Ignored
 #'   for tables and plots, whose margins come from the theme, and for widgets
@@ -485,9 +489,18 @@ easy_out <- \(
       grid::grid.draw(x)
     })
 
+    .svg_preserve(to_svg)
+
     cli_progress_step("Creating PNG file")
 
-    svg_to_png(to_svg, to_png, px, crop = crop)
+    .draw_png(x, to_png, width, height, px / height)
+
+    box <- if (crop) .ink_box(to_png) else NULL
+
+    if (!is.null(box)) {
+      svg_crop(to_svg, box = box)
+      .png_crop(to_png, .crop_box(box, .crop_margin, width, height))
+    }
 
     draw <- \() {
       grid::grid.newpage()
@@ -1194,16 +1207,57 @@ browse_stop <- \() {
 }
 
 
-svg_to_png <- \(to_svg, to_png, px, crop = FALSE) {
-  .svg_preserve(to_svg)
+# A grid grob is drawn a second time rather than rasterised from the SVG:
+# rsvg resolves fonts through fontconfig alone and never reads the systemfonts
+# registry, so a family svglite wrote lands on a fallback in the PNG. ragg
+# reads the same resolution svglite used, measured within 0.03% of it on a
+# text box, which is what keeps the two files showing the same type and makes
+# an ink box measured here valid for the SVG.
+#
+# The viewport carries the family because ragg has no device-level equivalent
+# of the svglite alias .device_fonts() supplies: a grob declaring no family of
+# its own would otherwise inherit ragg's generic and come out in the system
+# sans while the SVG names the resolved one.
+.draw_png <- \(x, to_png, width, height, res) {
+  ragg::agg_png(
+    to_png,
+    width = width,
+    height = height,
+    units = "in",
+    res = res
+  )
 
-  if (crop) {
-    svg_crop(to_svg)
+  local({
+    # closing a device mid-unwind warns "Killing locked device", noise here
+    on.exit(suppressWarnings(grDevices::dev.off()), add = TRUE)
+    grid::grid.newpage()
+    grid::pushViewport(
+      grid::viewport(gp = grid::gpar(fontfamily = .text_font()))
+    )
+    grid::grid.draw(x)
+  })
+
+  invisible(to_png)
+}
+
+.png_crop <- \(to_png, box) {
+  image <- image_read(to_png)
+  info <- image_info(image)
+
+  x0 <- round(box[["x0"]] * info$width)
+  y0 <- round(box[["y0"]] * info$height)
+  w <- round(box[["x1"]] * info$width) - x0
+  h <- round(box[["y1"]] * info$height) - y0
+
+  if (w >= info$width && h >= info$height) {
+    return(invisible(FALSE))
   }
 
-  to_svg |>
-    image_read_svg(height = px) |>
+  image |>
+    image_crop(geometry_area(w, h, x0, y0)) |>
     image_write(to_png, format = "png")
+
+  invisible(TRUE)
 }
 
 svg_ink_box <- \(to_svg, tol = 0.04) {
@@ -1214,6 +1268,15 @@ svg_ink_box <- \(to_svg, tol = 0.04) {
     image_read_svg() |>
     image_write(raster, format = "png")
 
+  .ink_box(raster, tol = tol, seam = TRUE)
+}
+
+# Fractions of the canvas rather than pixels, so the same box crops any
+# rendering of the drawing. `seam` belongs to rsvg alone: it leaves a
+# semi-transparent line on the outermost rows and columns, where ragg renders
+# them identical to their neighbours, so blanking them there would shave a
+# pixel of real ink off a drawing that touches the edge.
+.ink_box <- \(raster, tol = 0.04, seam = FALSE) {
   pixels <- readPNG(raster)
 
   if (length(dim(pixels)) == 2L) {
@@ -1259,9 +1322,10 @@ svg_ink_box <- \(to_svg, tol = 0.04) {
     return(NULL)
   }
 
-  # rsvg leaves a semi-transparent seam on the outermost rows and columns
-  ink[c(1, height), ] <- FALSE
-  ink[, c(1, width)] <- FALSE
+  if (seam) {
+    ink[c(1, height), ] <- FALSE
+    ink[, c(1, width)] <- FALSE
+  }
 
   rows <- which(apply(ink, 1, any))
   cols <- which(apply(ink, 2, any))
@@ -1278,7 +1342,25 @@ svg_ink_box <- \(to_svg, tol = 0.04) {
   )
 }
 
-svg_crop <- \(to_svg, margin = 0.03) {
+.crop_margin <- 0.03
+
+# The padded box stays in fractions and depends on the canvas only through
+# its aspect ratio, so the SVG and the PNG of one drawing are trimmed by the
+# same figures whatever units each of them is measured in.
+.crop_box <- \(box, margin, width, height) {
+  w <- (box[["x1"]] - box[["x0"]]) * width
+  h <- (box[["y1"]] - box[["y0"]]) * height
+  pad <- margin * max(w, h)
+
+  c(
+    x0 = max(0, box[["x0"]] - pad / width),
+    x1 = min(1, box[["x1"]] + pad / width),
+    y0 = max(0, box[["y0"]] - pad / height),
+    y1 = min(1, box[["y1"]] + pad / height)
+  )
+}
+
+svg_crop <- \(to_svg, margin = .crop_margin, box = svg_ink_box(to_svg)) {
   lines <- readLines(to_svg)
   header <- grep("<svg[ >]", lines)[1]
 
@@ -1300,25 +1382,18 @@ svg_crop <- \(to_svg, margin = 0.03) {
     return(invisible(FALSE))
   }
 
-  box <- svg_ink_box(to_svg)
-
   if (is.null(box)) {
     return(invisible(FALSE))
   }
 
-  x <- view_box[1] + box[["x0"]] * view_box[3]
-  y <- view_box[2] + box[["y0"]] * view_box[4]
-  w <- (box[["x1"]] - box[["x0"]]) * view_box[3]
-  h <- (box[["y1"]] - box[["y0"]]) * view_box[4]
+  padded <- .crop_box(box, margin, view_box[3], view_box[4])
 
-  pad <- margin * max(w, h)
-
-  x0 <- max(view_box[1], x - pad)
-  y0 <- max(view_box[2], y - pad)
-  x1 <- min(view_box[1] + view_box[3], x + w + pad)
-  y1 <- min(view_box[2] + view_box[4], y + h + pad)
-
-  cropped <- c(x0, y0, x1 - x0, y1 - y0)
+  cropped <- c(
+    view_box[1] + padded[["x0"]] * view_box[3],
+    view_box[2] + padded[["y0"]] * view_box[4],
+    (padded[["x1"]] - padded[["x0"]]) * view_box[3],
+    (padded[["y1"]] - padded[["y0"]]) * view_box[4]
+  )
 
   if (isTRUE(all.equal(cropped, view_box, tolerance = 1e-6))) {
     return(invisible(FALSE))

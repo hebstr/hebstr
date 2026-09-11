@@ -80,12 +80,16 @@ flextable, whose width is a fraction of the page that only
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
 for tables, widgets and workbooks.}
 
-\item{px}{Height in pixels for the PNG rasterization of plots and grid
-graphics.}
+\item{px}{Height in pixels for the PNG of plots and grid graphics. For a
+grid grob under \code{crop = TRUE} it sizes the canvas the drawing is measured
+on rather than the file written, which comes back shorter by whatever the
+trim removes, as \code{width} and \code{height} do.}
 
 \item{crop}{If \code{TRUE} (the default, read from
-\code{getOption("easy_out.crop")}), trim the SVG canvas of a grid grob to
-the bounding box of the drawing, keeping a small margin. Grob positions
+\code{getOption("easy_out.crop")}), trim the canvas of a grid grob, in the
+SVG and in the PNG alike, to the bounding box of the drawing, keeping a
+small margin. The box is measured on the PNG, so both files are trimmed
+by the same fractions of the canvas. Grob positions
 are relative to the whole page, so a drawing covering a sub-rectangle
 leaves an empty band that no \code{width}/\code{height} value removes. Ignored
 for tables and plots, whose margins come from the theme, and for widgets
