@@ -262,6 +262,11 @@ test_that("get_xlsx() sizes a column on its header when the values are shorter",
   attrs <- get_xlsx(list(s = data))$worksheets[[1]]$cols_attr
   width <- \(i) as.numeric(sub('.*width="([0-9.]+)".*', "\\1", attrs[[i]]))
 
-  expect_gt(width(1), nchar("a_long_header_name") * 8 / 11)
-  expect_lt(width(2), 30)
+  # each term scaled to the size it is written in, header at 9 pt carrying its
+  # 3 characters of autofilter button, body at 8 pt, over a base font of 11,
+  # plus the pad; openxlsx2 adds a constant of its own to every width it computes
+  offset <- 0.713
+
+  expect_equal(width(1), 1 + (18 + 3) * 9 / 11 + offset, tolerance = 0.01)
+  expect_equal(width(2), 1 + 30 * 8 / 11 + offset, tolerance = 0.01)
 })

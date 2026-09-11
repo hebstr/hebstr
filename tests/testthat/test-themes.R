@@ -361,15 +361,17 @@ test_that("check_fonts() falls back to the OS-agnostic 'sans' family", {
 test_that("the package declares its shipped faces to systemfonts", {
   registered <- systemfonts::registry_fonts()
 
-  # the spelling set_opts(font = ) expects, which the device matches
-  # case-sensitively
+  # the registry folds a family to one lowercase name whatever it was declared
+  # under, so this is the only spelling it can be asked for
   expect_contains(registered$family, names(.docx_faces))
 
   # the registry wins over any system install of the same family, so the file
-  # served is the one the package ships
+  # served is the one the package ships. Named rather than rederived from
+  # .font_faces(), which .onLoad() fed the registry with: the two would move
+  # together and a bold face declared as the regular one would read as correct
   expect_identical(
-    systemfonts::match_fonts("luciole")$path,
-    unname(.font_faces("luciole")$regular)
+    fs::path_file(systemfonts::match_fonts("luciole")$path),
+    "Luciole-Regular.ttf"
   )
 })
 

@@ -289,7 +289,6 @@
 #' @importFrom stringr str_starts
 #' @importFrom stringr str_sub
 #' @importFrom stringr str_to_lower
-#' @importFrom stringr str_to_title
 #' @importFrom stringr "str_sub<-"
 #' @importFrom stringr str_subset
 #' @importFrom systemfonts registry_fonts
@@ -332,11 +331,6 @@ NULL
       return(invisible(NULL))
     }
 
-    # a device matches the registry case-sensitively, unlike check_fonts() and
-    # unlike fontconfig, so the family is declared under both the spelling
-    # set_opts() expects and the one the face itself carries
-    names <- unique(c(family, str_to_title(family)))
-
     # only the slots the family ships, under the names register_font() takes:
     # it sends a missing face to the plain one on its own, and restating that
     # here would declare a face the family does not carry
@@ -349,17 +343,14 @@ NULL
     declared <- set_names(paths, slots[names(paths)])
 
     # systemfonts refuses a name an installed font already carries, so on a
-    # machine that has the family one of the two spellings is expected to be
-    # turned down. Tolerated per name rather than per family, or a refusal
-    # would take the other spelling down with it; and tolerated at all because
-    # a family that will not register renders as it did before, which is a
-    # degraded output and never a reason to fail the load.
-    walk(names, \(name) {
-      try(
-        exec(systemfonts::register_font, name = name, !!!declared),
-        silent = TRUE
-      )
-    })
+    # machine that has the family the declaration is expected to be turned
+    # down. Tolerated because a family that will not register renders as it
+    # did before, which is a degraded output and never a reason to fail the
+    # load.
+    try(
+      exec(systemfonts::register_font, name = family, !!!declared),
+      silent = TRUE
+    )
   })
 }
 

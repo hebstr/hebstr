@@ -644,6 +644,15 @@ test_that("easy_out() trims the grob PNG by the fractions it trims the SVG", {
     tolerance = 0.01
   )
   expect_lt(info$height, 600)
+
+  # the ratio is blind to a box that kept its size and lost its origin, so the
+  # drawing has to be found back inside the canvas, padded evenly on both sides
+  ink <- .ink_box(fs::path(tmp, "ratio", "ratio", ext = "png"))
+
+  expect_lt(ink[["x0"]], 0.05)
+  expect_gt(ink[["x1"]], 0.95)
+  expect_equal(ink[["x0"]], 1 - ink[["x1"]], tolerance = 0.01)
+  expect_equal(ink[["y0"]], 1 - ink[["y1"]], tolerance = 0.01)
 })
 
 test_that("easy_out() sizes the whole grob PNG on px when crop is FALSE", {
@@ -823,14 +832,22 @@ test_that("easy_out() rejects a non-boolean crop", {
 })
 
 test_that(".ink_box() keeps the outer rows and columns unless seam is set", {
-  path <- .make_png(
+  left <- .make_png(
     grid::rectGrob(x = 0.25, width = 0.5, gp = grid::gpar(fill = "red"))
   )
+  right <- .make_png(
+    grid::rectGrob(x = 0.75, width = 0.5, gp = grid::gpar(fill = "red"))
+  )
 
-  expect_equal(.ink_box(path)[["x0"]], 0)
-  expect_equal(.ink_box(path)[["y0"]], 0)
-  expect_gt(.ink_box(path, seam = TRUE)[["x0"]], 0)
-  expect_gt(.ink_box(path, seam = TRUE)[["y0"]], 0)
+  expect_equal(.ink_box(left)[["x0"]], 0)
+  expect_equal(.ink_box(left)[["y0"]], 0)
+  expect_equal(.ink_box(left)[["y1"]], 1)
+  expect_equal(.ink_box(right)[["x1"]], 1)
+
+  expect_gt(.ink_box(left, seam = TRUE)[["x0"]], 0)
+  expect_gt(.ink_box(left, seam = TRUE)[["y0"]], 0)
+  expect_lt(.ink_box(left, seam = TRUE)[["y1"]], 1)
+  expect_lt(.ink_box(right, seam = TRUE)[["x1"]], 1)
 })
 
 test_that(".crop_box() depends on the canvas only through its aspect ratio", {
@@ -2326,8 +2343,14 @@ test_that("with_fig_device() closes its own device when code errors after openin
   leaked <- setdiff(grDevices::dev.list(), before)
 
   # a failed assertion below does not stop the block, so the close has to be
-  # deferred: left inline it would be skipped and the device would outlive the file
-  withr::defer(if (length(leaked) == 1L) grDevices::dev.off(leaked))
+  # deferred: left inline it would be skipped and the device would outlive the
+  # file. It closes whatever leaked rather than the single expected device, the
+  # regression this block watches for being precisely the one that leaks two
+  withr::defer(
+    for (d in leaked) {
+      if (d %in% grDevices::dev.list()) grDevices::dev.off(d)
+    }
+  )
 
   expect_length(leaked, 1L)
 
@@ -2937,7 +2960,10 @@ test_that("easy_out() embeds the faces of a bundled family into the docx", {
 
   # the fallback lands on the entry officer wrote for the embedded faces, and
   # does not open a second one beside it
-  expect_length(gregexpr('w:name="luciole"', fonts, fixed = TRUE)[[1]], 1L)
+  expect_equal(
+    stringr::str_count(fonts, stringr::fixed('w:name="luciole"')),
+    1L
+  )
   expect_match(fonts, '<w:altName w:val="Aptos, Calibri"/>', fixed = TRUE)
 })
 

@@ -462,7 +462,15 @@
 
 ### QUARTO EXTENSION -------------------------------------------------------------
 
-.make_extension <- \(root, id = "org/ext", reference_doc = "template.dotx") {
+# margins of 1.25 give a 6 inch text column, deliberately not the 6.5 that
+# .page_width() returns on its own when no template is found: a fixture built on
+# that figure cannot tell a measured template from the silent fallback
+.make_extension <- \(
+  root,
+  id = "org/ext",
+  reference_doc = "template.dotx",
+  margin = 1.25
+) {
   dir <- fs::path(root, "_extensions", id)
   fs::dir_create(dir)
 
@@ -474,7 +482,7 @@
       officer::body_set_default_section(
         officer::prop_section(
           page_size = officer::page_size(width = 8.5, height = 11),
-          page_margins = officer::page_mar(left = 1, right = 1)
+          page_margins = officer::page_mar(left = margin, right = margin)
         )
       ) |>
       print(target = written)

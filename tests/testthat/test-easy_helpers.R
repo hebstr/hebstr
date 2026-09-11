@@ -381,6 +381,7 @@ test_that("read_png reads a PNG file into a raster grob", {
   res <- read_png("img", dir = dir)
 
   expect_s3_class(res, "rastergrob")
+  expect_equal(dim(res$raster), c(4, 4))
 })
 
 test_that("wb_add_custom returns a workbook carrying the requested sheet", {

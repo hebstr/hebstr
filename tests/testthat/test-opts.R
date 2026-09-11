@@ -66,6 +66,22 @@ test_that("set_opts() sets the reactable theme option", {
   expect_s3_class(getOption("reactable.theme"), "reactableTheme")
 })
 
+test_that("set_opts() themes the widget with the font it has just stored", {
+  local_opts()
+
+  local_mocked_bindings(
+    system_fonts = \() data.frame(family = "Fakesans"),
+    registry_fonts = \() data.frame(family = character(0)),
+    .package = "systemfonts"
+  )
+
+  set_opts(font = "Fakesans")
+
+  # the option is posed after the store is written, theme_rt() reading the font
+  # through .text_font(): posed before, it would carry the preceding one
+  expect_match(getOption("reactable.theme")$style$fontFamily, "^Fakesans")
+})
+
 test_that("set_opts() themes a widget built with no theme argument", {
   local_opts()
 
@@ -428,7 +444,7 @@ test_that("docx_page_width() discovers the template of an installed extension", 
   fs::dir_create(doc)
   withr::local_envvar(QUARTO_DOCUMENT_PATH = doc)
 
-  expect_equal(docx_page_width(), 6.5)
+  expect_equal(docx_page_width(), 6)
 })
 
 test_that("docx_page_width() prefers an explicit path over discovery", {
@@ -524,7 +540,9 @@ test_that(".page_width() measures the template of an installed extension", {
   .make_extension(root)
   withr::local_envvar(QUARTO_DOCUMENT_PATH = root)
 
-  expect_equal(.page_width(), 6.5)
+  # 6 and not the 6.5 of the block above, which is what the function returns
+  # when it finds nothing: the two would otherwise be the same assertion
+  expect_equal(.page_width(), 6)
 })
 
 test_that(".page_width() prefers the front matter over the extension", {
