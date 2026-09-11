@@ -430,6 +430,8 @@ easy_out <- \(
       web_fonts = web_fonts
     )
 
+    .svg_preserve(to_svg)
+
     cli_progress_step("Creating PNG file")
 
     # drawn again rather than rasterised from the SVG: rsvg resolves fonts
@@ -920,13 +922,21 @@ easy_out <- \(
 
   xml2::write_xml(doc, table)
 
+  # written beside the target and moved over it: zip writes into the archive it
+  # is handed, so a rewrite failing halfway would leave a truncated file where
+  # officer had already put a valid one
+  rezip <- fs::file_temp(tmp_dir = fs::path_dir(path), ext = "docx")
+  on.exit(unlink(rezip), add = TRUE)
+
   # the package root relationships live in a dotfile, which list.files() skips
   # by default: dropping it leaves an archive no reader opens
   zip::zip(
-    fs::path_abs(path),
+    fs::path_abs(rezip),
     list.files(dir, recursive = TRUE, all.files = TRUE),
     root = dir
   )
+
+  fs::file_move(rezip, path)
 
   path
 }
@@ -1169,13 +1179,23 @@ browse_stop <- \() {
   invisible(NULL)
 }
 
-svg_to_png <- \(to_svg, to_png, px, crop = FALSE) {
+# svglite declares no xml:space, and a reader collapses the repeated spaces a
+# label carries. The attribute travels with the file rather than with the
+# raster, so every branch writing an SVG passes through here.
+.svg_preserve <- \(to_svg) {
   lines <- readLines(to_svg)
 
   if (!any(grepl("xml:space", lines, fixed = TRUE))) {
     lines <- sub("<svg ", '<svg xml:space="preserve" ', lines, fixed = TRUE)
     writeLines(lines, to_svg)
   }
+
+  invisible(to_svg)
+}
+
+
+svg_to_png <- \(to_svg, to_png, px, crop = FALSE) {
+  .svg_preserve(to_svg)
 
   if (crop) {
     svg_crop(to_svg)

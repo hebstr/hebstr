@@ -333,6 +333,17 @@ NULL
     # set_opts() expects and the one the face itself carries
     names <- unique(c(family, str_to_title(family)))
 
+    # only the slots the family ships, under the names register_font() takes:
+    # it sends a missing face to the plain one on its own, and restating that
+    # here would declare a face the family does not carry
+    slots <- c(
+      regular = "plain",
+      bold = "bold",
+      italic = "italic",
+      bold_italic = "bolditalic"
+    )
+    declared <- set_names(paths, slots[names(paths)])
+
     # systemfonts refuses a name an installed font already carries, so on a
     # machine that has the family one of the two spellings is expected to be
     # turned down. Tolerated per name rather than per family, or a refusal
@@ -341,13 +352,7 @@ NULL
     # degraded output and never a reason to fail the load.
     walk(names, \(name) {
       try(
-        systemfonts::register_font(
-          name = name,
-          plain = paths$regular,
-          bold = paths$bold %||% paths$regular,
-          italic = paths$italic %||% paths$regular,
-          bolditalic = paths$bold_italic %||% paths$regular
-        ),
+        exec(systemfonts::register_font, name = name, !!!declared),
         silent = TRUE
       )
     })

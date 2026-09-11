@@ -150,21 +150,49 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
   is_italic <- fonts$italic %in%
     TRUE |
     str_detect(fonts$style, regex("italic|oblique", ignore_case = TRUE))
-  is_bold <- fonts$weight %in% "bold"
+  # the four standard faces name themselves after the slot they fill, and that
+  # name is the only thing separating a Regular from the Display or the Black
+  # cut sitting beside it, all three reporting weight normal. A family naming
+  # them otherwise falls back on the nearest weight, which still beats a bucket
+  # lumping every non-bold cut into the upright slot
+  named <- tolower(str_remove_all(fonts$style, "\\s"))
+  weight <- as.integer(fonts$weight)
 
-  slot <- \(italic, bold) {
-    path <- fonts$path[is_italic == italic & is_bold == bold]
-    if (length(path)) path[[1]] else NULL
+  slot <- \(italic, style, target) {
+    exact <- fonts$path[named %in% style]
+
+    if (length(exact)) {
+      return(exact[[1]])
+    }
+
+    near <- which(is_italic == italic)
+
+    if (!length(near)) {
+      return(NULL)
+    }
+
+    target <- match(target, levels(fonts$weight))
+
+    fonts$path[near[which.min(abs(weight[near] - target))]]
   }
 
   faces <- list(
-    regular = slot(FALSE, FALSE),
-    bold = slot(FALSE, TRUE),
-    italic = slot(TRUE, FALSE),
-    bold_italic = slot(TRUE, TRUE)
+    regular = slot(FALSE, "regular", "normal"),
+    bold = slot(FALSE, "bold", "bold"),
+    italic = slot(TRUE, "italic", "normal"),
+    bold_italic = slot(TRUE, "bolditalic", "bold")
   )
 
-  if (is.null(faces$regular)) NULL else compact(faces)
+  if (is.null(faces$regular)) {
+    return(NULL)
+  }
+
+  faces <- compact(faces)
+
+  # a family shipping no bold, or a variable font reporting one file under
+  # several styles, would otherwise declare an embedded bold drawn from
+  # regular outlines, which is what stops Word synthesising one
+  faces[!duplicated(unlist(faces))]
 }
 
 

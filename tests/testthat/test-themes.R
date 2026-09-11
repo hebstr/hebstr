@@ -373,6 +373,86 @@ test_that("the package declares its shipped faces to systemfonts", {
   )
 })
 
+test_that(".font_faces() fills a slot with the standard face, not a sibling cut", {
+  weights <- c(
+    "thin",
+    "ultralight",
+    "light",
+    "normal",
+    "medium",
+    "semibold",
+    "bold",
+    "ultrabold",
+    "heavy"
+  )
+
+  # the shape a real family takes: an optical-size cut and a black cut both
+  # report weight normal, and a semibold sits between normal and bold
+  fonts <- data.frame(
+    family = "Fake Aptos",
+    style = c("Display", "Black", "Regular", "SemiBold", "Bold", "Italic"),
+    weight = factor(
+      c("normal", "normal", "normal", "semibold", "bold", "normal"),
+      levels = weights,
+      ordered = TRUE
+    ),
+    italic = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
+    width = "normal",
+    path = c(
+      "display.ttf",
+      "black.ttf",
+      "regular.ttf",
+      "semibold.ttf",
+      "bold.ttf",
+      "italic.ttf"
+    )
+  )
+
+  local_mocked_bindings(system_fonts = \() fonts, .package = "systemfonts")
+
+  faces <- .font_faces("Fake Aptos")
+
+  expect_identical(faces$regular, "regular.ttf")
+  expect_identical(faces$bold, "bold.ttf")
+  expect_identical(faces$italic, "italic.ttf")
+})
+
+test_that(".font_faces() leaves a slot empty rather than duplicate a face", {
+  weights <- c(
+    "thin",
+    "ultralight",
+    "light",
+    "normal",
+    "medium",
+    "semibold",
+    "bold",
+    "ultrabold",
+    "heavy"
+  )
+
+  # a family shipping the upright pair alone, and a variable font reporting
+  # one file under two styles: both would hand Word an embedded face it is
+  # better off synthesising
+  fonts <- data.frame(
+    family = "Fake Thin",
+    style = c("Regular", "Italic", "Bold"),
+    weight = factor(
+      c("normal", "normal", "bold"),
+      levels = weights,
+      ordered = TRUE
+    ),
+    italic = c(FALSE, TRUE, FALSE),
+    width = "normal",
+    path = c("one.ttf", "one-italic.ttf", "one.ttf")
+  )
+
+  local_mocked_bindings(system_fonts = \() fonts, .package = "systemfonts")
+
+  faces <- .font_faces("Fake Thin")
+
+  expect_named(faces, c("regular", "italic"))
+})
+
 test_that("theme_gt() carries a CSS fallback after the family", {
   local_opts()
 

@@ -583,6 +583,26 @@ test_that("easy_out() injects xml:space=preserve on the grob SVG", {
   )
 })
 
+test_that("easy_out() injects xml:space=preserve on the plot SVG", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point() +
+    ggplot2::labs(title = "a    b")
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  easy_out(p, filename = "test_space_plot", dir = tmp, quiet = TRUE)
+
+  svg <- readLines(
+    fs::path(tmp, "test-space-plot", "test-space-plot", ext = "svg")
+  )
+  expect_match(
+    paste(svg, collapse = "\n"),
+    'xml:space="preserve"',
+    fixed = TRUE
+  )
+})
+
 test_that("easy_out() builds grob filename with suffix", {
   tmp <- withr::local_tempdir()
   g <- grid::rectGrob()
@@ -2747,7 +2767,7 @@ test_that("easy_out() keeps the alignment a flextable carries", {
 
   easy_out(ft, filename = "tbl", dir = tmp, quiet = TRUE)
 
-  # save_as_docx() centres the table unless align is passed as NULL
+  # the alignment the object carries reaches the document rather than a default
   expect_match(
     .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
     '<w:jc w:val="start"/>',
@@ -2806,6 +2826,28 @@ test_that("easy_out() embeds the faces of a bundled family into the docx", {
   expect_match(fonts, '<w:altName w:val="Aptos, Calibri"/>', fixed = TRUE)
 })
 
+test_that("easy_out() keeps the written docx when the font pass fails", {
+  tmp <- withr::local_tempdir()
+
+  # a rewrite that starts and then fails is what the archive has to survive
+  local_mocked_bindings(
+    zip = \(zipfile, ...) {
+      writeLines("truncated", zipfile)
+      cli_abort("rezip failed")
+    },
+    .package = "zip"
+  )
+
+  expect_error(
+    easy_out(.make_ft_mtcars(), filename = "tbl", dir = tmp, quiet = TRUE),
+    "rezip failed"
+  )
+
+  path <- fs::path(tmp, "tbl", "tbl", ext = "docx")
+
+  expect_length(grep("^_rels/[.]rels$", .docx_entries(path)), 1L)
+})
+
 test_that("easy_out() rewrites the docx archive without dropping its dotfiles", {
   tmp <- withr::local_tempdir()
 
@@ -2828,7 +2870,7 @@ test_that("easy_out() carries the title tbl_format() posted into the docx", {
 
   easy_out(tbl, filename = "tbl", dir = tmp, quiet = TRUE, export = TRUE)
 
-  # the Quarto docx pipeline drops a flextable caption, save_as_docx() does not
+  # the Quarto docx pipeline drops a flextable caption, this branch does not
   expect_match(
     .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
     "Ma legende",
