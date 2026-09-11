@@ -30,18 +30,18 @@ test_that("glue_qmd() reports the length of a multi-element character vector", {
   )
 })
 
-test_that("gt_qmd() returns a gt object from a data.frame", {
-  result <- gt_qmd(head(mtcars, 3))
+test_that("tbl_qmd() returns a gt object from a data.frame", {
+  result <- tbl_qmd(head(mtcars, 3))
   expect_s3_class(result, "gt_tbl")
 })
 
-test_that("gt_qmd() respects top_n argument", {
-  result <- gt_qmd(mtcars, top_n = 2)
+test_that("tbl_qmd() respects top_n argument", {
+  result <- tbl_qmd(mtcars, top_n = 2)
   expect_s3_class(result, "gt_tbl")
   expect_true(nrow(result[["_data"]]) < nrow(mtcars))
 })
 
-test_that("gt_qmd() sets the html id on the data.frame and gtsummary paths", {
+test_that("tbl_qmd() sets the html id on the data.frame and gtsummary paths", {
   .id_of <- \(x) {
     opts <- x[["_options"]]
     opts$value[opts$parameter == "table_id"][[1]]
@@ -52,33 +52,33 @@ test_that("gt_qmd() sets the html id on the data.frame and gtsummary paths", {
     include = mpg
   ))
 
-  expect_equal(.id_of(gt_qmd(head(mtcars, 3), id = "tbl-a")), "tbl-a")
-  expect_equal(.id_of(gt_qmd(tbl, id = "tbl-b")), "tbl-b")
+  expect_equal(.id_of(tbl_qmd(head(mtcars, 3), id = "tbl-a")), "tbl-a")
+  expect_equal(.id_of(tbl_qmd(tbl, id = "tbl-b")), "tbl-b")
 })
 
-test_that("gt_qmd() gives each table its own id by default", {
+test_that("tbl_qmd() gives each table its own id by default", {
   .rendered_id <- \(x) {
     html <- gt::as_raw_html(x, inline_css = FALSE)
     match <- regmatches(html, regexpr('id="[^"]+"', html))
     sub('id="([^"]+)"', "\\1", match)
   }
 
-  first <- .rendered_id(gt_qmd(head(mtcars, 2)))
-  second <- .rendered_id(gt_qmd(head(mtcars, 2)))
+  first <- .rendered_id(tbl_qmd(head(mtcars, 2)))
+  second <- .rendered_id(tbl_qmd(head(mtcars, 2)))
 
   expect_length(first, 1)
   expect_false(identical(first, second))
 })
 
-test_that("gt_qmd() leaves the id unset on the top_n path", {
-  result <- gt_qmd(mtcars, top_n = 2, id = "tbl-c")
+test_that("tbl_qmd() leaves the id unset on the top_n path", {
+  result <- tbl_qmd(mtcars, top_n = 2, id = "tbl-c")
   opts <- result[["_options"]]
 
   expect_true(is.na(opts$value[opts$parameter == "table_id"][[1]]))
 })
 
-test_that("gt_qmd() applies custom font and size", {
-  result <- gt_qmd(head(iris, 2), font_family = "Arial", font_size = 20)
+test_that("tbl_qmd() applies custom font and size", {
+  result <- tbl_qmd(head(iris, 2), font_family = "Arial", font_size = 20)
   opts <- result[["_options"]]
   font <- opts[opts$parameter == "table_font_names", "value"][[1]][[1]]
   size <- opts[opts$parameter == "table_font_size", "value"][[1]][[1]]
@@ -86,56 +86,219 @@ test_that("gt_qmd() applies custom font and size", {
   expect_equal(size, "20px")
 })
 
-test_that("gt_qmd() default font_family reads the centralised text font", {
+test_that("tbl_qmd() default font_family reads the centralised text font", {
   local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
-  result <- gt_qmd(head(mtcars, 3))
+  result <- tbl_qmd(head(mtcars, 3))
   opts_tbl <- result[["_options"]]
   font <- opts_tbl[opts_tbl$parameter == "table_font_names", "value"][[1]][[1]]
 
   expect_identical(font, "PinnedAlpha")
 })
 
-test_that("gt_qmd() reports the class of an invalid data input", {
+test_that("tbl_qmd() reports the class of an invalid data input", {
   expect_error(
-    gt_qmd("not a df"),
+    tbl_qmd("not a df"),
     "Object of class <character> supplied",
     class = "rlang_error"
   )
   expect_error(
-    gt_qmd(42),
+    tbl_qmd(42),
     "Object of class <numeric> supplied",
     class = "rlang_error"
   )
   expect_error(
-    gt_qmd(list(a = 1)),
+    tbl_qmd(list(a = 1)),
     "Object of class <list> supplied",
     class = "rlang_error"
   )
 })
 
-test_that("gt_qmd() names top_n as the offending argument", {
+test_that("tbl_qmd() names top_n as the offending argument", {
   expect_error(
-    gt_qmd(mtcars, top_n = -1),
+    tbl_qmd(mtcars, top_n = -1),
     "`top_n` must be a single positive numeric",
     class = "rlang_error"
   )
   expect_error(
-    gt_qmd(mtcars, top_n = "a"),
+    tbl_qmd(mtcars, top_n = "a"),
     "`top_n` must be a single positive numeric",
     class = "rlang_error"
   )
   expect_error(
-    gt_qmd(mtcars, top_n = c(1, 2)),
+    tbl_qmd(mtcars, top_n = c(1, 2)),
     "`top_n` must be a single positive numeric",
     class = "rlang_error"
   )
 })
 
-test_that("gt_qmd() works with gtsummary objects", {
+test_that("tbl_qmd() works with gtsummary objects", {
   tbl_sum <- gtsummary::trial[1:10, ] |> gtsummary::tbl_summary(include = age)
-  result <- gt_qmd(tbl_sum)
+  result <- tbl_qmd(tbl_sum)
   expect_s3_class(result, "gt_tbl")
+})
+
+test_that("tbl_qmd(width = ) sizes the gt table in pixels", {
+  res <- tbl_qmd(head(mtcars, 3), width = 500)
+
+  expect_equal(
+    res[["_options"]]$value[[which(
+      res[["_options"]]$parameter == "table_width"
+    )]],
+    "500px"
+  )
+})
+
+test_that("tbl_qmd(width = NULL) leaves the gt table at its natural width", {
+  res <- tbl_qmd(head(mtcars, 3), width = NULL)
+
+  expect_equal(
+    res[["_options"]]$value[[which(
+      res[["_options"]]$parameter == "table_width"
+    )]],
+    "auto"
+  )
+})
+
+test_that("tbl_qmd(width = ) rejects a non-positive or non-scalar width", {
+  expect_error(
+    tbl_qmd(head(mtcars, 3), width = -1),
+    "must be a single positive number"
+  )
+  expect_error(
+    tbl_qmd(head(mtcars, 3), width = c(1, 2)),
+    "must be a single positive number"
+  )
+  expect_error(
+    tbl_qmd(head(mtcars, 3), page_width = 0),
+    "must be a single positive number"
+  )
+})
+
+test_that("tbl_qmd() routes a data frame to a themed flextable under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3))
+
+  expect_s3_class(res, "flextable")
+  expect_equal(res$body$dataset$mpg, head(mtcars, 3)$mpg)
+})
+
+test_that("tbl_qmd() routes a gtsummary through as_flex_table under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  tbl <- suppressMessages(gtsummary::tbl_summary(
+    head(mtcars, 4),
+    include = mpg
+  ))
+
+  res <- tbl_qmd(tbl)
+
+  expect_s3_class(res, "flextable")
+  expect_contains(res$body$dataset$label, "mpg")
+})
+
+test_that("tbl_qmd() renders the <br> of gtsummary headers as a line break under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  labels <- .ft_txt(tbl_qmd(gtsum_format(.make_summary_tbl())), part = "header")
+
+  expect_false(any(stringr::str_detect(labels, stringr::fixed("<br>"))))
+  expect_true(any(stringr::str_detect(labels, stringr::fixed("\n"))))
+})
+
+test_that("tbl_qmd() leaves the gt branch untouched when hebstr.docx is unset", {
+  local_opts()
+  withr::local_options(hebstr.docx = NULL)
+
+  expect_s3_class(tbl_qmd(head(mtcars, 3)), "gt_tbl")
+})
+
+test_that("tbl_qmd(width = ) converts pixels to a page fraction under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3), width = 500)
+
+  expect_equal(res$properties$width, 500 / (6.5 * 96))
+  expect_equal(res$properties$layout, "autofit")
+})
+
+test_that("tbl_qmd() caps the docx page fraction at 1 under its default width", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_equal(tbl_qmd(head(mtcars, 3))$properties$width, 1)
+})
+
+test_that("tbl_qmd(page_width = ) sets the reference page width in inches", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3), width = 500, page_width = 8)
+
+  expect_equal(res$properties$width, 500 / (8 * 96))
+})
+
+test_that("tbl_qmd(width = NULL) leaves the flextable at its natural width", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3), width = NULL)
+
+  expect_equal(res$properties$width, 0)
+  expect_equal(res$properties$layout, "fixed")
+})
+
+test_that("tbl_qmd() applies the font family and size on the flextable branch", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3), font_family = "Arial", font_size = 20)
+
+  expect_true(all(res$body$styles$text$font.family$data == "Arial"))
+  expect_true(all(res$body$styles$text$font.size$data == 20 * 0.75))
+})
+
+test_that("tbl_qmd() bolds the column labels on the flextable branch", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3))
+
+  expect_true(all(res$header$styles$text$bold$data))
+})
+
+test_that("tbl_qmd(top_n = ) previews the same rows on both branches", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(mtcars, top_n = 2)
+
+  expect_equal(nrow(res$body$dataset), 4)
+  expect_contains(res$body$dataset$rowname, "3..31")
+  expect_equal(.ft_txt(res, part = "header"), paste(names(mtcars), collapse = ""))
+})
+
+test_that("gt_qmd() warns of its deprecation and delegates to tbl_qmd()", {
+  withr::local_options(lifecycle_verbosity = "warning")
+
+  expect_snapshot(res <- gt_qmd(head(mtcars, 3)))
+  expect_s3_class(res, "gt_tbl")
+})
+
+test_that("gt_qmd() forwards its arguments to tbl_qmd()", {
+  res <- withr::with_options(
+    list(lifecycle_verbosity = "quiet"),
+    gt_qmd(head(mtcars, 3), font_family = "Arial")
+  )
+
+  opts <- res[["_options"]]
+
+  expect_equal(opts[opts$parameter == "table_font_names", "value"][[1]][[1]], "Arial")
 })
 
 test_that("include_code_file() returns a glue string with correct structure", {

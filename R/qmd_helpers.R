@@ -1,38 +1,66 @@
-#' Create a styled gt table for Quarto documents
+#' Create a styled table for Quarto documents
 #'
-#' Converts a data frame or gtsummary object into a [gt::gt] table with
-#' custom font and bold column labels. Designed for use in Quarto documents.
+#' Converts a data frame or gtsummary object into a themed table with custom
+#' font and bold column labels: a [gt::gt] table, or a
+#' [flextable::flextable()] styled by [theme_ft()] under
+#' `options(hebstr.docx = TRUE)`. The data frame twin of [tbl_format()], which
+#' finalises a `gtsummary` table through the same two branches.
+#'
+#' @details
+#' `gt` writes no width information into its Word output: neither `w:tblW`, nor
+#' `w:tblLayout`, nor `w:tblGrid`, so Word collapses every column to its
+#' minimum content width and breaks inside words. The Word branch therefore
+#' renders through `flextable`, for the same reason as [tbl_format()]'s.
+#'
+#' That branch styles through [theme_ft()], which reads the centralised
+#' options: it requires [set_opts()], where the `gt` branch does not.
 #'
 #' @param data A `data.frame` or `gtsummary` object.
 #' @param top_n If not `NULL`, a positive integer passed to [gt::gt_preview()]
-#'   to display only the first `top_n` rows. Ignored on a `gtsummary` input,
-#'   which is converted whole.
+#'   to display only the first `top_n` rows, the last one, and an ellipsis row
+#'   between them. Ignored on a `gtsummary` input, which is converted whole.
+#'   The Word branch renders the very rows [gt::gt_preview()] selects.
 #' @param font_family Font family for the table's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
 #'   otherwise the OS-agnostic system sans-serif (`"sans"`).
-#' @param font_size Font size in pixels. Defaults to `15`.
+#' @param font_size Font size in pixels. Defaults to `15`. Converted to points
+#'   (`font_size * 0.75`) on the Word branch, whose native unit is the point.
 #' @param id HTML id attribute for the table. Defaults to `NULL`, which lets
 #'   [gt::gt()] generate a random unique id. This id scopes gt's own stylesheet,
 #'   so a fixed default makes every table in a document share one scope, where
 #'   the last stylesheet wins for all of them. A readable, stable anchor belongs
 #'   on the Quarto crossref label, not here. Has no effect on the `top_n`
 #'   preview of a data frame: [gt::gt_preview()] builds the table itself and
-#'   exposes no id argument.
-#' @param ... Additional arguments passed to [gt::tab_options()].
+#'   exposes no id argument, nor on the Word branch, which writes no HTML.
+#' @param width Table width, in pixels. Defaults to `700`. On the Word branch it
+#'   is converted to the fraction of `page_width` that
+#'   [flextable::set_table_properties()] expects, capped at `1`. Set to `NULL` to
+#'   let the table keep its natural width.
+#' @param page_width Usable text width, in inches, used to convert `width` on
+#'   the Word branch, and read on that branch only. Defaults to the `page_width`
+#'   option, resolved as in [tbl_format()].
+#' @param ... Additional arguments passed to [gt::tab_options()], or to
+#'   [theme_ft()] under `options(hebstr.docx = TRUE)`. Set the table width
+#'   through `width` rather than here: the two branches take it in different
+#'   units.
 #'
-#' @returns A [gt::gt] object.
+#' @returns A [gt::gt] object, or a `flextable` object under
+#'   `options(hebstr.docx = TRUE)`. Style verbs applied downstream must handle
+#'   both classes: see [tbl_font_size()] and [tbl_row_color()].
 #' @export
 #'
 #' @examples
-#' gt_qmd(mtcars)
-#' gt_qmd(mtcars, top_n = 2)
+#' tbl_qmd(mtcars)
+#' tbl_qmd(mtcars, top_n = 2)
 #'
-gt_qmd <- \(
+tbl_qmd <- \(
   data,
   top_n = NULL,
   font_family = .text_font(),
   font_size = 15,
   id = NULL,
+  width = 700,
+  page_width = check_opts(page_width),
   ...
 ) {
   if (!inherits(data, "data.frame") && !inherits(data, "gtsummary")) {
@@ -48,6 +76,28 @@ gt_qmd <- \(
     }
   }
 
+  .check_size(width, "width", allow_null = TRUE)
+
+  # forcing the default would resolve the template on the gt branch too
+  if (!missing(page_width)) {
+    .check_size(page_width, "page_width", allow_null = FALSE)
+  }
+
+  if (.is_docx()) {
+    page_width <- page_width %||% .page_width()
+
+    .check_size(page_width, "page_width", allow_null = FALSE)
+
+    return(.ft_qmd(
+      data,
+      top_n = top_n,
+      font_family = font_family,
+      font_size = font_size,
+      width = .page_fraction(width, page_width),
+      ...
+    ))
+  }
+
   data <- if (inherits(data, "gtsummary")) {
     as_gt(data, id = id)
   } else if (is.null(top_n)) {
@@ -58,6 +108,7 @@ gt_qmd <- \(
 
   data |>
     tab_options(
+      table.width = if (!is.null(width)) px(width),
       table.font.names = .font_stack(font_family),
       table.font.size = px(font_size),
       column_labels.border.top.color = "white",
@@ -67,6 +118,59 @@ gt_qmd <- \(
       style = cell_text(weight = "bold"),
       locations = cells_column_labels()
     )
+}
+
+.ft_qmd <- \(data, top_n, font_family, font_size, width, ...) {
+  x <- if (inherits(data, "gtsummary")) {
+    .ft_render(.ft_breaks(data))
+  } else {
+    .qmd_preview(data, top_n)
+  }
+
+  x |>
+    bold(part = "header") |>
+    theme_ft(
+      width = width,
+      alpha = font_family,
+      digit = font_family,
+      font_size = font_size * .px_to_pt,
+      ...
+    )
+}
+
+# gt_preview() is a frame transformation followed by gt(), so the Word branch
+# takes that frame and renders the very same rows, ellipsis row included, where
+# reimplementing the slice would let the two formats drift apart
+.qmd_preview <- \(data, top_n) {
+  if (is.null(top_n)) {
+    return(flextable(data))
+  }
+
+  gt_preview(data, top_n = top_n)[["_data"]] |>
+    flextable() |>
+    set_header_labels(rowname = "")
+}
+
+#' Create a styled gt table for Quarto documents
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' Renamed to [tbl_qmd()]: the function returns a `flextable` under
+#' `options(hebstr.docx = TRUE)`, which the `gt_` prefix contradicts.
+#'
+#' @param ... Passed on to [tbl_qmd()].
+#'
+#' @returns A `gt_tbl` object, or a `flextable` object under
+#'   `options(hebstr.docx = TRUE)`.
+#'
+#' @keywords internal
+#' @export
+#'
+gt_qmd <- \(...) {
+  deprecate_soft("0.0.0.9000", "gt_qmd()", "tbl_qmd()")
+
+  tbl_qmd(...)
 }
 
 #' Glue strings with Quarto-safe delimiters

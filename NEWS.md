@@ -66,6 +66,10 @@ Options and the variable classification cache now live in an internal package st
 - `gt_format()` is renamed to `tbl_format()`.
   The function returns a `flextable` under `options(hebstr.docx = TRUE)`, which the `gt_` prefix contradicts.
   `gt_format()` still forwards to `tbl_format()`, with a deprecation warning.
+- `gt_qmd()` is renamed to `tbl_qmd()`, on the same reading that renamed `gt_format()`: it returns a `flextable` under `options(hebstr.docx = TRUE)`, which the `gt_` prefix contradicts.
+  `gt_qmd()` still forwards to `tbl_qmd()`, with a deprecation warning.
+- `tbl_qmd()` gains `width`, in pixels and defaulting to `700`, and the `page_width` that converts it on the Word branch: the pair `tbl_format()` already carries, so the two entry points size their tables the same way.
+  The `gt` branch now writes that width where the table had none of its own; pass `width = NULL` to keep the natural width it had before.
 - `theme_gt(docx = )` reads `getOption("hebstr.docx", FALSE)` instead of the `theme_gt.docx` option, which no longer exists.
   A single option, `hebstr.docx`, now drives the whole Word branch.
 - `tbl_format()` now folds the automatic missing-value rows into a single `dm` column by default (`collapse_missing = TRUE`), sizing that column with `missing_size` (default `11`).
@@ -244,6 +248,12 @@ Options and the variable classification cache now live in an internal package st
 - `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
 ## Bug fixes
+
+- `tbl_qmd()` renders through `flextable` under `options(hebstr.docx = TRUE)`, where a `gt` table reached Word with its columns collapsed and its words broken across lines.
+  `gt` writes no width information into its Word output, neither `w:tblW`, nor `w:tblLayout`, nor `w:tblGrid`, so Word falls back to the minimum content width of every column and no `gt` setting corrects it, `theme_gt(width = )` included.
+  The branch is the one `tbl_format()` takes, `theme_ft()` and the pixel-to-page-fraction conversion included, so a data frame table and a `gtsummary` table are styled alike in a document rendered to both formats.
+  `top_n` is honoured there too, the Word branch rendering the very rows `gt::gt_preview()` selects, ellipsis row included.
+  That branch styles through `theme_ft()`, so it requires `set_opts()` where the `gt` branch does not.
 
 - `easy_out()` draws the PNG of a grid grob instead of rasterizing its SVG, so the two files carry the same type.
   The raster came from rsvg, which resolves fonts through fontconfig alone and never reads the systemfonts registry the package fills, so a grob whose SVG was written in the package font came out in a fallback in its PNG on any machine that does not have the family installed.

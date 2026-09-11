@@ -61,6 +61,7 @@ export(str_na_mv)
 export(str_u)
 export(tbl_font_size)
 export(tbl_format)
+export(tbl_qmd)
 export(tbl_row_color)
 export(theme_bar)
 export(theme_blank)
@@ -144,13 +145,16 @@ importFrom(dplyr,
 importFrom(flextable,
   align,
   body_add_flextable,
+  bold,
   border_remove,
+  flextable,
   font,
   fontsize,
   hline_bottom,
   hline_top,
   padding,
   set_caption,
+  set_header_labels,
   set_table_properties
 )
 importFrom(forcats,

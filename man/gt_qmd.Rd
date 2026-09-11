@@ -4,47 +4,19 @@
 \alias{gt_qmd}
 \title{Create a styled gt table for Quarto documents}
 \usage{
-gt_qmd(
-  data,
-  top_n = NULL,
-  font_family = .text_font(),
-  font_size = 15,
-  id = NULL,
-  ...
-)
+gt_qmd(...)
 }
 \arguments{
-\item{data}{A \code{data.frame} or \code{gtsummary} object.}
-
-\item{top_n}{If not \code{NULL}, a positive integer passed to \code{\link[gt:gt_preview]{gt::gt_preview()}}
-to display only the first \code{top_n} rows. Ignored on a \code{gtsummary} input,
-which is converted whole.}
-
-\item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
-been called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
-
-\item{font_size}{Font size in pixels. Defaults to \code{15}.}
-
-\item{id}{HTML id attribute for the table. Defaults to \code{NULL}, which lets
-\code{\link[gt:gt]{gt::gt()}} generate a random unique id. This id scopes gt's own stylesheet,
-so a fixed default makes every table in a document share one scope, where
-the last stylesheet wins for all of them. A readable, stable anchor belongs
-on the Quarto crossref label, not here. Has no effect on the \code{top_n}
-preview of a data frame: \code{\link[gt:gt_preview]{gt::gt_preview()}} builds the table itself and
-exposes no id argument.}
-
-\item{...}{Additional arguments passed to \code{\link[gt:tab_options]{gt::tab_options()}}.}
+\item{...}{Passed on to \code{\link[=tbl_qmd]{tbl_qmd()}}.}
 }
 \value{
-A \link[gt:gt]{gt::gt} object.
+A \code{gt_tbl} object, or a \code{flextable} object under
+\code{options(hebstr.docx = TRUE)}.
 }
 \description{
-Converts a data frame or gtsummary object into a \link[gt:gt]{gt::gt} table with
-custom font and bold column labels. Designed for use in Quarto documents.
-}
-\examples{
-gt_qmd(mtcars)
-gt_qmd(mtcars, top_n = 2)
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
+Renamed to \code{\link[=tbl_qmd]{tbl_qmd()}}: the function returns a \code{flextable} under
+\code{options(hebstr.docx = TRUE)}, which the \code{gt_} prefix contradicts.
 }
+\keyword{internal}
