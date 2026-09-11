@@ -99,7 +99,7 @@ test_that("theme_gt() applies the alpha font to the table and the digit font to 
   ))
 
   expect_identical(table_font[[1]], "AlphaFace")
-  expect_contains(digit_fonts, "DigitFace")
+  expect_match(digit_fonts, "^DigitFace,", all = FALSE)
 })
 
 test_that("theme_gt(row_strip = FALSE) makes the row background transparent", {
@@ -208,13 +208,13 @@ test_that("theme_rt() colors the expander arrow, which no theme argument reaches
 test_that("theme_rt() renders standalone when opts is absent", {
   local_hebstr("opts")
 
-  expect_identical(theme_rt()$style$fontFamily, "sans")
+  expect_match(theme_rt()$style$fontFamily, "^sans,")
 })
 
 test_that("theme_rt() reads the centralised text font", {
   local_hebstr("opts", list(font = list(alpha = "PinnedAlpha")))
 
-  expect_identical(theme_rt()$style$fontFamily, "PinnedAlpha")
+  expect_match(theme_rt()$style$fontFamily, "^PinnedAlpha,")
 })
 
 test_that("theme_rt() forwards its dots to reactableTheme()", {
@@ -347,12 +347,44 @@ test_that("check_fonts() aborts naming the missing font", {
 })
 
 test_that("check_fonts() falls back to the OS-agnostic 'sans' family", {
+  # the registry is neutralised too: .onLoad() declares the shipped faces to
+  # it, so the absence being simulated here has to cover both sources
   local_mocked_bindings(
     system_fonts = \() data.frame(family = c("Fake Sans", "Fake Mono")),
+    registry_fonts = \() data.frame(family = character(0)),
     .package = "systemfonts"
   )
 
   expect_identical(check_fonts(.auto = "luciole"), "sans")
+})
+
+test_that("the package declares its shipped faces to systemfonts", {
+  registered <- systemfonts::registry_fonts()
+
+  # the spelling set_opts(font = ) expects, which the device matches
+  # case-sensitively
+  expect_contains(registered$family, names(.docx_faces))
+
+  # the registry wins over any system install of the same family, so the file
+  # served is the one the package ships
+  expect_identical(
+    systemfonts::match_fonts("luciole")$path,
+    unname(.font_faces("luciole")$regular)
+  )
+})
+
+test_that("theme_gt() carries a CSS fallback after the family", {
+  local_opts()
+
+  themed <- theme_gt(gt::gt(head(mtcars, 2)))
+
+  stack <- themed$`_options`$value[[
+    which(themed$`_options`$parameter == "table_font_names")
+  ]]
+
+  # a bare family is what leaves a reader without it on Times New Roman
+  expect_gt(length(stack), 1L)
+  expect_identical(stack[[length(stack)]], "sans-serif")
 })
 
 test_that("check_fonts() reports a font registered from bundled files", {

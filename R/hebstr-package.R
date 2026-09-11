@@ -61,13 +61,13 @@
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr where
 #' @importFrom flextable align
+#' @importFrom flextable body_add_flextable
 #' @importFrom flextable border_remove
 #' @importFrom flextable font
 #' @importFrom flextable fontsize
 #' @importFrom flextable hline_bottom
 #' @importFrom flextable hline_top
 #' @importFrom flextable padding
-#' @importFrom flextable save_as_docx
 #' @importFrom flextable set_caption
 #' @importFrom flextable set_table_properties
 #' @importFrom forcats as_factor
@@ -121,6 +121,7 @@
 #' @importFrom gt gtsave
 #' @importFrom gt md
 #' @importFrom gt opt_align_table_header
+#' @importFrom gt opt_css
 #' @importFrom gt opt_table_font
 #' @importFrom gt pct
 #' @importFrom gt px
@@ -170,6 +171,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom officer add_slide
 #' @importFrom officer docx_dim
+#' @importFrom officer docx_embed_font
 #' @importFrom officer fp_border
 #' @importFrom officer fp_par
 #' @importFrom officer ph_location
@@ -193,6 +195,7 @@
 #' @importFrom openxlsx2 wb_workbook
 #' @importFrom png readPNG
 #' @importFrom purrr accumulate
+#' @importFrom purrr compact
 #' @importFrom purrr discard
 #' @importFrom purrr imap
 #' @importFrom purrr imap_dbl
@@ -228,6 +231,7 @@
 #' @importFrom rlang env
 #' @importFrom rlang eval_bare
 #' @importFrom rlang eval_tidy
+#' @importFrom rlang exec
 #' @importFrom rlang expr
 #' @importFrom rlang exprs
 #' @importFrom rlang inject
@@ -281,6 +285,7 @@
 #' @importFrom stringr str_starts
 #' @importFrom stringr str_sub
 #' @importFrom stringr str_to_lower
+#' @importFrom stringr str_to_title
 #' @importFrom stringr "str_sub<-"
 #' @importFrom stringr str_subset
 #' @importFrom systemfonts registry_fonts
@@ -308,6 +313,47 @@ NULL
 # classification cache, output HTTP server) that must never leak into the
 # user's workspace.
 .hebstr <- new.env(parent = emptyenv())
+
+# The shipped faces are declared to systemfonts, which is what makes
+# check_fonts() find them and set_opts(font = ) stop falling back on a machine
+# where the family is not installed. The registry is per session and writes
+# nothing to the system. It reaches the two devices that read it, svglite and
+# ragg, and no further: a browser and Word resolve fonts on their own, which
+# is why the HTML and the docx carry their faces inside the file instead.
+.onLoad <- \(libname, pkgname) {
+  iwalk(.docx_faces, \(faces, family) {
+    paths <- .font_faces(family)
+
+    if (is.null(paths)) {
+      return(invisible(NULL))
+    }
+
+    # a device matches the registry case-sensitively, unlike check_fonts() and
+    # unlike fontconfig, so the family is declared under both the spelling
+    # set_opts() expects and the one the face itself carries
+    names <- unique(c(family, str_to_title(family)))
+
+    # systemfonts refuses a name an installed font already carries, so on a
+    # machine that has the family one of the two spellings is expected to be
+    # turned down. Tolerated per name rather than per family, or a refusal
+    # would take the other spelling down with it; and tolerated at all because
+    # a family that will not register renders as it did before, which is a
+    # degraded output and never a reason to fail the load.
+    walk(names, \(name) {
+      try(
+        systemfonts::register_font(
+          name = name,
+          plain = paths$regular,
+          bold = paths$bold %||% paths$regular,
+          italic = paths$italic %||% paths$regular,
+          bolditalic = paths$bold_italic %||% paths$regular
+        ),
+        silent = TRUE
+      )
+    })
+  })
+}
+
 
 # The store holds a listening socket, which survives the namespace it was
 # opened from: without this, unloading or reloading the package strands the

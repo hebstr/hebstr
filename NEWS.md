@@ -99,6 +99,19 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- Every output now says what to do when the reader does not have the font it names, where each of them used to name a family and leave the rest to the reader's machine.
+  Tables written to HTML carry an ordered CSS fallback after the family and embed the shipped faces in their own stylesheet, so the file renders the same anywhere and its PNG twin follows.
+  This fixes the package default as much as the opt-in: `sans` is a device generic of R and not a CSS one, so a bare `font-family: sans` fell through to Times New Roman on any machine whose font stack does not alias it.
+  The shipped faces are also declared to `systemfonts` when the package loads, which is what lets `set_opts(font = "luciole")` hold on a machine where Luciole is not installed instead of silently falling back.
+  A figure's PNG is redrawn rather than rasterised from its SVG, since the rasteriser resolves fonts on its own and would not see those faces; the PNG of a grid grob still goes through the old path and can differ.
+  Expect renders to move on machines where the fallback used to apply.
+
+- A `.docx` written by `easy_out()` now says what to do when the reader does not have the font the table names.
+  OOXML gives a run one font name and no fallback stack, so a missing family used to land wherever Word's metric matching took it, the package default included: `font = "sans"` asked for a family that exists on no Windows machine.
+  The faces of a bundled family travel inside the document, embedded from the TrueType files the package now ships, and the font table declares `Aptos, Calibri` as the alternatives to try otherwise.
+  Both are needed: LibreOffice ignores the declared alternatives, so the embedded faces are what carry a table there, and the alternatives are what carry it where the faces are stripped.
+  This covers the file `easy_out()` writes; a table published through a Quarto render takes its font table from the `reference-doc` instead.
+
 - `out_qmd()` publishes an `easy_out()` output inside a rendered document, handing it either the live object or the artefact written beside it, whichever the render target can carry.
   A document rendering to HTML and to Word from one source had to choose between a duplicated `.qmd` per format and a conditional block per output; the chunk is now a single call, `out_qmd(tbl_pop)`.
   What goes out follows the object's class: a `gt_tbl`, a `gtsummary`, a widget and a dictionary are live under HTML and their PNG otherwise, a `flextable` is live whichever the target, and a figure is always the file its script wrote, SVG under HTML and PNG otherwise.

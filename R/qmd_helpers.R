@@ -58,7 +58,7 @@ gt_qmd <- \(
 
   data |>
     tab_options(
-      table.font.names = font_family,
+      table.font.names = .font_stack(font_family),
       table.font.size = px(font_size),
       column_labels.border.top.color = "white",
       ...

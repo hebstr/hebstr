@@ -105,7 +105,7 @@ gt_heatmap <- \(
     gt(rowname_col = rowname_col, groupname_col = groupname_col) |>
     tab_header(title = title) |>
     opt_align_table_header(align = "left") |>
-    opt_table_font(font = font_family) |>
+    opt_table_font(font = .font_stack(font_family)) |>
     tab_options(
       table.width = width,
       table.font.size = px(font_size),

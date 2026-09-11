@@ -68,6 +68,30 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 }
 
 
+# Word's default since 2024 first, then the family it replaced: a reader on
+# either generation lands on an installed face rather than on the renderer's
+# own guess. Read by the CSS stacks below and by the w:altName of the docx
+# branch, which is the same intent expressed twice.
+.font_fallback <- c("Aptos", "Calibri")
+
+
+# CSS takes an ordered stack where a run of OOXML takes a single name. A bare
+# family is what leaves a Windows reader on Times New Roman, the package
+# default included: "sans" is a device generic of R, never a CSS one, and
+# nothing outside fontconfig resolves it.
+.font_stack <- \(family) c(family, .font_fallback, "sans-serif")
+
+
+# gt quotes the stack it is handed; raw CSS has to be quoted here, or a family
+# whose name carries a space reads as several keywords
+.font_css <- \(family) {
+  stack <- .font_stack(family)
+
+  ifelse(str_detect(stack, " "), paste0("'", stack, "'"), stack) |>
+    paste(collapse = ", ")
+}
+
+
 # Faces the package ships, keyed by family in lowercase: a family reaches here
 # as the user spelled it in set_opts().
 .bundled_faces <- list(
@@ -76,6 +100,72 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
     c(file = "Luciole-Bold.woff2", weight = "700")
   )
 )
+
+
+# OOXML embeds a face as a TrueType or OpenType part, so the woff2 above cannot
+# serve it, and Word picks the italic slots from the font table where a web page
+# would synthesise them. The two inventories therefore hold the same family in
+# two formats, keyed alike.
+.docx_faces <- list(
+  luciole = c(
+    regular = "Luciole-Regular.ttf",
+    bold = "Luciole-Bold.ttf",
+    italic = "Luciole-Regular-Italic.ttf",
+    bold_italic = "Luciole-Bold-Italic.ttf"
+  )
+)
+
+
+# Paths of the faces to embed, by docx_embed_font() slot. The shipped files come
+# first: they are the same version everywhere, where a system install is
+# whatever the writing machine happens to carry. A generic alias and a family
+# installed in a format OOXML cannot hold both return NULL, leaving the fallback
+# names as the only thing the document can say about them.
+.font_faces <- \(family) {
+  bundled <- .docx_faces[[tolower(family)]]
+
+  if (!is.null(bundled)) {
+    # file.path() drops the names, and the slots are what the caller splices
+    return(as.list(set_names(
+      file.path(system.file("fonts", package = "hebstr"), bundled),
+      names(bundled)
+    )))
+  }
+
+  # a family often carries condensed faces under the same name, which would
+  # otherwise fill a slot the regular one is meant to hold
+  fonts <- systemfonts::system_fonts()
+  fonts <- fonts[
+    tolower(fonts$family) == tolower(family) &
+      fonts$width %in% "normal" &
+      tolower(fs::path_ext(fonts$path)) %in% c("ttf", "otf"),
+  ]
+
+  if (!nrow(fonts)) {
+    return(NULL)
+  }
+
+  # an oblique face can name its slant in the style and still report italic
+  # FALSE, which would let it fill the upright slot
+  is_italic <- fonts$italic %in%
+    TRUE |
+    str_detect(fonts$style, regex("italic|oblique", ignore_case = TRUE))
+  is_bold <- fonts$weight %in% "bold"
+
+  slot <- \(italic, bold) {
+    path <- fonts$path[is_italic == italic & is_bold == bold]
+    if (length(path)) path[[1]] else NULL
+  }
+
+  faces <- list(
+    regular = slot(FALSE, FALSE),
+    bold = slot(FALSE, TRUE),
+    italic = slot(TRUE, FALSE),
+    bold_italic = slot(TRUE, TRUE)
+  )
+
+  if (is.null(faces$regular)) NULL else compact(faces)
+}
 
 
 # An SVG referenced by <img> is an isolated document and never reaches the
@@ -116,6 +206,35 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
       style = "normal"
     )
   })
+}
+
+
+# The CSS twin of .web_fonts(): a table written to HTML is read on a machine
+# that has no reason to hold the family, and its stylesheet is the only thing
+# travelling with it. Same faces, same data URI, emitted as rules rather than
+# as svglite font_face objects, which serve a device and not a document.
+.css_faces <- \(family = NULL) {
+  family <- family %||% .text_font()
+  faces <- .bundled_faces[[tolower(family)]]
+
+  if (is.null(faces)) {
+    return(NULL)
+  }
+
+  dir <- system.file("fonts", package = "hebstr")
+
+  map_chr(faces, \(face) {
+    glue(
+      "@font-face {{",
+      "font-family: '{family}';",
+      "src: url(data:font/woff2;base64,{data}) format('woff2');",
+      "font-weight: {face[['weight']]};",
+      "font-style: normal;",
+      "}}",
+      data = xfun::base64_encode(file.path(dir, face[["file"]]))
+    )
+  }) |>
+    paste(collapse = "\n")
 }
 
 
@@ -216,7 +335,7 @@ theme_gt <- \(
   x <- tab_options(
     data = x,
     table.width = width,
-    table.font.names = alpha,
+    table.font.names = .font_stack(alpha),
     table.font.size = px(font_size),
     table.font.color = base,
     table.background.color = color,
@@ -260,7 +379,7 @@ theme_gt <- \(
         locations = cells_footnotes()
       ) |>
       tab_style(
-        style = cell_text(font = digit),
+        style = cell_text(font = .font_stack(digit)),
         locations = cells_body(columns = .f("stat|estimate|p.value"))
       ) |>
       tab_style(
@@ -473,7 +592,7 @@ theme_rt <- \(
   reactableTheme(
     style = list(
       fontSize = font_size,
-      fontFamily = alpha,
+      fontFamily = .font_css(alpha),
       ".rt-expander:after" = list(borderTopColor = expander_color)
     ),
     backgroundColor = bg,

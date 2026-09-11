@@ -74,13 +74,13 @@ test_that("easy_out.export option overrides the hebstr.docx default", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
 
-  write_called <- FALSE
+  written <- character()
   local_mocked_bindings(
-    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) {
-      write_called <<- TRUE
-      invisible(NULL)
+    # both files come from ggsave since the PNG stopped being rasterised
+    # from the SVG
+    ggsave = \(filename, ...) {
+      written <<- c(written, fs::path_ext(filename))
+      writeLines("<svg ></svg>", filename)
     },
     browseURL = \(...) invisible(NULL)
   )
@@ -89,7 +89,7 @@ test_that("easy_out.export option overrides the hebstr.docx default", {
 
   easy_out(p, filename = "test", dir = tmp, quiet = TRUE)
 
-  expect_true(write_called)
+  expect_setequal(written, c("svg", "png"))
 })
 
 test_that("easy_out() rejects a vector", {
@@ -104,13 +104,11 @@ test_that("easy_out() accepts a ggplot and creates files", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
     ggplot2::geom_point()
 
-  write_called <- FALSE
+  written <- character()
   local_mocked_bindings(
-    ggsave = \(filename, ...) writeLines("<svg ></svg>", filename),
-    image_read_svg = \(...) "mock_img",
-    image_write = \(...) {
-      write_called <<- TRUE
-      invisible(NULL)
+    ggsave = \(filename, ...) {
+      written <<- c(written, fs::path_ext(filename))
+      writeLines("<svg ></svg>", filename)
     },
     browseURL = \(...) invisible(NULL)
   )
@@ -119,7 +117,7 @@ test_that("easy_out() accepts a ggplot and creates files", {
     easy_out(p, filename = "test_plot", dir = tmp, quiet = TRUE)
   )
 
-  expect_true(write_called)
+  expect_setequal(written, c("svg", "png"))
 })
 
 test_that("easy_out() routes a ggmatrix through the plot branch", {
@@ -2754,6 +2752,69 @@ test_that("easy_out() keeps the alignment a flextable carries", {
     .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
     '<w:jc w:val="start"/>',
     fixed = TRUE
+  )
+})
+
+test_that("easy_out() embeds the shipped faces in the table HTML", {
+  local_opts()
+  tmp <- withr::local_tempdir()
+
+  set_opts(font = "luciole")
+
+  tbl <- tbl_format(gtsum_format(.make_summary_tbl()))
+
+  easy_out(tbl, filename = "tbl", dir = tmp, quiet = TRUE)
+
+  html <- readLines(fs::path(tmp, "tbl", "tbl", ext = "html"), warn = FALSE) |>
+    paste(collapse = "")
+
+  # the stylesheet is all that travels with the file
+  expect_match(html, "@font-face", fixed = TRUE)
+  expect_match(html, "data:font/woff2;base64,", fixed = TRUE)
+})
+
+test_that("easy_out() declares a Word fallback for the font a table names", {
+  tmp <- withr::local_tempdir()
+
+  ft <- flextable::font(.make_ft_mtcars(), fontname = "Zorglub", part = "all")
+
+  easy_out(ft, filename = "tbl", dir = tmp, quiet = TRUE)
+
+  fonts <- .docx_fonts(fs::path(tmp, "tbl", "tbl", ext = "docx"))
+
+  expect_match(fonts, 'w:name="Zorglub"', fixed = TRUE)
+  expect_match(fonts, '<w:altName w:val="Aptos, Calibri"/>', fixed = TRUE)
+})
+
+test_that("easy_out() embeds the faces of a bundled family into the docx", {
+  tmp <- withr::local_tempdir()
+
+  ft <- flextable::font(.make_ft_mtcars(), fontname = "luciole", part = "all")
+
+  easy_out(ft, filename = "tbl", dir = tmp, quiet = TRUE)
+
+  path <- fs::path(tmp, "tbl", "tbl", ext = "docx")
+
+  fonts <- .docx_fonts(path)
+
+  expect_match(fonts, "<w:embedRegular", fixed = TRUE)
+  expect_length(grep("^word/fonts/.+[.]odttf$", .docx_entries(path)), 4L)
+
+  # the fallback lands on the entry officer wrote for the embedded faces, and
+  # does not open a second one beside it
+  expect_length(gregexpr('w:name="luciole"', fonts, fixed = TRUE)[[1]], 1L)
+  expect_match(fonts, '<w:altName w:val="Aptos, Calibri"/>', fixed = TRUE)
+})
+
+test_that("easy_out() rewrites the docx archive without dropping its dotfiles", {
+  tmp <- withr::local_tempdir()
+
+  easy_out(.make_ft_mtcars(), filename = "tbl", dir = tmp, quiet = TRUE)
+
+  # the package root relationships live in _rels/.rels: an archive rebuilt
+  # without it opens nowhere
+  expect_true(
+    "_rels/.rels" %in% .docx_entries(fs::path(tmp, "tbl", "tbl", ext = "docx"))
   )
 })
 

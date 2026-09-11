@@ -342,15 +342,21 @@
 ### DOCX -------------------------------------------------------------------------
 
 # officer offers no reader for a written file, so the part is read as text
-.docx_body <- \(path) {
+.docx_part <- \(path, part) {
   dir <- withr::local_tempdir()
 
-  utils::unzip(path, files = "word/document.xml", exdir = dir)
+  utils::unzip(path, files = part, exdir = dir)
 
-  fs::path(dir, "word", "document.xml") |>
+  fs::path(dir, part) |>
     readLines(warn = FALSE) |>
     paste(collapse = "")
 }
+
+.docx_body <- \(path) .docx_part(path, "word/document.xml")
+
+.docx_fonts <- \(path) .docx_part(path, "word/fontTable.xml")
+
+.docx_entries <- \(path) utils::unzip(path, list = TRUE)$Name
 
 ### PPTX -------------------------------------------------------------------------
 

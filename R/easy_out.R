@@ -362,6 +362,14 @@ easy_out <- \(
       x <- x |> tab_options(table.width = px(width))
     }
 
+    # the stylesheet is all that travels with the file, so the faces ride
+    # inside it; Chrome reads them too, which carries the PNG with it
+    faces <- .css_faces(.gt_family(x))
+
+    if (!is.null(faces)) {
+      x <- opt_css(x, css = faces)
+    }
+
     cli_progress_step("Creating HTML file")
 
     gtsave(x, filename = to_html)
@@ -390,8 +398,7 @@ easy_out <- \(
 
     cli_progress_step("Creating DOCX file")
 
-    # align defaults to "center" and overrides the alignment the object carries
-    save_as_docx(x, path = to_docx, align = NULL)
+    .out_docx(x, to_docx)
 
     cli_progress_done()
 
@@ -425,7 +432,19 @@ easy_out <- \(
 
     cli_progress_step("Creating PNG file")
 
-    svg_to_png(to_svg, to_png, px)
+    # drawn again rather than rasterised from the SVG: rsvg resolves fonts
+    # through fontconfig alone, so a family the package registered or a reader
+    # supplied lands on a fallback there, silently. ragg reads the same
+    # systemfonts resolution svglite used, which is what keeps the two files
+    # showing the same type.
+    ggsave(
+      filename = to_png,
+      plot = x,
+      device = ragg::agg_png,
+      width = width,
+      height = height,
+      dpi = px / height
+    )
 
     to_pptx <- .out_pptx(pptx, path, \() print(x), width, height)
 
@@ -798,6 +817,120 @@ easy_out <- \(
 
   to_pptx
 }
+
+
+# A run names one font and OOXML has no stack, so a family the reader has not
+# installed is replaced by whatever Word's metric matching returns. What the
+# document can say about it lives in two parts a themed flextable never
+# reaches, both written here: the faces themselves, embedded as obfuscated
+# parts, and the ordered alternatives of w:altName.
+#
+# body_add_flextable() defaults align to NULL, where save_as_docx() centres the
+# table and overrides the alignment the object carries.
+.out_docx <- \(x, path) {
+  families <- .ft_families(x)
+
+  doc <- body_add_flextable(read_docx(), x)
+  doc <- reduce(families, .docx_embed, .init = doc)
+
+  print(doc, target = path)
+
+  .docx_alt_name(path, families)
+
+  path
+}
+
+
+# the family the object carries rather than the session default: easy_out()
+# receives a table someone else themed, possibly under another font
+.gt_family <- \(x) {
+  family <-
+    x[["_options"]] |>
+    filter(parameter == "table_font_names") |>
+    pull(value) |>
+    unlist()
+
+  if (length(family)) family[[1]] else NULL
+}
+
+
+.ft_families <- \(x) {
+  parts <- c("header", "body", "footer")
+  families <- map(parts, ~ as.vector(x[[.x]]$styles$text$font.family$data))
+
+  sort(unique(unlist(families)), na.last = NA)
+}
+
+
+.docx_embed <- \(doc, family) {
+  faces <- .font_faces(family)
+
+  if (is.null(faces)) {
+    return(doc)
+  }
+
+  exec(docx_embed_font, doc, font_family = family, !!!faces)
+}
+
+
+# w:altName is the only fallback OOXML defines, an ordered list the reader tries
+# before falling back on metric matching. Word honours it and LibreOffice does
+# not (measured), which is what the metric hints of a created entry are for: a
+# reader deaf to the list still lands on a variable-pitch sans rather than on a
+# serif. Nothing here is exposed by officer, hence the pass over the archive.
+.docx_alt_name <- \(path, families) {
+  dir <- withr::local_tempdir()
+  zip::unzip(path, exdir = dir)
+
+  table <- fs::path(dir, "word", "fontTable.xml")
+  doc <- xml2::read_xml(table)
+
+  # the prefix map is built rather than read from the document: officer
+  # redeclares the wordprocessing namespace on the nodes it adds, and
+  # xml_ns() then binds that one URI to w, w1 and w2, which makes every
+  # attribute read come back NA
+  ns <- c(w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main")
+  root <- xml2::xml_find_first(doc, "/w:fonts", ns)
+
+  # matched in R rather than through an XPath predicate, which a family name
+  # carrying a quote would break
+  declared <- xml2::xml_find_all(doc, "//w:font", ns)
+  named <- xml2::xml_attr(declared, "w:name", ns)
+
+  # the same ordered fallback the CSS stacks carry, in the comma-delimited
+  # form w:altName takes
+  alt <- paste(.font_fallback, collapse = ", ")
+
+  walk(families, \(family) {
+    hit <- match(family, named)
+    node <- if (is.na(hit)) NULL else declared[[hit]]
+
+    if (is.null(node)) {
+      node <- xml2::xml_add_child(root, "w:font", "w:name" = family)
+      # the CT_Font sequence orders altName first, then the metrics
+      xml2::xml_add_child(node, "w:charset", "w:val" = "00")
+      xml2::xml_add_child(node, "w:family", "w:val" = "swiss")
+      xml2::xml_add_child(node, "w:pitch", "w:val" = "variable")
+    }
+
+    if (inherits(xml2::xml_find_first(node, "w:altName", ns), "xml_missing")) {
+      xml2::xml_add_child(node, "w:altName", "w:val" = alt, .where = 0)
+    }
+  })
+
+  xml2::write_xml(doc, table)
+
+  # the package root relationships live in a dotfile, which list.files() skips
+  # by default: dropping it leaves an archive no reader opens
+  zip::zip(
+    fs::path_abs(path),
+    list.files(dir, recursive = TRUE, all.files = TRUE),
+    root = dir
+  )
+
+  path
+}
+
 
 #' Build a grid graphic against the device that will draw it
 #'

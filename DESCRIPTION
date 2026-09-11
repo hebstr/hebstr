@@ -53,6 +53,7 @@ Imports:
     parsnip,
     png,
     purrr,
+    ragg,
     reactable,
     rlang,
     rsample,
@@ -68,7 +69,9 @@ Imports:
     webshot2,
     withr,
     xfun,
-    yaml
+    xml2,
+    yaml,
+    zip
 Suggests:
     dbplyr,
     GGally,
