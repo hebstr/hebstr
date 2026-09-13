@@ -22,7 +22,8 @@
 #'   The Word branch renders the very rows [gt::gt_preview()] selects.
 #' @param font_family Font family for the table's text. When [set_opts()] has
 #'   been called, defaults to the centralised text font (`opts$font$alpha`);
-#'   otherwise the OS-agnostic system sans-serif (`"sans"`).
+#'   otherwise the OS-agnostic system sans-serif (`"sans"`). Left unset, the
+#'   Word branch takes the [theme_ft()] default, Aptos, instead.
 #' @param font_size Font size in pixels. Defaults to `15`. Converted to points
 #'   (`font_size * 0.75`) on the Word branch, whose native unit is the point.
 #' @param id HTML id attribute for the table. Defaults to `NULL`, which lets
@@ -91,7 +92,7 @@ tbl_qmd <- \(
     return(.ft_qmd(
       data,
       top_n = top_n,
-      font_family = font_family,
+      font_family = if (missing(font_family)) .font_fallback[[1]] else font_family,
       font_size = font_size,
       width = .page_fraction(width, page_width),
       ...

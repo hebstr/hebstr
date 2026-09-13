@@ -424,12 +424,17 @@ theme_gt <- \(
 }
 
 
+# Also the base the Word branch of tbl_format() sizes the dm column from, so the
+# default has to be readable outside the signature.
+.ft_size <- 9
+
+
 #' Standardized flextable theme
 #'
 #' Applies the package's house style to a [flextable::flextable()] table, the
 #' Word-facing twin of [theme_gt()]: fonts, borders, row striping, caption
 #' alignment, and footnote formatting. Numeric columns (stats, estimates,
-#' p-values) receive a dedicated font and reduced sizes.
+#' p-values) receive reduced sizes, and the `digit` font when it is passed.
 #'
 #' Sizes are in points, the unit `flextable` writes to OOXML, where [theme_gt()]
 #' takes pixels; the defaults are tuned for Word rather than converted from the
@@ -437,12 +442,17 @@ theme_gt <- \(
 #' caption typography is left to the Word `Table Caption` style, and footnote
 #' marks are the ones [gtsummary::as_flex_table()] assigns at conversion.
 #'
+#' The fonts default to Aptos rather than to the session font of [set_opts()]:
+#' a Word table is read on a machine that holds the Office families and rarely
+#' anything else. [easy_out()] declares Calibri as its fallback.
+#'
 #' @param x A [flextable::flextable()] table object to style.
 #' @param width Table width, as a fraction of the available page width, from 0
 #'   to 1. When `NULL`, the table keeps its natural width.
-#' @param alpha Font family for the table text.
+#' @param alpha Font family for the table text. Defaults to `"Aptos"`, whatever
+#'   the session font.
 #' @param digit Font family applied to numeric columns (stats, estimates,
-#'   p-values).
+#'   p-values). Defaults to `alpha`.
 #' @param base Base color for text and body borders.
 #' @param color Table background color, also used for the row-striping band.
 #' @param bg Background color for the column labels, striping, and footnotes.
@@ -471,14 +481,14 @@ theme_gt <- \(
 theme_ft <- \(
   x,
   width = NULL,
-  alpha = check_opts(font$alpha),
-  digit = check_opts(font$digit),
+  alpha = .font_fallback[[1]],
+  digit = alpha,
   base = "#333333",
   color = check_opts(color$cold[1]),
   bg = "white",
   row_padding = 3,
   title_align = "left",
-  font_size = 10,
+  font_size = .ft_size,
   stat_font_size = font_size - 1,
   pvalue_font_size = font_size - 2,
   row_strip = TRUE,
@@ -493,7 +503,8 @@ theme_ft <- \(
   }
 
   rule <- fp_border(color = base, width = 1)
-  stripe <- seq(1, nrow(x$body$dataset), by = 2)
+  # gt leaves its odd rows on the table colour and whitens the even ones
+  stripe <- which(seq_len(nrow(x$body$dataset)) %% 2 == 0)
 
   x <- x |>
     border_remove() |>

@@ -25,7 +25,8 @@ The Word branch renders the very rows \code{\link[gt:gt_preview]{gt::gt_preview(
 
 \item{font_family}{Font family for the table's text. When \code{\link[=set_opts]{set_opts()}} has
 been called, defaults to the centralised text font (\code{opts$font$alpha});
-otherwise the OS-agnostic system sans-serif (\code{"sans"}).}
+otherwise the OS-agnostic system sans-serif (\code{"sans"}). Left unset, the
+Word branch takes the \code{\link[=theme_ft]{theme_ft()}} default, Aptos, instead.}
 
 \item{font_size}{Font size in pixels. Defaults to \code{15}. Converted to points
 (\code{font_size * 0.75}) on the Word branch, whose native unit is the point.}

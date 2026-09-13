@@ -257,6 +257,37 @@ test_that("tbl_format() sizes the dm column on flextable under docx", {
   )
 })
 
+test_that("tbl_format() gives the dm column the p-value size of a Word table", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  dm_size <- \(res) {
+    j <- which(names(res$body$dataset) == "dm")
+    unique(as.vector(res$body$styles$text$font.size$data[, j]))
+  }
+
+  expect_equal(dm_size(tbl_format(gtsum_format(.make_missing_tbl()))), 7)
+  expect_equal(
+    dm_size(tbl_format(gtsum_format(.make_missing_tbl()), font_size = 12)),
+    10
+  )
+})
+
+test_that("tbl_format() sizes a Word table from the theme_ft() defaults", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(gtsum_format(.make_summary_tbl()), note_global = "A note.")
+  sizes <- res$body$styles$text$font.size$data
+
+  expect_identical(unique(sizes[, "label"]), 9)
+  expect_identical(
+    unique(as.vector(sizes[, grep("^stat", colnames(sizes))])),
+    8
+  )
+  expect_identical(unique(as.vector(res$footer$styles$text$font.size$data)), 7)
+})
+
 test_that("tbl_format(collapse_missing = FALSE) keeps missing rows and adds no dm column", {
   local_opts()
 

@@ -38,7 +38,9 @@
 #'   `gtsummary::tbl_summary(missing = "no")`, or carrying no missing rows, are
 #'   left untouched.
 #' @param missing_size Font size, in pixels, applied to the `dm` column when
-#'   `collapse_missing = TRUE`. Defaults to `11`.
+#'   `collapse_missing = TRUE`. Defaults to `11`. Left unset under
+#'   `options(hebstr.docx = TRUE)`, the column takes the p-value size of
+#'   [theme_ft()] instead, 7 points by default.
 #' @param width Table width, in pixels. Defaults to `700`. On the Word branch it
 #'   is converted to the fraction of `page_width` that
 #'   [flextable::set_table_properties()] expects, capped at `1`. Set to `NULL` to
@@ -211,6 +213,13 @@ tbl_format <- \(
     )
 
     if (size_dm) {
+      # the pixel default is the gt p-value size, which in points is not theme_ft()'s
+      if (missing(missing_size)) {
+        dots <- list2(...)
+        pt <- dots$pvalue_font_size %||% ((dots$font_size %||% .ft_size) - 2)
+        missing_size <- pt / .px_to_pt
+      }
+
       x <- tbl_font_size(x, columns = dm, size = missing_size)
     }
 

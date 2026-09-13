@@ -878,6 +878,12 @@ easy_out <- \(
 
 
 .docx_embed <- \(doc, family) {
+  # the fallback families ship with Office on the reader's side, and embedding
+  # them would copy the writing machine's install into every document
+  if (tolower(family) %in% tolower(.font_fallback)) {
+    return(doc)
+  }
+
   faces <- .font_faces(family)
 
   if (is.null(faces)) {
@@ -912,11 +918,16 @@ easy_out <- \(
   declared <- xml2::xml_find_all(doc, "//w:font", ns)
   named <- xml2::xml_attr(declared, "w:name", ns)
 
-  # the same ordered fallback the CSS stacks carry, in the comma-delimited
-  # form w:altName takes
-  alt <- paste(.font_fallback, collapse = ", ")
-
   walk(families, \(family) {
+    # the same ordered fallback the CSS stacks carry, in the comma-delimited
+    # form w:altName takes, less the family itself
+    alt <- .font_fallback[!tolower(.font_fallback) %in% tolower(family)]
+
+    if (!length(alt)) {
+      return()
+    }
+
+    alt <- paste(alt, collapse = ", ")
     hit <- match(family, named)
     node <- if (is.na(hit)) NULL else declared[[hit]]
 

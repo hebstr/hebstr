@@ -130,16 +130,51 @@ test_that("theme_ft() returns a themed flextable", {
 
 test_that("theme_ft() applies the alpha font to the table and the digit font to numeric cells", {
   local_opts()
-  .hebstr$opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
 
   themed <- theme_ft(
-    flextable::flextable(data.frame(label = "a", stat = "1.0"))
+    flextable::flextable(data.frame(label = "a", stat = "1.0")),
+    alpha = "AlphaFace",
+    digit = "DigitFace"
   )
 
   fonts <- themed$body$styles$text$font.family$data
 
   expect_identical(unique(fonts[, "label"]), "AlphaFace")
   expect_identical(unique(fonts[, "stat"]), "DigitFace")
+})
+
+test_that("theme_ft() sets a Word table in Aptos whatever the session font", {
+  local_opts()
+  .hebstr$opts$font <- list(alpha = "AlphaFace", digit = "DigitFace")
+
+  ft <- flextable::flextable(data.frame(label = "a", stat = "1.0"))
+
+  expect_identical(
+    unique(as.vector(theme_ft(ft)$body$styles$text$font.family$data)),
+    "Aptos"
+  )
+  expect_identical(
+    unique(as.vector(
+      theme_ft(ft, alpha = "AlphaFace")$body$styles$text$font.family$data
+    )),
+    "AlphaFace"
+  )
+})
+
+test_that("theme_ft() tints the first body row, as the gt striping does", {
+  local_opts()
+
+  band <- check_opts(color$cold[1])
+  bg <- theme_ft(.make_ft_mtcars())$body$styles$cell$background.color$data
+
+  expect_identical(unique(bg[1, ]), band)
+  expect_identical(unique(bg[2, ]), "white")
+})
+
+test_that("theme_ft() styles a table with no body row", {
+  local_opts()
+
+  expect_no_error(theme_ft(flextable::flextable(head(mtcars, 0))))
 })
 
 test_that("theme_ft() justifies the footer, which theme_gt(docx = TRUE) has to drop", {

@@ -63,7 +63,9 @@ automatic missing-value rows are folded into a single \code{dm} column via
 left untouched.}
 
 \item{missing_size}{Font size, in pixels, applied to the \code{dm} column when
-\code{collapse_missing = TRUE}. Defaults to \code{11}.}
+\code{collapse_missing = TRUE}. Defaults to \code{11}. Left unset under
+\code{options(hebstr.docx = TRUE)}, the column takes the p-value size of
+\code{\link[=theme_ft]{theme_ft()}} instead, 7 points by default.}
 
 \item{width}{Table width, in pixels. Defaults to \code{700}. On the Word branch it
 is converted to the fraction of \code{page_width} that

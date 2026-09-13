@@ -2967,6 +2967,33 @@ test_that("easy_out() embeds the faces of a bundled family into the docx", {
   expect_match(fonts, '<w:altName w:val="Aptos, Calibri"/>', fixed = TRUE)
 })
 
+test_that("easy_out() leaves a Word fallback family unembedded and out of its own altName", {
+  tmp <- withr::local_tempdir()
+
+  ft <- flextable::font(.make_ft_mtcars(), fontname = "Aptos", part = "all")
+
+  easy_out(ft, filename = "tbl", dir = tmp, quiet = TRUE)
+
+  path <- fs::path(tmp, "tbl", "tbl", ext = "docx")
+  fonts <- .docx_fonts(path)
+
+  expect_length(grep("^word/fonts/", .docx_entries(path)), 0L)
+
+  ns <- c(w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main")
+  entry <- xml2::xml_find_all(
+    xml2::read_xml(fonts),
+    "//w:font[@w:name='Aptos']",
+    ns
+  )
+
+  # one entry, so the fallback cannot sit on a duplicate beside officer's
+  expect_length(entry, 1L)
+  expect_equal(
+    xml2::xml_attr(xml2::xml_find_all(entry, "w:altName", ns), "w:val", ns),
+    "Calibri"
+  )
+})
+
 test_that("easy_out() keeps the written docx when the font pass fails", {
   tmp <- withr::local_tempdir()
 

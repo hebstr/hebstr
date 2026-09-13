@@ -2,10 +2,21 @@
 
 ## Breaking changes
 
+- Word tables are set in Aptos, with Calibri as their fallback, whatever font `set_opts()` holds.
+  `theme_ft()` defaults `alpha` to `"Aptos"` and `digit` to `alpha` instead of reading the session font, and the Word branch of `tbl_qmd()` follows unless `font_family` is passed.
+  A docx goes to readers who hold the Office families and not a font such as Luciole, which Word replaced with Calibri whenever it refused the embedded faces.
+  Everything else keeps the session font: HTML, SVG and PNG outputs, figures inserted in a docx included.
+  A table that has to stay in another family in Word passes it explicitly, `tbl_format(alpha = "Luciole")`, and `easy_out()` still embeds that family.
+  `easy_out()` no longer embeds a fallback family taken from the writing machine, and no longer lists a family as its own fallback, so an Aptos table carries `w:altName` `Calibri`.
+
+- `theme_ft()` sets its base font size to 9 points instead of 10, so stats and estimates drop to 8 points and p-values and footnotes to 7.
+  Under `options(hebstr.docx = TRUE)`, the `dm` column that `tbl_format()` folds the missing rows into takes that p-value size, 7 points, where `missing_size = 11` pixels made it 8.25; it follows a `font_size` or `pvalue_font_size` passed through `...`, and an explicit `missing_size` still wins.
+
 - `get_vars_dict()` loses `font_size`, `font_family` and `strip_color`, replaced by a single `theme` argument defaulting to `theme_rt()`.
   The three covered three keys of the widget theme, so keeping them beside it would have left the question of which wins when both are given; `get_vars_dict(df, font_size = "0.7rem")` becomes `get_vars_dict(df, theme = theme_rt(font_size = "0.7rem"))`.
   The default is the value rather than a read of `getOption("reactable.theme")`, so the widget does not depend on whether a project set that option before or after the call.
   The column widths keep following the font size, read from the theme rather than from an argument of its own, so a theme carrying another size resizes them too.
+
 - `auto_exec()` filters filenames by regular expression, and `except_starts_with` is replaced by two arguments.
   `exclude` takes over the exclusion, as a pattern rather than a bare prefix, and defaults to `"^_"`: the underscore convention is unchanged, so `auto_exec()` with no argument sweeps exactly what it swept before.
   `include` is new and keeps only the files it matches, which is what a sweep restricted to one family of scripts needs: `auto_exec(include = "^tbl")` runs the table scripts and leaves the figures and everything else alone.
@@ -249,9 +260,13 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `theme_ft()` tints the first body row and whitens the second, as `theme_gt()` does, where the Word table started on a white row.
+  The same change lets it style a table with no body row, on which it aborted with "wrong sign in 'by' argument".
+
 - `tbl_format()` lists `note_global` above the marked footnotes under `options(hebstr.docx = TRUE)`, in the order the `gt` branch renders them.
   The Word branch attached the note through `gtsummary::modify_source_note()`, which `gtsummary::as_flex_table()` writes below the footnotes, so the table-wide note came last in Word and first in HTML.
   It is now added to the rendered `flextable` with `flextable::add_footer_lines(top = TRUE)`, before `theme_ft()`, so it keeps the footer font, size and justification; the acronym definitions still follow it on the same line.
+
 - `tbl_qmd()` renders through `flextable` under `options(hebstr.docx = TRUE)`, where a `gt` table reached Word with its columns collapsed and its words broken across lines.
   `gt` writes no width information into its Word output, neither `w:tblW`, nor `w:tblLayout`, nor `w:tblGrid`, so Word falls back to the minimum content width of every column and no `gt` setting corrects it, `theme_gt(width = )` included.
   The branch is the one `tbl_format()` takes, `theme_ft()` and the pixel-to-page-fraction conversion included, so a data frame table and a `gtsummary` table are styled alike in a document rendered to both formats.

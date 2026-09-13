@@ -263,6 +263,15 @@ test_that("tbl_qmd() applies the font family and size on the flextable branch", 
   expect_true(all(res$body$styles$text$font.size$data == 20 * 0.75))
 })
 
+test_that("tbl_qmd() sets the flextable branch in Aptos unless a family is passed", {
+  local_opts(font = "luciole")
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_qmd(head(mtcars, 3))
+
+  expect_true(all(res$body$styles$text$font.family$data == "Aptos"))
+})
+
 test_that("tbl_qmd() bolds the column labels on the flextable branch", {
   local_opts()
   withr::local_options(hebstr.docx = TRUE)

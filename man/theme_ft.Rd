@@ -7,14 +7,14 @@
 theme_ft(
   x,
   width = NULL,
-  alpha = check_opts(font$alpha),
-  digit = check_opts(font$digit),
+  alpha = .font_fallback[[1]],
+  digit = alpha,
   base = "#333333",
   color = check_opts(color$cold[1]),
   bg = "white",
   row_padding = 3,
   title_align = "left",
-  font_size = 10,
+  font_size = .ft_size,
   stat_font_size = font_size - 1,
   pvalue_font_size = font_size - 2,
   row_strip = TRUE,
@@ -29,10 +29,11 @@ theme_ft(
 \item{width}{Table width, as a fraction of the available page width, from 0
 to 1. When \code{NULL}, the table keeps its natural width.}
 
-\item{alpha}{Font family for the table text.}
+\item{alpha}{Font family for the table text. Defaults to \code{"Aptos"}, whatever
+the session font.}
 
 \item{digit}{Font family applied to numeric columns (stats, estimates,
-p-values).}
+p-values). Defaults to \code{alpha}.}
 
 \item{base}{Base color for text and body borders.}
 
@@ -68,7 +69,7 @@ A \code{\link[flextable:flextable]{flextable::flextable()}} object.
 Applies the package's house style to a \code{\link[flextable:flextable]{flextable::flextable()}} table, the
 Word-facing twin of \code{\link[=theme_gt]{theme_gt()}}: fonts, borders, row striping, caption
 alignment, and footnote formatting. Numeric columns (stats, estimates,
-p-values) receive a dedicated font and reduced sizes.
+p-values) receive reduced sizes, and the \code{digit} font when it is passed.
 }
 \details{
 Sizes are in points, the unit \code{flextable} writes to OOXML, where \code{\link[=theme_gt]{theme_gt()}}
@@ -76,6 +77,10 @@ takes pixels; the defaults are tuned for Word rather than converted from the
 \code{gt} values. Two refinements of \code{\link[=theme_gt]{theme_gt()}} have no counterpart here:
 caption typography is left to the Word \verb{Table Caption} style, and footnote
 marks are the ones \code{\link[gtsummary:as_flex_table]{gtsummary::as_flex_table()}} assigns at conversion.
+
+The fonts default to Aptos rather than to the session font of \code{\link[=set_opts]{set_opts()}}:
+a Word table is read on a machine that holds the Office families and rarely
+anything else. \code{\link[=easy_out]{easy_out()}} declares Calibri as its fallback.
 }
 \examples{
 set_opts()
