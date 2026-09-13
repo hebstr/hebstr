@@ -119,6 +119,26 @@ test_that("tbl_format() attaches note_vargrp and its body marker under docx", {
   expect_match(.ft_txt(res, "body"), "^age.", all = FALSE)
 })
 
+test_that("tbl_format() puts note_global above the marked footnotes under docx, as gt does", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(
+    gtsum_format(.make_summary_tbl()),
+    note_global = "global note",
+    note_vargrp = "vargrp note",
+    label_vargrp = "age"
+  )
+
+  footer <- .ft_txt(res)
+
+  expect_match(footer[[1]], "global note")
+  expect_gt(
+    grep("vargrp note", footer, fixed = TRUE)[[1]],
+    grep("global note", footer, fixed = TRUE)[[1]]
+  )
+})
+
 test_that("tbl_format() appends acronym definitions as a footer line under docx", {
   local_opts()
   withr::local_options(hebstr.docx = TRUE)

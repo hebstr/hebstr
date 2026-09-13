@@ -22,14 +22,14 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/posit-dev/air-pre-commit"
-rev = "0.9.0"
+rev = "0.11.0"
 hooks = [
   { id = "air-format", files = '\.(R|r)$' }
 ]
 
 [[repos]]
 repo = "https://github.com/etiennebacher/jarl-pre-commit"
-rev = "0.4.0"
+rev = "0.6.0"
 hooks = [
   { id = "jarl-check", files = '\.(R|r)$' }
 ]

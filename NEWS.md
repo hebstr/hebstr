@@ -249,6 +249,9 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `tbl_format()` lists `note_global` above the marked footnotes under `options(hebstr.docx = TRUE)`, in the order the `gt` branch renders them.
+  The Word branch attached the note through `gtsummary::modify_source_note()`, which `gtsummary::as_flex_table()` writes below the footnotes, so the table-wide note came last in Word and first in HTML.
+  It is now added to the rendered `flextable` with `flextable::add_footer_lines(top = TRUE)`, before `theme_ft()`, so it keeps the footer font, size and justification; the acronym definitions still follow it on the same line.
 - `tbl_qmd()` renders through `flextable` under `options(hebstr.docx = TRUE)`, where a `gt` table reached Word with its columns collapsed and its words broken across lines.
   `gt` writes no width information into its Word output, neither `w:tblW`, nor `w:tblLayout`, nor `w:tblGrid`, so Word falls back to the minimum content width of every column and no `gt` setting corrects it, `theme_gt(width = )` included.
   The branch is the one `tbl_format()` takes, `theme_ft()` and the pixel-to-page-fraction conversion included, so a data frame table and a `gtsummary` table are styled alike in a document rendered to both formats.

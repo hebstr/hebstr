@@ -278,12 +278,6 @@ tbl_format <- \(
   title_align,
   ...
 ) {
-  notes <- c(str_c(note_global), acro_note)
-
-  if (length(notes) > 0) {
-    x <- modify_source_note(x, str_flatten(notes, collapse = " "))
-  }
-
   if (is_coef && !is.null(note_pvalue)) {
     x <- modify_footnote_header(
       x,
@@ -322,8 +316,18 @@ tbl_format <- \(
     x <- modify_caption(x, title)
   }
 
+  ft <- .ft_render(.ft_breaks(x))
+
+  notes <- c(str_c(note_global), acro_note)
+
+  # as_flex_table() writes source notes below the footnotes, where gt lists the
+  # unanchored note first
+  if (length(notes) > 0) {
+    ft <- add_footer_lines(ft, str_flatten(notes, collapse = " "), top = TRUE)
+  }
+
   theme_ft(
-    .ft_render(.ft_breaks(x)),
+    ft,
     width = width,
     title_align = title_align,
     ...
