@@ -428,6 +428,9 @@ theme_gt <- \(
 # default has to be readable outside the signature.
 .ft_size <- 9
 
+# Also what tbl_caption() gives a caption set after the theme has run.
+.ft_title <- list(size = 10, color = "#111111")
+
 
 #' Standardized flextable theme
 #'
@@ -438,9 +441,15 @@ theme_gt <- \(
 #'
 #' Sizes are in points, the unit `flextable` writes to OOXML, where [theme_gt()]
 #' takes pixels; the defaults are tuned for Word rather than converted from the
-#' `gt` values. Two refinements of [theme_gt()] have no counterpart here:
-#' caption typography is left to the Word `Table Caption` style, and footnote
-#' marks are the ones [gtsummary::as_flex_table()] assigns at conversion.
+#' `gt` values. Footnote marks have no counterpart here: they are the ones
+#' [gtsummary::as_flex_table()] assigns at conversion.
+#'
+#' The caption is set bold, in `alpha` at `title_font_size`, as direct
+#' formatting: the `Table Caption` style it keeps would otherwise take the
+#' typography of whatever template writes the document. [tbl_caption()] gives
+#' the same typography to a caption set after the theme. A spanner row is ruled
+#' under its labels only, as `gt` does, and the column labels sit at the bottom
+#' of their cells.
 #'
 #' The fonts default to Aptos rather than to the session font of [set_opts()]:
 #' a Word table is read on a machine that holds the Office families and rarely
@@ -459,6 +468,7 @@ theme_gt <- \(
 #' @param row_padding Vertical padding of data rows, in points.
 #' @param title_align Horizontal alignment of the caption (`"left"`,
 #'   `"center"`, `"right"`, or `"justify"`).
+#' @param title_font_size Caption font size, in points.
 #' @param font_size Base font size, in points.
 #' @param stat_font_size Font size of stat and estimate cells, in points.
 #' @param pvalue_font_size Font size of p-value cells, in points.
@@ -488,6 +498,7 @@ theme_ft <- \(
   bg = "white",
   row_padding = 3,
   title_align = "left",
+  title_font_size = .ft_title$size,
   font_size = .ft_size,
   stat_font_size = font_size - 1,
   pvalue_font_size = font_size - 2,
@@ -532,13 +543,17 @@ theme_ft <- \(
       padding.bottom = footnote_padding,
       part = "footer"
     ) |>
-    align(align = "justify", part = "footer")
+    align(align = "justify", part = "footer") |>
+    valign(valign = "bottom", part = "header") |>
+    .ft_spanner_rule(border = rule)
 
   if (!is.null(x$caption$value)) {
-    x <- set_caption(
+    x <- .ft_caption(
       x,
-      caption = x$caption$value,
-      fp_p = fp_par(text.align = title_align, padding = 3)
+      .caption_text(x$caption),
+      font = alpha,
+      align = title_align,
+      size = title_font_size
     )
   }
 
@@ -554,6 +569,62 @@ theme_ft <- \(
   }
 
   return(x)
+}
+
+
+.ft_spanner_rule <- \(x, border) {
+  chunks <- information_data_chunk(x)
+  chunks <- chunks[chunks$.part == "header" & nzchar(trimws(chunks$txt)), ]
+
+  reduce(
+    seq_len(max(nrow_part(x, "header") - 1, 0)),
+    \(ft, i) {
+      start <- unique(match(chunks$.col_id[chunks$.row_id == i], ft$col_keys))
+      width <- pmax(ft$header$spans$rows[i, start], 1)
+      j <- unique(unlist(map2(start, width, \(s, w) seq(s, length.out = w))))
+
+      if (length(j) == 0) {
+        return(ft)
+      }
+
+      hline(ft, i = i, j = j, border = border, part = "header")
+    },
+    .init = x
+  )
+}
+
+.ft_caption <- \(x, caption, font, align, size = .ft_title$size) {
+  set_caption(
+    x,
+    caption = as_paragraph(as_chunk(
+      caption,
+      props = fp_text(
+        font.family = font,
+        font.size = size,
+        bold = TRUE,
+        color = .ft_title$color
+      )
+    )),
+    fp_p = fp_par(text.align = align, padding = 3)
+  )
+}
+
+# a caption already styled is stored as a chunk frame, a plain one as a string
+.caption_text <- \(caption) {
+  if (isTRUE(caption$simple_caption)) {
+    return(as.character(caption$value))
+  }
+
+  str_flatten(caption$value$txt)
+}
+
+.ft_font <- \(x) {
+  fonts <- c(
+    x$header$styles$text$font.family$data,
+    x$body$styles$text$font.family$data
+  )
+
+  if (length(fonts) == 0) .font_fallback[[1]] else fonts[[1]]
 }
 
 

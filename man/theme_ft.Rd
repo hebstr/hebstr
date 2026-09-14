@@ -14,6 +14,7 @@ theme_ft(
   bg = "white",
   row_padding = 3,
   title_align = "left",
+  title_font_size = .ft_title$size,
   font_size = .ft_size,
   stat_font_size = font_size - 1,
   pvalue_font_size = font_size - 2,
@@ -46,6 +47,8 @@ p-values). Defaults to \code{alpha}.}
 \item{title_align}{Horizontal alignment of the caption (\code{"left"},
 \code{"center"}, \code{"right"}, or \code{"justify"}).}
 
+\item{title_font_size}{Caption font size, in points.}
+
 \item{font_size}{Base font size, in points.}
 
 \item{stat_font_size}{Font size of stat and estimate cells, in points.}
@@ -74,9 +77,15 @@ p-values) receive reduced sizes, and the \code{digit} font when it is passed.
 \details{
 Sizes are in points, the unit \code{flextable} writes to OOXML, where \code{\link[=theme_gt]{theme_gt()}}
 takes pixels; the defaults are tuned for Word rather than converted from the
-\code{gt} values. Two refinements of \code{\link[=theme_gt]{theme_gt()}} have no counterpart here:
-caption typography is left to the Word \verb{Table Caption} style, and footnote
-marks are the ones \code{\link[gtsummary:as_flex_table]{gtsummary::as_flex_table()}} assigns at conversion.
+\code{gt} values. Footnote marks have no counterpart here: they are the ones
+\code{\link[gtsummary:as_flex_table]{gtsummary::as_flex_table()}} assigns at conversion.
+
+The caption is set bold, in \code{alpha} at \code{title_font_size}, as direct
+formatting: the \verb{Table Caption} style it keeps would otherwise take the
+typography of whatever template writes the document. \code{\link[=tbl_caption]{tbl_caption()}} gives
+the same typography to a caption set after the theme. A spanner row is ruled
+under its labels only, as \code{gt} does, and the column labels sit at the bottom
+of their cells.
 
 The fonts default to Aptos rather than to the session font of \code{\link[=set_opts]{set_opts()}}:
 a Word table is read on a machine that holds the Office families and rarely

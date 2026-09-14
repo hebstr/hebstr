@@ -176,6 +176,20 @@ test_that("tbl_format(title_align) reaches the caption under docx", {
   expect_identical(res$caption$fp_p$text.align, "center")
 })
 
+test_that("tbl_format() keeps the gtsummary spanner rule under docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  ft <- tbl_format(gtsum_format(.make_summary_tbl()))
+
+  spanned <- nzchar(trimws(unlist(ft$header$dataset[1, ])))
+  rules <- ft$header$styles$cells$border.width.bottom$data[1, ]
+
+  expect_true(any(spanned))
+  expect_true(all(rules[spanned] == 1))
+  expect_true(all(rules[!spanned] == 0))
+})
+
 test_that("tbl_format() gives both branches the same title alignment by default", {
   local_opts()
 

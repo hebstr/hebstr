@@ -206,6 +206,65 @@ test_that("theme_ft(row_strip = FALSE) drops the striping band color", {
   )
 })
 
+test_that("theme_ft() rules the spanner label only, as gt does", {
+  local_opts()
+
+  ft <- flextable::add_header_row(
+    .make_ft_mtcars(),
+    values = c("", "Group", ""),
+    colwidths = c(1, 2, 8)
+  )
+
+  rules <- theme_ft(ft)$header$styles$cells$border.width.bottom$data
+
+  expect_equal(unname(rules[1, ]), c(0, 1, 1, rep(0, 8)))
+})
+
+test_that("theme_ft() rules two adjacent spanners as one continuous line", {
+  local_opts()
+
+  ft <- flextable::add_header_row(
+    .make_ft_mtcars(),
+    values = c("", "A", "B", ""),
+    colwidths = c(1, 2, 2, 6)
+  )
+
+  rules <- theme_ft(ft)$header$styles$cells$border.width.bottom$data
+
+  # OOXML has no border inset, so the 4px gap gt leaves between them is lost
+  expect_equal(unname(rules[1, ]), c(0, 1, 1, 1, 1, rep(0, 6)))
+})
+
+test_that("theme_ft() bottom-aligns the header, as gt does", {
+  local_opts()
+
+  valign <- theme_ft(.make_ft_mtcars())$header$styles$cells$vertical.align$data
+
+  expect_identical(unique(as.vector(valign)), "bottom")
+})
+
+test_that("theme_ft() sets the caption bold, in the table font at 10 points", {
+  local_opts()
+
+  ft <- flextable::set_caption(.make_ft_mtcars(), "T")
+  cap <- theme_ft(ft, alpha = "AlphaFace")$caption$value
+
+  expect_identical(cap$txt, "T")
+  expect_identical(cap$font.family, "AlphaFace")
+  expect_equal(cap$font.size, 10)
+  expect_true(cap$bold)
+  expect_false(cap$italic)
+  expect_identical(cap$color, "#111111")
+})
+
+test_that("theme_ft() keeps the caption text when a table is styled twice", {
+  local_opts()
+
+  ft <- flextable::set_caption(.make_ft_mtcars(), "T")
+
+  expect_identical(theme_ft(theme_ft(ft))$caption$value$txt, "T")
+})
+
 test_that("theme_ft() aborts when opts does not exist (deliberately strict)", {
   local_hebstr("opts")
 

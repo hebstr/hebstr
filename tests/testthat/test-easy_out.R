@@ -3046,6 +3046,27 @@ test_that("easy_out() carries the title tbl_format() posted into the docx", {
   )
 })
 
+test_that("easy_out() writes the caption bold at 10 points, overriding the Table Caption style", {
+  local_opts()
+  tmp <- withr::local_tempdir()
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  tbl <- tbl_format(gtsum_format(.make_summary_tbl()), title = "Ma legende")
+
+  easy_out(tbl, filename = "tbl", dir = tmp, quiet = TRUE, export = TRUE)
+
+  run <- stringr::str_extract(
+    .docx_body(fs::path(tmp, "tbl", "tbl", ext = "docx")),
+    "<w:rPr>(?:(?!<w:r>).)*?Ma legende"
+  )
+
+  expect_match(run, "<w:b w:val=\"true\"/>", fixed = TRUE)
+  expect_match(run, "<w:i w:val=\"false\"/>", fixed = TRUE)
+  expect_match(run, "<w:sz w:val=\"20\"/>", fixed = TRUE)
+  expect_match(run, "<w:color w:val=\"111111\"/>", fixed = TRUE)
+})
+
 test_that("easy_out() carries a formatted table with its footnote into the docx", {
   local_opts()
   tmp <- withr::local_tempdir()

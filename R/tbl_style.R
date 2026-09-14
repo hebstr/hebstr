@@ -53,6 +53,45 @@ tbl_font_size <- \(x, columns, size) {
   .abort_tbl(x, "x")
 }
 
+#' Set the caption of a table
+#'
+#' Sets the caption of either a [gt::gt()] or a [flextable::flextable()]
+#' object, typically after [tbl_format()], when the caption belongs to the
+#' document rather than to the script that builds the table. On the `flextable`
+#' branch the caption takes the typography [theme_ft()] gives one: bold, at 10
+#' points, in the font of the table's first header cell. A bare
+#' [flextable::set_caption()] leaves it to the `Table Caption` style of
+#' whatever template writes the document.
+#'
+#' @param x A `gt_tbl` or a `flextable` object, typically from [tbl_format()].
+#' @param caption Caption text, as a single string.
+#' @param align Horizontal alignment of the caption (`"justify"`, `"left"`,
+#'   `"center"`, or `"right"`). Defaults to the `title_align` default of
+#'   [tbl_format()].
+#'
+#' @return An object of the same class as `x`.
+#' @export
+#'
+#' @examples
+#' tbl <- gt::gt(head(penguins)) |>
+#'   tbl_caption("Penguins")
+#'
+tbl_caption <- \(x, caption, align = "justify") {
+  if (!is_string(caption)) {
+    cli_abort("{.arg caption} must be a single string.")
+  }
+
+  if (inherits(x, "gt_tbl")) {
+    return(tab_options(tab_header(x, title = caption), heading.align = align))
+  }
+
+  if (inherits(x, "flextable")) {
+    return(.ft_caption(x, caption, font = .ft_font(x), align = align))
+  }
+
+  .abort_tbl(x, "x")
+}
+
 #' Set the text color of table rows
 #'
 #' Applies a text color to the body rows matching a predicate, on either a

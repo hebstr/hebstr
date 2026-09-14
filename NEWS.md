@@ -114,6 +114,12 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `tbl_caption()` sets the caption of a `gt_tbl` or a `flextable` after `tbl_format()`, for a caption that belongs to the document rather than to the script building the table.
+  On a `flextable` it gives the caption the typography `theme_ft()` sets, where a bare `flextable::set_caption()` left it to the `Table Caption` style of whatever template writes the document.
+
+- `theme_ft()` sets the caption bold, non-italic, in `#111111` and in the table font at `title_font_size`, a new argument defaulting to 10 points.
+  The caption used to take the `Table Caption` style of the writing template, which under officer's default template came out as a large bold italic serif.
+
 - Every output now says what to do when the reader does not have the font it names, where each of them used to name a family and leave the rest to the reader's machine.
   Tables written to HTML carry an ordered CSS fallback after the family and embed the shipped faces in their own stylesheet, so the file renders the same anywhere and its PNG twin follows.
   This fixes the package default as much as the opt-in: `sans` is a device generic of R and not a CSS one, so a bare `font-family: sans` fell through to Times New Roman on any machine whose font stack does not alias it.
@@ -259,6 +265,10 @@ Options and the variable classification cache now live in an internal package st
 - `get_opts()` returns the complete options object from the internal package store, restoring console inspection of the active options.
 
 ## Bug fixes
+
+- Word tables keep the rule under a spanning header, which `theme_ft()` erased along with every other border of `gtsummary::as_flex_table()`.
+  The rule runs under the spanner label only, as in `gt`; two adjacent spanners join into one continuous line, OOXML offering no border inset.
+  The column labels also sit at the bottom of their cells, as in `gt`, instead of being centred.
 
 - `theme_ft()` tints the first body row and whitens the second, as `theme_gt()` does, where the Word table started on a white row.
   The same change lets it style a table with no body row, on which it aborted with "wrong sign in 'by' argument".

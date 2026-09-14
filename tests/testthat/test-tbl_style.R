@@ -48,6 +48,51 @@ test_that("tbl_font_size() rejects a non-numeric size", {
   )
 })
 
+### CAPTION --------------------------------------------------------------------
+
+test_that("tbl_caption() sets the title of a gt table", {
+  res <- tbl_caption(.make_gt_stat(), "T")
+
+  expect_s3_class(res, "gt_tbl")
+  expect_identical(res$`_heading`$title, "T")
+})
+
+test_that("tbl_caption() styles a flextable caption in the font the table carries", {
+  local_opts()
+
+  res <- tbl_caption(theme_ft(.make_ft_stat(), alpha = "AlphaFace"), "T")
+  cap <- res$caption$value
+
+  expect_s3_class(res, "flextable")
+  expect_identical(cap$txt, "T")
+  expect_identical(cap$font.family, "AlphaFace")
+  expect_equal(cap$font.size, 10)
+  expect_true(cap$bold)
+  expect_identical(cap$color, "#111111")
+})
+
+test_that("tbl_caption() replaces a caption theme_ft() already styled", {
+  local_opts()
+
+  ft <- theme_ft(flextable::set_caption(.make_ft_stat(), "old"))
+
+  expect_identical(tbl_caption(ft, "new")$caption$value$txt, "new")
+})
+
+test_that("tbl_caption() passes align to the flextable caption paragraph", {
+  res <- tbl_caption(.make_ft_stat(), "T", align = "center")
+
+  expect_identical(res$caption$fp_p$text.align, "center")
+})
+
+test_that("tbl_caption() rejects an unsupported object", {
+  expect_error(tbl_caption(.tbl_data(), "T"), "gt_tbl")
+})
+
+test_that("tbl_caption() rejects a caption that is not a single string", {
+  expect_error(tbl_caption(.make_gt_stat(), 1), "caption")
+})
+
 ### GT ROW COLOR ---------------------------------------------------------------
 
 test_that("tbl_row_color() styles the matching rows of a gt table", {

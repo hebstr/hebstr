@@ -59,6 +59,7 @@ export(str_fig)
 export(str_label)
 export(str_na_mv)
 export(str_u)
+export(tbl_caption)
 export(tbl_font_size)
 export(tbl_format)
 export(tbl_qmd)
@@ -145,18 +146,24 @@ importFrom(dplyr,
 importFrom(flextable,
   add_footer_lines,
   align,
+  as_chunk,
+  as_paragraph,
   body_add_flextable,
   bold,
   border_remove,
   flextable,
   font,
   fontsize,
+  hline,
   hline_bottom,
   hline_top,
+  information_data_chunk,
+  nrow_part,
   padding,
   set_caption,
   set_header_labels,
-  set_table_properties
+  set_table_properties,
+  valign
 )
 importFrom(forcats,
   as_factor,
@@ -282,6 +289,7 @@ importFrom(officer,
   docx_embed_font,
   fp_border,
   fp_par,
+  fp_text,
   ph_location,
   ph_with,
   read_docx,
