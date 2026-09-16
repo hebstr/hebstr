@@ -21,6 +21,7 @@ theme_ft(
   row_strip = TRUE,
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
+  repeat_header = FALSE,
   ...
 )
 }
@@ -61,6 +62,13 @@ striping band is made transparent.}
 \item{footnote_font_size}{Footnote font size, in points.}
 
 \item{footnote_padding}{Footnote padding, in points.}
+
+\item{repeat_header}{Whether Word repeats the header rows at the top of each
+page a split table runs onto. Defaults to \code{FALSE}, so the continuation
+opens on its data rows. A \code{repeat_headers} entry of \code{opts_word} passed
+through \code{...} takes precedence. The option is set by the same call to
+\code{\link[flextable:set_table_properties]{flextable::set_table_properties()}} as \code{width}: a later call to that
+function resets it to the \code{flextable} default, which repeats.}
 
 \item{...}{Additional properties forwarded to
 \code{\link[flextable:set_table_properties]{flextable::set_table_properties()}}.}

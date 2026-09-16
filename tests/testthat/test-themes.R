@@ -206,6 +206,48 @@ test_that("theme_ft(row_strip = FALSE) drops the striping band color", {
   )
 })
 
+test_that("theme_ft() keeps the header rows of a split table on its first page only", {
+  local_opts()
+
+  path <- withr::local_tempfile(fileext = ".docx")
+  flextable::save_as_docx(theme_ft(.make_ft_mtcars()), path = path)
+
+  expect_false(grepl("w:tblHeader", .docx_body(path), fixed = TRUE))
+})
+
+test_that("theme_ft(repeat_header = TRUE) repeats the header rows on each page", {
+  local_opts()
+
+  path <- withr::local_tempfile(fileext = ".docx")
+  flextable::save_as_docx(
+    theme_ft(.make_ft_mtcars(), repeat_header = TRUE),
+    path = path
+  )
+
+  expect_true(grepl("w:tblHeader", .docx_body(path), fixed = TRUE))
+})
+
+test_that("theme_ft() lets an explicit opts_word repeat_headers win and keeps its other options", {
+  local_opts()
+
+  themed <- theme_ft(
+    .make_ft_mtcars(),
+    opts_word = list(repeat_headers = TRUE, keep_with_next = TRUE)
+  )
+
+  expect_true(themed$properties$opts_word$repeat_headers)
+  expect_true(themed$properties$opts_word$keep_with_next)
+})
+
+test_that("theme_ft() rejects a repeat_header that is not a single boolean", {
+  local_opts()
+
+  expect_error(
+    theme_ft(.make_ft_mtcars(), repeat_header = NA),
+    "repeat_header"
+  )
+})
+
 test_that("theme_ft() rules the spanner label only, as gt does", {
   local_opts()
 

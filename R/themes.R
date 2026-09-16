@@ -476,6 +476,12 @@ theme_gt <- \(
 #'   striping band is made transparent.
 #' @param footnote_font_size Footnote font size, in points.
 #' @param footnote_padding Footnote padding, in points.
+#' @param repeat_header Whether Word repeats the header rows at the top of each
+#'   page a split table runs onto. Defaults to `FALSE`, so the continuation
+#'   opens on its data rows. A `repeat_headers` entry of `opts_word` passed
+#'   through `...` takes precedence. The option is set by the same call to
+#'   [flextable::set_table_properties()] as `width`: a later call to that
+#'   function resets it to the `flextable` default, which repeats.
 #' @param ... Additional properties forwarded to
 #'   [flextable::set_table_properties()].
 #'
@@ -505,8 +511,13 @@ theme_ft <- \(
   row_strip = TRUE,
   footnote_font_size = font_size - 2,
   footnote_padding = row_padding,
+  repeat_header = FALSE,
   ...
 ) {
+  if (!is_bool(repeat_header)) {
+    cli_abort("{.arg repeat_header} must be `TRUE` or `FALSE`.")
+  }
+
   .f <- \(str) str_subset(x$col_keys, str)
 
   if (!row_strip) {
@@ -564,9 +575,10 @@ theme_ft <- \(
     props$width <- width
   }
 
-  if (length(props) > 0) {
-    x <- inject(set_table_properties(x, !!!props))
-  }
+  props$opts_word$repeat_headers <- props$opts_word$repeat_headers %||%
+    repeat_header
+
+  x <- inject(set_table_properties(x, !!!props))
 
   return(x)
 }

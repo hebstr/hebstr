@@ -12,6 +12,11 @@
 - `theme_ft()` sets its base font size to 9 points instead of 10, so stats and estimates drop to 8 points and p-values and footnotes to 7.
   Under `options(hebstr.docx = TRUE)`, the `dm` column that `tbl_format()` folds the missing rows into takes that p-value size, 7 points, where `missing_size = 11` pixels made it 8.25; it follows a `font_size` or `pvalue_font_size` passed through `...`, and an explicit `missing_size` still wins.
 
+- A Word table split across pages no longer repeats its header rows at the top of the next page: `theme_ft()` gains `repeat_header`, defaulting to `FALSE`, where `flextable` repeats them by default.
+  The continuation opens on its data rows, in the report rendered by Quarto as in the files `easy_out()` writes.
+  `repeat_header = TRUE` restores the repetition, and a `repeat_headers` entry of `opts_word` passed through `...` still wins.
+  Tables written by `gt` are unaffected, `gt::as_word()` offering no such option.
+
 - `get_vars_dict()` loses `font_size`, `font_family` and `strip_color`, replaced by a single `theme` argument defaulting to `theme_rt()`.
   The three covered three keys of the widget theme, so keeping them beside it would have left the question of which wins when both are given; `get_vars_dict(df, font_size = "0.7rem")` becomes `get_vars_dict(df, theme = theme_rt(font_size = "0.7rem"))`.
   The default is the value rather than a read of `getOption("reactable.theme")`, so the widget does not depend on whether a project set that option before or after the call.
