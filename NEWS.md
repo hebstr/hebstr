@@ -271,6 +271,10 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- The cropped PNG of a grob written by `easy_out()` no longer carries a `tIME` chunk, so two writes of the same drawing give the same bytes.
+  A docx that embeds the figure changed on every render otherwise, `officer` naming each media by the hash of its bytes.
+  `magick` is required at version 2.5.0 or later, which added the `defines` argument of `image_write()`.
+
 - Word tables keep the rule under a spanning header, which `theme_ft()` erased along with every other border of `gtsummary::as_flex_table()`.
   The rule runs under the spanner label only, as in `gt`; two adjacent spanners join into one continuous line, OOXML offering no border inset.
   The column labels also sit at the bottom of their cells, as in `gt`, instead of being centred.

@@ -1264,9 +1264,15 @@ browse_stop <- \() {
     return(invisible(FALSE))
   }
 
+  # a tIME chunk changes the bytes of unchanged pixels, and officer names docx
+  # media by the hash of those bytes
   image |>
     image_crop(geometry_area(w, h, x0, y0)) |>
-    image_write(to_png, format = "png")
+    image_write(
+      to_png,
+      format = "png",
+      defines = c("png:exclude-chunks" = "date,time")
+    )
 
   invisible(TRUE)
 }

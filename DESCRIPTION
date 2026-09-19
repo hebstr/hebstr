@@ -45,7 +45,7 @@ Imports:
     labelled,
     lifecycle,
     lubridate,
-    magick,
+    magick (>= 2.5.0),
     magrittr,
     officer,
     openxlsx2,

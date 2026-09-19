@@ -850,6 +850,24 @@ test_that(".ink_box() keeps the outer rows and columns unless seam is set", {
   expect_lt(.ink_box(right, seam = TRUE)[["x1"]], 1)
 })
 
+test_that(".png_crop() writes the same bytes for the same pixels", {
+  source <- .make_png(
+    grid::rectGrob(width = 0.5, height = 0.5, gp = grid::gpar(fill = "red"))
+  )
+  first <- withr::local_tempfile(fileext = ".png")
+  second <- withr::local_tempfile(fileext = ".png")
+  fs::file_copy(source, first)
+  fs::file_copy(source, second)
+  box <- c(x0 = 0.2, x1 = 0.8, y0 = 0.2, y1 = 0.8)
+
+  expect_true(.png_crop(first, box))
+  expect_true(.png_crop(second, box))
+
+  bytes <- readBin(first, "raw", fs::file_size(first))
+  expect_length(grepRaw("tIME", bytes, fixed = TRUE), 0)
+  expect_identical(bytes, readBin(second, "raw", fs::file_size(second)))
+})
+
 test_that(".crop_box() depends on the canvas only through its aspect ratio", {
   box <- c(x0 = 0.2, x1 = 0.5, y0 = 0.1, y1 = 0.4)
 
