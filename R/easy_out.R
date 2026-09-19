@@ -1265,13 +1265,14 @@ browse_stop <- \() {
   }
 
   # a tIME chunk changes the bytes of unchanged pixels, and officer names docx
-  # media by the hash of those bytes
+  # media by the hash of those bytes; the "date" keyword is left out because
+  # ImageMagick 6 then writes the source mtime as date:* tEXt chunks instead
   image |>
     image_crop(geometry_area(w, h, x0, y0)) |>
     image_write(
       to_png,
       format = "png",
-      defines = c("png:exclude-chunks" = "date,time")
+      defines = c("png:exclude-chunks" = "time")
     )
 
   invisible(TRUE)

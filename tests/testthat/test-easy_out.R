@@ -858,13 +858,17 @@ test_that(".png_crop() writes the same bytes for the same pixels", {
   second <- withr::local_tempfile(fileext = ".png")
   fs::file_copy(source, first)
   fs::file_copy(source, second)
+  Sys.setFileTime(first, as.POSIXct("2026-01-01 10:00:00", tz = "UTC"))
+  Sys.setFileTime(second, as.POSIXct("2026-01-01 10:00:05", tz = "UTC"))
   box <- c(x0 = 0.2, x1 = 0.8, y0 = 0.2, y1 = 0.8)
 
   expect_true(.png_crop(first, box))
   expect_true(.png_crop(second, box))
 
   bytes <- readBin(first, "raw", fs::file_size(first))
-  expect_length(grepRaw("tIME", bytes, fixed = TRUE), 0)
+  for (chunk in c("tIME", "tEXt", "zTXt", "date:")) {
+    expect_length(grepRaw(chunk, bytes, fixed = TRUE), 0)
+  }
   expect_identical(bytes, readBin(second, "raw", fs::file_size(second)))
 })
 

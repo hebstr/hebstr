@@ -271,7 +271,7 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
-- The cropped PNG of a grob written by `easy_out()` no longer carries a `tIME` chunk, so two writes of the same drawing give the same bytes.
+- The cropped PNG of a grob written by `easy_out()` no longer carries a `tIME` chunk nor the `date:*` text chunks that record the modification time of its source, so two writes of the same drawing give the same bytes.
   A docx that embeds the figure changed on every render otherwise, `officer` naming each media by the hash of its bytes.
   `magick` is required at version 2.5.0 or later, which added the `defines` argument of `image_write()`.
 
