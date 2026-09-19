@@ -42,28 +42,26 @@ get_vars_dict <- \(
   theme = theme_rt(),
   ...
 ) {
-  set_cols <- \(y, vars, fn, name) {
+  set_cols <- \(vars, fn, name) {
     vars <- enexprs(vars)
     fn <- enexpr(fn)
 
-    data <- y |>
+    data <- x |>
       select(!!!vars) |>
       names() |>
       set_names() |>
       map(~ eval(fn))
 
-    data <- tibble(variable = names(data), !!name := data)
+    tibble(variable = names(data), !!name := data)
   }
 
   .data_cols <- list(
     range = set_cols(
-      x,
       vars = where(is.numeric) | where(is.Date),
-      fn = range(x[[.]], na.rm = TRUE) |> round(1),
+      fn = if (all(is.na(x[[.]]))) NULL else range(x[[.]], na.rm = TRUE) |> round(1),
       name = "range"
     ),
     q1_med_q3 = set_cols(
-      x,
       vars = where(is.numeric),
       fn = x[[.]] |>
         quantile(probs = c(0.25, 0.5, 0.75), na.rm = TRUE) |>
@@ -71,7 +69,6 @@ get_vars_dict <- \(
       name = "q1_med_q3"
     ),
     bin = set_cols(
-      x,
       vars = where(is.numeric),
       fn = length(unique(na.omit(x[[.]]))) == 2,
       name = "bin"
@@ -143,8 +140,14 @@ get_vars_dict <- \(
     return(root)
   }
 
+  unit <- str_extract(size, "[a-z%]+$")
+
+  if (is.na(unit)) {
+    return(value)
+  }
+
   switch(
-    str_extract(size, "[a-z%]+$"),
+    unit,
     px = value,
     pt = value * 4 / 3,
     `%` = value * root / 100,

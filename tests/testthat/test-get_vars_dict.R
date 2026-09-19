@@ -116,6 +116,20 @@ test_that("get_vars_dict() reports the range of Date columns", {
   )
 })
 
+test_that("get_vars_dict() leaves the range of an all-missing column empty", {
+  df <- tibble::tibble(
+    num = c(NA_real_, NA),
+    visit = as.Date(c(NA, NA)),
+    ok = c(1, 3)
+  )
+
+  expect_no_warning(dict <- get_vars_dict(df, theme = .make_rt_theme()))
+
+  expect_equal(unname(dict$data$range[dict$data$variable != "ok"]), c(NA_character_, NA))
+  expect_equal(unname(dict$data$range[dict$data$variable == "ok"]), "1 ; 3")
+  expect_equal(unname(dict$json$range[c("num", "visit")]), list(NA, NA))
+})
+
 test_that("get_vars_dict() sizes the widget columns on their content", {
   short <- get_vars_dict(tibble::tibble(v = 1:3), theme = .make_rt_theme())
 
@@ -145,6 +159,21 @@ test_that("get_vars_dict() scales the widget widths with the theme font size", {
   )
 
   expect_gt(large[["variable"]], small[["variable"]])
+})
+
+test_that("get_vars_dict() reads a unitless theme font size as pixels", {
+  px <- .view_cols(
+    get_vars_dict(head(mtcars), theme = .make_rt_theme(font_size = "12px"))
+  )
+
+  expect_equal(
+    .view_cols(get_vars_dict(head(mtcars), theme = .make_rt_theme(font_size = 12))),
+    px
+  )
+  expect_equal(
+    .view_cols(get_vars_dict(head(mtcars), theme = .make_rt_theme(font_size = "12"))),
+    px
+  )
 })
 
 test_that("get_vars_dict() sizes the widget columns when the theme carries no font size", {
