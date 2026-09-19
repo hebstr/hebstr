@@ -39,10 +39,10 @@ p-values).}
 
 \item{base}{Base color for text and body borders.}
 
-\item{color}{Table background color, also used for the row-striping band.}
+\item{color}{Body background color, the tinted band of the row striping.}
 
-\item{bg}{Background color for the heading, column labels, striping, and
-footnotes.}
+\item{bg}{Background color for the heading, column labels and footnotes,
+and for the untinted rows of the striping.}
 
 \item{row_padding}{Vertical padding of data rows, in pixels.}
 
@@ -59,8 +59,9 @@ footnotes only.}
 
 \item{pvalue_font_size}{Font size of p-value cells, in pixels.}
 
-\item{row_strip}{Whether to color the striped rows. When \code{FALSE}, striping
-is made transparent.}
+\item{row_strip}{Whether to tint the body with \code{color}. When \code{FALSE}, the
+body is transparent and only the \code{bg} rows remain, which vanish on a
+white page.}
 
 \item{footnote_marks}{Footnote mark style passed to \code{\link[gt:tab_options]{gt::tab_options()}}
 (e.g. \code{"extended"}, \code{"standard"}, \code{"numbers"}).}

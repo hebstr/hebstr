@@ -39,9 +39,10 @@ p-values). Defaults to \code{alpha}.}
 
 \item{base}{Base color for text and body borders.}
 
-\item{color}{Table background color, also used for the row-striping band.}
+\item{color}{Body background color, the tinted band of the row striping.}
 
-\item{bg}{Background color for the column labels, striping, and footnotes.}
+\item{bg}{Background color for the column labels and footnotes, and for the
+untinted rows of the striping.}
 
 \item{row_padding}{Vertical padding of data rows, in points.}
 
@@ -56,8 +57,9 @@ p-values). Defaults to \code{alpha}.}
 
 \item{pvalue_font_size}{Font size of p-value cells, in points.}
 
-\item{row_strip}{Whether to color the striped rows. When \code{FALSE}, the
-striping band is made transparent.}
+\item{row_strip}{Whether to tint the body with \code{color}. When \code{FALSE}, the
+body is transparent and only the \code{bg} rows remain, which vanish on a
+white page.}
 
 \item{footnote_font_size}{Footnote font size, in points.}
 

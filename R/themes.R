@@ -295,9 +295,9 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 #' @param digit Font family applied to numeric columns (stats, estimates,
 #'   p-values).
 #' @param base Base color for text and body borders.
-#' @param color Table background color, also used for the row-striping band.
-#' @param bg Background color for the heading, column labels, striping, and
-#'   footnotes.
+#' @param color Body background color, the tinted band of the row striping.
+#' @param bg Background color for the heading, column labels and footnotes,
+#'   and for the untinted rows of the striping.
 #' @param row_padding Vertical padding of data rows, in pixels.
 #' @param title_align Horizontal alignment of the heading (`"justify"`,
 #'   `"left"`, `"center"`, or `"right"`). Applied to the title itself, so it
@@ -307,8 +307,9 @@ check_fonts <- \(..., .default = "sans", .auto = NULL, .abort = FALSE) {
 #' @param title_font_size Heading title font size, in pixels.
 #' @param stat_font_size Font size of stat and estimate cells, in pixels.
 #' @param pvalue_font_size Font size of p-value cells, in pixels.
-#' @param row_strip Whether to color the striped rows. When `FALSE`, striping
-#'   is made transparent.
+#' @param row_strip Whether to tint the body with `color`. When `FALSE`, the
+#'   body is transparent and only the `bg` rows remain, which vanish on a
+#'   white page.
 #' @param footnote_marks Footnote mark style passed to [gt::tab_options()]
 #'   (e.g. `"extended"`, `"standard"`, `"numbers"`).
 #' @param footnote_font_size Footnote font size, in pixels.
@@ -463,8 +464,9 @@ theme_gt <- \(
 #' @param digit Font family applied to numeric columns (stats, estimates,
 #'   p-values). Defaults to `alpha`.
 #' @param base Base color for text and body borders.
-#' @param color Table background color, also used for the row-striping band.
-#' @param bg Background color for the column labels, striping, and footnotes.
+#' @param color Body background color, the tinted band of the row striping.
+#' @param bg Background color for the column labels and footnotes, and for the
+#'   untinted rows of the striping.
 #' @param row_padding Vertical padding of data rows, in points.
 #' @param title_align Horizontal alignment of the caption (`"left"`,
 #'   `"center"`, `"right"`, or `"justify"`).
@@ -472,8 +474,9 @@ theme_gt <- \(
 #' @param font_size Base font size, in points.
 #' @param stat_font_size Font size of stat and estimate cells, in points.
 #' @param pvalue_font_size Font size of p-value cells, in points.
-#' @param row_strip Whether to color the striped rows. When `FALSE`, the
-#'   striping band is made transparent.
+#' @param row_strip Whether to tint the body with `color`. When `FALSE`, the
+#'   body is transparent and only the `bg` rows remain, which vanish on a
+#'   white page.
 #' @param footnote_font_size Footnote font size, in points.
 #' @param footnote_padding Footnote padding, in points.
 #' @param repeat_header Whether Word repeats the header rows at the top of each

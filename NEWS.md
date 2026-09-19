@@ -271,6 +271,15 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `set_opts()` accepts an override of `ci`, which aborted with "Multiple arguments named `ci`": `set_opts(ci = list(lim = "(", sep = ", "))` now builds the parenthesised interval.
+  The keys derived from others follow their sources: `palette` is rebuilt from an overridden `color`, `qt_stat_wide` from an overridden `qt_stat`, and `ci` from the merged `ci` settings.
+  An explicit `palette`, `qt_stat_wide` or `vars` still wins over the derived value.
+
+- `check_opts()` resolves a subscript against the caller's variables, so `\(k) check_opts(labs$sex[[k]])` works inside a function or a `map()`, where it failed with "object 'k' not found".
+
+- `get_vars_dict()` leaves the range of an all-missing numeric or Date column empty, where it showed `Inf ; -Inf` in the widget, the workbook and the JSON, with four warnings.
+  It also reads a unitless theme font size as pixels, as `reactable` does: `theme_rt(font_size = 12)` sized every column sixteen times too wide, up to the 250 px cap.
+
 - The cropped PNG of a grob written by `easy_out()` no longer carries a `tIME` chunk nor the `date:*` text chunks that record the modification time of its source, so two writes of the same drawing give the same bytes.
   A docx that embeds the figure changed on every render otherwise, `officer` naming each media by the hash of its bytes.
   `magick` is required at version 2.5.0 or later, which added the `defines` argument of `image_write()`.
@@ -441,24 +450,32 @@ Options and the variable classification cache now live in an internal package st
 
 ## Minor improvements
 
+- `lang_fr()` warns when it switches language after `set_opts()` has run, since the stored options keep the labels and decimal mark of the language they were built in.
+  Calling `lang_fr()` first, as `setup.R` scripts do, raises nothing, and neither does a call that leaves the language unchanged.
+
 - `get_vars_dict()` returns a third element, `json`, a copy of the summary meant for a JSON writer.
   It keeps the multi-valued cells as list columns marked with [base::I()], so `jsonlite::toJSON()` emits them as arrays rather than as the `" ; "` strings `data` carries, counts missing values as `0` rather than `NA`, and gives `p_miss` as a proportion rather than a formatted percentage.
   No argument gates it: the copy is a form of the dictionary, like the tibble and the widget, and a `json = TRUE` at a call site is now an error, the argument reaching [reactable::reactable()] through `...`.
   [easy_out()] writes it to a `.json` file beside the widget and the workbook, so reaching for a JSON writer by hand is only needed to send the dictionary somewhere other than disk.
+
 - The columns of a `get_xlsx()` sheet are sized on what they hold at the size they are set in, header included.
   openxlsx2 measures a column in characters of the workbook's base font, so a sheet set in a smaller face came out wider than its text, by the ratio of the two sizes: a 27-character cell asked for 27 units of an 11 pt font while rendering at 8 pt, leaving about a quarter of the column empty on the right.
   The header was measured the same way and, carrying an autofilter button its own length does not account for, wrapped and clipped whenever it was the longest thing in its column: `n_miss` over an empty column came out as two lines of which only the first was visible.
   Each column now asks for the longest of its header and its values, each scaled by the size it is written at, plus the button allowance and a character of slack.
   `max_width` still caps the result.
+
 - `get_xlsx(halign = )` also takes a named list, aligning the columns it names and leaving the others at the default `"center"`: `halign = list(variable = "left")`.
   A string still aligns the whole sheet, and an unnamed list is an error rather than a silent no-op.
   The alignment is posed on the column before the borders are broadcast, so it survives the per-column style spread that carries the number formats.
   The XLSX `easy_out()` writes beside a variable dictionary reads the same rule as the widget, so its `variable`, `label` and `levels` columns are left-aligned and the rest centred.
+
 - The `border_color` default of a `get_xlsx()` sheet lightens from `"#999999"` to `"#C5C5C5"`, the grid reading as a rule between cells rather than as a second layer of content.
   `wb_add_custom()` keeps its own default.
+
 - The cells of the `get_vars_dict()` widget are centred, except those of `variable`, `label` and `levels`, which stay left-aligned.
   Alignment used to be left to reactable, which aligns on the storage type: the counts came out right-aligned, the codes left-aligned, and no column lined up with its header.
   The three text columns are the ones a reader scans down rather than compares, so they keep a common left edge.
+
 - The columns of the `get_vars_dict()` widget are sized on what they hold rather than on a fixed width per column name.
   Each column asks for the width of its longest value, header included, counted at 0.47 em a character plus the cell padding and bounded to between 50 and 250 pixels, so that one verbose label neither starves its neighbours nor pushes the table into a horizontal scroll.
   The em figure is measured, not guessed: a canvas at the widget's own font size gives between 0.41 and 0.48 em a character on the strings long enough to decide a width.
@@ -466,26 +483,36 @@ Options and the variable classification cache now live in an internal package st
   The widths are minimums in a flexbox layout, so the columns still share whatever room the container has left.
   Selecting a subset through `cols` no longer leaves the columns that had no hard-coded entry at the generic default.
   The `font_size` default itself moves from `"0.7rem"` to `"0.65rem"`, and the widths follow it, being read from that argument rather than from a constant.
+
 - `easy_out(crop = TRUE)` finds the modal background of the raster through `tabulate()` rather than `table()`, which coerced every pixel to character.
   About 35 times faster on the ink-box measurement, roughly eight tenths of a second off every cropped grob export.
+
 - `docx_page_width()` reads the section geometry of a `.docx` or `.dotx` template and returns the width its body text can use, in inches, landscape included.
   Feeding it to `set_opts(page_width = )` derives the reference from the `reference-doc` in use instead of copying a number that drifts the day its margins change.
   Its `path` is optional: left out, the template of the document being rendered is looked up in its YAML front matter, then in the Quarto extension providing the Word format.
   The two sources are complementary, a document declaring `format: docx` carrying its template in the front matter, one declaring `format: <ext>-docx` carrying it in the extension manifest, out of reach of the front matter.
   The extension is searched in the nearest `_extensions` directory, from the document upwards; several extensions contributing a `docx` format aborts, none being more legitimate than the others.
   A template declaring no page geometry, as the `reference.docx` Pandoc ships does, is now reported as such instead of failing on a subscript.
+
 - `set_opts()` carries a `page_width` key, in inches, which `tbl_format(page_width = )` now defaults to.
   The usable text width is a property of the rendered Word document, not of each table: declaring it once makes every table convert its pixel width against the `reference-doc` actually in use, instead of the US Letter assumption repeated at each call site.
   It is unset by default, and `tbl_format()` then runs the `docx_page_width()` lookup itself, on the Word branch only: a document rendering through a Quarto extension states the width nowhere.
   Set the key when the lookup cannot reach the template, which a warning reports.
   Falling back to `6.5` stays silent when no template is declared at all, that being the documented default rather than a failed measurement.
+
 - `gtsum_format()` labels the regression count column `n/N` by default (events over observations), and `N` when the model carries no events, replacing the former `Events/Obs` and `Obs` headers.
   Override with `label_n`.
+
 - `acro()` adds the `n/N` acronym (events over total observations) to its built-in English and French dictionaries, so the `n/N` count column that `gtsum_format()` emits expands to a full footnote definition.
+
 - `check_fonts()` tests the session font registry (`systemfonts::registry_fonts()`) alongside the system font list, so a family registered from bundled font files with `systemfonts::register_font()` counts as available instead of falling back to the default.
+
 - `easy_descr()` prints its variable classification as a single per-variable tibble (name, storage type, statistical group) instead of grouped variable lists, with storage-type codes aligned on those of `get_vars_dict()`.
+
 - `easy_out()` renders plot SVG with the `svglite` device instead of `grDevices::svg` (via `htmltools::capturePlot`), producing cleaner, more portable SVG and dropping the `htmltools` and `grDevices` dependencies.
+
 - `easy_out()` lowers its default raster resolution `px` from 2000 to 1200, producing smaller PNG files by default; pass `px = 2000` to restore the previous resolution.
+
 - `get_xlsx()` builds large sheets in near-linear time instead of quadratic (17,200 rows by 5 columns: 0.6 second instead of 16).
   Every cell of a column carries the same border and the same number format, so the border is now resolved on the first two rows and the resolved style broadcast down each column, rather than passed to `openxlsx2::wb_add_border()` over the whole range.
   The resulting styles are unchanged, cell for cell.
