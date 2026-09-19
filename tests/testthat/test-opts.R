@@ -29,6 +29,30 @@ test_that("set_opts(.assign = FALSE) applies ... overrides over an existing obje
   expect_equal(res$sep$ext, "; ")
 })
 
+test_that("set_opts() derives ci from an overridden ci source", {
+  res <- set_opts(.assign = FALSE, ci = list(lim = "(", sep = ", "))
+
+  expect_equal(as.character(res$ci$label), "(95%CI)")
+  expect_equal(as.character(res$ci$data), "({conf.low}, {conf.high})")
+})
+
+test_that("set_opts() derives palette and qt_stat_wide from overridden sources", {
+  res <- set_opts(
+    .assign = FALSE,
+    color = list(base = "#000", cold = c("#111", "#222")),
+    qt_stat = list(mean = c("MeanX" = "{mean}"))
+  )
+
+  expect_equal(res$palette, c("#000", "#222"))
+  expect_equal(res$qt_stat_wide[["MeanX"]], "{mean}")
+})
+
+test_that("set_opts() keeps an explicit override of a derived key", {
+  res <- set_opts(.assign = FALSE, palette = c("#ABC", "#DEF"))
+
+  expect_equal(res$palette, c("#ABC", "#DEF"))
+})
+
 test_that("set_opts(.assign = FALSE) recomputes when .default_font is supplied", {
   local_hebstr("opts", list(sentinel = TRUE))
 
@@ -267,6 +291,15 @@ test_that("check_opts() resolves keys of the global opts object", {
   expect_equal(check_opts(sep$int), ": ")
 })
 
+test_that("check_opts() resolves a subscript against the caller's variables", {
+  local_hebstr("opts", list(labs = list(sex = list(m = "Male", f = "Female"))))
+  by_var <- \(k) check_opts(labs$sex[[k]])
+  by_key <- \(key) check_opts(labs$sex[[key]])
+
+  expect_equal(by_var("f"), "Female")
+  expect_equal(by_key("m"), "Male")
+})
+
 test_that("check_opts() aborts on an absent key instead of falling through to scope", {
   local_hebstr("opts", list(parametric = "x"))
   local_hebstr("phantom_key", "leaked")
@@ -350,6 +383,50 @@ test_that("lang_fr(reset = TRUE) emits EN message", {
   )
 
   expect_message(lang_fr(reset = TRUE), "EN")
+})
+
+test_that("lang_fr() warns that options built earlier keep their language", {
+  withr::local_options(OutDec = ".")
+  local_opts()
+
+  local_mocked_bindings(
+    theme_gtsummary_language = \(...) invisible(NULL)
+  )
+
+  expect_warning(lang_fr(), "set_opts")
+})
+
+test_that("lang_fr(reset = TRUE) warns that options built earlier keep their language", {
+  withr::local_options(OutDec = ",")
+  local_opts()
+
+  local_mocked_bindings(
+    reset_gtsummary_theme = \(...) invisible(NULL)
+  )
+
+  expect_warning(lang_fr(reset = TRUE), "set_opts")
+})
+
+test_that("lang_fr() does not warn when the language does not change", {
+  withr::local_options(OutDec = ",")
+  local_opts()
+
+  local_mocked_bindings(
+    theme_gtsummary_language = \(...) invisible(NULL)
+  )
+
+  expect_no_warning(lang_fr())
+})
+
+test_that("lang_fr() does not warn before set_opts() has run", {
+  withr::local_options(OutDec = ".")
+  local_hebstr("opts")
+
+  local_mocked_bindings(
+    theme_gtsummary_language = \(...) invisible(NULL)
+  )
+
+  expect_no_warning(lang_fr())
 })
 
 test_that("lang_fr() calls theme_gtsummary_language with correct args", {

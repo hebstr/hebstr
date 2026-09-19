@@ -57,7 +57,8 @@ and the session option \code{reactable.theme} is set from \code{.reactable}.
 Assembles the centralised options list consumed across the package: statistic
 templates, table labels, separators, confidence-interval formatting, acronym
 dictionary, page width, fonts, and colours. Labels and formats follow the locale set by
-\code{\link[=lang_fr]{lang_fr()}} (comma decimal mark selects French wording). The result is either
+\code{\link[=lang_fr]{lang_fr()}} (comma decimal mark selects French wording) at build time, so
+\code{\link[=lang_fr]{lang_fr()}} must run first. The result is either
 stored under a name in the package's internal store (the default), from where
 \code{\link[=check_opts]{check_opts()}} and \code{\link[=get_opts]{get_opts()}} read it, or returned for inspection. Keys can
 be overridden through \code{...}.

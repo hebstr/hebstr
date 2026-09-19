@@ -4,6 +4,11 @@
 #' including the comma as decimal separator and French language settings
 #' for gtsummary tables. Also allows resetting to English defaults.
 #'
+#' Call it before [set_opts()]: the options object takes its labels and
+#' decimal mark from the locale in force when it is built, so switching
+#' language afterwards leaves it in the previous one. A warning says so when
+#' the language changes while an options object already exists.
+#'
 #' @param reset Logical. If `FALSE` (default), activates French locale.
 #'   If `TRUE`, restores English defaults.
 #'
@@ -25,6 +30,8 @@
 #' })
 #'
 lang_fr <- \(reset = FALSE) {
+  out_dec <- getOption("OutDec")
+
   if (reset) {
     options(OutDec = ".")
 
@@ -39,6 +46,16 @@ lang_fr <- \(reset = FALSE) {
     )
 
     cli_alert_info("Setting language: FR")
+  }
+
+  if (
+    getOption("OutDec") != out_dec &&
+      exists("opts", envir = .hebstr, inherits = FALSE)
+  ) {
+    cli_warn(c(
+      "The stored options keep the language they were built in.",
+      i = "Call {.fun set_opts} again, with its overrides, to rebuild them."
+    ))
   }
 
   invisible(NULL)
@@ -107,7 +124,8 @@ clear_vars <- \() {
 #' Assembles the centralised options list consumed across the package: statistic
 #' templates, table labels, separators, confidence-interval formatting, acronym
 #' dictionary, page width, fonts, and colours. Labels and formats follow the locale set by
-#' [lang_fr()] (comma decimal mark selects French wording). The result is either
+#' [lang_fr()] (comma decimal mark selects French wording) at build time, so
+#' [lang_fr()] must run first. The result is either
 #' stored under a name in the package's internal store (the default), from where
 #' [check_opts()] and [get_opts()] read it, or returned for inspection. Keys can
 #' be overridden through `...`.
@@ -259,8 +277,7 @@ set_opts <- \(
       base = "#999",
       cold = c("#F0FAFF", "#0099FF"),
       warm = c("#FFF5F5", "#FF0000")
-    ),
-    palette = c(color$base, color$cold[2])
+    )
   )
 
   if (getOption("OutDec") == ",") {
@@ -337,15 +354,19 @@ set_opts <- \(
     list(alpha = .fonts(alpha), digit = .fonts(digit))
   }
 
-  opts <- .opts_set
+  opts <- list_modify(.opts_set, !!!dots)
+
+  derived <- list(
+    vars = .vars(),
+    qt_stat_wide = .qt_stat_wide(opts$qt_stat),
+    palette = c(opts$color$base, opts$color$cold[2])
+  )
 
   opts <-
     opts |>
     list_modify(
-      vars = .vars(),
-      qt_stat_wide = .qt_stat_wide(opts$qt_stat),
-      ci = .ci(opts$ci),
-      !!!dots
+      !!!derived[setdiff(names(derived), names(dots))],
+      ci = .ci(opts$ci)
     )
 
   opts$font <- .font(opts$font)
@@ -419,7 +440,7 @@ check_opts <- \(x, .name = "opts") {
     )
   }
 
-  eval(key, opts)
+  eval(key, opts, parent.frame())
 }
 
 

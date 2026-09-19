@@ -19,6 +19,12 @@ Configures the R environment to use French formatting conventions,
 including the comma as decimal separator and French language settings
 for gtsummary tables. Also allows resetting to English defaults.
 }
+\details{
+Call it before \code{\link[=set_opts]{set_opts()}}: the options object takes its labels and
+decimal mark from the locale in force when it is built, so switching
+language afterwards leaves it in the previous one. A warning says so when
+the language changes while an options object already exists.
+}
 \examples{
 withr::with_options(list(OutDec = "."), {
   lang_fr()
