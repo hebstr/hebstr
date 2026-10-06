@@ -26,6 +26,16 @@
 
 .make_gt_titled <- \() gt::tab_header(gt::gt(head(mtcars)), title = "T")
 
+.make_gt_grouped <- \() {
+  df <- data.frame(
+    grp = c("A", "A", ""),
+    label = c("a", "b", "c"),
+    stat_1 = c(1, 2, 3)
+  )
+
+  gt::gt(df, rowname_col = "label", groupname_col = "grp")
+}
+
 .make_ft_mtcars <- \() flextable::flextable(head(mtcars))
 
 ### GTSUMMARY -------------------------------------------------------------------

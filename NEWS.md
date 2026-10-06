@@ -271,6 +271,11 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `theme_gt()` drops the rules `gt` draws above and below a row-group heading, a 2 px light grey pair the theme never declared and that sat among its own thin rules.
+  The theme already neutralised the five other families of `gt` default rules, and the two keys it was missing cover both blocks `gt` renders, the named group heading and the empty one.
+  The rule under the column labels is unaffected: it comes from `table_body.border.top`, not from the group borders.
+  `gt_heatmap()` builds its own options and never calls the theme, so a heatmap grouped by `groupname_col` still carries the grey pair.
+
 - `set_opts()` accepts an override of `ci`, which aborted with "Multiple arguments named `ci`": `set_opts(ci = list(lim = "(", sep = ", "))` now builds the parenthesised interval.
   The keys derived from others follow their sources: `palette` is rebuilt from an overridden `color`, `qt_stat_wide` from an overridden `qt_stat`, and `ci` from the merged `ci` settings.
   An explicit `palette`, `qt_stat_wide` or `vars` still wins over the derived value.

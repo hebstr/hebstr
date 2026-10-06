@@ -114,6 +114,40 @@ test_that("theme_gt(row_strip = FALSE) makes the row background transparent", {
   expect_identical(bg, "#ffffff00")
 })
 
+test_that("theme_gt() drops the rules gt draws around a row-group heading", {
+  local_opts()
+
+  themed <- theme_gt(.make_gt_grouped())
+
+  opt <- \(x) {
+    themed$`_options`$value[[which(themed$`_options`$parameter == x)]]
+  }
+
+  expect_identical(opt("row_group_border_top_style"), "none")
+  expect_identical(opt("row_group_border_bottom_style"), "none")
+})
+
+test_that("theme_gt() leaves no group rule in the rendered HTML, named or empty", {
+  local_opts()
+
+  html <- as.character(gt::as_raw_html(theme_gt(.make_gt_grouped())))
+
+  cell <- \(class) {
+    pattern <- paste0("<t[dh][^>]*", class, "[^>]*>")
+    regmatches(html, gregexpr(pattern, html))[[1]]
+  }
+
+  named <- cell("gt_group_heading")
+  empty <- cell("gt_empty_group_heading")
+
+  expect_length(named, 1L)
+  expect_length(empty, 1L)
+  expect_match(named, "border-top-style: none")
+  expect_match(named, "border-bottom-style: none")
+  expect_match(empty, "border-top-style: none")
+  expect_match(empty, "border-bottom-style: none")
+})
+
 test_that("theme_gt() aborts when opts does not exist (deliberately strict)", {
   local_hebstr("opts")
 

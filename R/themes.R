@@ -377,6 +377,8 @@ theme_gt <- \(
     column_labels.border.bottom.width = px(1),
     column_labels.border.bottom.color = base,
     column_labels.background.color = bg,
+    row_group.border.top.style = "none",
+    row_group.border.bottom.style = "none",
     table.border.top.style = "none",
     table.border.bottom.style = "none",
     table_body.border.top.width = px(1),
