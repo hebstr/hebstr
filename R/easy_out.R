@@ -1228,8 +1228,12 @@ browse_stop <- \() {
 # The viewport carries the family because ragg has no device-level equivalent
 # of the svglite alias .device_fonts() supplies: a grob declaring no family of
 # its own would otherwise inherit ragg's generic and come out in the system
-# sans while the SVG names the resolved one.
+# sans while the SVG names the resolved one. A child declaring the family
+# empty defeats that inheritance, an explicit gpar value winning over the
+# viewport, so the tree is rewritten for this draw alone.
 .draw_png <- \(x, to_png, width, height, res) {
+  family <- .text_font()
+
   ragg::agg_png(
     to_png,
     width = width,
@@ -1242,13 +1246,44 @@ browse_stop <- \() {
     # closing a device mid-unwind warns "Killing locked device", noise here
     on.exit(suppressWarnings(grDevices::dev.off()), add = TRUE)
     grid::grid.newpage()
-    grid::pushViewport(
-      grid::viewport(gp = grid::gpar(fontfamily = .text_font()))
-    )
-    grid::grid.draw(x)
+    grid::pushViewport(grid::viewport(gp = grid::gpar(fontfamily = family)))
+    grid::grid.draw(.grob_family(x, family))
   })
 
   invisible(to_png)
+}
+
+
+# An empty fontfamily is a declaration, not an absence: svglite resolves it
+# through its sans alias while ragg sends it to the device generic, so the two
+# files of one figure come out in different type. Rewritten on the copy the
+# raster draws, never on the grob the caller holds, whose measuring device
+# knows nothing of the family.
+#
+# Every gpar is reached, wherever it sits, and not the gp slots alone: a grob
+# whose class defines makeContent rebuilds its children at draw time from the
+# gpar it keeps in a field of its own. Guards behind the class test, the
+# unclassed count and the NULL skip: DOCX-FONTS.md, "What is still open".
+.grob_family <- \(x, family) {
+  if (inherits(x, "gpar")) {
+    if (!is.null(x$fontfamily)) {
+      x$fontfamily[!nzchar(x$fontfamily)] <- family
+    }
+
+    return(x)
+  }
+
+  if (is_bare_list(x) || grid::is.grob(x) || inherits(x, "gList")) {
+    for (i in seq_along(unclass(x))) {
+      item <- x[[i]]
+
+      if (!is.null(item)) {
+        x[[i]] <- .grob_family(item, family)
+      }
+    }
+  }
+
+  x
 }
 
 .png_crop <- \(to_png, box) {

@@ -271,6 +271,12 @@ Options and the variable classification cache now live in an internal package st
 
 ## Bug fixes
 
+- `easy_out()` writes the PNG of a grob in the session font even when the grob declares an empty font family, where that PNG came out in the system sans while its SVG twin carried the configured font.
+  An empty `fontfamily` is an explicit declaration, so it won over the family the PNG draw sets on its viewport, and only the SVG device resolved it onto the configured font.
+  The empty families are now filled for that draw alone, and the grob the caller holds is left untouched.
+  Figures built by a package that lays out its labels at draw time are covered too, `eulerr` among them: the font is taken from every `gpar` the object carries, not from its drawn children alone.
+  A figure whose outermost ink is text can see its crop move, the box being measured on that redrawn PNG.
+
 - `theme_gt()` drops the rules `gt` draws above and below a row-group heading, a 2 px light grey pair the theme never declared and that sat among its own thin rules.
   The theme already neutralised the five other families of `gt` default rules, and the two keys it was missing cover both blocks `gt` renders, the named group heading and the empty one.
   The rule under the column labels is unaffected: it comes from `table_body.border.top`, not from the group borders.

@@ -617,6 +617,137 @@ test_that("easy_out() gives the grob PNG the family its SVG names", {
   expect_equal(written, named, tolerance = 1e-3)
 })
 
+test_that("easy_out() gives the grob PNG the family a child declares empty", {
+  local_opts(font = "luciole")
+
+  tmp <- withr::local_tempdir()
+  g <- grid::grobTree(
+    grid::textGrob(
+      "Hamburgefonstiv",
+      x = 0.5,
+      y = 0.5,
+      gp = grid::gpar(fontfamily = "")
+    )
+  )
+
+  generic <- .ink_width(.make_png(g, res = 150))
+  named <- .ink_width(
+    .make_png(
+      grid::grobTree(
+        grid::textGrob(
+          "Hamburgefonstiv",
+          x = 0.5,
+          y = 0.5,
+          gp = grid::gpar(fontfamily = .text_font())
+        )
+      ),
+      res = 150
+    )
+  )
+
+  skip_if(
+    isTRUE(all.equal(generic, named, tolerance = 1e-3)),
+    "the device generic already resolves to the package font"
+  )
+
+  local_mocked_bindings(browseURL = \(...) invisible(NULL))
+
+  suppressWarnings(
+    easy_out(
+      g,
+      filename = "grob_empty_family",
+      dir = tmp,
+      width = 9,
+      height = 8,
+      crop = FALSE,
+      quiet = TRUE
+    )
+  )
+
+  written <- .ink_width(
+    fs::path(tmp, "grob-empty-family", "grob-empty-family", ext = "png")
+  )
+
+  expect_equal(written, named, tolerance = 1e-3)
+})
+
+test_that(".grob_family() fills the empty declarations and leaves the rest", {
+  g <- grid::gTree(
+    gp = grid::gpar(fontfamily = ""),
+    children = grid::gList(
+      grid::textGrob("a", gp = grid::gpar(fontfamily = c("", "Courier"))),
+      grid::textGrob("b", gp = grid::gpar(fontfamily = "Courier")),
+      grid::textGrob("c"),
+      grid::gTree(
+        children = grid::gList(
+          grid::textGrob("d", gp = grid::gpar(fontfamily = ""))
+        )
+      )
+    )
+  )
+
+  filled <- .grob_family(g, "luciole")
+  children <- filled$children
+
+  expect_equal(filled$gp$fontfamily, "luciole")
+  expect_equal(children[[1]]$gp$fontfamily, c("luciole", "Courier"))
+  expect_equal(children[[2]]$gp$fontfamily, "Courier")
+  expect_null(children[[3]]$gp$fontfamily)
+  expect_equal(children[[4]]$children[[1]]$gp$fontfamily, "luciole")
+  expect_s3_class(children, "gList")
+})
+
+test_that(".grob_family() reaches a gpar a grob keeps outside its gp slot", {
+  g <- grid::gTree(
+    label_gp = grid::gpar(fontfamily = "", fontsize = 9),
+    leader_gp_list = list(grid::gpar(fontfamily = "")),
+    children = grid::gList(grid::textGrob("a"))
+  )
+
+  filled <- .grob_family(g, "luciole")
+
+  expect_equal(filled$label_gp$fontfamily, "luciole")
+  expect_equal(filled$label_gp$fontsize, 9)
+  expect_equal(filled$leader_gp_list[[1]]$fontfamily, "luciole")
+  expect_s3_class(filled$label_gp, "gpar")
+})
+
+test_that(".grob_family() does not descend into the units of a grob", {
+  g <- grid::textGrob(
+    "a",
+    x = grid::unit(1, "npc") - grid::unit(2, "pt"),
+    gp = grid::gpar(fontfamily = "")
+  )
+
+  filled <- .grob_family(g, "luciole")
+
+  expect_equal(filled$gp$fontfamily, "luciole")
+  expect_equal(filled$x, g$x)
+})
+
+test_that(".grob_family() reaches the grobs of a gtable", {
+  families <- \(x) {
+    nested <- intersect(c("children", "grobs"), names(x))
+
+    c(
+      x$gp$fontfamily,
+      unlist(lapply(nested, \(slot) unlist(lapply(x[[slot]], families))))
+    )
+  }
+
+  g <- with_fig_device(
+    9,
+    8,
+    ggplot2::ggplotGrob(
+      ggplot2::ggplot(data.frame(x = 1, y = 1), ggplot2::aes(x, y)) +
+        ggplot2::geom_point()
+    )
+  )
+
+  expect_false(all(nzchar(families(g))))
+  expect_true(all(nzchar(families(.grob_family(g, "luciole")))))
+})
+
 test_that("easy_out() trims the grob PNG by the fractions it trims the SVG", {
   tmp <- withr::local_tempdir()
   g <- grid::rectGrob(x = 0.4, y = 0.6, width = 0.3, height = 0.2)
