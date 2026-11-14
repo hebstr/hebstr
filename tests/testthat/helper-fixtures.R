@@ -206,6 +206,8 @@
 
 .diagram_node_available <- \() nzchar(Sys.which("node"))
 
+.shot_png <- \(file) png::writePNG(array(1, c(2, 2, 3)), file)
+
 ### EXTRACTORS ------------------------------------------------------------------
 
 .ft_txt <- \(x, part = "footer") {

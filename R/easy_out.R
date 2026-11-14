@@ -558,12 +558,12 @@ easy_out <- \(
 
     cli_progress_step("Creating PNG file")
 
-    .diagram_png(to_svg, to_png, diagram$width, diagram$height)
+    shot <- .diagram_png(to_svg, to_png, diagram$width, diagram$height)
 
     cli_progress_done()
 
     cli_output(
-      files = c(to_svg, to_png),
+      files = c(to_svg, shot),
       browse = to_svg
     )
 

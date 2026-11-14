@@ -115,6 +115,26 @@ test_that("easy_out() leaves no folder behind when Pele cannot read the text", {
   expect_false(fs::dir_exists(out))
 })
 
+test_that("easy_out() names the exit status when Node fails without a message", {
+  dir <- withr::local_tempdir()
+  node <- fs::path(dir, "node")
+
+  writeLines(
+    c("#!/bin/sh", 'if [ "$1" = "--version" ]; then echo v24.0.0; exit 0; fi', "exit 3"),
+    node
+  )
+  Sys.chmod(node, "755")
+  withr::local_envvar(PATH = dir)
+
+  d <- easy_diagram("erDiagram\n  A")
+
+  expect_error(
+    easy_out(d, dir = withr::local_tempdir(), quiet = TRUE),
+    class = "rlang_error",
+    regexp = "exited with status 3"
+  )
+})
+
 test_that("easy_out() writes a diagram as an SVG carrying its face and palette", {
   skip_if_not(.diagram_node_available())
 
@@ -133,8 +153,7 @@ test_that("easy_out() writes a diagram as an SVG carrying its face and palette",
         vheight = vheight,
         selector = selector
       )
-      fs::file_create(file)
-      invisible(file)
+      .shot_png(file)
     }
   )
 
@@ -168,7 +187,7 @@ test_that("easy_out() takes the palette of the session for a diagram", {
   tmp <- withr::local_tempdir()
   d <- easy_diagram("erDiagram\n  A")
 
-  local_mocked_bindings(webshot = \(url, file, ...) fs::file_create(file))
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
 
   easy_out(d, dir = tmp, quiet = TRUE)
 
@@ -185,7 +204,7 @@ test_that("easy_out() names a diagram's files after the common rules", {
   tmp <- withr::local_tempdir()
   fig_er <- easy_diagram("erDiagram\n  A")
 
-  local_mocked_bindings(webshot = \(url, file, ...) fs::file_create(file))
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
 
   easy_out(fig_er, suffix = "v2", dir = tmp, quiet = TRUE)
 
@@ -202,7 +221,7 @@ test_that("easy_out() writes the diagrams of a bare list into one folder", {
     dcir = easy_diagram("erDiagram\n  C }o--|| D : \"\"")
   )
 
-  local_mocked_bindings(webshot = \(url, file, ...) fs::file_create(file))
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
 
   easy_out(panels, filename = "fig_er", dir = tmp, quiet = TRUE)
 
@@ -210,6 +229,39 @@ test_that("easy_out() writes the diagrams of a bare list into one folder", {
     fs::path_file(fs::dir_ls(fs::path(tmp, "fig-er"))),
     c("fig-er-pmsi.svg", "fig-er-pmsi.png", "fig-er-dcir.svg", "fig-er-dcir.png")
   )
+})
+
+test_that("easy_out() stamps the PNG with the density of its zoomed capture", {
+  skip_if_not(.diagram_node_available())
+
+  tmp <- withr::local_tempdir()
+  d <- easy_diagram("erDiagram\n  A")
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(d, dir = tmp, quiet = TRUE)
+
+  shot <- png::readPNG(fs::path(tmp, "d", "d.png"), info = TRUE)
+
+  expect_equal(attr(shot, "info")$dpi, c(192, 192), tolerance = 0.01)
+})
+
+test_that("easy_out() warns, and drops a stale PNG, when the capture writes nothing", {
+  skip_if_not(.diagram_node_available())
+
+  tmp <- withr::local_tempdir()
+  d <- easy_diagram("erDiagram\n  A")
+
+  fs::dir_create(fs::path(tmp, "d"))
+  fs::file_create(fs::path(tmp, "d", "d.png"))
+
+  local_mocked_bindings(webshot = \(url, file, ...) invisible(NULL))
+
+  expect_warning(
+    easy_out(d, dir = tmp, quiet = TRUE),
+    "No PNG was captured"
+  )
+  expect_identical(fs::path_file(fs::dir_ls(fs::path(tmp, "d"))), "d.svg")
 })
 
 test_that("easy_out() leaves no capture page behind", {

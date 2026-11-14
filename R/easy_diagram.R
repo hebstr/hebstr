@@ -83,9 +83,15 @@ easy_diagram <- \(text) {
   status <- attr(out, "status") %||% 0L
 
   if (status != 0L) {
+    reason <- str_squish(readLines(errors, warn = FALSE, encoding = "UTF-8"))
+
+    if (!length(reason)) {
+      reason <- str_c("Node exited with status ", status, " and no message.")
+    }
+
     cli_abort(c(
       "Pele could not render the diagram.",
-      "x" = "{str_squish(readLines(errors, warn = FALSE, encoding = 'UTF-8'))}"
+      "x" = "{reason}"
     ))
   }
 
@@ -130,6 +136,8 @@ easy_diagram <- \(text) {
 
 .diagram_zoom <- 2
 
+.diagram_dpi <- 96
+
 .diagram_png <- \(to_svg, to_png, width, height) {
   page <- fs::file_temp(tmp_dir = fs::path_dir(to_svg), pattern = "diagram-", ext = "html")
   on.exit(unlink(page), add = TRUE)
@@ -144,6 +152,8 @@ easy_diagram <- \(text) {
     page
   )
 
+  unlink(to_png)
+
   webshot(
     url = page,
     file = to_png,
@@ -154,5 +164,17 @@ easy_diagram <- \(text) {
     quiet = TRUE
   )
 
-  invisible(to_png)
+  if (!fs::file_exists(to_png)) {
+    cli_warn(c(
+      "No PNG was captured from {.path {fs::path_file(to_svg)}}.",
+      "i" = "The page has to reach Chrome: a sandboxed install (snap, flatpak) has a private {.path /tmp} and sees nothing written there.",
+      "i" = "The SVG file itself was written and is unaffected."
+    ))
+
+    return(NULL)
+  }
+
+  png::writePNG(png::readPNG(to_png), to_png, dpi = .diagram_dpi * .diagram_zoom)
+
+  to_png
 }
