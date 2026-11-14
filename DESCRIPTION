@@ -87,3 +87,4 @@ Config/roxygen2/markdown: TRUE
 Config/roxygen2/version: 8.1.0
 URL: https://github.com/hebstr/hebstr
 BugReports: https://github.com/hebstr/hebstr/issues
+SystemRequirements: Node.js (>= 20), optional, to render easy_diagram() through easy_out()
