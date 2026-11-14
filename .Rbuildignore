@@ -8,6 +8,7 @@
 ^prek\.toml$
 ^dev$
 ^\.claude$
+^\.github$
 ^README\.html$
 ^output$
 ^tests/testthat/_problems$
