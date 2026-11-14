@@ -2,7 +2,8 @@
 #'
 #' Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 #' HTML depending on the object type), a flextable to DOCX, an htmlwidget to
-#' HTML, or an `openxlsx2` workbook to XLSX. A figure also goes to an editable
+#' HTML, an `openxlsx2` workbook to XLSX, or a Mermaid diagram from
+#' [easy_diagram()] to SVG and PNG. A figure also goes to an editable
 #' PPTX slide under `pptx = TRUE`, a widget to PNG under `png = TRUE`, and the
 #' variable dictionary [get_vars_dict()] returns also goes to XLSX and JSON. A
 #' named list of such objects is written element by element into a folder of
@@ -13,7 +14,8 @@
 #'   (for example a Gmisc flowchart built from `boxGrob()`/`connectGrob()`),
 #'   htmlwidget (a [reactable::reactable()], say), `hebstr_dict` (what
 #'   [get_vars_dict()] returns), or wbWorkbook object, such as the one
-#'   [get_xlsx()] returns.
+#'   [get_xlsx()] returns, or `hebstr_diagram` (what [easy_diagram()]
+#'   returns).
 #'
 #'   A bare named list of such objects is written element by element, each
 #'   file taking `sep` and the element name after `filename`, all of them
@@ -53,14 +55,16 @@
 #'   `png = TRUE`: the viewport width in pixels the capture composes at
 #'   (default 950), the HTML itself carrying its own layout. Ignored for a
 #'   flextable, whose width is a fraction of the page that only
-#'   [tbl_format()] can compute.
+#'   [tbl_format()] can compute, and for a diagram, which keeps the natural
+#'   size its layout gives it.
 #' @param height Height in inches for SVG output of plots and grid graphics
 #'   only. `NULL` (default) uses the nombre d'or: `width / 1.618`. Ignored
-#'   for tables, widgets and workbooks.
+#'   for tables, widgets, workbooks and diagrams.
 #' @param px Height in pixels for the PNG of plots and grid graphics. For a
 #'   grid grob under `crop = TRUE` it sizes the canvas the drawing is measured
 #'   on rather than the file written, which comes back shorter by whatever the
-#'   trim removes, as `width` and `height` do.
+#'   trim removes, as `width` and `height` do. Ignored for a diagram, whose PNG
+#'   is its natural size at twice the pixel density.
 #' @param crop If `TRUE` (the default, read from
 #'   `getOption("easy_out.crop")`), trim the canvas of a grid grob, in the
 #'   SVG and in the PNG alike, to the bounding box of the drawing, keeping a
@@ -68,8 +72,9 @@
 #'   by the same fractions of the canvas. Grob positions
 #'   are relative to the whole page, so a drawing covering a sub-rectangle
 #'   leaves an empty band that no `width`/`height` value removes. Ignored
-#'   for tables and plots, whose margins come from the theme, and for widgets
-#'   and workbooks. Ignored for the PPTX slide too, which carries the whole
+#'   for tables and plots, whose margins come from the theme, and for widgets,
+#'   workbooks and diagrams, whose layout already ends on the drawing. Ignored
+#'   for the PPTX slide too, which carries the whole
 #'   canvas: an editable object is cropped in the tool that opens it.
 #' @param pptx If `TRUE`, also write the plot or grid graphic to a PPTX slide,
 #'   as an editable DrawingML shape rather than an image. Defaults to
@@ -110,9 +115,17 @@
 #'   and to `NULL` for a family the package does not ship, which leaves the SVG
 #'   rendering in whatever the reader has installed. Supply your own to cover
 #'   another family; build them with `woff2` given as a `data:` URI rather than
-#'   `embed = TRUE`, which re-emits the face as uncompressed TTF.
+#'   `embed = TRUE`, which re-emits the face as uncompressed TTF. A diagram
+#'   ignores it: its SVG carries the face the package bundles for the resolved
+#'   family, when it ships one, whatever this says.
 #'
 #' @details
+#' A diagram is rendered with Pele through Node.js 20 or later, so `easy_out()`
+#' aborts before writing anything when Node is not on the `PATH`. The SVG
+#' carries its own font face and a palette taken from [set_opts()], the PNG is
+#' drawn by Chrome (as for a table) from that same SVG, and neither the slide
+#' of `pptx` nor `crop` applies to it.
+#'
 #' In a remote session, the exported file lives on the server while the
 #' browser runs on the local machine, so a file path cannot be opened.
 #' `easy_out()` then serves `dir` over HTTP on the loopback interface and
@@ -197,7 +210,7 @@ easy_out <- \(
   x_expr <- enexpr(x)
   label <- as_label(x_expr)
 
-  # bare only: five of the supported classes are named lists themselves, so a
+  # bare only: six of the supported classes are named lists themselves, so a
   # class of its own marks one output rather than a list of them
   is_list <- is_bare_list(x)
 
@@ -250,6 +263,23 @@ easy_out <- \(
   # before any folder is created, so a declined install leaves nothing behind
   if (pptx) {
     check_installed("rvg", reason = "to write a PPTX slide.")
+  }
+
+  has_diagram <-
+    if (is_list) {
+      any(map_lgl(x, inherits, "hebstr_diagram"))
+    } else {
+      inherits(x, "hebstr_diagram")
+    }
+
+  diagram <- NULL
+
+  if (has_diagram) {
+    if (is_list) {
+      .diagram_node()
+    } else {
+      diagram <- .diagram_svg(x$text)
+    }
   }
 
   if (is_list) {
@@ -516,6 +546,27 @@ easy_out <- \(
       browse = to_svg
     )
 
+    ### DIAGRAM -------------------------------------------------------------------------
+  } else if (inherits(x, "hebstr_diagram")) {
+    to_svg <- fs::path(path, ext = "svg")
+
+    cli_progress_step("Creating SVG file")
+
+    writeLines(diagram$svg, to_svg, useBytes = TRUE)
+
+    .svg_preserve(to_svg)
+
+    cli_progress_step("Creating PNG file")
+
+    .diagram_png(to_svg, to_png, diagram$width, diagram$height)
+
+    cli_progress_done()
+
+    cli_output(
+      files = c(to_svg, to_png),
+      browse = to_svg
+    )
+
     ### XLSX -------------------------------------------------------------------------
   } else if (inherits(x, "wbWorkbook")) {
     to_xlsx <- fs::path(path, ext = "xlsx")
@@ -611,6 +662,7 @@ easy_out <- \(
         "flextable",
         "wbWorkbook",
         "hebstr_dict",
+        "hebstr_diagram",
         "htmlwidget"
       )
     ) ||
@@ -618,7 +670,7 @@ easy_out <- \(
 
   if (!is_supported) {
     cli_abort(c(
-      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, widget, or workbook object, or a named list of them",
+      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, diagram, widget, or workbook object, or a named list of them",
       "i" = "Received object of class: {.cls {class(x)}}"
     ))
   }

@@ -28,7 +28,8 @@ easy_out(
 (for example a Gmisc flowchart built from \code{boxGrob()}/\code{connectGrob()}),
 htmlwidget (a \code{\link[reactable:reactable]{reactable::reactable()}}, say), \code{hebstr_dict} (what
 \code{\link[=get_vars_dict]{get_vars_dict()}} returns), or wbWorkbook object, such as the one
-\code{\link[=get_xlsx]{get_xlsx()}} returns.
+\code{\link[=get_xlsx]{get_xlsx()}} returns, or \code{hebstr_diagram} (what \code{\link[=easy_diagram]{easy_diagram()}}
+returns).
 
 A bare named list of such objects is written element by element, each
 file taking \code{sep} and the element name after \code{filename}, all of them
@@ -74,16 +75,18 @@ is trimmed back to the drawing it contains. For a widget under
 \code{png = TRUE}: the viewport width in pixels the capture composes at
 (default 950), the HTML itself carrying its own layout. Ignored for a
 flextable, whose width is a fraction of the page that only
-\code{\link[=tbl_format]{tbl_format()}} can compute.}
+\code{\link[=tbl_format]{tbl_format()}} can compute, and for a diagram, which keeps the natural
+size its layout gives it.}
 
 \item{height}{Height in inches for SVG output of plots and grid graphics
 only. \code{NULL} (default) uses the nombre d'or: \code{width / 1.618}. Ignored
-for tables, widgets and workbooks.}
+for tables, widgets, workbooks and diagrams.}
 
 \item{px}{Height in pixels for the PNG of plots and grid graphics. For a
 grid grob under \code{crop = TRUE} it sizes the canvas the drawing is measured
 on rather than the file written, which comes back shorter by whatever the
-trim removes, as \code{width} and \code{height} do.}
+trim removes, as \code{width} and \code{height} do. Ignored for a diagram, whose PNG
+is its natural size at twice the pixel density.}
 
 \item{crop}{If \code{TRUE} (the default, read from
 \code{getOption("easy_out.crop")}), trim the canvas of a grid grob, in the
@@ -92,8 +95,9 @@ small margin. The box is measured on the PNG, so both files are trimmed
 by the same fractions of the canvas. Grob positions
 are relative to the whole page, so a drawing covering a sub-rectangle
 leaves an empty band that no \code{width}/\code{height} value removes. Ignored
-for tables and plots, whose margins come from the theme, and for widgets
-and workbooks. Ignored for the PPTX slide too, which carries the whole
+for tables and plots, whose margins come from the theme, and for widgets,
+workbooks and diagrams, whose layout already ends on the drawing. Ignored
+for the PPTX slide too, which carries the whole
 canvas: an editable object is cropped in the tool that opens it.}
 
 \item{pptx}{If \code{TRUE}, also write the plot or grid graphic to a PPTX slide,
@@ -139,7 +143,9 @@ blocks. Defaults to the bundled faces for the font \code{set_opts()} resolved,
 and to \code{NULL} for a family the package does not ship, which leaves the SVG
 rendering in whatever the reader has installed. Supply your own to cover
 another family; build them with \code{woff2} given as a \verb{data:} URI rather than
-\code{embed = TRUE}, which re-emits the face as uncompressed TTF.}
+\code{embed = TRUE}, which re-emits the face as uncompressed TTF. A diagram
+ignores it: its SVG carries the face the package bundles for the resolved
+family, when it ships one, whatever this says.}
 }
 \value{
 \code{NULL} (invisibly). Called for its side effects.
@@ -147,13 +153,20 @@ another family; build them with \code{woff2} given as a \verb{data:} URI rather 
 \description{
 Export a ggplot, gt, gtsummary, or grid grob object to PNG (and SVG or
 HTML depending on the object type), a flextable to DOCX, an htmlwidget to
-HTML, or an \code{openxlsx2} workbook to XLSX. A figure also goes to an editable
+HTML, an \code{openxlsx2} workbook to XLSX, or a Mermaid diagram from
+\code{\link[=easy_diagram]{easy_diagram()}} to SVG and PNG. A figure also goes to an editable
 PPTX slide under \code{pptx = TRUE}, a widget to PNG under \code{png = TRUE}, and the
 variable dictionary \code{\link[=get_vars_dict]{get_vars_dict()}} returns also goes to XLSX and JSON. A
 named list of such objects is written element by element into a folder of
 its own. Opens the result in a browser unless \code{quiet = TRUE}.
 }
 \details{
+A diagram is rendered with Pele through Node.js 20 or later, so \code{easy_out()}
+aborts before writing anything when Node is not on the \code{PATH}. The SVG
+carries its own font face and a palette taken from \code{\link[=set_opts]{set_opts()}}, the PNG is
+drawn by Chrome (as for a table) from that same SVG, and neither the slide
+of \code{pptx} nor \code{crop} applies to it.
+
 In a remote session, the exported file lives on the server while the
 browser runs on the local machine, so a file path cannot be opened.
 \code{easy_out()} then serves \code{dir} over HTTP on the loopback interface and

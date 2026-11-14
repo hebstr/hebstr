@@ -264,7 +264,7 @@ include_code_file <- \(src, lang = "r") {
 #' | `flextable` | the object | the object |
 #' | `htmlwidget` | the object | the PNG |
 #' | `hebstr_dict` | the widget | the PNG |
-#' | ggplot, `ggmatrix`, grid grob | the SVG | the PNG |
+#' | ggplot, `ggmatrix`, grid grob, `hebstr_diagram` | the SVG | the PNG |
 #'
 #' The class carries the format decision the document made upstream: under
 #' `options(hebstr.docx = TRUE)` a table is a `flextable` and goes to Word
@@ -381,7 +381,11 @@ out_qmd <- \(
 }
 
 .qmd_kind <- \(x) {
-  if (is_ggplot(x) || inherits(x, "ggmatrix") || grid::is.grob(x)) {
+  if (
+    is_ggplot(x) ||
+      inherits(x, c("ggmatrix", "hebstr_diagram")) ||
+      grid::is.grob(x)
+  ) {
     return("figure")
   }
   if (inherits(x, c("gt_tbl", "gtsummary"))) {
@@ -414,7 +418,7 @@ out_qmd <- \(
 
   if (is.null(kind)) {
     cli_abort(c(
-      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, or widget object, or a named list of figures",
+      "{.strong {label}} must be a gt/gtsummary/flextable, ggplot, grid grob, diagram, or widget object, or a named list of figures",
       "i" = "Received object of class: {.cls {class(x)}}"
     ))
   }

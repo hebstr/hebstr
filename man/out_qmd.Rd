@@ -42,7 +42,7 @@ What is handed over follows the object's class and the render target:\tabular{ll
    \code{flextable} \tab the object \tab the object \cr
    \code{htmlwidget} \tab the object \tab the PNG \cr
    \code{hebstr_dict} \tab the widget \tab the PNG \cr
-   ggplot, \code{ggmatrix}, grid grob \tab the SVG \tab the PNG \cr
+   ggplot, \code{ggmatrix}, grid grob, \code{hebstr_diagram} \tab the SVG \tab the PNG \cr
 }
 
 

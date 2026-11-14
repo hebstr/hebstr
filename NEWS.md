@@ -119,6 +119,11 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `easy_diagram()` declares a Mermaid diagram that `easy_out()` writes as an SVG and a PNG and `out_qmd()` publishes like any other figure, as the SVG under HTML and the PNG under any other target.
+  The diagram is rendered at export with [Pele](https://github.com/obsidianmd/pele), shipped in `inst/pele/`, through Node.js 20 or later: Node is required only when `easy_out()` writes a diagram, never to load the package or to build the object, and a missing or too old Node aborts the call before anything is written.
+  The SVG carries the bundled font face and a palette taken from `set_opts()`, and the PNG is drawn by Chrome, like the PNG of a table.
+  `width`, `height`, `px` and `crop` do not apply to a diagram, and `pptx = TRUE` aborts.
+
 - `tbl_caption()` sets the caption of a `gt_tbl` or a `flextable` after `tbl_format()`, for a caption that belongs to the document rather than to the script building the table.
   On a `flextable` it gives the caption the typography `theme_ft()` sets, where a bare `flextable::set_caption()` left it to the `Table Caption` style of whatever template writes the document.
 

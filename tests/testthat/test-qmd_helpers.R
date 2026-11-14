@@ -610,6 +610,51 @@ test_that("out_qmd() hands a figure over as its SVG under HTML", {
   expect_equal(as.character(out_qmd(fig_demo)), "output/fig-demo/fig-demo.svg")
 })
 
+test_that("out_qmd() hands a diagram over as its SVG under HTML", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("html")
+
+  fig_er <- easy_diagram("erDiagram\n  A")
+  .make_out_files("output/fig-er/fig-er.svg")
+
+  expect_equal(as.character(out_qmd(fig_er)), "output/fig-er/fig-er.svg")
+})
+
+test_that("out_qmd() hands a diagram over as its PNG under any other target", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("docx")
+
+  fig_er <- easy_diagram("erDiagram\n  A")
+  .make_out_files("output/fig-er/fig-er.png")
+
+  expect_equal(as.character(out_qmd(fig_er)), "output/fig-er/fig-er.png")
+})
+
+test_that("out_qmd() publishes a list of diagrams as one multi-panel figure", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("html")
+
+  fig_er <- list(
+    pmsi = easy_diagram("erDiagram\n  A"),
+    dcir = easy_diagram("erDiagram\n  B")
+  )
+  .make_out_files(
+    "output/fig-er/fig-er-pmsi.svg",
+    "output/fig-er/fig-er-dcir.svg"
+  )
+
+  expect_equal(
+    as.character(out_qmd(fig_er)),
+    c("output/fig-er/fig-er-pmsi.svg", "output/fig-er/fig-er-dcir.svg")
+  )
+})
+
 test_that("out_qmd() names a workbook apart from an unsupported class", {
   skip_if_not_installed("knitr")
 

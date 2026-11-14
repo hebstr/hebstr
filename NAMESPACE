@@ -20,6 +20,7 @@ export(easy_boot)
 export(easy_check)
 export(easy_cut)
 export(easy_descr)
+export(easy_diagram)
 export(easy_fct)
 export(easy_out)
 export(easy_recode)
@@ -262,7 +263,10 @@ importFrom(gtsummary,
 )
 importFrom(here,here)
 importFrom(htmlwidgets,saveWidget)
-importFrom(jsonlite,write_json)
+importFrom(jsonlite,
+  fromJSON,
+  write_json
+)
 importFrom(labelled,
   generate_dictionary,
   label_attribute,
@@ -408,6 +412,7 @@ importFrom(stringr,
   str_flatten,
   str_flatten_comma,
   str_glue,
+  str_locate,
   str_remove,
   str_remove_all,
   str_replace,
@@ -416,7 +421,8 @@ importFrom(stringr,
   str_starts,
   str_sub,
   str_subset,
-  str_to_lower
+  str_to_lower,
+  str_trim
 )
 importFrom(systemfonts,
   registry_fonts,

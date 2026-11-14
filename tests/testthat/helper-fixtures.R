@@ -194,6 +194,18 @@
   invisible(paths)
 }
 
+.make_fake_node <- \(version, .env = parent.frame()) {
+  dir <- withr::local_tempdir(.local_envir = .env)
+  node <- fs::path(dir, "node")
+
+  writeLines(c("#!/bin/sh", paste0("echo ", version)), node)
+  Sys.chmod(node, "755")
+
+  dir
+}
+
+.diagram_node_available <- \() nzchar(Sys.which("node"))
+
 ### EXTRACTORS ------------------------------------------------------------------
 
 .ft_txt <- \(x, part = "footer") {
