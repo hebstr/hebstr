@@ -1,3 +1,41 @@
+#' Finalise a table into a styled table
+#'
+#' @description
+#' Generic over the object being finalised, which each method turns into a
+#' themed table: a `gt_tbl`, or a `flextable` under
+#' `options(hebstr.docx = TRUE)`.
+#'
+#' * A `gtsummary` table, [tbl_format.gtsummary()]: acronym footnotes, optional
+#'   notes, the missing-value fold.
+#' * A data frame, [tbl_format.data.frame()]: a table declared as its columns,
+#'   their shares of the width and, optionally, a group column.
+#'
+#' The two methods take disjoint arguments, which is why this is a generic and
+#' not one function routing on the class of `x`. Any other class aborts.
+#'
+#' @param x A `gtsummary` table or a data frame.
+#' @param ... Passed on to the method.
+#'
+#' @returns A `gt_tbl` object, or a `flextable` object under
+#'   `options(hebstr.docx = TRUE)`. Style verbs applied downstream must handle
+#'   both classes: see [tbl_font_size()] and [tbl_row_color()].
+#'
+#' @export
+#'
+tbl_format <- \(x, ...) {
+  UseMethod("tbl_format")
+}
+
+#' @export
+tbl_format.default <- \(x, ...) {
+  cli_abort(
+    c(
+      "{.arg x} must be a {.cls gtsummary} table or a data frame, not {.obj_type_friendly {x}}.",
+      i = "Build a {.cls gtsummary} table with {.fun gtsummary::tbl_summary} or {.fun gtsummary::tbl_regression} (optionally via {.fun gtsum_format}) before {.fun tbl_format}, or pass a data frame."
+    )
+  )
+}
+
 #' Finalise a gtsummary table into a styled table
 #'
 #' Converts a `gtsummary` table into a themed table: applies the package
@@ -77,7 +115,7 @@
 #'
 #' @export
 #'
-tbl_format <- \(
+tbl_format.gtsummary <- \(
   x,
   title = NULL,
   note_global = NULL,
@@ -94,15 +132,6 @@ tbl_format <- \(
   title_align = "justify",
   ...
 ) {
-  if (!inherits(x, "gtsummary")) {
-    cli_abort(
-      c(
-        "{.arg x} must be a {.cls gtsummary} table.",
-        i = "Build it with {.fun gtsummary::tbl_summary}, {.fun gtsummary::tbl_regression} (optionally via {.fun gtsum_format}) before {.fun tbl_format}."
-      )
-    )
-  }
-
   if (!is_bool(collapse_missing)) {
     cli_abort(
       "{.arg collapse_missing} must be a single {.code TRUE} or {.code FALSE}."
@@ -272,6 +301,228 @@ tbl_format <- \(
   x
 }
 
+#' Finalise a data frame into a styled table
+#'
+#' Publishes a data frame as a themed table whose layout is declared rather than
+#' derived: each column gets a share of the table width, the first column can
+#' act as a bold stub, and a group column turns into group rows. Rows alternate
+#' between the tinted body and white, the phase restarting at each group row,
+#' so a group heading and its first row never share a ground.
+#'
+#' The even rows are painted by an inline `background-color: #FFFFFF;` rather
+#' than by gt's own striping, which has no notion of group rows. The dark sheet
+#' of the `hebstr-doc` Quarto extension reads that exact declaration to remap
+#' the white onto its own surface colour, so the writer and the reader are
+#' pinned together by a test.
+#'
+#' @param x A data frame. Every column but `group` is published, in order.
+#' @param group Optional name of a column holding the group of each row. Each
+#'   group must occupy one unbroken run of rows.
+#' @param cols_width Numeric vector of the shares of the table width, in
+#'   percent, one per published column in column order. Unnamed, positive, and
+#'   summing to 100.
+#' @param table_width Table width, in pixels. Defaults to `700`. On the Word
+#'   branch it is capped at the usable text width, `page_width`.
+#' @param indent Left padding of the first column under a group, in pixels.
+#'   Defaults to `20`. Ignored without `group`.
+#' @param align Horizontal alignment of every column: `"left"` (the default),
+#'   `"center"` or `"right"`.
+#' @param stub Logical scalar. When `TRUE`, the first column is set in bold and
+#'   its header is emptied.
+#' @param page_width Usable text width, in inches, read on the Word branch only
+#'   and resolved as in [tbl_format.gtsummary()]: the `page_width` option, then
+#'   the `reference-doc` of the document, then `6.5`.
+#' @param ... Must be empty.
+#'
+#' @returns A `gt_tbl` object, or a `flextable` object under
+#'   `options(hebstr.docx = TRUE)`.
+#'
+#' @examples
+#' set_opts()
+#' df <- data.frame(
+#'   key = c("a", "a", "b"),
+#'   label = c("one", "two", "three"),
+#'   n = c("1", "2", "3")
+#' )
+#' tbl_format(df, group = "key", cols_width = c(60, 40))
+#'
+#' @export
+#'
+tbl_format.data.frame <- \(
+  x,
+  group = NULL,
+  cols_width,
+  table_width = 700,
+  indent = 20,
+  align = c("left", "center", "right"),
+  stub = FALSE,
+  page_width = check_opts(page_width),
+  ...
+) {
+  check_dots_empty()
+  rlang::check_required(cols_width)
+
+  align <- match.arg(align)
+
+  grouped <- !is.null(group)
+
+  if (grouped && !(is_scalar_character(group) && group %in% names(x))) {
+    cli_abort("{.arg group} must name one of the columns of {.arg x}.")
+  }
+
+  column <- setdiff(names(x), group)
+
+  label <- if (grouped) as.character(x[[group]]) else character(0)
+
+  if (grouped && length(rle(label)$values) != length(unique(label))) {
+    cli_abort("Each group must occupy one unbroken run of rows.")
+  }
+
+  if (!is.null(names(cols_width))) {
+    cli_abort(
+      "{.arg cols_width} is read in column order and must carry no names."
+    )
+  }
+
+  if (!is.numeric(cols_width) || length(cols_width) != length(column)) {
+    cli_abort(
+      "{.arg cols_width} must hold one number per published column ({length(column)})."
+    )
+  }
+
+  if (any(cols_width <= 0) || !isTRUE(all.equal(sum(cols_width), 100))) {
+    cli_abort("{.arg cols_width} must be positive numbers summing to 100.")
+  }
+
+  .check_size(table_width, "table_width", allow_null = FALSE)
+
+  if (!is_bool(stub)) {
+    cli_abort("{.arg stub} must be a single {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (!missing(page_width)) {
+    .check_size(page_width, "page_width", allow_null = FALSE)
+  }
+
+  broken <- keep(
+    column,
+    \(j) is.character(x[[j]]) && any(str_detect(x[[j]], fixed("\n")))
+  )
+
+  opening <- !duplicated(label)
+
+  row_data <- if (grouped) {
+    seq_along(label) + cumsum(opening)
+  } else {
+    seq_len(nrow(x))
+  }
+
+  row_group <- row_data[opening] - 1L
+
+  render_gt <- \() {
+    out <- x |>
+      gt::gt(groupname_col = group) |>
+      gt::cols_width(
+        .list = map2(
+          column,
+          cols_width,
+          \(j, share) {
+            rlang::new_formula(
+              rlang::sym(j),
+              paste0(sprintf("%.15g", share), "%")
+            )
+          }
+        )
+      ) |>
+      gt::cols_align(align = align, columns = all_of(column)) |>
+      theme_gt(width = table_width) |>
+      gt::cols_label(
+        .list = if (stub) set_names(list(""), column[[1L]]) else list()
+      ) |>
+      gt::tab_options(row.striping.include_table_body = FALSE) |>
+      gt::tab_style(
+        style = gt::cell_fill(color = "white"),
+        locations = compact(list(
+          gt::cells_body(rows = which(row_data %% 2L == 0L)),
+          if (grouped) {
+            gt::cells_row_groups(groups = label[opening][row_group %% 2L == 0L])
+          }
+        ))
+      ) |>
+      gt::tab_style(
+        style = gt::cell_text(weight = "bold"),
+        locations = compact(list(
+          gt::cells_column_labels(),
+          if (grouped) gt::cells_row_groups(),
+          if (stub) gt::cells_body(columns = all_of(column[[1L]]))
+        ))
+      )
+
+    if (length(broken) > 0L) {
+      out <- gt::tab_style(
+        out,
+        style = gt::cell_text(whitespace = "pre-line"),
+        locations = gt::cells_body(columns = all_of(broken))
+      )
+    }
+
+    if (!grouped) {
+      return(out)
+    }
+
+    out |>
+      gt::tab_style(
+        style = str_glue("padding-left: {indent}px;"),
+        locations = gt::cells_body(columns = all_of(column[[1L]]))
+      )
+  }
+
+  render_ft <- \() {
+    page_width <- page_width %||% .page_width()
+
+    .check_size(page_width, "page_width", allow_null = FALSE)
+
+    base <- if (grouped) {
+      x |>
+        flextable::as_grouped_data(groups = group) |>
+        flextable::as_flextable(hide_grouplabel = TRUE)
+    } else {
+      flextable::flextable(x)
+    }
+
+    out <- base |>
+      theme_ft(layout = "fixed") |>
+      flextable::align(align = align, part = "all") |>
+      flextable::bold(part = "header") |>
+      flextable::bold(i = row_group, part = "body") |>
+      flextable::width(
+        j = column,
+        width = cols_width /
+          100 *
+          min(table_width / .px_per_in, page_width)
+      )
+
+    if (grouped) {
+      out <- flextable::padding(
+        out,
+        i = row_data,
+        j = column[[1L]],
+        padding.left = indent * .px_to_pt,
+        part = "body"
+      )
+    }
+
+    if (!stub) {
+      return(out)
+    }
+
+    out |>
+      flextable::bold(i = row_data, j = column[[1L]], part = "body") |>
+      flextable::set_header_labels(values = set_names(list(""), column[[1L]]))
+  }
+
+  if (.is_docx()) render_ft() else render_gt()
+}
 
 .fmt_ft <- \(
   x,

@@ -62,8 +62,10 @@ both classes: see \code{\link[=tbl_font_size]{tbl_font_size()}} and \code{\link[
 Converts a data frame or gtsummary object into a themed table with custom
 font and bold column labels: a \link[gt:gt]{gt::gt} table, or a
 \code{\link[flextable:flextable]{flextable::flextable()}} styled by \code{\link[=theme_ft]{theme_ft()}} under
-\code{options(hebstr.docx = TRUE)}. The data frame twin of \code{\link[=tbl_format]{tbl_format()}}, which
-finalises a \code{gtsummary} table through the same two branches.
+\code{options(hebstr.docx = TRUE)}. Takes a data frame or a \code{gtsummary} table with
+no declared layout, through the same two branches as \code{\link[=tbl_format]{tbl_format()}}; a table
+whose column shares and groups are declared goes through
+\code{\link[=tbl_format.data.frame]{tbl_format.data.frame()}}.
 }
 \details{
 \code{gt} writes no width information into its Word output: neither \code{w:tblW}, nor

@@ -579,3 +579,232 @@ test_that("tbl_format() leaves the template unresolved on the gt branch", {
 
   expect_no_error(tbl_format(gtsum_format(.make_summary_tbl()), width = 500))
 })
+
+test_that("tbl_format() on a data frame paints every even row of a grouped table white", {
+  local_opts()
+
+  res <- tbl_format(.make_decl_df(), group = "key", cols_width = c(60, 40))
+
+  expect_s3_class(res, "gt_tbl")
+
+  cells <- .cell_styles(res)
+  painted <- cells$text[str_detect(cells$style, "#FFFFFF")]
+
+  expect_setequal(painted, c("one", "x", "b", "four", "v", "five", "u"))
+})
+
+test_that("tbl_format() on a data frame alternates the rows of an ungrouped table", {
+  local_opts()
+
+  res <- tbl_format(.make_decl_df()[-1], cols_width = c(50, 50))
+
+  cells <- .cell_styles(res)
+  painted <- cells$text[str_detect(cells$style, "#FFFFFF")]
+
+  expect_setequal(painted, c("two", "y\nz", "four", "v"))
+})
+
+test_that("tbl_format() on a data frame writes the inline white first in the style", {
+  local_opts()
+
+  res <- tbl_format(.make_decl_df(), group = "key", cols_width = c(60, 40))
+
+  cells <- .cell_styles(res)
+  white <- cells[str_detect(cells$style, "#FFFFFF"), ]
+
+  expect_gt(nrow(white), 0)
+  expect_true(all(str_starts(white$style, fixed("background-color: #FFFFFF;"))))
+
+  expect_equal(
+    white$style[white$text == "b"],
+    "background-color: #FFFFFF; font-weight: bold;"
+  )
+  expect_equal(
+    white$style[white$text == "one"],
+    "background-color: #FFFFFF; padding-left: 20px;"
+  )
+})
+
+test_that("tbl_format() on a data frame never paints a data_color-style declaration", {
+  local_opts()
+
+  res <- tbl_format(.make_decl_df(), group = "key", cols_width = c(60, 40))
+
+  cells <- .cell_styles(res)
+
+  expect_false(any(str_detect(cells$style, "; color:")))
+})
+
+test_that("tbl_format() on a data frame turns line breaks in a cell into pre-line", {
+  local_opts()
+
+  res <- tbl_format(.make_decl_df()[-1], cols_width = c(50, 50))
+
+  cells <- .cell_styles(res)
+
+  expect_match(cells$style[cells$text == "y\nz"], "white-space: pre-line;")
+  expect_no_match(cells$style[cells$text == "two"], "pre-line")
+})
+
+test_that("tbl_format() on a data frame sets the stub in bold and empties its header", {
+  local_opts()
+
+  res <- tbl_format(
+    .make_decl_df()[-1],
+    cols_width = c(50, 50),
+    stub = TRUE
+  )
+
+  cells <- .cell_styles(res)
+
+  expect_match(cells$style[cells$text == "one"], "font-weight: bold;")
+  expect_no_match(cells$style[cells$text == "x"], "font-weight")
+  expect_equal(res[["_boxhead"]]$column_label[[1]], "")
+})
+
+test_that("tbl_format() on a data frame sets the column shares", {
+  local_opts()
+
+  res <- tbl_format(.make_decl_df()[-1], cols_width = c(35.5, 64.5))
+
+  widths <- res[["_boxhead"]]$column_width
+
+  expect_equal(unlist(widths), c("35.5%", "64.5%"))
+})
+
+test_that("tbl_format() on a data frame returns a flextable under hebstr.docx", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(
+    .make_decl_df(),
+    group = "key",
+    cols_width = c(60, 40),
+    table_width = 480,
+    page_width = 6.5
+  )
+
+  expect_s3_class(res, "flextable")
+  expect_equal(res$properties$layout, "fixed")
+  expect_equal(nrow(res$body$dataset), 8L)
+  expect_equal(unname(dim(res)$widths), c(0.6, 0.4) * 480 / 96)
+})
+
+test_that("tbl_format() on a data frame caps the Word width at the page width", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(
+    .make_decl_df()[-1],
+    cols_width = c(50, 50),
+    table_width = 1200,
+    page_width = 6.5
+  )
+
+  expect_equal(unname(dim(res)$widths), c(3.25, 3.25))
+})
+
+test_that("tbl_format() on a data frame sets the stub on the Word branch", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(
+    .make_decl_df()[-1],
+    cols_width = c(50, 50),
+    stub = TRUE,
+    page_width = 6.5
+  )
+
+  expect_equal(.ft_txt(res, "header"), "n")
+})
+
+test_that("tbl_format() on a data frame resolves the template on the Word branch only", {
+  local_opts()
+
+  local_mocked_bindings(
+    .page_width = \(...) cli::cli_abort("resolved on the gt branch")
+  )
+
+  expect_no_error(
+    tbl_format(.make_decl_df()[-1], cols_width = c(50, 50))
+  )
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  expect_error(
+    tbl_format(.make_decl_df()[-1], cols_width = c(50, 50)),
+    "resolved on the gt branch"
+  )
+})
+
+test_that("tbl_format() on a data frame reads page_width from the template when unset", {
+  local_opts()
+  withr::local_options(hebstr.docx = TRUE)
+
+  local_mocked_bindings(.page_width = \(...) 8)
+
+  res <- tbl_format(
+    .make_decl_df()[-1],
+    cols_width = c(50, 50),
+    table_width = 600
+  )
+
+  expect_equal(unname(dim(res)$widths), c(3.125, 3.125))
+})
+
+test_that("tbl_format() on a data frame aborts when a group is not one unbroken run", {
+  local_opts()
+
+  df <- .make_decl_df()
+  df$key <- c("a", "b", "a", "b", "c")
+
+  expect_error(
+    tbl_format(df, group = "key", cols_width = c(60, 40)),
+    "unbroken run"
+  )
+})
+
+test_that("tbl_format() on a data frame aborts on a group that is not a column", {
+  local_opts()
+
+  expect_error(
+    tbl_format(.make_decl_df(), group = "nope", cols_width = c(60, 40)),
+    "group"
+  )
+})
+
+test_that("tbl_format() on a data frame checks the column shares", {
+  local_opts()
+
+  df <- .make_decl_df()[-1]
+
+  expect_error(tbl_format(df), "cols_width")
+  expect_error(tbl_format(df, cols_width = c(a = 50, b = 50)), "no names")
+  expect_error(tbl_format(df, cols_width = c(50, 25, 25)), "one number per")
+  expect_error(tbl_format(df, cols_width = c(40, 40)), "summing to 100")
+  expect_error(tbl_format(df, cols_width = c(110, -10)), "positive")
+  expect_error(tbl_format(df, cols_width = c("50", "50")), "one number per")
+})
+
+test_that("tbl_format() on a data frame checks the width, the stub and the dots", {
+  local_opts()
+
+  df <- .make_decl_df()[-1]
+
+  expect_error(
+    tbl_format(df, cols_width = c(50, 50), table_width = 0),
+    "table_width"
+  )
+  expect_error(
+    tbl_format(df, cols_width = c(50, 50), stub = NA),
+    "stub"
+  )
+  expect_error(
+    tbl_format(df, cols_width = c(50, 50), page_width = -1),
+    "page_width"
+  )
+  expect_error(
+    tbl_format(df, cols_width = c(50, 50), title = "t"),
+    "title"
+  )
+})

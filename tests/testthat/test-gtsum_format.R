@@ -217,8 +217,19 @@ test_that("gtsum_format() leaves an eventless regression table untouched", {
   expect_false(anyNA(res$table_body$estimate[res$table_body$variable == "x"]))
 })
 
-test_that("tbl_format() aborts informatively on a non-gtsummary input", {
-  expect_error(tbl_format(mtcars), "gtsummary")
+test_that("tbl_format() aborts informatively on an unsupported class", {
+  expect_error(tbl_format(.make_gt_stat()), "gtsummary")
+  expect_error(tbl_format(1), "data frame")
+  expect_error(tbl_format(NULL), "gtsummary")
+})
+
+test_that("tbl_format() takes a data frame as a valid input", {
+  local_opts()
+
+  expect_s3_class(
+    tbl_format(mtcars[, 1:2], cols_width = c(50, 50)),
+    "gt_tbl"
+  )
 })
 
 test_that("tbl_format() attaches note_pvalue to the p-value column", {

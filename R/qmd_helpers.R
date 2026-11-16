@@ -3,8 +3,10 @@
 #' Converts a data frame or gtsummary object into a themed table with custom
 #' font and bold column labels: a [gt::gt] table, or a
 #' [flextable::flextable()] styled by [theme_ft()] under
-#' `options(hebstr.docx = TRUE)`. The data frame twin of [tbl_format()], which
-#' finalises a `gtsummary` table through the same two branches.
+#' `options(hebstr.docx = TRUE)`. Takes a data frame or a `gtsummary` table with
+#' no declared layout, through the same two branches as [tbl_format()]; a table
+#' whose column shares and groups are declared goes through
+#' [tbl_format.data.frame()].
 #'
 #' @details
 #' `gt` writes no width information into its Word output: neither `w:tblW`, nor

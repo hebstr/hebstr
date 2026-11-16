@@ -6,7 +6,7 @@
   `theme_ft()` defaults `alpha` to `"Aptos"` and `digit` to `alpha` instead of reading the session font, and the Word branch of `tbl_qmd()` follows unless `font_family` is passed.
   A docx goes to readers who hold the Office families and not a font such as Luciole, which Word replaced with Calibri whenever it refused the embedded faces.
   Everything else keeps the session font: HTML, SVG and PNG outputs, figures inserted in a docx included.
-  A table that has to stay in another family in Word passes it explicitly, `tbl_format(alpha = "Luciole")`, and `easy_out()` still embeds that family.
+  A `gtsummary` table that has to stay in another family in Word passes it explicitly, `tbl_format(alpha = "Luciole")`, and `easy_out()` still embeds that family.
   `easy_out()` no longer embeds a fallback family taken from the writing machine, and no longer lists a family as its own fallback, so an Aptos table carries `w:altName` `Calibri`.
 
 - `theme_ft()` sets its base font size to 9 points instead of 10, so stats and estimates drop to 8 points and p-values and footnotes to 7.
@@ -118,6 +118,14 @@ Options and the variable classification cache now live in an internal package st
   `model_mv`, `ref_sep` and `ref_no` serve this argument alone and go with it at removal.
 
 ## New features
+
+- `tbl_format()` is an S3 generic, and takes a data frame through `tbl_format.data.frame()`.
+  The method publishes a table whose layout is declared: `cols_width` gives each column its share of the width, `group` turns a column into group rows, `stub` sets the first column in bold, and `table_width` (pixels, default `700`) and `page_width` size it on the `gt` and the Word branch alike, the Word branch returning a `flextable` under `options(hebstr.docx = TRUE)`.
+  Rows alternate between the tinted body and white, the phase restarting at each group row.
+  The even rows carry an inline `background-color: #FFFFFF;`, which the dark sheet of the `hebstr-doc` Quarto extension remaps onto its own surface colour.
+  The `gtsummary` method is the former `tbl_format()` unchanged, so what a `gtsummary` table returns does not change.
+  `tbl_format()` on any other class aborts, naming the two accepted inputs; `tbl_format(mtcars)` used to abort for want of a `gtsummary` table and now fails on the missing `cols_width`.
+  The data frame method takes no `title` or `note_global`, and no arguments through `...`.
 
 - `easy_out(pair = TRUE)`, or `options(easy_out.pair = TRUE)`, writes a figure as a light and a dark pair, `<name>-light.{svg,png}` and `<name>-dark.{svg,png}`, and no bare `<name>.svg` or `<name>.png`; `out_qmd()` reads the same option and the same names.
   It covers a plot, a grid graphic and a diagram, each element of a named list getting its own pair, and is ignored for every other class: a table follows the page's scheme through its own stylesheet, which an `<img>` cannot.

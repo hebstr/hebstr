@@ -16,6 +16,14 @@
   )
 }
 
+.make_decl_df <- \() {
+  data.frame(
+    key = c("a", "a", "b", "b", "c"),
+    label = c("one", "two", "three", "four", "five"),
+    n = c("x", "y\nz", "w", "v", "u")
+  )
+}
+
 ### GT / FLEXTABLE --------------------------------------------------------------
 
 .make_gt_stat <- \() gt::gt(.tbl_data())
@@ -236,6 +244,17 @@
   .keep <- !is.na(x$`_styles`$colname) & x$`_styles`$colname == col
 
   x$`_styles`$styles[.keep]
+}
+
+.cell_styles <- \(x) {
+  html <- gt::as_raw_html(x, inline_css = FALSE)
+
+  cells <- stringr::str_match_all(
+    html,
+    "<t[dh] [^>]*?style=\"([^\"]*)\"[^>]*>([^<]*)"
+  )[[1]]
+
+  data.frame(style = cells[, 2], text = cells[, 3])
 }
 
 .gt_align <- \(x, locname) {

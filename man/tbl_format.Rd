@@ -2,98 +2,14 @@
 % Please edit documentation in R/tbl_format.R
 \name{tbl_format}
 \alias{tbl_format}
-\title{Finalise a gtsummary table into a styled table}
+\title{Finalise a table into a styled table}
 \usage{
-tbl_format(
-  x,
-  title = NULL,
-  note_global = NULL,
-  note_pvalue = NULL,
-  label_vargrp = NULL,
-  note_vargrp = NULL,
-  acro_list = check_opts(acro),
-  acro_sep = check_opts(sep$ext),
-  zero_replace = "^0\\\\s",
-  collapse_missing = TRUE,
-  missing_size = 11,
-  width = 700,
-  page_width = check_opts(page_width),
-  title_align = "justify",
-  ...
-)
+tbl_format(x, ...)
 }
 \arguments{
-\item{x}{A \code{gtsummary} table, typically built with
-\code{\link[gtsummary:tbl_summary]{gtsummary::tbl_summary()}} or \code{\link[gtsummary:tbl_regression]{gtsummary::tbl_regression()}}, optionally
-pre-formatted with \code{\link[=gtsum_format]{gtsum_format()}}.}
+\item{x}{A \code{gtsummary} table or a data frame.}
 
-\item{title}{Optional table title, interpreted as markdown. On the Word
-branch it becomes the \code{flextable} caption, which the Quarto \code{docx} pipeline
-drops: caption a table rendered from Quarto through the chunk's \code{tbl-cap}
-option, which serves both formats and carries the cross-references. The
-loss is the Quarto pipeline's alone: a table written to a standalone file
-by \code{\link[=easy_out]{easy_out()}} carries this title into the \code{.docx}.}
-
-\item{note_global}{Optional character string added as a global table
-footnote, alongside the automatic acronym definitions.}
-
-\item{note_pvalue}{Optional footnote attached to the p-value column.
-Coefficient (regression) tables only.}
-
-\item{label_vargrp}{Character vector of variable names identifying the row
-group(s) targeted by \code{note_vargrp}. Non-coefficient tables only.}
-
-\item{note_vargrp}{Optional footnote attached to the label cells of the
-variables named in \code{label_vargrp}. Non-coefficient tables only.}
-
-\item{acro_list}{Named list used as the acronym dictionary: names are the
-acronyms to detect, values their definitions. Defaults to the \code{acro}
-option (\code{check_opts(acro)}).}
-
-\item{acro_sep}{Separator inserted between acronym definitions in the
-footnote. Defaults to the \code{sep$ext} option.}
-
-\item{zero_replace}{Regular expression; matching cell values are replaced
-with \code{0}. Set to \code{NULL} to disable. Defaults to \code{"^0\\\\s"}.}
-
-\item{collapse_missing}{Logical scalar. When \code{TRUE} (the default), the
-automatic missing-value rows are folded into a single \code{dm} column via
-\code{\link[=col_missing]{col_missing()}} and that column is set to \code{missing_size}. Tables built with
-\code{gtsummary::tbl_summary(missing = "no")}, or carrying no missing rows, are
-left untouched.}
-
-\item{missing_size}{Font size, in pixels, applied to the \code{dm} column when
-\code{collapse_missing = TRUE}. Defaults to \code{11}. Left unset under
-\code{options(hebstr.docx = TRUE)}, the column takes the p-value size of
-\code{\link[=theme_ft]{theme_ft()}} instead, 7 points by default.}
-
-\item{width}{Table width, in pixels. Defaults to \code{700}. On the Word branch it
-is converted to the fraction of \code{page_width} that
-\code{\link[flextable:set_table_properties]{flextable::set_table_properties()}} expects, capped at \code{1}. Set to \code{NULL} to
-let the table keep its natural width.}
-
-\item{page_width}{Usable text width, in inches, used to convert \code{width} on
-the Word branch, and read on that branch only. Defaults to the \code{page_width}
-option, itself unset: the width is then measured on the \code{reference-doc} of
-the document being rendered, looked up by \code{\link[=docx_page_width]{docx_page_width()}} in the YAML
-front matter then in the Quarto extension providing the Word format. A
-document declaring neither falls back to \code{6.5}, a US Letter page with
-one-inch margins; one declaring a template that cannot be measured falls
-back too, with a warning. It is a property of the rendered document rather
-than of the table: where the lookup cannot reach it, set it once through
-\code{\link[=set_opts]{set_opts()}} rather than at each call.}
-
-\item{title_align}{Horizontal alignment of the title (\code{"justify"}, \code{"left"},
-\code{"center"}, or \code{"right"}). Defaults to \code{"justify"}. Exposed here rather
-than left to \code{...} because the two themes default it differently
-(\code{\link[=theme_gt]{theme_gt()}} justifies, \code{\link[=theme_ft]{theme_ft()}} left-aligns): one value drives both
-branches, so a table titled from a single source is aligned the same way
-in HTML and in Word.}
-
-\item{...}{Passed on to \code{\link[=theme_gt]{theme_gt()}}, or to \code{\link[=theme_ft]{theme_ft()}} under
-\code{options(hebstr.docx = TRUE)}. Set the table width through \code{width} and the
-title alignment through \code{title_align} rather than here: the two themes take
-the first in different units and default the second differently.}
+\item{...}{Passed on to the method.}
 }
 \value{
 A \code{gt_tbl} object, or a \code{flextable} object under
@@ -101,17 +17,16 @@ A \code{gt_tbl} object, or a \code{flextable} object under
 both classes: see \code{\link[=tbl_font_size]{tbl_font_size()}} and \code{\link[=tbl_row_color]{tbl_row_color()}}.
 }
 \description{
-Converts a \code{gtsummary} table into a themed table: applies the package
-theme, an optional markdown title, automatic acronym footnotes drawn
-from a reference dictionary, optional user footnotes (global, p-value column,
-variable group), and an optional zero-value substitution. Acronyms present in
-the table headers, labels, and column names are detected and their
-definitions appended as a footnote, replacing the native \code{gtsummary}
-abbreviations.
+Generic over the object being finalised, which each method turns into a
+themed table: a \code{gt_tbl}, or a \code{flextable} under
+\code{options(hebstr.docx = TRUE)}.
+\itemize{
+\item A \code{gtsummary} table, \code{\link[=tbl_format.gtsummary]{tbl_format.gtsummary()}}: acronym footnotes, optional
+notes, the missing-value fold.
+\item A data frame, \code{\link[=tbl_format.data.frame]{tbl_format.data.frame()}}: a table declared as its columns,
+their shares of the width and, optionally, a group column.
 }
-\examples{
-set_opts()
-tbl <- gtsummary::tbl_summary(mtcars, include = c(mpg, cyl))
-tbl_format(tbl)
 
+The two methods take disjoint arguments, which is why this is a generic and
+not one function routing on the class of \code{x}. Any other class aborts.
 }
