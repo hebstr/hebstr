@@ -4,6 +4,6 @@
       res <- gt_qmd(head(mtcars, 3))
     Condition
       Warning:
-      `gt_qmd()` was deprecated in hebstr 0.0.0.9000.
+      `gt_qmd()` was deprecated in hebstr 0.1.0.
       i Please use `tbl_qmd()` instead.
 

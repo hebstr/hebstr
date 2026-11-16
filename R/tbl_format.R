@@ -697,7 +697,7 @@ tbl_format.data.frame <- \(
 #' @export
 #'
 gt_format <- \(...) {
-  deprecate_soft("0.0.0.9000", "gt_format()", "tbl_format()")
+  deprecate_soft("0.1.0", "gt_format()", "tbl_format()")
 
   tbl_format(...)
 }

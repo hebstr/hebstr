@@ -171,7 +171,7 @@ tbl_qmd <- \(
 #' @export
 #'
 gt_qmd <- \(...) {
-  deprecate_soft("0.0.0.9000", "gt_qmd()", "tbl_qmd()")
+  deprecate_soft("0.1.0", "gt_qmd()", "tbl_qmd()")
 
   tbl_qmd(...)
 }

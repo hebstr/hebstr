@@ -398,7 +398,7 @@ gtsum_format <- \(
 ) {
   if (is_present(show_single_row)) {
     deprecate_soft(
-      "0.0.0.9000",
+      "0.1.0",
       "gtsum_format(show_single_row)",
       details = c(
         i = "Fold a dichotomous variable onto one row with `gtsummary::tbl_regression(show_single_row = <var>)`.",

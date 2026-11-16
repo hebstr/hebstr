@@ -452,7 +452,7 @@ show_single_row <- \(
   exclude = names(data[, 1])
 ) {
   deprecate_soft(
-    "0.0.0.9000",
+    "0.1.0",
     "show_single_row()",
     details = c(
       i = "Fold the row from the table instead, with the `show_single_row` argument of `gtsummary::tbl_summary()` or `gtsummary::tbl_regression()`.",

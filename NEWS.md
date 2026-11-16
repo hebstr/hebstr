@@ -1,4 +1,4 @@
-# hebstr 0.0.0.9000
+# hebstr 0.1.0
 
 ## Breaking changes
 

@@ -4,6 +4,6 @@
       res <- gt_format(tbl)
     Condition
       Warning:
-      `gt_format()` was deprecated in hebstr 0.0.0.9000.
+      `gt_format()` was deprecated in hebstr 0.1.0.
       i Please use `tbl_format()` instead.
 
