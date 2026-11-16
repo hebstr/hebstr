@@ -121,7 +121,8 @@ Options and the variable classification cache now live in an internal package st
 
 - `tbl_format()` is an S3 generic, and takes a data frame through `tbl_format.data.frame()`.
   The method publishes a table whose layout is declared: `cols_width` gives each column its share of the width, `group` turns a column into group rows, `stub` sets the first column in bold, and `table_width` (pixels, default `700`) and `page_width` size it on the `gt` and the Word branch alike, the Word branch returning a `flextable` under `options(hebstr.docx = TRUE)`.
-  Rows alternate between the tinted body and white, the phase restarting at each group row.
+  Rows alternate between the tinted body and white over the displayed rows, group headings included, so a group heading and its first row never share a ground.
+  The `group` column must hold no missing value, and `indent` (checked under `group` only) must be a single non-negative number: both abort with a message naming the argument.
   The even rows carry an inline `background-color: #FFFFFF;`, which the dark sheet of the `hebstr-doc` Quarto extension remaps onto its own surface colour.
   The `gtsummary` method is the former `tbl_format()` unchanged, so what a `gtsummary` table returns does not change.
   `tbl_format()` on any other class aborts, naming the two accepted inputs; `tbl_format(mtcars)` used to abort for want of a `gtsummary` table and now fails on the missing `cols_width`.

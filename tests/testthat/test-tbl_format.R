@@ -690,6 +690,31 @@ test_that("tbl_format() on a data frame returns a flextable under hebstr.docx", 
   expect_equal(unname(dim(res)$widths), c(0.6, 0.4) * 480 / 96)
 })
 
+test_that("tbl_format() on a data frame stripes the Word branch like the gt branch", {
+  local_opts()
+
+  df <- .make_decl_df()
+
+  painted <- .cell_styles(tbl_format(df, group = "key", cols_width = c(60, 40)))
+  painted <- painted$text[str_detect(painted$style, "#FFFFFF")]
+
+  withr::local_options(hebstr.docx = TRUE)
+
+  res <- tbl_format(
+    df,
+    group = "key",
+    cols_width = c(60, 40),
+    page_width = 6.5
+  )
+
+  display <- c("a", "one", "two", "b", "three", "four", "c", "five")
+  ground <- res$body$styles$cells$background.color$data[, "label"]
+  bold <- res$body$styles$text$bold$data[, "label"]
+
+  expect_setequal(display[ground == "white"], intersect(painted, display))
+  expect_equal(display[bold], c("a", "b", "c"))
+})
+
 test_that("tbl_format() on a data frame caps the Word width at the page width", {
   local_opts()
   withr::local_options(hebstr.docx = TRUE)
@@ -764,6 +789,25 @@ test_that("tbl_format() on a data frame aborts when a group is not one unbroken 
   )
 })
 
+test_that("tbl_format() on a data frame aborts on a missing group, adjacent or not", {
+  local_opts()
+
+  adjacent <- .make_decl_df()
+  adjacent$key[1:2] <- NA
+
+  isolated <- .make_decl_df()
+  isolated$key[3] <- NA
+
+  expect_error(
+    tbl_format(adjacent, group = "key", cols_width = c(60, 40)),
+    "missing"
+  )
+  expect_error(
+    tbl_format(isolated, group = "key", cols_width = c(60, 40)),
+    "missing"
+  )
+})
+
 test_that("tbl_format() on a data frame aborts on a group that is not a column", {
   local_opts()
 
@@ -784,6 +828,43 @@ test_that("tbl_format() on a data frame checks the column shares", {
   expect_error(tbl_format(df, cols_width = c(40, 40)), "summing to 100")
   expect_error(tbl_format(df, cols_width = c(110, -10)), "positive")
   expect_error(tbl_format(df, cols_width = c("50", "50")), "one number per")
+})
+
+test_that("tbl_format() on a data frame checks the indent of a grouped table", {
+  local_opts()
+
+  df <- .make_decl_df()
+
+  for (docx in c(FALSE, TRUE)) {
+    withr::local_options(hebstr.docx = docx)
+
+    for (bad in list("a", NULL, NA_real_, -1, Inf, c(10, 20))) {
+      expect_error(
+        tbl_format(
+          df,
+          group = "key",
+          cols_width = c(60, 40),
+          indent = bad,
+          page_width = 6.5
+        ),
+        "indent"
+      )
+    }
+
+    expect_no_error(
+      tbl_format(
+        df,
+        group = "key",
+        cols_width = c(60, 40),
+        indent = 0,
+        page_width = 6.5
+      )
+    )
+  }
+
+  expect_no_error(
+    tbl_format(df[-1], cols_width = c(50, 50), indent = "a")
+  )
 })
 
 test_that("tbl_format() on a data frame checks the width, the stub and the dots", {

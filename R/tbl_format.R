@@ -306,8 +306,8 @@ tbl_format.gtsummary <- \(
 #' Publishes a data frame as a themed table whose layout is declared rather than
 #' derived: each column gets a share of the table width, the first column can
 #' act as a bold stub, and a group column turns into group rows. Rows alternate
-#' between the tinted body and white, the phase restarting at each group row,
-#' so a group heading and its first row never share a ground.
+#' between the tinted body and white over the displayed rows, group headings
+#' included, so a group heading and its first row never share a ground.
 #'
 #' The even rows are painted by an inline `background-color: #FFFFFF;` rather
 #' than by gt's own striping, which has no notion of group rows. The dark sheet
@@ -317,14 +317,16 @@ tbl_format.gtsummary <- \(
 #'
 #' @param x A data frame. Every column but `group` is published, in order.
 #' @param group Optional name of a column holding the group of each row. Each
-#'   group must occupy one unbroken run of rows.
+#'   group must occupy one unbroken run of rows, and the column must hold no
+#'   missing value.
 #' @param cols_width Numeric vector of the shares of the table width, in
 #'   percent, one per published column in column order. Unnamed, positive, and
 #'   summing to 100.
 #' @param table_width Table width, in pixels. Defaults to `700`. On the Word
 #'   branch it is capped at the usable text width, `page_width`.
-#' @param indent Left padding of the first column under a group, in pixels.
-#'   Defaults to `20`. Ignored without `group`.
+#' @param indent Left padding of the first column under a group, in pixels: a
+#'   single non-negative number. Defaults to `20`. Ignored, and not checked,
+#'   without `group`.
 #' @param align Horizontal alignment of every column: `"left"` (the default),
 #'   `"center"` or `"right"`.
 #' @param stub Logical scalar. When `TRUE`, the first column is set in bold and
@@ -374,6 +376,10 @@ tbl_format.data.frame <- \(
 
   label <- if (grouped) as.character(x[[group]]) else character(0)
 
+  if (grouped && anyNA(label)) {
+    cli_abort("The {.arg group} column must hold no missing value.")
+  }
+
   if (grouped && length(rle(label)$values) != length(unique(label))) {
     cli_abort("Each group must occupy one unbroken run of rows.")
   }
@@ -398,6 +404,15 @@ tbl_format.data.frame <- \(
 
   if (!is_bool(stub)) {
     cli_abort("{.arg stub} must be a single {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (
+    grouped &&
+      !(is.numeric(indent) &&
+        length(indent) == 1L &&
+        isTRUE(is.finite(indent) && indent >= 0))
+  ) {
+    cli_abort("{.arg indent} must be a single non-negative number.")
   }
 
   if (!missing(page_width)) {

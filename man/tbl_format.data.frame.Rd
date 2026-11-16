@@ -20,7 +20,8 @@
 \item{x}{A data frame. Every column but \code{group} is published, in order.}
 
 \item{group}{Optional name of a column holding the group of each row. Each
-group must occupy one unbroken run of rows.}
+group must occupy one unbroken run of rows, and the column must hold no
+missing value.}
 
 \item{cols_width}{Numeric vector of the shares of the table width, in
 percent, one per published column in column order. Unnamed, positive, and
@@ -29,8 +30,9 @@ summing to 100.}
 \item{table_width}{Table width, in pixels. Defaults to \code{700}. On the Word
 branch it is capped at the usable text width, \code{page_width}.}
 
-\item{indent}{Left padding of the first column under a group, in pixels.
-Defaults to \code{20}. Ignored without \code{group}.}
+\item{indent}{Left padding of the first column under a group, in pixels: a
+single non-negative number. Defaults to \code{20}. Ignored, and not checked,
+without \code{group}.}
 
 \item{align}{Horizontal alignment of every column: \code{"left"} (the default),
 \code{"center"} or \code{"right"}.}
@@ -52,8 +54,8 @@ A \code{gt_tbl} object, or a \code{flextable} object under
 Publishes a data frame as a themed table whose layout is declared rather than
 derived: each column gets a share of the table width, the first column can
 act as a bold stub, and a group column turns into group rows. Rows alternate
-between the tinted body and white, the phase restarting at each group row,
-so a group heading and its first row never share a ground.
+between the tinted body and white over the displayed rows, group headings
+included, so a group heading and its first row never share a ground.
 }
 \details{
 The even rows are painted by an inline \verb{background-color: #FFFFFF;} rather
