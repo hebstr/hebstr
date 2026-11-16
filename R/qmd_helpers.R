@@ -254,6 +254,11 @@ include_code_file <- \(src, lang = "r") {
 #' @param dir,subdir,suffix,sep The path-forming arguments of [easy_out()],
 #'   with the same defaults and the same meaning. Pass here whatever the
 #'   writing call passed.
+#' @param pair Whether the figures were written as a light and a dark pair,
+#'   with the same default as [easy_out()], `getOption("easy_out.pair", FALSE)`.
+#'   When `TRUE`, a figure is read from its `-light` file, and the call aborts
+#'   if the `-dark.svg` twin of any panel is missing. Tables and widgets are
+#'   unaffected.
 #'
 #' @details
 #' What is handed over follows the object's class and the render target:
@@ -301,9 +306,14 @@ out_qmd <- \(
   dir = getOption("easy_out.dir", default = "output"),
   subdir = TRUE,
   suffix = "",
-  sep = "_"
+  sep = "_",
+  pair = getOption("easy_out.pair", default = FALSE)
 ) {
   check_installed("knitr", reason = "to publish an output in a document.")
+
+  if (!is_bool(pair)) {
+    cli_abort("{.arg pair} must be {.code TRUE} or {.code FALSE}.")
+  }
 
   if (!is.null(filename) && (!is_scalar_character(filename) || is.na(filename))) {
     cli_abort("{.arg filename} must be a single string.")
@@ -348,8 +358,28 @@ out_qmd <- \(
   }
 
   ext <- if (kind == "figure" && html) "svg" else "png"
+  shade <- if (pair && kind == "figure") "light"
 
-  knitr::include_graphics(.qmd_path(ref, panels, ext, dir, subdir, suffix, sep))
+  if (!is.null(shade)) {
+    .qmd_twins(label, ref, panels, dir, subdir, suffix, sep)
+  }
+
+  knitr::include_graphics(.qmd_path(ref, panels, ext, dir, subdir, suffix, sep, shade))
+}
+
+.qmd_twins <- \(label, ref, panels, dir, subdir, suffix, sep) {
+  twins <- .qmd_path(ref, panels, "svg", dir, subdir, suffix, sep, "dark")
+  absent <- twins[!fs::file_exists(twins)]
+
+  if (length(absent)) {
+    cli_abort(c(
+      "{.strong {label}} has no dark twin under {.code pair = TRUE}.",
+      "x" = "Not found: {.path {absent}}.",
+      "i" = "Write it with {.fun easy_out} under the same option: {.code options(easy_out.pair = TRUE)}."
+    ))
+  }
+
+  invisible(twins)
 }
 
 # a symbol names a whole output and symbol$symbol one element of a bare list,
@@ -456,7 +486,7 @@ out_qmd <- \(
   names(x)
 }
 
-.qmd_path <- \(ref, panels, ext, dir, subdir, suffix, sep) {
+.qmd_path <- \(ref, panels, ext, dir, subdir, suffix, sep, shade = NULL) {
   folder <- .out_subdir(ref$base, subdir)
   out_dir <- if (isFALSE(folder)) fs::path(dir) else fs::path(dir, folder)
 
@@ -469,5 +499,11 @@ out_qmd <- \(
     stems <- str_c(stems, sep, suffix)
   }
 
-  fs::path(out_dir, map_chr(stems, .out_name), ext = ext)
+  files <- map_chr(stems, .out_name)
+
+  if (!is.null(shade)) {
+    files <- str_c(files, "-", shade)
+  }
+
+  fs::path(out_dir, files, ext = ext)
 }

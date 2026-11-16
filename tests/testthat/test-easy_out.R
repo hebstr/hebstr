@@ -3257,3 +3257,310 @@ test_that("easy_out.export separates a Word render from a docx deliverable", {
 
   expect_true(fs::file_exists(fs::path(deliver, "tbl", "tbl", ext = "docx")))
 })
+
+test_that("svg_dark() mirrors the neutrals between the text and the surface", {
+  tmp <- withr::local_tempdir()
+  svg <- fs::path(tmp, "a.svg")
+  writeLines(
+    c(
+      "<svg><rect style='fill: #FFFFFF;'/>",
+      "<text style='fill: #000000;'/>",
+      "<g style='fill: #808080;'/></svg>"
+    ),
+    svg
+  )
+
+  svg_dark(svg)
+
+  out <- paste(readLines(svg), collapse = "\n")
+
+  expect_match(out, "fill: #101F29;", fixed = TRUE)
+  expect_match(out, "fill: #E8E8E8;", fixed = TRUE)
+  expect_match(out, "fill: #7B8388;", fixed = TRUE)
+})
+
+test_that("svg_dark() leaves a chromatic colour and a clip id alone", {
+  tmp <- withr::local_tempdir()
+  svg <- fs::path(tmp, "a.svg")
+  writeLines(
+    "<svg><clipPath id='cpABCDEF'/><g clip-path='url(#cpABCDEF)' fill='#0099FF' stroke='#78C9FF'/></svg>",
+    svg
+  )
+
+  svg_dark(svg)
+
+  out <- readLines(svg)
+
+  expect_match(out, "fill='#0099FF'", fixed = TRUE)
+  expect_match(out, "stroke='#78C9FF'", fixed = TRUE)
+  expect_match(out, "url(#cpABCDEF)", fixed = TRUE)
+})
+
+test_that("svg_dark() takes its threshold as the line between chrome and data", {
+  tmp <- withr::local_tempdir()
+  svg <- fs::path(tmp, "a.svg")
+  writeLines("<svg><g fill='#F0FAFF'/></svg>", svg)
+
+  svg_dark(svg, threshold = 0.04)
+  expect_match(readLines(svg), "fill='#F0FAFF'", fixed = TRUE)
+
+  svg_dark(svg, threshold = 0.12)
+  expect_no_match(readLines(svg), "#F0FAFF", fixed = TRUE)
+})
+
+test_that("svg_dark() writes to a path of its own and keeps the source", {
+  tmp <- withr::local_tempdir()
+  light <- fs::path(tmp, "a-light.svg")
+  dark <- fs::path(tmp, "a-dark.svg")
+  writeLines("<svg><g fill='#FFFFFF'/></svg>", light)
+
+  svg_dark(light, dark)
+
+  expect_match(readLines(light), "#FFFFFF", fixed = TRUE)
+  expect_match(readLines(dark), "#101F29", fixed = TRUE)
+})
+
+test_that("svg_dark() takes the surface and the text as arguments", {
+  tmp <- withr::local_tempdir()
+  svg <- fs::path(tmp, "a.svg")
+  writeLines("<svg><g fill='#FFFFFF' stroke='#000000'/></svg>", svg)
+
+  svg_dark(svg, surface = "#000000", text = "#FFFFFF")
+
+  expect_match(readLines(svg), "fill='#000000' stroke='#FFFFFF'", fixed = TRUE)
+})
+
+test_that("svg_dark() rejects a malformed colour or threshold", {
+  tmp <- withr::local_tempdir()
+  svg <- fs::path(tmp, "a.svg")
+  writeLines("<svg/>", svg)
+
+  expect_error(svg_dark(svg, surface = "blue"), "`surface` must be", class = "rlang_error")
+  expect_error(svg_dark(svg, text = "#FFF"), "`text` must be", class = "rlang_error")
+  expect_error(svg_dark(svg, threshold = 2), "`threshold` must be", class = "rlang_error")
+})
+
+test_that(".diagram_dark() sets the palette at the start of the root style", {
+  svg <- '<svg class="pele" style="max-width:100%;--_bg:var(--pele-bg,#fff)"><g/></svg>'
+
+  out <- .diagram_dark(svg)
+
+  expect_match(out, '<svg class="pele" style="--pele-bg:#101F29;--pele-fg:#E8E8E8;', fixed = TRUE)
+  expect_match(out, ";max-width:100%;--_bg:", fixed = TRUE)
+  expect_match(out, "<g/></svg>", fixed = TRUE)
+})
+
+test_that(".diagram_dark() refuses a root without a style attribute", {
+  expect_error(.diagram_dark("<svg><g/></svg>"), "no `style`", class = "rlang_error")
+})
+
+test_that(".svg_size() reads points, pixels and bare numbers as pixels", {
+  tmp <- withr::local_tempdir()
+  svg <- fs::path(tmp, "a.svg")
+
+  writeLines("<svg width='504.00pt' height='72pt'>", svg)
+  expect_equal(.svg_size(svg), c(width = 672, height = 96))
+
+  writeLines("<svg width='10px' height='20'>", svg)
+  expect_equal(.svg_size(svg), c(width = 10, height = 20))
+
+  writeLines("<svg width='1cm' height='20'>", svg)
+  expect_error(.svg_size(svg), "Could not read", class = "rlang_error")
+})
+
+test_that("easy_out() rejects a non-boolean pair", {
+  expect_error(
+    easy_out(mtcars, pair = "yes", quiet = TRUE),
+    "`pair` must be",
+    class = "rlang_error"
+  )
+})
+
+test_that("easy_out() writes a plot as a light and a dark pair, and no bare file", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(p, filename = "fig_p", dir = tmp, pair = TRUE, quiet = TRUE)
+
+  expect_setequal(
+    fs::path_file(fs::dir_ls(fs::path(tmp, "fig-p"))),
+    c("fig-p-light.svg", "fig-p-light.png", "fig-p-dark.svg", "fig-p-dark.png")
+  )
+})
+
+test_that("easy_out() reads the pair from the easy_out.pair option", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  withr::local_options(easy_out.pair = TRUE)
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(p, filename = "fig_p", dir = tmp, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "fig-p", "fig-p-dark", ext = "svg")))
+})
+
+test_that("easy_out() mirrors the neutrals of the plot into the dark SVG", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(p, filename = "fig_p", dir = tmp, pair = TRUE, quiet = TRUE)
+
+  light <- paste(readLines(fs::path(tmp, "fig-p", "fig-p-light", ext = "svg")), collapse = "")
+  dark <- paste(readLines(fs::path(tmp, "fig-p", "fig-p-dark", ext = "svg")), collapse = "")
+
+  expect_match(light, "#FFFFFF", fixed = TRUE)
+  expect_no_match(dark, "#FFFFFF", fixed = TRUE)
+  expect_match(dark, "#101F29", fixed = TRUE)
+})
+
+test_that("easy_out() captures the dark PNG at the width of the light one", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  log <- new.env()
+  local_mocked_bindings(
+    webshot = \(url, file, vwidth, vheight, zoom, ...) {
+      log$shot <- list(
+        vwidth = vwidth,
+        vheight = vheight,
+        zoom = zoom,
+        page = readLines(url)
+      )
+      .shot_png(file)
+    }
+  )
+
+  easy_out(p, filename = "fig_p", dir = tmp, pair = TRUE, quiet = TRUE)
+
+  shot <- log$shot
+  light <- fs::path(tmp, "fig-p", "fig-p-light", ext = "png")
+  wide <- magick::image_info(magick::image_read(light))$width
+
+  expect_equal(shot$zoom, wide / 672)
+  expect_identical(c(shot$vwidth, shot$vheight), c(672, 416))
+  expect_match(paste(shot$page, collapse = ""), 'src="fig-p-dark.svg"', fixed = TRUE)
+})
+
+test_that("easy_out() writes a grob as a pair, the dark one cropped like the light one", {
+  tmp <- withr::local_tempdir()
+  g <- grid::grobTree(
+    grid::rectGrob(
+      x = 0.5,
+      y = 0.5,
+      width = 0.2,
+      height = 0.2,
+      gp = grid::gpar(fill = "white")
+    )
+  )
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(g, filename = "fig_g", dir = tmp, pair = TRUE, quiet = TRUE)
+
+  out <- fs::path(tmp, "fig-g")
+
+  expect_setequal(
+    fs::path_file(fs::dir_ls(out)),
+    c("fig-g-light.svg", "fig-g-light.png", "fig-g-dark.svg", "fig-g-dark.png")
+  )
+  expect_identical(
+    .svg_size(fs::path(out, "fig-g-light", ext = "svg")),
+    .svg_size(fs::path(out, "fig-g-dark", ext = "svg"))
+  )
+})
+
+test_that("easy_out() gives each element of a list its own pair", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(list(a = p, b = p), filename = "fig_l", dir = tmp, pair = TRUE, quiet = TRUE)
+
+  expect_setequal(
+    fs::path_file(fs::dir_ls(fs::path(tmp, "fig-l"))),
+    c(
+      "fig-l-a-light.svg",
+      "fig-l-a-light.png",
+      "fig-l-a-dark.svg",
+      "fig-l-a-dark.png",
+      "fig-l-b-light.svg",
+      "fig-l-b-light.png",
+      "fig-l-b-dark.svg",
+      "fig-l-b-dark.png"
+    )
+  )
+})
+
+test_that("easy_out() keeps the bare names for a figure when pair is off", {
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  easy_out(p, filename = "fig_p", dir = tmp, quiet = TRUE)
+
+  expect_setequal(
+    fs::path_file(fs::dir_ls(fs::path(tmp, "fig-p"))),
+    c("fig-p.svg", "fig-p.png")
+  )
+})
+
+test_that("easy_out() ignores pair for a table", {
+  tmp <- withr::local_tempdir()
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+  withr::local_options(easy_out.serve = FALSE)
+
+  easy_out(.make_gt_mtcars(), filename = "tbl", dir = tmp, pair = TRUE, quiet = TRUE)
+
+  expect_setequal(
+    fs::path_file(fs::dir_ls(fs::path(tmp, "tbl"))),
+    c("tbl.html", "tbl.png")
+  )
+})
+
+test_that("easy_out() writes the slide of a pair under the light name", {
+  skip_if_not_installed("rvg")
+
+  tmp <- withr::local_tempdir()
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(p, filename = "fig_p", dir = tmp, pair = TRUE, pptx = TRUE, quiet = TRUE)
+
+  expect_true(fs::file_exists(fs::path(tmp, "fig-p", "fig-p-light", ext = "pptx")))
+})
+
+test_that("easy_out() writes the dark twin of a diagram with the Pele palette", {
+  skip_if_not(.diagram_node_available())
+
+  tmp <- withr::local_tempdir()
+  d <- easy_diagram("erDiagram\n  A")
+
+  local_mocked_bindings(webshot = \(url, file, ...) .shot_png(file))
+
+  easy_out(d, dir = tmp, pair = TRUE, quiet = TRUE)
+
+  expect_setequal(
+    fs::path_file(fs::dir_ls(fs::path(tmp, "d"))),
+    c("d-light.svg", "d-light.png", "d-dark.svg", "d-dark.png")
+  )
+
+  light <- paste(readLines(fs::path(tmp, "d", "d-light", ext = "svg"), warn = FALSE), collapse = "")
+  dark <- paste(readLines(fs::path(tmp, "d", "d-dark", ext = "svg"), warn = FALSE), collapse = "")
+
+  expect_no_match(light, "--pele-muted:", fixed = TRUE)
+  expect_match(dark, "style=\"--pele-bg:#101F29;", fixed = TRUE)
+})

@@ -751,3 +751,127 @@ test_that("out_qmd() guards its path-forming arguments", {
     class = "rlang_error"
   )
 })
+
+test_that("out_qmd() reads a figure from its light file under pair", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("html")
+
+  fig_demo <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+  .make_out_files(
+    "output/fig-demo/fig-demo-light.svg",
+    "output/fig-demo/fig-demo-dark.svg"
+  )
+
+  expect_equal(
+    as.character(out_qmd(fig_demo, pair = TRUE)),
+    "output/fig-demo/fig-demo-light.svg"
+  )
+})
+
+test_that("out_qmd() reads the light PNG under pair for any other target", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("docx")
+
+  fig_demo <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+  .make_out_files(
+    "output/fig-demo/fig-demo-light.png",
+    "output/fig-demo/fig-demo-dark.svg"
+  )
+
+  expect_equal(
+    as.character(out_qmd(fig_demo, pair = TRUE)),
+    "output/fig-demo/fig-demo-light.png"
+  )
+})
+
+test_that("out_qmd() reads the pair from the easy_out.pair option", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  withr::local_options(easy_out.pair = TRUE)
+  local_pandoc_to("html")
+
+  fig_demo <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+  .make_out_files(
+    "output/fig-demo/fig-demo-light.svg",
+    "output/fig-demo/fig-demo-dark.svg"
+  )
+
+  expect_equal(
+    as.character(out_qmd(fig_demo)),
+    "output/fig-demo/fig-demo-light.svg"
+  )
+})
+
+test_that("out_qmd() aborts under pair when the dark SVG is missing", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("html")
+
+  fig_demo <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+  .make_out_files("output/fig-demo/fig-demo-light.svg")
+
+  expect_error(
+    out_qmd(fig_demo, pair = TRUE),
+    "no dark twin",
+    class = "rlang_error"
+  )
+})
+
+test_that("out_qmd() checks the dark twin of every panel of a list", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("html")
+
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+  fig_l <- list(a = p, b = p)
+  .make_out_files(
+    "output/fig-l/fig-l-a-light.svg",
+    "output/fig-l/fig-l-a-dark.svg",
+    "output/fig-l/fig-l-b-light.svg"
+  )
+
+  expect_error(out_qmd(fig_l, pair = TRUE), "fig-l-b-dark.svg", class = "rlang_error")
+
+  .make_out_files("output/fig-l/fig-l-b-dark.svg")
+
+  expect_equal(
+    as.character(out_qmd(fig_l, pair = TRUE)),
+    c("output/fig-l/fig-l-a-light.svg", "output/fig-l/fig-l-b-light.svg")
+  )
+})
+
+test_that("out_qmd() leaves a table alone under pair", {
+  skip_if_not_installed("knitr")
+
+  withr::local_dir(withr::local_tempdir())
+  local_pandoc_to("docx")
+
+  tbl_demo <- .make_gt_mtcars()
+  .make_out_files("output/tbl-demo/tbl-demo.png")
+
+  expect_equal(
+    as.character(out_qmd(tbl_demo, pair = TRUE)),
+    "output/tbl-demo/tbl-demo.png"
+  )
+})
+
+test_that("out_qmd() rejects a non-boolean pair", {
+  skip_if_not_installed("knitr")
+
+  fig_demo <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) +
+    ggplot2::geom_point()
+
+  expect_error(out_qmd(fig_demo, pair = "yes"), "`pair` must be", class = "rlang_error")
+})

@@ -119,6 +119,14 @@ Options and the variable classification cache now live in an internal package st
 
 ## New features
 
+- `easy_out(pair = TRUE)`, or `options(easy_out.pair = TRUE)`, writes a figure as a light and a dark pair, `<name>-light.{svg,png}` and `<name>-dark.{svg,png}`, and no bare `<name>.svg` or `<name>.png`; `out_qmd()` reads the same option and the same names.
+  It covers a plot, a grid graphic and a diagram, each element of a named list getting its own pair, and is ignored for every other class: a table follows the page's scheme through its own stylesheet, which an `<img>` cannot.
+  The dark SVG of a plot or grid graphic is the light one with its neutral colours mirrored: every `#RRGGBB` of saturation under 0.12 is interpolated, by luminance, between the dark page's text (`#E8E8E8`) and surface (`#101F29`), so white lands on the surface and black on the text, and chromatic colours stay as they are.
+  The dark SVG of a diagram carries no colour literal to mirror, so it sets the `--pele-*` custom properties at the start of its root `style`.
+  The dark PNG is a Chrome capture of the dark SVG at the pixel width of the light PNG, the light PNG of a plot or grid graphic staying drawn by ragg; Chrome becomes a need of `easy_out()` for figures when the option is on.
+  `out_qmd()` returns one `include_graphics()` on the `-light` file, and aborts when the `-dark.svg` twin of any panel is missing.
+  Design and open points: `eds-prise/.claude/DESIGN-FIGURES-DARK.md`.
+
 - `easy_diagram()` declares a Mermaid diagram that `easy_out()` writes as an SVG and a PNG and `out_qmd()` publishes like any other figure, as the SVG under HTML and the PNG under any other target.
   The diagram is rendered at export with [Pele](https://github.com/obsidianmd/pele), shipped in `inst/pele/`, through Node.js 20 or later: Node is required only when `easy_out()` writes a diagram, never to load the package or to build the object, and a missing or too old Node aborts the call before anything is written.
   The SVG carries the bundled font face and a palette taken from `set_opts()`, and the PNG is drawn by Chrome, like the PNG of a table.

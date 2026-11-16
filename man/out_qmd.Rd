@@ -10,7 +10,8 @@ out_qmd(
   dir = getOption("easy_out.dir", default = "output"),
   subdir = TRUE,
   suffix = "",
-  sep = "_"
+  sep = "_",
+  pair = getOption("easy_out.pair", default = FALSE)
 )
 }
 \arguments{
@@ -23,6 +24,12 @@ was given one. Defaults to \code{NULL}, which derives it from \code{x}.}
 \item{dir, subdir, suffix, sep}{The path-forming arguments of \code{\link[=easy_out]{easy_out()}},
 with the same defaults and the same meaning. Pass here whatever the
 writing call passed.}
+
+\item{pair}{Whether the figures were written as a light and a dark pair,
+with the same default as \code{\link[=easy_out]{easy_out()}}, \code{getOption("easy_out.pair", FALSE)}.
+When \code{TRUE}, a figure is read from its \code{-light} file, and the call aborts
+if the \code{-dark.svg} twin of any panel is missing. Tables and widgets are
+unaffected.}
 }
 \value{
 The object itself, or the artefact wrapped by

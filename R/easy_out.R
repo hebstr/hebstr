@@ -95,6 +95,20 @@
 #'   on a widget carrying its whole content, `pagination = FALSE` and no
 #'   filters. The other classes either write their PNG already or have no
 #'   image form, and ignore it.
+#' @param pair If `TRUE`, write a figure (a plot, a grid graphic or a diagram)
+#'   as a light and a dark pair, `<name>-light.{svg,png}` and
+#'   `<name>-dark.{svg,png}`, and no bare `<name>.svg` or `<name>.png`.
+#'   Defaults to `getOption("easy_out.pair", FALSE)`, which [out_qmd()] reads
+#'   too, so the writer and the reader agree on which files exist. The other
+#'   classes ignore it: a table follows the page's scheme through its own
+#'   stylesheet.
+#'
+#'   The dark SVG of a plot or grid graphic is the light one with its neutral
+#'   colours mirrored between the dark page's text and surface colours, and the
+#'   dark SVG of a diagram sets the
+#'   `--pele-*` custom properties its drawing reads. The dark PNG is captured
+#'   by Chrome from the dark SVG, at the resolution of the light PNG, which
+#'   makes a Chrome installation a need of `easy_out()` for figures too.
 #' @param quiet If `TRUE`, suppress auto-opening the output in a browser. Defaults
 #'   to `getOption("easy_out.quiet", FALSE)`.
 #' @param export If `FALSE`, return without writing anything. The arguments
@@ -171,6 +185,7 @@ easy_out <- \(
   crop = getOption("easy_out.crop", default = TRUE),
   pptx = getOption("easy_out.pptx", default = FALSE),
   png = getOption("easy_out.png", default = FALSE),
+  pair = getOption("easy_out.pair", default = FALSE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !.is_docx()),
   web_fonts = .web_fonts()
@@ -193,6 +208,10 @@ easy_out <- \(
 
   if (!is_bool(png)) {
     cli_abort("{.arg png} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (!is_bool(pair)) {
+    cli_abort("{.arg pair} must be {.code TRUE} or {.code FALSE}.")
   }
 
   .check_subdir(subdir)
@@ -306,6 +325,7 @@ easy_out <- \(
           crop = !!crop,
           pptx = !!pptx,
           png = !!png,
+          pair = !!pair,
           quiet = !!quiet,
           export = !!export,
           web_fonts = !!web_fonts
@@ -334,6 +354,9 @@ easy_out <- \(
 
   path <- fs::path(out_dir, .out_name(filename))
   to_png <- fs::path(path, ext = "png")
+
+  light <- if (pair) str_c(path, "-light") else path
+  dark <- str_c(path, "-dark")
 
   cli_output <- \(files, browse) {
     files_list <- map_chr(
@@ -443,7 +466,8 @@ easy_out <- \(
 
     ### PLOT -------------------------------------------------------------------------
   } else if (is_ggplot(x) || inherits(x, "ggmatrix")) {
-    to_svg <- fs::path(path, ext = "svg")
+    to_svg <- fs::path(light, ext = "svg")
+    to_png <- fs::path(light, ext = "png")
 
     if (is.null(width)) {
       width <- 7
@@ -482,18 +506,21 @@ easy_out <- \(
       dpi = px / height
     )
 
-    to_pptx <- .out_pptx(pptx, path, \() print(x), width, height)
+    to_dark <- .out_dark(pair, to_svg, to_png, dark)
+
+    to_pptx <- .out_pptx(pptx, light, \() print(x), width, height)
 
     cli_progress_done()
 
     cli_output(
-      files = c(to_svg, to_png, to_pptx),
+      files = c(to_svg, to_png, to_dark, to_pptx),
       browse = to_svg
     )
 
     ### GROB -------------------------------------------------------------------------
   } else if (grid::is.grob(x)) {
-    to_svg <- fs::path(path, ext = "svg")
+    to_svg <- fs::path(light, ext = "svg")
+    to_png <- fs::path(light, ext = "png")
 
     if (is.null(width)) {
       width <- 7
@@ -537,18 +564,21 @@ easy_out <- \(
       grid::grid.draw(x)
     }
 
-    to_pptx <- .out_pptx(pptx, path, draw, width, height)
+    to_dark <- .out_dark(pair, to_svg, to_png, dark)
+
+    to_pptx <- .out_pptx(pptx, light, draw, width, height)
 
     cli_progress_done()
 
     cli_output(
-      files = c(to_svg, to_png, to_pptx),
+      files = c(to_svg, to_png, to_dark, to_pptx),
       browse = to_svg
     )
 
     ### DIAGRAM -------------------------------------------------------------------------
   } else if (inherits(x, "hebstr_diagram")) {
-    to_svg <- fs::path(path, ext = "svg")
+    to_svg <- fs::path(light, ext = "svg")
+    to_png <- fs::path(light, ext = "png")
 
     cli_progress_step("Creating SVG file")
 
@@ -560,10 +590,27 @@ easy_out <- \(
 
     shot <- .diagram_png(to_svg, to_png, diagram$width, diagram$height)
 
+    to_dark <- NULL
+
+    if (pair) {
+      cli_progress_step("Creating dark SVG and PNG files")
+
+      dark_svg <- fs::path(dark, ext = "svg")
+
+      writeLines(.diagram_dark(diagram$svg), dark_svg, useBytes = TRUE)
+
+      .svg_preserve(dark_svg)
+
+      to_dark <- c(
+        dark_svg,
+        .diagram_png(dark_svg, fs::path(dark, ext = "png"), diagram$width, diagram$height)
+      )
+    }
+
     cli_progress_done()
 
     cli_output(
-      files = c(to_svg, shot),
+      files = c(to_svg, shot, to_dark),
       browse = to_svg
     )
 
@@ -1267,6 +1314,139 @@ browse_stop <- \() {
   }
 
   invisible(to_svg)
+}
+
+### DARK PAIR -------------------------------------------------------------------
+
+.dark_surface <- "#101F29"
+
+.dark_text <- "#E8E8E8"
+
+.dark_threshold <- 0.12
+
+.dark_pele <- c(
+  bg = .dark_surface,
+  fg = .dark_text,
+  muted = "#a8b0b5",
+  line = "#cfd6da",
+  surface = "#18303d",
+  `surface-alt` = "#1f3d4e",
+  border = "#7d8f99"
+)
+
+.hex_rgb <- \(hex, arg) {
+  if (!is_scalar_character(hex) || !str_detect(hex, "^#[0-9A-Fa-f]{6}$")) {
+    cli_abort("{.arg {arg}} must be a single {.code #RRGGBB} colour.")
+  }
+
+  drop(grDevices::col2rgb(hex))
+}
+
+svg_dark <- \(
+  to_svg,
+  to_dark = to_svg,
+  surface = .dark_surface,
+  text = .dark_text,
+  threshold = .dark_threshold
+) {
+  if (!is_scalar_double(threshold) || is.na(threshold) || threshold < 0 || threshold > 1) {
+    cli_abort("{.arg threshold} must be a single number between 0 and 1.")
+  }
+
+  bg <- .hex_rgb(surface, "surface")
+  fg <- .hex_rgb(text, "text")
+
+  mirror <- \(hex) {
+    rgb <- grDevices::col2rgb(hex)
+    top <- apply(rgb, 2, max)
+    low <- apply(rgb, 2, min)
+    sat <- ifelse(top == 0, 0, (top - low) / top)
+    lum <- colSums(rgb * c(0.299, 0.587, 0.114)) / 255
+    mixed <- fg + outer(bg - fg, lum)
+
+    ifelse(
+      sat < threshold,
+      grDevices::rgb(mixed[1, ], mixed[2, ], mixed[3, ], maxColorValue = 255),
+      hex
+    )
+  }
+
+  svg <- readLines(to_svg, warn = FALSE, encoding = "UTF-8")
+
+  svg <- str_replace_all(svg, "(?<![\\w&])#[0-9A-Fa-f]{6}(?![\\w-])", mirror)
+
+  writeLines(svg, to_dark, useBytes = TRUE)
+
+  invisible(to_dark)
+}
+
+.diagram_dark <- \(svg, palette = .dark_pele) {
+  vars <- str_c("--pele-", names(palette), ":", palette, ";", collapse = "")
+
+  root_end <- str_locate(svg, ">")[1, "end"]
+  root <- str_sub(svg, 1, root_end)
+
+  if (!str_detect(root, fixed('style="'))) {
+    cli_abort(
+      "The diagram SVG has no {.code style} attribute on its root to set the dark palette on."
+    )
+  }
+
+  str_c(
+    str_replace(root, fixed('style="'), str_c('style="', vars)),
+    str_sub(svg, root_end + 1)
+  )
+}
+
+.svg_size <- \(to_svg) {
+  root <- str_extract(
+    str_flatten(readLines(to_svg, n = 5L, warn = FALSE), " "),
+    "<svg[^>]*>"
+  )
+
+  extent <- \(attribute) {
+    found <- str_match(
+      root,
+      str_c("\\s", attribute, "\\s*=\\s*['\"]([0-9.]+)([a-z]*)['\"]")
+    )
+    unit <- if (nzchar(found[1, 3])) found[1, 3] else "px"
+    scale <- switch(unit, pt = 96 / 72, px = 1, `in` = 96, NA_real_)
+    as.numeric(found[1, 2]) * scale
+  }
+
+  size <- c(width = extent("width"), height = extent("height"))
+
+  if (anyNA(size)) {
+    cli_abort("Could not read a size in pixels off the root of {.path {to_svg}}.")
+  }
+
+  size
+}
+
+.out_dark <- \(pair, to_svg, to_png, stem) {
+  if (!pair) {
+    return(NULL)
+  }
+
+  cli_progress_step("Creating dark SVG and PNG files")
+
+  dark_svg <- fs::path(stem, ext = "svg")
+
+  svg_dark(to_svg, dark_svg)
+
+  size <- .svg_size(dark_svg)
+  zoom <- image_info(image_read(to_png))$width / size[["width"]]
+
+  c(
+    dark_svg,
+    .diagram_png(
+      dark_svg,
+      fs::path(stem, ext = "png"),
+      ceiling(size[["width"]]),
+      ceiling(size[["height"]]),
+      zoom
+    )
+  )
 }
 
 

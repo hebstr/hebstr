@@ -17,6 +17,7 @@ easy_out(
   crop = getOption("easy_out.crop", default = TRUE),
   pptx = getOption("easy_out.pptx", default = FALSE),
   png = getOption("easy_out.png", default = FALSE),
+  pair = getOption("easy_out.pair", default = FALSE),
   quiet = getOption("easy_out.quiet", default = FALSE),
   export = getOption("easy_out.export", default = !.is_docx()),
   web_fonts = .web_fonts()
@@ -120,6 +121,21 @@ and stops at the first page, so a hundred rows look complete. Ask for it
 on a widget carrying its whole content, \code{pagination = FALSE} and no
 filters. The other classes either write their PNG already or have no
 image form, and ignore it.}
+
+\item{pair}{If \code{TRUE}, write a figure (a plot, a grid graphic or a diagram)
+as a light and a dark pair, \verb{<name>-light.\{svg,png\}} and
+\verb{<name>-dark.\{svg,png\}}, and no bare \verb{<name>.svg} or \verb{<name>.png}.
+Defaults to \code{getOption("easy_out.pair", FALSE)}, which \code{\link[=out_qmd]{out_qmd()}} reads
+too, so the writer and the reader agree on which files exist. The other
+classes ignore it: a table follows the page's scheme through its own
+stylesheet.
+
+The dark SVG of a plot or grid graphic is the light one with its neutral
+colours mirrored between the dark page's text and surface colours, and the
+dark SVG of a diagram sets the
+\verb{--pele-*} custom properties its drawing reads. The dark PNG is captured
+by Chrome from the dark SVG, at the resolution of the light PNG, which
+makes a Chrome installation a need of \code{easy_out()} for figures too.}
 
 \item{quiet}{If \code{TRUE}, suppress auto-opening the output in a browser. Defaults
 to \code{getOption("easy_out.quiet", FALSE)}.}

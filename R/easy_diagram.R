@@ -138,7 +138,7 @@ easy_diagram <- \(text) {
 
 .diagram_dpi <- 96
 
-.diagram_png <- \(to_svg, to_png, width, height) {
+.diagram_png <- \(to_svg, to_png, width, height, zoom = .diagram_zoom) {
   page <- fs::file_temp(tmp_dir = fs::path_dir(to_svg), pattern = "diagram-", ext = "html")
   on.exit(unlink(page), add = TRUE)
 
@@ -160,7 +160,7 @@ easy_diagram <- \(text) {
     vwidth = width,
     vheight = height,
     selector = "img",
-    zoom = .diagram_zoom,
+    zoom = zoom,
     quiet = TRUE
   )
 
@@ -174,7 +174,7 @@ easy_diagram <- \(text) {
     return(NULL)
   }
 
-  png::writePNG(png::readPNG(to_png), to_png, dpi = .diagram_dpi * .diagram_zoom)
+  png::writePNG(png::readPNG(to_png), to_png, dpi = .diagram_dpi * zoom)
 
   to_png
 }
